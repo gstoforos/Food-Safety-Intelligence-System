@@ -53,6 +53,23 @@ attempted from the audit sandbox was refused at the proxy.
 | `ae` | MOCCAE | `/{en,ar}/media-center/news/<D>/<M>/<YYYY>/<slug>` |
 | `us` ‡ | USDA FSIS | `/recalls-alerts/<slug>` |
 | `ch` * | BLV | `/dam/blv/<lang>/dokumente/{oeffentliche-warnungen,rueckrufe}/…`, `/<lang>/newnsb/<id>` |
+| `cn` ¶ | SAMR | `/…/art/<YYYY>/art_<32 hex>.html` (sampling notices; one row per in-scope product) |
+| `th` § | Thai FDA (Food Division) | `/media.php?id=<n>&name=<BE-yy>_<mm>_<x>.pdf` (one product per PDF) |
+
+¶ `cn` added 2026-09-30 on the operator's ruling "China only confirmed,
+published officially": SAMR's own notices only, one row per product whose
+unqualified item is in the printed AFTS scope; indicator counts (菌落总数,
+大肠菌群, 霉菌数) and additive-only failures never. Verified item:
+`art_d2739a902a3249d9a8b9300b5e3230d0.html` (40 batches, 2026-05-22). A config
+was drafted and withdrawn earlier the same day pending exactly this ruling.
+
+§ `th` added 2026-09-30, verified against the consumer-alert board
+`food.fda.moph.go.th/consumer-alertnews/category/verification-results-2569`:
+`name=69_03_Salmon.pdf` (smoked salmon, Listeria monocytogenes),
+`name=69_08_01.pdf` (E. coli), `name=69_09_01.pdf` (undeclared sildenafil).
+`media.php` serves every file on the site, so the file-name shape is what
+makes a URL an alert. The `/news/<percent-encoded Thai>` shape recorded in
+the 2026-09-23 section below was never the alert board.
 
 `ch` (*) is not new — its regex was rewritten today. The three marked †
 were corrected within hours of being written, by the register rather than
@@ -79,9 +96,25 @@ at the authority gate, and reported success.
 | `mx` | `/cofepris/<section>/<slug>` | CMS alert PDFs (`/cms/uploads/attachment/file/<id>/Alerta_*.pdf`) | 2 of 2 refused |
 | `co` | `/biblioteca/preview/<id>` | Press-room articles (`/blog/<section>/<slug>`) | 1 of 1 refused |
 
-Hong Kong supplied its own counter-example: a Pending row scraped at 18:08
-UTC that day, "CFS orders recall of US raw oysters after excessive E.
-coli", on a board the config did not know existed.
+Hong Kong appeared to supply its own counter-example: a Pending row
+scraped at 18:08 UTC that day, "CFS orders recall of US raw oysters after
+excessive E. coli", on a board the config did not know existed.
+
+**That witness was contaminated — retracted 2026-09-24.** The row's URL was
+wrong. `whatsnew_fa/2026_627.html` is *"CFS finds trace amount of
+formaldehyde in prepackaged rice vermicelli sample"*; the oysters notice is
+`press/20260921_12610.html`, and `url_resurrect` corrected the row to it the
+next morning with confidence 1.00.
+
+The widening still stands on evidence that does not depend on that row: four
+rows already **published** in Recalls sit on the Food Alerts board
+(`2026_628` brie, `2026_614` apple juice, `2026_611` and `2026_610` infant
+formula), plus fourteen on the Food Incident Post board. A press-only
+pattern refuses all eighteen.
+
+The lesson is narrower than the fix, and worth keeping: **one register row
+is not evidence, because a row's URL can itself be wrong.** Four published
+rows on the same board are.
 
 **`ch` — Switzerland, live since long before today, and the worst of all
 of them.** Its regex was `(warnung|rappel|richiamo|news|aktuell)` — a word
@@ -164,22 +197,128 @@ them.
 
 ---
 
+## Why three regional finders were silent — it was the push, not the run
+
+Settled 2026-09-23 from the Actions logs, and it was none of the things I
+had guessed.
+
+They were **running the whole time, and working.** On 2026-09-23 alone:
+
+| | found | wrote |
+|---|---|---|
+| Sweden | 24 candidates | 10 rejected rows |
+| Norway | 42 candidates | **4 accepted** (Listeria ×3, STEC ×1), 2 Pending + 13 rejected |
+| Moldova | 10 candidates | 7 rejected rows |
+| Czechia | 13 candidates | 5 rejected rows |
+| Croatia, Iceland | | 1 and 2 rejected rows |
+
+**Zero of it reached the register.** Not one row dated 2026-09-23 from any
+of them.
+
+All three passed `safe_push.sh` a **region-named** directory:
+
+```
+scandinavian   docs/data/gap_finder_nordic/
+east_eu        docs/data/gap_finder_easteu/
+central_eu     docs/data/gap_finder_centraleu/
+```
+
+The pipeline never creates one. `CountryConfig.data_dir` is
+`f"docs/data/gap_finder_{code}"` — per **country**. And `git add` is
+atomic across pathspecs: one pathspec matching nothing aborts the whole
+command and stages **nothing**, `recalls.xlsx` included. `safe_push.sh`
+had `git add ... || true`, so the error vanished; the empty index then
+looked exactly like "nothing changed", the script printed *"No changes to
+commit."* and exited 0, and the workflow went **green**.
+
+`africa_gap_finder.yml` does the same multi-country job and listed its
+countries properly (`gap_finder_za/ gap_finder_ng/`). That is the entire
+difference between Africa committing daily and its three siblings
+committing nothing for months.
+
+Fixed in all three. `safe_push.sh` now skips a missing path with a warning
+instead of poisoning the add, and **fails loudly** when the xlsx is dirty
+while the index is empty — because "nothing staged" and "nothing changed"
+printing the same message is what made this invisible.
+`tests/test_safe_push_paths_exist.py` checks every workflow's push paths
+against the registry, and was verified to fail on the original bug.
+
+### And a second one underneath it: the model timeout
+
+`pipeline/gap_finder/llama_client.py` had `DEFAULT_TIMEOUT = 45`, with a
+comment arguing "a healthy Qwen-7B call finishes <30s". Not on this box —
+Qwen 2.5 7B on 2 vCPUs, CPU-only, where prompt evaluation alone takes
+minutes. (The file's own docstring still said 120; the two disagreed.)
+
+The extractor only calls the model for rows that classify **accepted**, so
+a timeout lands exclusively on real recalls, and the handler routes them
+to Rejected. On 2026-09-23:
+
+```
+za  "Deli Hummus range Product Safety Recall"
+    [classify] accept/pathogen tier=1 matched='listeria'
+    [LLM ERROR] Read timed out (timeout=45) -> Rejected
+cz  "Varování pro spotřebitele - salmonela ..."
+    [classify] accept/pathogen tier=1 matched='salmonella'
+    [LLM ERROR] Read timed out (timeout=45) -> Rejected
+```
+
+Each was that country's **only** accepted row that day. Norway, running at
+05:08 when the box was quieter, got four accepts through on identical
+code — the difference was load, not correctness.
+
+Raised to 300, matching the operator's own `LLAMA_TIMEOUT=300`. The
+dead-box case that the 45 was meant to address is already handled by the
+circuit breaker in `_post()`, which fails every later call instantly after
+the first failure.
+
+---
+
+## India (`in`) — added 2026-10-05 in news-authority mode
+
+Operator 2026-10-05: "build India same concept as Greece". The 2026-09-23
+research below still holds — FSSAI has no public per-recall page — so `in`
+runs exactly like Kenya and Egypt: `news_authority_mode=True`, record URL from
+a curated national-press whitelist (`india.py`), tier 1/2 only.
+
+What changed the decision: the daily global search of 2026-10-05 found FSSAI's
+recall of Everest cumin powder (batch E080668761, azoxystrobin and
+thiamethoxam above the limit), absent from all five sheets, and the register
+had never held a row from an Indian authority — the 12 India rows are all
+RASFF border rejections of Indian exports. A news-mode finder covers that;
+waiting for a register FSSAI does not publish covers nothing.
+
+Re-checked 2026-10-05:
+- `foscos.fssai.gov.in/food-recall`, `fssai.gov.in/advisories.php` and
+  `/cms/food-recall.php` render as JavaScript shells to an automated client.
+- The 2026 recall directions (Wonderland raisins 2026-07-30; Nilgiri Oil /
+  Aquagri; Everest cumin 2026-10-04) were found only as IANS/PTI press copy.
+- One earlier direction WAS published as a PDF:
+  `fssai.gov.in/upload/advisories/2024/06/<hash>Recall directions dt. 18-6-24.pdf`.
+  `authority_item_url_regex` accepts that shape, so an FSSAI document is
+  preferred over a news URL whenever one exists.
+- `pib.gov.in` was left out: a whole-government press bureau, the same reason
+  `gov.br` and `gob.mx` are kept out of the URL guard's escalation.
+
+Previous note (2026-09-23), kept for the record:
+> Found: `old.fssai.gov.in/Product_Recall.aspx` and
+> `foscos.fssai.gov.in/food-recall`. Both are **systems, not registers** —
+> the first is a legacy portal, the second the portal where a food business
+> *files* a recall. Neither publishes a public per-recall page.
+>
+> India appears to have no public recall register at all; recalls surface
+> through state Food Safety Commissioners and the press. **Candidate for
+> `news_authority_mode=True`**, which would need a curated outlet whitelist
+> doing real work, because Indian food-safety reporting is high-volume and
+> much of it is not a recall.
+>
+
+---
+
 ## Researched, no config written
 
 These were investigated on 2026-09-23 and **no per-recall page could be
 verified**. Each needs a different decision, not more of the same search.
-
-### India — FSSAI
-Found: `old.fssai.gov.in/Product_Recall.aspx` and
-`foscos.fssai.gov.in/food-recall`. Both are **systems, not registers** —
-the first is a legacy portal, the second the portal where a food business
-*files* a recall. Neither publishes a public per-recall page.
-
-India appears to have no public recall register at all; recalls surface
-through state Food Safety Commissioners and the press. **Candidate for
-`news_authority_mode=True`**, which would need a curated outlet whitelist
-doing real work, because Indian food-safety reporting is high-volume and
-much of it is not a recall.
 
 ### Malaysia — MOH / BKKM
 Found: `fsq.moh.gov.my/v6/xs/page.php?id=199`, a CMS with opaque numeric
@@ -229,15 +368,8 @@ about representation before it needs a config** — one row per listed
 product, with the list's publication date and URL, is probably right, but
 that is a modelling choice, not a regex.
 
-### Thailand — FDA Thailand
-Found: `fda.moph.go.th/news/<slug>` where the slug is **percent-encoded
-Thai**, and `safetyalert.fda.moph.go.th`. Plausibly workable, but no
-individual recall notice was verified, and a `[a-z0-9-]+` slug pattern
-would be wrong for percent-encoded Thai. **Closest to ready** of the
-countries in this section; needs one verified recall URL.
-
 ### Not yet researched
-`cn`, `pe`, `ec`, `uy`, `qa`, `in`'s state regulators.
+`pe`, `ec`, `uy`, `qa`, `in`'s state regulators.
 
 ---
 
