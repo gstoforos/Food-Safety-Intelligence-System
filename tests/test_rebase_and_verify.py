@@ -78,3 +78,22 @@ def test_a_removal_needs_the_word_the_shrink_guard_reads():
     assert needs_removal_word(2, "morning fix")
     assert not needs_removal_word(2, "remove-rows: morning fix")
     assert not needs_removal_word(0, "morning fix")
+
+
+def test_changed_files_keep_their_first_character():
+    """2026-10-05: the first modified file lost its first character (a
+    trimmed leading space) and was left out of the test run and the zip."""
+    from tools.rebase_and_verify import parse_porcelain_z
+    out = (" M pipeline/_pathogen_scope.py\0M  docs/data/recalls.xlsx\0"
+           "?? tests/test_x.py\0R  tools/new.py\0tools/old.py\0"
+           "?? pipeline/__pycache__/a.pyc\0")
+    assert parse_porcelain_z(out) == ["docs/data/recalls.xlsx", "pipeline/_pathogen_scope.py",
+                                      "tests/test_x.py", "tools/new.py"]
+
+
+def test_failed_ids_are_read_from_the_pytest_summary():
+    from tools.rebase_and_verify import failed_test_ids
+    out = ("x\nFAILED tests/a.py::test_one[Weekly_Rejected-RejectionReason] - AssertionError: 1 row\n"
+           "FAILED tests/b.py::test_two\nERROR tests/c.py - ImportError\n2 failed, 3 passed\n")
+    assert failed_test_ids(out) == ["tests/a.py::test_one[Weekly_Rejected-RejectionReason]",
+                                    "tests/b.py::test_two", "tests/c.py"]
