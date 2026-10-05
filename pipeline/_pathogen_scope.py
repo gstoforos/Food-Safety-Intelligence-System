@@ -768,6 +768,20 @@ _PET_FOOD_RE = _re.compile(
     r"|\balimento\s+para\s+(?:perros?|gatos?|mascotas?|animales?)"
     # Italian
     r"|\bcibo\s+per\s+(?:cani|gatti|animali)"
+    # ── AUDIT 2026-10-05 — "for cats" said the ordinary way. ─────────────
+    # RappelConso fiche 23687, Mama Kana "huile 10% de cbd pour chat et
+    # huile 5% de cbd pour chat", Reason "... non autorisé pour
+    # l'alimentation animale". The French branch above needs "aliment" or
+    # "nourriture" BEFORE "pour chat", which no CBD oil, treat or croquette
+    # label carries, so the row passed the Pending gate and was archived
+    # and re-ingested SIX times (Weekly_Rejected + Rejected, 2026-10-02..05).
+    # Measured on all four sheets 2026-10-05: these alternatives fire on the
+    # Mama Kana / CBD-for-dogs fiches only, and on no published row.
+    r"|\bpour\s+(?:les?\s+|l['’]\s*)?(?:chats?|chiens?|chatons?|chiots?|animaux(?:\s+de\s+compagnie)?)\b"
+    r"|\balimentation\s+animale\b|\baliments?\s+(?:pour|des)\s+animaux\b"
+    r"|\bpara\s+(?:perros?|gatos?|mascotas?)\b|\bper\s+(?:cani|gatti|animali)\b"
+    r"|\bfür\s+(?:hunde|katzen|haustiere|tiere)\b|\bvoor\s+(?:honden|katten|huisdieren)\b"
+    r"|\bdiervoeding\b|\bfuttermittel\b"
     # Trailing label seen in FDA scraped data
     r"|\bPET\s+FOOD\b",
     _re.IGNORECASE,
