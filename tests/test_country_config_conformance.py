@@ -259,8 +259,9 @@ def test_every_module_in_the_package_registers():
     pkg = ROOT / "pipeline" / "gap_finder" / "countries"
     mods = {p.stem for p in pkg.glob("*.py")
             if not p.stem.startswith("_") and p.stem != "base"}
-    # iceland.py registers as "is" — Python keyword, see base.py.
-    expected = {("is" if m == "iceland" else m) for m in mods}
+    # iceland.py registers as "is", india.py as "in" — Python keywords, see base.py.
+    keyword_modules = {"iceland": "is", "india": "in"}
+    expected = {keyword_modules.get(m, m) for m in mods}
     missing = sorted(expected - set(CODES))
     assert not missing, f"modules that do not register: {missing}"
 
@@ -337,11 +338,12 @@ def test_the_timezone_is_real_and_the_cron_offsets_match_it(code):
 @pytest.mark.parametrize("code", CODES)
 def test_news_authority_mode_is_off_where_a_real_notice_page_exists(code):
     """It relaxes the authority-pure guarantee. Only portal-less countries
-    qualify — Egypt, Kenya, Ghana today."""
+    qualify — Egypt, Kenya, and India (FSSAI, 2026-10-05: recalls only via
+    FoSCoS, a JavaScript system with no per-record URL, and press notes)."""
     cfg = get(code)
     if not cfg.news_authority_mode:
         return
-    assert code in {"eg", "ke", "eg"}, (
+    assert code in {"eg", "ke", "in"}, (
         f"{code} has news_authority_mode=True. That lets a NEWS url enter "
         f"Recalls. It is for regulators with no linkable per-recall page at "
         f"all — if {code} has one, set this False and name the page shape "
@@ -441,7 +443,6 @@ NOTES = (ROOT / "pipeline" / "gap_finder" / "countries" / "RESEARCH-NOTES.md")
 #: deliberately NOT given a config. If one of these gains a config, the
 #: notes must lose its section — hence the assertion below.
 RESEARCHED_NO_CONFIG = {
-    "in": "India — FSSAI",
     "my": "Malaysia — MOH / BKKM",
     "ma": "Morocco — ONSSA",
     "il": "Israel — Ministry of Health",

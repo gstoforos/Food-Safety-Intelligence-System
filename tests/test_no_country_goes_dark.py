@@ -123,6 +123,9 @@ NOT_YET_RUN = {
     # cn added 2026-09-30 on the operator ruling "China only confirmed,
     # published officially" (SAMR's own notices only).
     "cn": "2026-09-30",
+    # in added 2026-10-05 (operator: "build India same concept as Greece"),
+    # news-authority mode — FSSAI has no per-recall public page.
+    "in": "2026-10-05",
     # ph, id, vn and cl LEFT on 2026-09-26/27 — the next shard after br/kr/tw.
     # This test asked for them by name the moment their run logs appeared,
     # which is the mechanism working: the grace list is not a place to park a
