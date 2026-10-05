@@ -38,7 +38,9 @@ This script does the hand work, every time, in the same order:
        mailer summary).
   6. Sweeps every daily/weekly HTML for a removed URL still on the page.
   7. Runs the FULL suite on a fresh clone of the same main sha, with the
-     changes committed under --message. "remove-rows" is required in the
+     changes committed under --message. A test that fails ONLY with the
+     change refuses the run; a test that also fails on plain main is listed
+     as PRE-EXISTING ON MAIN in the report (not hidden, not blocking). "remove-rows" is required in the
      message when rows were removed (test_register_never_shrinks).
   8. Re-checks origin/main. If it moved during the run: refuses to zip.
   9. Writes 1-DATA-docs-base-<sha>-UPLOAD-NOW.zip and
@@ -154,6 +156,33 @@ def iso_week_file(d: str) -> str:
     return f"{y}-W{w:02d}.html"
 
 
+def parse_porcelain_z(out: str) -> List[str]:
+    """Paths from `git status --porcelain -z` (renames give the new path)."""
+    files, parts, i = [], out.split("\0"), 0
+    while i < len(parts):
+        entry = parts[i]
+        i += 1
+        if len(entry) < 4:
+            continue
+        code, path = entry[:2], entry[3:]
+        if code[0] in "RC":
+            i += 1                      # the next field is the ORIGINAL path
+        if not SKIP_RE.search(path):
+            files.append(path)
+    return sorted(files)
+
+
+def failed_test_ids(pytest_output: str) -> List[str]:
+    """Test ids from pytest's 'FAILED <id> - <message>' summary lines."""
+    ids = []
+    for line in pytest_output.splitlines():
+        if line.startswith(("FAILED ", "ERROR ")):
+            tid = line.split(" ", 1)[1].split(" - ", 1)[0].strip()
+            if tid and tid not in ids:
+                ids.append(tid)
+    return ids
+
+
 def needs_removal_word(n_removed: int, message: str) -> bool:
     """True when the message is missing the word the shrink guard needs."""
     return n_removed > 0 and not any(w in message.lower() for w in REMOVAL_WORDS)
@@ -202,6 +231,7 @@ class Run:
         self.log: List[str] = []
         self.main = ""
         self.touched: Set[str] = set()
+        self.preexisting: List[str] = []
 
     def say(self, line: str = "") -> None:
         print(line, flush=True)
@@ -384,21 +414,42 @@ class Run:
                 "commit", "-q", "-m", self.message], t)
             r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                                 "tests"], cwd=t, text=True, capture_output=True)
-            tail = "\n".join((r.stdout or "").strip().splitlines()[-6:])
-            if r.returncode != 0:
+            out = r.stdout or ""
+            tail = "\n".join(out.strip().splitlines()[-6:])
+            if r.returncode == 0:
+                return tail.splitlines()[-1]
+            failed = failed_test_ids(out)
+            if not failed:
                 raise Refused("full suite FAILED on a fresh clone of main + changes:\n" + tail)
-            return tail.splitlines()[-1]
+            # Which of these were already failing on main WITHOUT the change?
+            # (2026-10-05: main was red from bot data written overnight; a
+            # code-only fix must not be blocked by it, and must not hide it.)
+            b = Path(td) / "b"
+            sh(["git", "clone", "-q", "--shared", str(self.repo), str(b)], Path(td))
+            git(b, "checkout", "-q", "--detach", self.main)
+            rb = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                                 *failed], cwd=b, text=True, capture_output=True)
+            already = set(failed_test_ids(rb.stdout or ""))
+            new = [f for f in failed if f not in already]
+            if new:
+                raise Refused("full suite: these FAIL because of the change (they pass on main):\n  "
+                              + "\n  ".join(new) + "\n" + tail)
+            self.say("PRE-EXISTING ON MAIN — failing without this change too, NOT fixed by it:")
+            for f in failed:
+                self.say(f"  {f}")
+            self.preexisting = failed
+            return tail.splitlines()[-1] + f"  ({len(failed)} pre-existing on main)"
 
     def changed_files(self) -> List[str]:
-        out = git(self.repo, "status", "--porcelain", "--untracked-files=all")
-        files = []
-        for line in out.splitlines():
-            p = line[3:].strip()
-            if " -> " in p:
-                p = p.split(" -> ", 1)[1]
-            if not SKIP_RE.search(p):
-                files.append(p)
-        return sorted(files)
+        # -z: NUL-separated, never trimmed. The first version read
+        # `git status --porcelain` through sh(), whose .strip() ate the
+        # leading space of " M path" on the FIRST line, so line[3:] cut the
+        # first character off the first modified file — which then never
+        # reached the test clone or the zip (found 2026-10-05: the pet-food
+        # fix's own code file was dropped and its tests failed).
+        r = subprocess.run(["git", "status", "--porcelain", "-z", "--untracked-files=all"],
+                           cwd=self.repo, capture_output=True, text=True, check=True)
+        return parse_porcelain_z(r.stdout)
 
     # 9
     def write_zips(self, files: List[str]) -> List[Path]:
