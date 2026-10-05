@@ -124,7 +124,35 @@ def _classify_pathogen(text: str) -> str | None:
             return name
     return None
 
-def _classify_event(text: str) -> str:
+# OUTBREAK NEEDS PEOPLE (operator rule; 2026-10-05). An "Outbreak" tag
+# means confirmed human cases. The daily accuracy brief of 2026-10-05 flagged
+# Food Safety News "Czech testing finds Salmonella problem in poultry meat":
+# a retail-testing story whose title names no illness, tagged Outbreak
+# because the word appeared somewhere in the summary. So: an outbreak word in
+# the TITLE still decides; one that only appears in the summary decides only
+# when the summary also carries human-case evidence. A testing / sampling /
+# survey story with neither is "News".
+_HUMAN_CASES = re.compile(
+    r"\b(sickened|sick|ill(?:ness(?:es)?)?|cases?|patients?|hospitali[sz](?:ed|ation)s?|"
+    r"died|deaths?|fatal(?:ity|ities)?|infections?|infected)\b", re.I)
+
+
+def _classify_event(text: str, title: str | None = None) -> str:
+    """Event type for a news item.
+
+    `title` given: the outbreak rule reads the title, and the summary only
+    when it also names human cases (see _HUMAN_CASES). Without `title` the
+    old whole-text rule applies, for callers that only have one string.
+    """
+    if title is not None:
+        summary = text[len(title):] if text.startswith(title) else text
+        outbreak = EVENT_RULES[0][1]
+        if outbreak.search(title) or (outbreak.search(summary) and _HUMAN_CASES.search(summary)):
+            return "Outbreak"
+        for name, pat in EVENT_RULES[1:]:
+            if pat.search(text):
+                return name
+        return "News"
     for name, pat in EVENT_RULES:
         if pat.search(text):
             return name
@@ -258,7 +286,7 @@ def main() -> int:
             pathogen = _classify_pathogen(text)
             if not pathogen:
                 continue
-            event = _classify_event(text)
+            event = _classify_event(text, title)
             existing.append([
                 _fmt_utc(pub_dt), pathogen, event, source, title, link, retrieved
             ])
