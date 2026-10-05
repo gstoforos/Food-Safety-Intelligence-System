@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-05",
+  "Source": "RappelConso (FR)",
+  "Company": "SODIMAZ LECLERC",
+  "Brand": "—",
+  "Product": "Pork friton (pork cracklings), GTIN 3385570020915, lot 0209G244L1",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes, the agent responsible for listeriosis.",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23696/interne",
+  "Notes": "Added by the morning fix pass 2026-10-05 — missed by the pipeline. Every field was read on the regulator's own per-recall page, https://rappel.conso.gouv.fr/fiche-rappel/23696/interne, on 2026-10-05. Read there: fiche réf. 2026-10-0025; \"Date de publication\" 05/10/2026; \"Nom de la marque du produit\" = \"Sans marque\"; \"Noms des modèles ou références\" = \"Friton de porc\"; \"Motif du rappel\" = \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"; \"Risques encourus par le consommateur\" = \"Listeria monocytogenes (agent responsable de la listériose)\"; \"Nom de l'entreprise\" = \"SODIMAZ LECLERC\"; distributeur \"E.LECLERC BOUT DU PONT DE L'ARN\"; GTIN 3385570020915; lot 0209G244L1; commercialisation 24/09/2026-01/10/2026; zone \"France entière\". [original Reason (fr): \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"] [original product: Friton de porc] [original company: SODIMAZ LECLERC] [original brand: Sans marque — RappelConso's placeholder for NO brand, so Brand is left empty rather than carrying it as a firm name] Searched Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected by URL, by fiche number 23696, by company and by product before adding: present in none. Neighbouring fiches 23688-23691 (02/10/2026) are all already published, so this is a gap in the 24-hour window rather than a dead collector. [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-10-03",
   "Source": "SZPI (CZ)",
   "Company": "MASO WEST s.r.o.",
@@ -2302,6 +2318,22 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/global-mix-inc-recalls-niwali-tejocote-capsules-and-niwali-tejocote-pieces-because-possible-health",
   "Notes": "[manual 2026-09-30: September coverage audit (natural toxin; AFTS scope). Missing from every sheet.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-09-21",
+  "Source": "Mattilsynet",
+  "Company": "Baza AS og Handelshage AS",
+  "Brand": "Herbapol",
+  "Product": "Pokrazywa nettle-flavoured tea bags",
+  "Pathogen": "Pyrrolizidine alkaloids",
+  "Reason": "The product contains pyrrolizidine alkaloids (toxic plant substances) above the limit.",
+  "Class": "Recall",
+  "Country": "Norway",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.mattilsynet.no/tilbakekallinger/herbapol-pokrazywa-te-i-pose-med-smak-av-brennesle-tilbakekalles-pa-grunn-av-innhold-av-giftige-plantestoffer",
+  "Notes": "Discovered via news: mattilsynet.no [locality: Norway] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [language-repair 2026-10-05: Product read 'Pokrazywa' and Pathogen read 'Pyrrolizidine alkaloider exceeding limit' — 'alkaloider' is Norwegian, and 'Pokrazywa' is a brand product name that names no food. mattilsynet.no could NOT be read: WebFetch returned ROBOTS_DISALLOWED (robots.txt rate-limited, 429) on two attempts 2026-10-05, and routing around a blocked fetch is not permitted, so NOTHING was imported from the page. Both values come from the row's own text and its own authority URL slug, 'herbapol-pokrazywa-te-i-pose-med-smak-av-brennesle' — 'te i pose' is tea in bags, 'med smak av brennesle' is with nettle flavour. Pathogen takes the register's existing label for this hazard, already carried by the published GIS (PL) Herbapol nettle-tea row of 2026-09-10. No lot, weight, best-before or company detail was added, because none was read.] [original product: Pokrazywa] [original Pathogen (no): Pyrrolizidine alkaloider exceeding limit] [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/no/rules.py:  | Discovered via news: mattilsynet.no | No matching hazard category — defer to manual review.'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
   "Date": "2026-09-18",
@@ -30622,37 +30654,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
- },
- {
-  "Date": "2026-09-21",
-  "Source": "Mattilsynet",
-  "Company": "Baza AS og Handelshage AS",
-  "Brand": "Herbapol",
-  "Product": "Pokrazywa nettle-flavoured tea bags",
-  "Pathogen": "Pyrrolizidine alkaloids",
-  "Reason": "The product contains pyrrolizidine alkaloids (toxic plant substances) above the limit.",
-  "Class": "Recall",
-  "Country": "Norway",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://www.mattilsynet.no/tilbakekallinger/herbapol-pokrazywa-te-i-pose-med-smak-av-brennesle-tilbakekalles-pa-grunn-av-innhold-av-giftige-plantestoffer",
-  "Notes": "Discovered via news: mattilsynet.no [locality: Norway] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [language-repair 2026-10-05: Product read 'Pokrazywa' and Pathogen read 'Pyrrolizidine alkaloider exceeding limit' — 'alkaloider' is Norwegian, and 'Pokrazywa' is a brand product name that names no food. mattilsynet.no could NOT be read: WebFetch returned ROBOTS_DISALLOWED (robots.txt rate-limited, 429) on two attempts 2026-10-05, and routing around a blocked fetch is not permitted, so NOTHING was imported from the page. Both values come from the row's own text and its own authority URL slug, 'herbapol-pokrazywa-te-i-pose-med-smak-av-brennesle' — 'te i pose' is tea in bags, 'med smak av brennesle' is with nettle flavour. Pathogen takes the register's existing label for this hazard, already carried by the published GIS (PL) Herbapol nettle-tea row of 2026-09-10. No lot, weight, best-before or company detail was added, because none was read.] [original product: Pokrazywa] [original Pathogen (no): Pyrrolizidine alkaloider exceeding limit] [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/no/rules.py:  | Discovered via news: mattilsynet.no | No matching hazard category — defer to manual review.'; that defect is repaired and the row now passes every publish-gate rule]"
- },
- {
-  "Date": "2026-10-05",
-  "Source": "RappelConso (FR)",
-  "Company": "SODIMAZ LECLERC",
-  "Brand": "—",
-  "Product": "Pork friton (pork cracklings), GTIN 3385570020915, lot 0209G244L1",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Presence of Listeria monocytogenes, the agent responsible for listeriosis.",
-  "Class": "Recall",
-  "Country": "France",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23696/interne",
-  "Notes": "Added by the morning fix pass 2026-10-05 — missed by the pipeline. Every field was read on the regulator's own per-recall page, https://rappel.conso.gouv.fr/fiche-rappel/23696/interne, on 2026-10-05. Read there: fiche réf. 2026-10-0025; \"Date de publication\" 05/10/2026; \"Nom de la marque du produit\" = \"Sans marque\"; \"Noms des modèles ou références\" = \"Friton de porc\"; \"Motif du rappel\" = \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"; \"Risques encourus par le consommateur\" = \"Listeria monocytogenes (agent responsable de la listériose)\"; \"Nom de l'entreprise\" = \"SODIMAZ LECLERC\"; distributeur \"E.LECLERC BOUT DU PONT DE L'ARN\"; GTIN 3385570020915; lot 0209G244L1; commercialisation 24/09/2026-01/10/2026; zone \"France entière\". [original Reason (fr): \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"] [original product: Friton de porc] [original company: SODIMAZ LECLERC] [original brand: Sans marque — RappelConso's placeholder for NO brand, so Brand is left empty rather than carrying it as a firm name] Searched Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected by URL, by fiche number 23696, by company and by product before adding: present in none. Neighbouring fiches 23688-23691 (02/10/2026) are all already published, so this is a gap in the 24-hour window rather than a dead collector. [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
