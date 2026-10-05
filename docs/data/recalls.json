@@ -3,7 +3,7 @@
   "Date": "2026-10-05",
   "Source": "RappelConso (FR)",
   "Company": "SODIMAZ LECLERC",
-  "Brand": "—",
+  "Brand": "",
   "Product": "Pork friton (pork cracklings), GTIN 3385570020915, lot 0209G244L1",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes, the agent responsible for listeriosis.",
@@ -13,14 +13,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23696/interne",
-  "Notes": "Added by the morning fix pass 2026-10-05 — missed by the pipeline. Every field was read on the regulator's own per-recall page, https://rappel.conso.gouv.fr/fiche-rappel/23696/interne, on 2026-10-05. Read there: fiche réf. 2026-10-0025; \"Date de publication\" 05/10/2026; \"Nom de la marque du produit\" = \"Sans marque\"; \"Noms des modèles ou références\" = \"Friton de porc\"; \"Motif du rappel\" = \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"; \"Risques encourus par le consommateur\" = \"Listeria monocytogenes (agent responsable de la listériose)\"; \"Nom de l'entreprise\" = \"SODIMAZ LECLERC\"; distributeur \"E.LECLERC BOUT DU PONT DE L'ARN\"; GTIN 3385570020915; lot 0209G244L1; commercialisation 24/09/2026-01/10/2026; zone \"France entière\". [original Reason (fr): \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"] [original product: Friton de porc] [original company: SODIMAZ LECLERC] [original brand: Sans marque — RappelConso's placeholder for NO brand, so Brand is left empty rather than carrying it as a firm name] Searched Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected by URL, by fiche number 23696, by company and by product before adding: present in none. Neighbouring fiches 23688-23691 (02/10/2026) are all already published, so this is a gap in the 24-hour window rather than a dead collector. [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "Added by the morning fix pass 2026-10-05 — missed by the pipeline. Every field was read on the regulator's own per-recall page, https://rappel.conso.gouv.fr/fiche-rappel/23696/interne, on 2026-10-05. Read there: fiche réf. 2026-10-0025; \"Date de publication\" 05/10/2026; \"Nom de la marque du produit\" = \"Sans marque\"; \"Noms des modèles ou références\" = \"Friton de porc\"; \"Motif du rappel\" = \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"; \"Risques encourus par le consommateur\" = \"Listeria monocytogenes (agent responsable de la listériose)\"; \"Nom de l'entreprise\" = \"SODIMAZ LECLERC\"; distributeur \"E.LECLERC BOUT DU PONT DE L'ARN\"; GTIN 3385570020915; lot 0209G244L1; commercialisation 24/09/2026-01/10/2026; zone \"France entière\". [original Reason (fr): \"Présence de Listeria monocytogenes (agent responsable de la listériose)\"] [original product: Friton de porc] [original company: SODIMAZ LECLERC] [original brand: Sans marque — RappelConso's placeholder for NO brand, so Brand is left empty rather than carrying it as a firm name] Searched Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected by URL, by fiche number 23696, by company and by product before adding: present in none. Neighbouring fiches 23688-23691 (02/10/2026) are all already published, so this is a gap in the 24-hour window rather than a dead collector. [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule] [accuracy-brief fix 2026-10-05: Brand '—' cleared; the fiche reads 'Sans marque']"
  },
  {
   "Date": "2026-10-03",
   "Source": "SZPI (CZ)",
   "Company": "MASO WEST s.r.o.",
   "Brand": "MASO WEST",
-  "Product": "Italian salad",
+  "Product": "Vlašský salát (Czech potato salad), 140 g / 300 g / 1 kg, batch L862026265, best before 06.10.2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Recall",
@@ -29,7 +29,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.szpi.gov.cz/clanek/varovani-pro-spotrebitele-listerie-ve-vlasskem-salatu.aspx",
-  "Notes": "Discovered via news: szpi.gov.cz [locality: Klatovy, Czech Republic] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "Discovered via news: szpi.gov.cz [locality: Klatovy, Czech Republic] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [accuracy-brief fix 2026-10-05: [original product: Italian salad] — a literal rendering of 'Vlašský salát' that misdescribes the food; pack, batch and best-before read on the SZPI notice]"
  },
  {
   "Date": "2026-10-02",
@@ -356,16 +356,16 @@
   "Source": "FSAI (IE)",
   "Company": "Wrights of Marino",
   "Brand": "",
-  "Product": "Sliced Smoked Salmon",
+  "Product": "Sliced Smoked Salmon, 400 g, batch Yellow A38, use-by 06/10/2026",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "due to the presence of Listeria monocytogenes",
+  "Reason": "Batch recalled due to the presence of Listeria monocytogenes (FSAI alert notification 2026.61, Category 1 - For Action)",
   "Class": "Alert",
   "Country": "Ireland",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s",
-  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [url-agent 2026-10-04: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [date-normalised Pending: 'Friday, 02 October 2026' -> 2026-10-02] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+  "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [url-agent 2026-10-04: pending_enrichment→pending_gap_v2 URL confirmed] [review-agent 2026-10-04: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [date-normalised Pending: 'Friday, 02 October 2026' -> 2026-10-02] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [accuracy-brief fix 2026-10-05: Reason was a headline fragment; Reason and pack/batch read on FSAI alert 2026.61. The earlier 'claude-check please enrich' note is resolved]"
  },
  {
   "Date": "2026-10-01",

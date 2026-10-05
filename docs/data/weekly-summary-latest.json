@@ -10,16 +10,16 @@
   "week_end_display": "4 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-05T01:12:14.012095+00:00",
-  "prev_total": 67,
+  "generated_utc": "2026-10-05T10:12:45.468120+00:00",
+  "prev_total": 68,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
     "total": 75,
     "tier1": 50,
     "outbreaks": 1,
-    "delta": 8,
-    "delta_pct": 12
+    "delta": 7,
+    "delta_pct": 10
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
@@ -51,7 +51,7 @@
       "outbreak": false,
       "company": "MASO WEST s.r.o.",
       "brand": "MASO WEST",
-      "product": "Italian salad",
+      "product": "Vlašský salát (Czech potato salad), 140 g / 300 g / 1 kg, batch L862026265, best before 06.10.2026",
       "country": "Czechia",
       "source": "SZPI (CZ)",
       "url": "https://www.szpi.gov.cz/clanek/varovani-pro-spotrebitele-listerie-ve-vlasskem-salatu.aspx"
@@ -93,7 +93,7 @@
       "outbreak": false,
       "company": "Wrights of Marino",
       "brand": "",
-      "product": "Sliced Smoked Salmon",
+      "product": "Sliced Smoked Salmon, 400 g, batch Yellow A38, use-by 06/10/2026",
       "country": "Ireland",
       "source": "FSAI (IE)",
       "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s"
