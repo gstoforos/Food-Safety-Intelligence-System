@@ -172,6 +172,22 @@ def parse_porcelain_z(out: str) -> List[str]:
     return sorted(files)
 
 
+def deleted_in_porcelain_z(out: str) -> Set[str]:
+    """Paths `git status --porcelain -z` reports as deleted (X or Y == 'D')."""
+    gone, parts, i = set(), out.split("\0"), 0
+    while i < len(parts):
+        entry = parts[i]
+        i += 1
+        if len(entry) < 4:
+            continue
+        code, path = entry[:2], entry[3:]
+        if code[0] in "RC":
+            i += 1
+        if "D" in code:
+            gone.add(path)
+    return gone
+
+
 def failed_test_ids(pytest_output: str) -> List[str]:
     """Test ids from pytest's 'FAILED <id> - <message>' summary lines."""
     ids = []
@@ -447,9 +463,22 @@ class Run:
         # first character off the first modified file — which then never
         # reached the test clone or the zip (found 2026-10-05: the pet-food
         # fix's own code file was dropped and its tests failed).
+        # The morning pass of 2026-10-05 found the same bug independently and
+        # added the second guard below: whatever the parse yields must be a
+        # real file (or a deletion), or the run refuses instead of dropping.
         r = subprocess.run(["git", "status", "--porcelain", "-z", "--untracked-files=all"],
-                           cwd=self.repo, capture_output=True, text=True, check=True)
-        return parse_porcelain_z(r.stdout)
+                           cwd=self.repo, capture_output=True, text=True)
+        if r.returncode != 0:
+            raise Refused(f"`git status --porcelain` failed ({r.returncode}): "
+                          f"{(r.stderr or '')[-500:]}")
+        files = parse_porcelain_z(r.stdout or "")
+        deleted = deleted_in_porcelain_z(r.stdout or "")
+        missing = [f for f in files if f not in deleted and not (self.repo / f).exists()]
+        if missing:
+            raise Refused("the changed-file list names paths that do not exist — the "
+                          "porcelain parse is wrong and files would be dropped from the "
+                          f"zips in silence: {missing[:5]}")
+        return files
 
     # 9
     def write_zips(self, files: List[str]) -> List[Path]:
