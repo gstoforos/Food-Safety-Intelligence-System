@@ -97,3 +97,9 @@ def test_failed_ids_are_read_from_the_pytest_summary():
            "FAILED tests/b.py::test_two\nERROR tests/c.py - ImportError\n2 failed, 3 passed\n")
     assert failed_test_ids(out) == ["tests/a.py::test_one[Weekly_Rejected-RejectionReason]",
                                     "tests/b.py::test_two", "tests/c.py"]
+
+
+def test_a_deleted_file_is_not_mistaken_for_a_dropped_one():
+    from tools.rebase_and_verify import deleted_in_porcelain_z
+    out = " D docs/old.html\0 M docs/new.html\0D  tools/x.py\0"
+    assert deleted_in_porcelain_z(out) == {"docs/old.html", "tools/x.py"}

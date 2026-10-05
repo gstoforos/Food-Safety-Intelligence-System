@@ -175,18 +175,44 @@ def test_no_content_verdict_is_repairable(verdict):
     assert not any(d in verdict.lower() for d in _repairable()), verdict
 
 
-def test_every_repairable_defect_also_supersedes_its_archive_copy():
+def test_every_repairable_defect_also_supersedes_its_archive_copy(tmp_path):
     """merge_master lets a repaired row back in; promote_gate_passing then
-    marks the archived copy SUPERSEDED. Two lists — an entry in the first and
-    not the second leaves a recall both published and rejected (CFIA R.J.
-    King lobster, 2026-09-30)."""
-    src = (ROOT / "pipeline" / "promote_gate_passing.py").read_text("utf-8")
-    block = src[src.index("SUPERSEDE_IF = ("):]
-    block = block[:block.index('"out_of_scope_import_reinspection")') + 40]
-    sup = set(re.findall(r'"([^"]+)"', "\n".join(
-        l for l in block.splitlines() if not l.strip().startswith("#"))))
-    missing = [d for d in _repairable() if d not in sup]
-    assert not missing, missing
+    marks the archived copy SUPERSEDED. An entry in the first and not the
+    second leaves a recall both published and rejected (CFIA R.J. King
+    lobster, 2026-09-30).
+
+    2026-10-05: this compared the two lists as SOURCE TEXT, which broke the
+    moment promote_gate_passing replaced its three hand-listed
+    "<field> is empty" phrases with a regex over publish-gate rule 4's own
+    field list — a strictly WIDER rule that the string comparison read as
+    three deletions. The contract was never "the same literals appear in
+    both files"; it is "a row archived for a repairable defect gets
+    superseded once the recall is published". So ask the function.
+    """
+    import openpyxl
+    from pipeline.promote_gate_passing import supersede_every_published_url
+
+    url = "https://example.gov/recall/one"
+    missing = []
+    for defect in sorted(_repairable()):
+        wb = openpyxl.Workbook()
+        r = wb.active
+        r.title = "Recalls"
+        r.append(["Date", "Product", "URL"])
+        r.append(["2026-09-18", "A recall", url])
+        a = wb.create_sheet("Rejected")
+        a.append(["Date", "Product", "URL", "Notes", "Status", "RejectedBy",
+                  "RejectReason"])
+        a.append(["2026-09-20", "A recall", url, "", "rejected", "unknown",
+                  f"reviewer 2: {defect}"])
+        p = tmp_path / (re.sub(r"\W+", "_", defect) + ".xlsx")
+        wb.save(p)
+        if supersede_every_published_url(p) != 1:
+            missing.append(defect)
+    assert not missing, (
+        f"merge_master.REPAIRABLE_DEFECTS lets a row archived for {missing} "
+        f"back into Recalls, but promote_gate_passing does not retire the "
+        f"archive copy, so the recall ends up both published and rejected.")
 
 
 def test_a_reversed_policy_can_let_an_archived_row_back():
