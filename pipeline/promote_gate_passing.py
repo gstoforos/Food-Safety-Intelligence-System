@@ -67,10 +67,52 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
     notification. Those already say "Duplicate" in their reason and are left
     alone — marking them superseded would be true but redundant, and rewriting
     settled audit text for no gain is how audit text stops being trusted.
+
+    THREE DEFECTS MEASURED ON THE 2026-10-05 WORKBOOK
+    -------------------------------------------------
+    The morning sweep counted **36** silent shared URLs — 1 in
+    Weekly_Rejected, 35 in Rejected — eight days after this function was
+    written to prevent exactly that. Three separate causes, each measured:
+
+    1. **IT READ THE REASON COLUMN ONLY.** Of the 36, exactly **one**
+       matched on its reason column. The other 35 carry
+       ``RejectReason`` = blank and keep the actual verdict in **Notes**
+       ("REJECTED: Confirmer: row was at pending_gap_v2 … and Pathogen is
+       empty"). ``merge_master.load_rejected_urls`` learned this on
+       2026-09-01 and folds Notes in; this function never did. Folding
+       Notes in here resolves **27 of the 36**.
+
+    2. **THE FIELD LIST WAS A HAND-PICKED SUBSET.** Publish-gate rule 4
+       emits "<Field> is empty" for Company, Product, Class, Date, Source
+       and URL; SUPERSEDE_IF listed company, pathogen and reason only. An
+       FSAI Wrights of Marino row archived for "Date is empty" — the same
+       repairable field defect, one field over — matched nothing. The
+       subset is replaced by a regex over the gate's own field list.
+
+    3. **A ROW WITH NO VERDICT AT ALL WAS SKIPPED.** Eight gap-finder
+       rows carry no reason and no verdict in Notes either — only
+       "Discovered via news: <site>". An archive row that records no
+       reason for refusing a recall cannot outrank the published copy of
+       it; silence is not a verdict. Those are now stamped too, saying
+       exactly that.
+
+    WHAT IS STILL OPEN, DELIBERATELY. This runs over the whole register on
+    an --apply run (see main), not only over the URLs one promoter just
+    promoted, because the other publication paths — the hourly
+    Pending→Recalls merge, the three reviewers, the confirm agent — never
+    call it. Routing all of them through one publication choke point is a
+    change worth making on purpose, with its own review. It is not made
+    here.
     """
     import openpyxl
-    SUPERSEDE_IF = ("pathogen is empty", "company is empty", "reason is empty",
-                    "product is a fragment", "reason is only a reference number",
+    import re as _re
+    # Publish-gate rule 4's own field list. A row archived because one of
+    # these was missing was archived on a REPAIRABLE field defect, never on
+    # a judgement about the recall.
+    _FIELD_EMPTY = _re.compile(
+        r"\b(?:pathogen|company|product|brand|class|date|source|url|reason)"
+        r" is empty\b", _re.IGNORECASE)
+    SUPERSEDE_IF = ("product is a fragment", "reason is only a reference number",
                     "llm-extraction-failed", "no official regulator url",
                     "no matching hazard category",
                     # 2026-09-28: verified by reading both copies. Two USDA FSIS
@@ -115,12 +157,23 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
             continue
         ucol = head.index("URL") + 1
         rcol = head.index(reason_col) + 1
+        ncol = head.index("Notes") + 1 if "Notes" in head else None
         mcol = head.index(mark_col) + 1 if mark_col in head else None
         for r in range(2, ws.max_row + 1):
             if str(ws.cell(r, ucol).value or "").strip().lower() not in want:
                 continue
             prior = str(ws.cell(r, rcol).value or "")
-            low = prior.lower()
+            # ── DEFECT 1 (2026-10-05): THE VERDICT IS OFTEN IN Notes ─────
+            # 35 of 36 silent rows carry a blank reason column and keep the
+            # verdict in Notes. load_rejected_urls has folded Notes in since
+            # 2026-09-01; this function had not, so it could not see the
+            # verdicts it exists to act on. `prior` stays the reason column
+            # alone — that is what gets rewritten — and `low` becomes the
+            # text the CLASSIFICATION reads.
+            notes = (str(ws.cell(r, ncol).value or "")
+                     if ncol is not None else "")
+            verdict = (prior + " | " + notes).strip(" |")
+            low = verdict.lower()
             if "duplicate" in low:            # see the docstring — leave settled text
                 continue
             # ── THE REFUSAL CLASS (2026-09-30) ───────────────────────────
@@ -143,24 +196,80 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
             try:
                 from pipeline._url_guard import reject_refusal as _rr
                 _is_refusal = bool(_rr(
-                    {"URL": str(ws.cell(r, ucol).value or "")}, prior))
+                    {"URL": str(ws.cell(r, ucol).value or "")}, verdict))
             except Exception:                              # pragma: no cover
                 _is_refusal = False
-            if not _is_refusal and not any(d in low for d in SUPERSEDE_IF):
+            # DEFECT 2 (2026-10-05): any of publish-gate rule 4's fields.
+            _field_empty = bool(_FIELD_EMPTY.search(low))
+            # DEFECT 3 (2026-10-05): no recorded verdict anywhere. Eight
+            # gap-finder rows carry only "Discovered via news: <site>" —
+            # which says where the row came from, not why it was refused.
+            # Silence is not a verdict, and it cannot outrank a published
+            # recall.
+            _no_verdict = not any(
+                m in low for m in ("reject", "refus", "out of scope",
+                                   "out_of_scope", "not a food", "fabricat",
+                                   "allergen", "labelling", "labeling",
+                                   "upheld", "superseded"))
+            if not (_is_refusal or _field_empty or _no_verdict
+                    or any(d in low for d in SUPERSEDE_IF)):
                 continue
             if "SUPERSEDED" in prior:
                 continue
-            ws.cell(r, rcol).value = (
+            # Say WHERE the defect is recorded. On 35 of the 36 rows found
+            # on 2026-10-05 the reason column is blank and the verdict is
+            # in Notes, so "the defect named below" pointed at nothing.
+            _where = "below" if prior.strip() else "in this row's Notes"
+            _banner = (
                 "[SUPERSEDED " + dt.date.today().isoformat() + " — the defect named "
-                "below was repaired and this recall is PUBLISHED in Recalls. This row "
-                "is kept only as the audit trail of the original refusal; the Recalls "
-                "copy is what the register says.] " + prior)
+                + _where + " was repaired and this recall is PUBLISHED in Recalls. "
+                "This row is kept only as the audit trail of the original refusal; "
+                "the Recalls copy is what the register says.] "
+                if not _no_verdict or _is_refusal or _field_empty
+                else "[SUPERSEDED " + dt.date.today().isoformat() + " — this archive "
+                "row records NO reason for refusing the recall (its Notes say only "
+                "where it was discovered), and the same URL is PUBLISHED in Recalls. "
+                "Silence is not a verdict: the Recalls copy is what the register "
+                "says. Kept as the audit trail of the original refusal.] ")
+            ws.cell(r, rcol).value = _banner + prior
             if mcol:
                 ws.cell(r, mcol).value = "SUPERSEDED"
             stamped += 1
     if stamped:
         wb.save(xlsx_path)
     return stamped
+
+def supersede_every_published_url(xlsx_path) -> int:
+    """Run the sweep over the WHOLE register, not just this run's promotions.
+
+    2026-10-05. ``supersede_archived_copies`` only ever saw the URLs one
+    promoter run had just promoted. Every other publication path — the
+    hourly Pending→Recalls merge, reviewers 1/2/3, the confirm agent, the
+    gap finders — publishes without calling it, so an archive row left
+    contradicting the register by any of those paths stayed silent for
+    ever. Thirty-six had, by this morning.
+
+    Reading the published URLs out of Recalls makes the sweep independent
+    of who did the publishing. It is idempotent: a row already stamped
+    SUPERSEDED, or whose reason says "duplicate", is skipped.
+    """
+    import openpyxl
+    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    if "Recalls" not in wb.sheetnames:
+        return 0
+    rows = wb["Recalls"].values
+    try:
+        head = [str(h) for h in next(rows)]
+    except StopIteration:
+        return 0
+    if "URL" not in head:
+        return 0
+    i = head.index("URL")
+    published = {str(r[i]).strip() for r in rows
+                 if r and i < len(r) and r[i] and str(r[i]).strip()}
+    wb.close()
+    return supersede_archived_copies(xlsx_path, published)
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -198,6 +307,12 @@ def main() -> int:
         return 0
     if not ready:
         print("\nnothing to promote")
+        # The contradiction sweep is NOT conditional on a promotion: the
+        # rows it fixes were published by other paths (2026-10-05).
+        n_sup = supersede_every_published_url(args.xlsx)
+        if n_sup:
+            print(f"marked {n_sup} archive row(s) SUPERSEDED — a recall must "
+                  f"not be both published and rejected")
         print("ROWS_REMOVED=0")
         return 0
 
@@ -255,6 +370,20 @@ def main() -> int:
         print(f"label canonicalisation skipped: "
               f"{type(_ae).__name__}: {str(_ae)[:80]}")
 
+    # Same bypass, same remedy: the extractor's empty-identifier template
+    # ("(Recall ID: N/A)") is stripped at _write_sheet, which this writer
+    # does not go through. 2026-10-05.
+    try:
+        from pipeline.merge_master import strip_empty_identifier_template
+        _n_tpl = strip_empty_identifier_template(
+            new, where="promote_gate_passing")
+        if _n_tpl:
+            print(f"stripped the extractor's empty-identifier template from "
+                  f"{_n_tpl} Reason(s)")
+    except Exception as _te:                                 # noqa: BLE001
+        print(f"empty-identifier strip skipped: "
+              f"{type(_te).__name__}: {str(_te)[:80]}")
+
     promoted = {str(r.get("URL", "")).strip() for r in new}
     wb = openpyxl.load_workbook(args.xlsx)
     R, P = wb["Recalls"], wb["Pending"]
@@ -293,7 +422,9 @@ def main() -> int:
         # fail silently either — a stale email is what this whole block is for.
         print(f"WARNING: Weekly_Review capture failed ({exc!r}); the rows ARE "
               f"promoted but today's operator email will not mention them")
-    n_sup = supersede_archived_copies(args.xlsx, promoted)
+    # The whole register, not just `promoted` — see
+    # supersede_every_published_url for why (2026-10-05).
+    n_sup = supersede_every_published_url(args.xlsx)
     if n_sup:
         print(f"marked {n_sup} archive row(s) SUPERSEDED — a recall must not be "
               f"both published and rejected")

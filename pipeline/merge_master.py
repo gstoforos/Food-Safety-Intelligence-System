@@ -385,9 +385,29 @@ def _normalize_url_for_dedup(url: str) -> str:
             #   mfds.go.kr        /brd/m_61/view.do?seq=43210
             #   fda.moph.go.th    /media.php?name=09_2026_x.pdf
             # Host-scoped, so a "seq"/"name" anywhere else is still stripped.
+            # 2026-10-05: the SAME bug, third recurrence, on two more
+            # hosts — found by sweeping every URL in the workbook through
+            # this function and asking which distinct URLs collapse to one
+            # key (tests/test_a_query_param_recall_id_is_never_dropped.py
+            # now does that sweep on every run):
+            #   fsis.usda.gov  /recalls-alerts?search=015-2026
+            #                  /recalls-alerts?search=019-020-2026
+            #                  /recalls-alerts?search=PHA-08082026-01
+            #     — three DIFFERENT USDA FSIS recalls, all collapsing to
+            #       the bare listing endpoint "fsis.usda.gov/recalls-alerts".
+            #       "search" was a keeper for api.fda.gov only, so the host
+            #       that files recalls by number was not covered. All three
+            #       sit in Rejected today, so nothing published is wrong —
+            #       but the next FSIS recall arriving on that shape would
+            #       be dropped as a duplicate of one of them, in silence.
+            #   beaconbio.org  /en/report/?reportid=<uuid>&eventid=<uuid>
+            #     — every report is served off one path with the identity
+            #       entirely in the query string.
             if k in ("permalink", "id", "fiche", "ref", "recall_id",
                      "search_api_fulltext") or (
                     k == "search" and "api.fda.gov" in path) or (
+                    k == "search" and "fsis.usda.gov" in path) or (
+                    k in ("reportid", "eventid") and "beaconbio.org" in path) or (
                     k == "rcl" and "caa.go.jp" in path) or (
                     k == "seq" and "mfds.go.kr" in path) or (
                     k == "name" and "fda.moph.go.th" in path):
@@ -1871,8 +1891,54 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
                 #
                 # The whole reason is stored; every CALLER already slices
                 # for display (`_prior[:120]`, `_prior_reason[:90]`).
-                desc = f"{by or 'a reviewer'}: {why} | {notes}"
+                # ── THE VERDICT IN THE WRONG COLUMN. 2026-10-05. ────────
+                # The gap-finder fleet writes its refusal into the archive
+                # row's **Reason** column — the HAZARD field — and leaves
+                # RejectReason empty:
+                #
+                #   Rejected idx904  Mattilsynet, Herbapol Pokrazywa
+                #     Reason        "No matching hazard category — defer to
+                #                    manual review."
+                #     RejectReason  (empty)
+                #     RejectedBy    gap_finder/no/rules.py
+                #     Notes         "Discovered via news: mattilsynet.no"
+                #
+                # Measured on this workbook: 849 of 1,088 Rejected rows have
+                # an empty RejectReason, and 685 of those have no verdict in
+                # Notes either. The verdict is in Reason, which this function
+                # has never read.
+                #
+                # The cost is NOT cosmetic. "No matching hazard category" is
+                # the first entry in REPAIRABLE_DEFECTS, so that Mattilsynet
+                # row should be re-promotable the moment the defect is
+                # repaired. Instead the guard saw "gap_finder/no/rules.py: |
+                # Discovered via news: mattilsynet.no", found no repairable
+                # defect named, and blocked a verified Tier-2 pyrrolizidine-
+                # alkaloid recall FOR EVER — demonstrated live on 2026-10-05,
+                # when the row passed the full publish gate and was refused
+                # anyway.
+                #
+                # This is the third place today with one shape: a guard reads
+                # a fixed set of columns and the writers put the verdict
+                # somewhere else. load_rejected_urls learned it about Notes on
+                # 2026-09-01 ("the reason COLUMN is frequently
+                # uninformative"); supersede_archived_copies had the same
+                # blindness, found this morning. Reason is the third column.
+                #
+                # FOLDED IN LAST, so a real RejectReason still reads first and
+                # nothing about precedence changes. On a live row Reason holds
+                # the hazard, which names no defect and no scope verdict, so
+                # folding it in adds noise to the description and matches
+                # nothing — the substring searches above are all for defect
+                # and verdict phrases, never for hazards.
+                i_reason = hdr.index("Reason") if "Reason" in hdr else None
+                reason_col = (str(r[i_reason] or "")
+                              if i_reason is not None and i_reason < len(r)
+                              else "")
+                desc = f"{by or 'a reviewer'}: {why} | {notes} | {reason_col}"
                 desc = desc.strip().rstrip("|").rstrip(":").strip()
+                while desc.endswith("|"):
+                    desc = desc[:-1].strip()
                 # PRECEDENCE — AUDIT 2026-09-01.
                 # This used to be a plain setdefault: the permanent Rejected
                 # sheet is read first, so the FIRST verdict found won and any
@@ -2622,6 +2688,73 @@ def registry_source_label(raw: str, country: str) -> str:
     return hits[0] if len(hits) == 1 else ""
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# THE EXTRACTOR'S EMPTY-IDENTIFIER TEMPLATE — 2026-10-05
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# pipeline/extractor.py rule 10 tells the model:
+#
+#     Format: '<hazard description> (Recall ID <the number printed in the
+#     article>)'
+#
+# When the article prints no reference number the model fills the slot with
+# a placeholder instead of omitting it, and the register publishes the
+# placeholder verbatim to subscribers:
+#
+#     "…pyrrolizidine alkaloids (toxic plant substances) above the limit.
+#      (Recall ID: N/A)"
+#
+# tools/repair_2026_10_04.py stripped three such rows yesterday as a ONE-OFF
+# DATA FIX. Nothing was added to any writer or gate, so the defect simply
+# recurred: a Mattilsynet row scraped 2026-10-05T05:14Z arrived in Pending
+# carrying "(Recall ID: N/A)" again — and with a COLON, which yesterday's
+# one-off regex (`\(Recall ID (N/A|…)\)`) would not even have matched.
+#
+# Publish-gate rule 2 does not catch it. That rule fires only when the
+# ENTIRE Reason is a bare identifier ("Recall ID 842632"); here the hazard
+# IS described and the template is trailing noise, so the row passes the
+# gate and publishes.
+#
+# This is the permanent guard, at the writer, matching the colon and bracket
+# variants. It removes ONLY the parenthesised/bracketed placeholder — a real
+# reference number is never touched, which is the whole point of rule 10.
+_EMPTY_ID_TEMPLATE = re.compile(
+    r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*"
+    r"(?:n\s*/?\s*a|not\s+(?:provided|specified|available|printed|given)|"
+    r"unknown|none|null|tbd|-+|\?+)\s*[)\]]\s*",
+    re.IGNORECASE)
+
+
+def strip_empty_identifier_template(rows, *, where: str = "") -> int:
+    """Remove the extractor's empty-identifier placeholder from Reason.
+
+    In place, on a list of row dicts. Returns the number of rows changed.
+    Called from `_write_sheet` AND from the writers that bypass it, for the
+    same reason `apply_label_aliases` is.
+    """
+    n = 0
+    for row in rows:
+        raw = str(row.get("Reason") or "")
+        if not raw:
+            continue
+        cleaned = _EMPTY_ID_TEMPLATE.sub(" ", raw)
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip()
+        if cleaned and cleaned != raw.strip():
+            log.warning("empty-identifier template stripped from Reason%s: "
+                        "%r -> %r", f" [{where}]" if where else "",
+                        raw[-60:], cleaned[-60:])
+            row["Reason"] = cleaned
+            row["Notes"] = (
+                str(row.get("Notes") or "").strip() +
+                " [reason-cleanup: the extractor's own empty-identifier "
+                "template text was stripped from Reason — it names no "
+                "identifier and would have been published verbatim. Same "
+                "class of defect as the 'Recall ID 842632' prompt example "
+                "named in publish-gate rule 2]").strip()
+            n += 1
+    return n
+
+
 def apply_label_aliases(rows, *, where: str = "") -> int:
     """Canonicalise Country and Source on `rows`, in place. Returns changes.
 
@@ -2668,6 +2801,15 @@ def _write_sheet(wb: Workbook,
         c.font = Font(bold=True)
         if header_fill is not None:
             c.fill = header_fill
+    # ── THE EXTRACTOR'S EMPTY-IDENTIFIER TEMPLATE (2026-10-05) ───────────
+    # See strip_empty_identifier_template above. Runs first so no later
+    # guard has to reason about "(Recall ID: N/A)" trailing a hazard.
+    try:
+        strip_empty_identifier_template(rows, where=sheet_name)
+    except Exception as exc:                                 # noqa: BLE001
+        log.warning("empty-identifier strip skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
+
     # ── A FAMILY LABEL IS NOT THE FINAL ANSWER (audit 2026-09-29) ─────────
     # Runs BEFORE the Tier-1 guard below, because the tier follows from the
     # organism and a family label and its specific member do not share one.
