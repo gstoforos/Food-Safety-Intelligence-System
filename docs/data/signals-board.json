@@ -6,7 +6,7 @@
   "week_end": "2026-10-04",
   "corpus_week_total": 76,
   "strata_tested": 12,
-  "strata_suppressed_sparse": 547,
+  "strata_suppressed_sparse": 548,
   "candidates": 3,
   "fdr_m": 12,
   "after_fdr": 3,
@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-10-05T01:26:29+00:00",
+  "generated_utc": "2026-10-05T15:27:07+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -511,7 +511,7 @@
     8,
     12
    ],
-   "c1": -0.21,
+   "c1": -0.27,
    "c2": -0.27,
    "c3": 0.44,
    "share_observed": 0.0921,
@@ -530,7 +530,7 @@
     8,
     12,
     11,
-    3,
+    4,
     7
    ],
    "status": "normal",
@@ -3794,7 +3794,7 @@
    "week": "2026-09-21/2026-09-27",
    "week_start": "2026-09-21",
    "week_end": "2026-09-27",
-   "corpus_total": 68,
+   "corpus_total": 69,
    "alarms": []
   },
   {
@@ -3995,7 +3995,7 @@
    },
    {
     "week": "2026-09-21/2026-09-27",
-    "total": 68
+    "total": 69
    },
    {
     "week": "2026-09-28/2026-10-04",
