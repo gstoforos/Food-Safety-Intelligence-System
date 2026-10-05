@@ -1,10 +1,10 @@
 {
  "meta": {
-  "week": "2026-09-21/2026-09-27",
-  "week_start": "2026-09-21",
-  "week_end": "2026-09-27",
-  "corpus_week_total": 52,
-  "generated_utc": "2026-09-28T02:25:32+00:00",
+  "week": "2026-09-28/2026-10-04",
+  "week_start": "2026-09-28",
+  "week_end": "2026-10-04",
+  "corpus_week_total": 76,
+  "generated_utc": "2026-10-05T02:26:41+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -17,9 +17,40 @@
  },
  "novelty": [
   {
-   "pathogen": "Physical/foreign-body contamination",
-   "stratum_key": "global::Physical/foreign-body contamination",
-   "observed": 2,
+   "pathogen": "Foreign body",
+   "stratum_key": "global::Foreign body",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 1,
+   "severity": "tier-1",
+   "records": [
+    {
+     "date": "2026-10-02",
+     "source": "Ministero della Salute (IT)",
+     "company": "Franchi Salumi Srl",
+     "product": "Sweet salamella (fresh pork sausage), whole, vacuum-packed",
+     "country": "Italy",
+     "outbreak": false,
+     "tier": "1"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Marine biotoxin",
+   "stratum_key": "global::Marine biotoxin",
+   "observed": 1,
    "baseline": [
     0,
     0,
@@ -31,26 +62,119 @@
    ],
    "first_appearance_ever": false,
    "outbreak_records": 0,
+   "tier1_records": 1,
+   "severity": "tier-1",
+   "records": [
+    {
+     "date": "2026-09-30",
+     "source": "CAA (JP)",
+     "company": "Kintetsu Department Store, Kusatsu",
+     "product": "Kamaage shirasu (boiled whitebait)",
+     "country": "Japan",
+     "outbreak": false,
+     "tier": "1"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Delta-9-THC (above acute reference dose)",
+   "stratum_key": "global::Delta-9-THC (above acute reference dose)",
+   "observed": 2,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
    "tier1_records": 0,
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-09-25",
+     "date": "2026-09-30",
      "source": "RappelConso (FR)",
-     "company": "Yoleau",
-     "product": "spritz sans alcool fleur de sureau canette 25cl; spritz sans alcool orange amère canette 25cl",
+     "company": "HALFTERMEYER YVES Les Planteurs Alsaciens",
+     "product": "Hemp oil 15% CBD broad spectrum - THC < 0.057%, 10 ml — all lots",
      "country": "France",
      "outbreak": false,
      "tier": "3"
     },
     {
-     "date": "2026-09-22",
+     "date": "2026-09-30",
      "source": "RappelConso (FR)",
-     "company": "Chateau Bellevue",
-     "product": "cuisse de canard a l orange 380gr; cuisse de caanrd a l orange 765gr",
+     "company": "HALFTERMEYER YVES Les Planteurs Alsaciens",
+     "product": "Hemp oil 5% CBD broad spectrum - THC < 0.057%, 10 ml — LAB 13727",
      "country": "France",
      "outbreak": false,
      "tier": "3"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Bisphenol A (chemical contaminant)",
+   "stratum_key": "global::Bisphenol A (chemical contaminant)",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-09-30",
+     "source": "RappelConso (FR)",
+     "company": "Commerces distributeurs",
+     "product": "Sliced bamboo shoots (best before 28/09/2028) / strips (best before 29/09/2028), canned",
+     "country": "France",
+     "outbreak": false,
+     "tier": "3"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Foreign material (mold-like matter)",
+   "stratum_key": "global::Foreign material (mold-like matter)",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-09-29",
+     "source": "CAA (JP)",
+     "company": "Oki Seian",
+     "product": "Wajima local-sake jelly",
+     "country": "Japan",
+     "outbreak": false,
+     "tier": "2"
     }
    ],
    "testable": false,
@@ -69,16 +193,16 @@
     0,
     0
    ],
-   "first_appearance_ever": true,
+   "first_appearance_ever": false,
    "outbreak_records": 0,
    "tier1_records": 0,
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-09-26",
+     "date": "2026-10-01",
      "source": "FDA",
-     "company": "G. L. Mezzetta Inc.",
-     "product": "Greek peppers/ Golden Greek Peperoncini, Medium Heat",
+     "company": "WinCo Foods LLC",
+     "product": "Salsa Bean Dip Tray Express, 54 oz (UPC 2-67173) and Salsa Bean Dip Tray, 16-inch catering tray, 104",
      "country": "United States",
      "outbreak": false,
      "tier": "3"
@@ -106,11 +230,11 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-09-25",
-     "source": "USDA FSIS",
-     "company": "Fontanini Foods, LLC",
-     "product": "10-lb. cardboard box cases containing “Fontanini PORK SAUSAGE LINKS” with “ITEM 393” printed on the ",
-     "country": "United States",
+     "date": "2026-10-01",
+     "source": "RappelConso (FR)",
+     "company": "Hellofresh",
+     "product": "Jasmine rice (150 g and 225 g)",
+     "country": "France",
      "outbreak": false,
      "tier": "3"
     }
@@ -119,8 +243,8 @@
    "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
   },
   {
-   "pathogen": "Lead (heavy metal)",
-   "stratum_key": "global::Lead (heavy metal)",
+   "pathogen": "Mineral oil aromatic hydrocarbons (MOAH)",
+   "stratum_key": "global::Mineral oil aromatic hydrocarbons (MOAH)",
    "observed": 1,
    "baseline": [
     0,
@@ -137,11 +261,42 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-09-24",
-     "source": "FDA",
-     "company": "Galil Importing Corp",
-     "product": "Ground cinnamon",
-     "country": "United States",
+     "date": "2026-09-30",
+     "source": "RappelConso (FR)",
+     "company": "Van Houten",
+     "product": "Unsweetened cocoa powder 255g",
+     "country": "France",
+     "outbreak": false,
+     "tier": "3"
+    }
+   ],
+   "testable": false,
+   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
+  },
+  {
+   "pathogen": "Pesticide residues (above MRL)",
+   "stratum_key": "global::Pesticide residues (above MRL)",
+   "observed": 1,
+   "baseline": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "first_appearance_ever": true,
+   "outbreak_records": 0,
+   "tier1_records": 0,
+   "severity": "no severity flag",
+   "records": [
+    {
+     "date": "2026-09-30",
+     "source": "AGES (AT)",
+     "company": "Green Global Handels FlexCo",
+     "product": "Mangoes from Egypt (loose goods)",
+     "country": "Austria",
      "outbreak": false,
      "tier": "3"
     }
@@ -151,24 +306,20 @@
   }
  ],
  "outbreak_channel": {
-  "observed": 0,
+  "observed": 1,
   "baseline": [
-   2,
    0,
    1,
    0,
    1,
-   2,
-   4
+   4,
+   4,
+   2
   ],
-  "baseline_mean": 1.43,
-  "poisson_p_upper": 1.0,
+  "baseline_mean": 1.71,
+  "poisson_p_upper": 0.819908,
   "note": "exact Poisson upper tail vs the guarded 7-week mean; small counts — read the tail, do not threshold it",
   "series_12w": [
-   {
-    "week": "2026-07-06/2026-07-12",
-    "n": 1
-   },
    {
     "week": "2026-07-13/2026-07-19",
     "n": 1
@@ -195,7 +346,7 @@
    },
    {
     "week": "2026-08-24/2026-08-30",
-    "n": 2
+    "n": 4
    },
    {
     "week": "2026-08-31/2026-09-06",
@@ -203,7 +354,7 @@
    },
    {
     "week": "2026-09-07/2026-09-13",
-    "n": 1
+    "n": 2
    },
    {
     "week": "2026-09-14/2026-09-20",
@@ -211,208 +362,184 @@
    },
    {
     "week": "2026-09-21/2026-09-27",
-    "n": 0
+    "n": 1
+   },
+   {
+    "week": "2026-09-28/2026-10-04",
+    "n": 1
    }
   ],
-  "records": []
+  "records": [
+   {
+    "date": "2026-09-29",
+    "source": "FDA",
+    "pathogen": "Shiga toxin-producing E. coli (STEC)",
+    "company": "Sierra Nevada Cheese Company",
+    "country": "United States"
+   }
+  ]
  },
  "news": {
-  "n_headlines": 36,
+  "n_headlines": 33,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
-  "baseline_weeks_available": 4,
+  "baseline_weeks_available": 5,
   "pathogens": [
    {
     "pathogen": "Salmonella",
-    "headlines": 5,
+    "headlines": 7,
     "burst": true,
-    "baseline_weeks": 4,
-    "baseline_mean": 11.75,
+    "baseline_weeks": 5,
+    "baseline_mean": 10.4,
     "samples": [
-     "Evergreen Fresh Broccoli Sprouts Salmonella Outbreak Grows",
-     "Woods Hill Table Salmonella Outbreak Sickens 10 in Massachusetts",
-     "UK patient count in Salmonella outbreak passes 600",
-     "Expired eggs used in meal linked to Salmonella outbreak",
-     "Salmonella outbreak traced to sprouts spreads to 2 more states"
+     "Sprouting seeds recalled because of potential contamination with Salmonella, E. coli",
+     "Salmonella Jalapeño Outbreak Ends With 488 Sick in 34 States",
+     "Salmonella outbreak traced to jalapeño has ended",
+     "CDC declares end to Salmonella outbreak traced to backyard flocks",
+     "Italian reports cover Cyclospora and Salmonella cases"
     ]
    },
    {
-    "pathogen": "Mycotoxin (unspecified)",
-    "headlines": 4,
+    "pathogen": "Listeria monocytogenes",
+    "headlines": 6,
     "burst": true,
-    "baseline_weeks": 4,
-    "baseline_mean": 1.0,
+    "baseline_weeks": 5,
+    "baseline_mean": 4.2,
     "samples": [
-     "Wholesome Pantry Apple Sauce Recalled For Elevated Patulin",
-     "Analysis of EU RASFF Data Finds Aflatoxins, Imported Foods Lead Mycotoxin-Related Notifications",
-     "Finland assesses safety of plant-based dairy products",
-     "Organic applesauce recalled because of elevated levels of patulin"
-    ]
-   },
-   {
-    "pathogen": "Hepatitis A",
-    "headlines": 2,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.25,
-    "samples": [
-     "Black Clams Hepatitis A Outbreak Sickens 37 With 30 Hospitalized",
-     "Hepatitis A outbreak traced to clams continues"
-    ]
-   },
-   {
-    "pathogen": "Patulin",
-    "headlines": 2,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.0,
-    "samples": [
-     "Wholesome Pantry Apple Sauce Recalled For Elevated Patulin",
-     "Organic applesauce recalled because of elevated levels of patulin"
+     "Starfish Seafood Cold Smoked Trio Recalled For Possible Listeria",
+     "Big Brook Farm Raw Milk May Have Listeria Contamination",
+     "Bettergoods Lemon Alfredo Fettuccine Recall For Listeria Expanded",
+     "New Listeria outbreak under investigation",
+     "New York farm barred from selling raw milk because of positive test for Listeria"
     ]
    },
    {
     "pathogen": "Cyclospora",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 4.5,
+    "headlines": 4,
+    "burst": true,
+    "baseline_weeks": 5,
+    "baseline_mean": 3.8,
     "samples": [
-     "Congress Wants Answers on USDA Ending Cyclospora Research"
+     "FDA Closes Taylor Farms Lettuce Investigation, Announces Action Plan to Prevent Future Cyclospora Outbreaks",
+     "Italian reports cover Cyclospora and Salmonella cases",
+     "FDA found Cyclospora at Taylor Farms lettuce operation",
+     "Publisher’s Platform: Put Me Out of the Lettuce Business. Please."
     ]
    },
    {
-    "pathogen": "Coliform / total bacterial count",
+    "pathogen": "Possible incomplete pasteurization (process deviation)",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 1.25,
+    "baseline_weeks": 5,
+    "baseline_mean": 1.0,
     "samples": [
-     "UK patient count in Salmonella outbreak passes 600"
-    ]
-   },
-   {
-    "pathogen": "Campylobacter",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 1.25,
-    "samples": [
-     "Study findings challenge Campylobacter coli knowledge"
-    ]
-   },
-   {
-    "pathogen": "Foreign material (hard black fragments)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.0,
-    "samples": [
-     "Black Clams Hepatitis A Outbreak Sickens 37 With 30 Hospitalized"
+     "Starfish Seafood Cold Smoked Trio Recalled For Possible Listeria"
     ]
    },
    {
     "pathogen": "Norovirus",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.5,
+    "baseline_weeks": 5,
+    "baseline_mean": 0.6,
     "samples": [
-     "Source of Belgian norovirus outbreak remains unknown"
+     "Summerhill Market Raspberries and Products Recalled For Norovirus"
     ]
    },
    {
-    "pathogen": "Listeria monocytogenes",
+    "pathogen": "Rodenticide (rat poison)",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 5.0,
+    "baseline_weeks": 5,
+    "baseline_mean": 0.2,
     "samples": [
-     "Swedish analysis reveals scale of unreported foodborne infections"
+     "Dozens of food poisoning cases reported among wedding guests"
     ]
    },
    {
-    "pathogen": "Aflatoxin",
+    "pathogen": "Shiga toxin-producing E. coli (STEC)",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.25,
+    "baseline_weeks": 5,
+    "baseline_mean": 0.2,
     "samples": [
-     "Analysis of EU RASFF Data Finds Aflatoxins, Imported Foods Lead Mycotoxin-Related Notifications"
+     "Berry recall expanded for Walmart, Trader Joe's brands"
     ]
    },
    {
-    "pathogen": "Undeclared pharmacological ingredient (yohimbine)",
+    "pathogen": "Uninspected product (hazard not assessed)",
     "headlines": 1,
     "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.75,
-    "samples": [
-     "Ravioli recalled because of undeclared lobster"
-    ]
-   },
-   {
-    "pathogen": "Foreign material (hard plastic and metal)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
+    "baseline_weeks": 5,
     "baseline_mean": 0.0,
     "samples": [
-     "Frozen sausage recalled after complaints of plastic in product"
-    ]
-   },
-   {
-    "pathogen": "Foreign material (plastic pieces)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.0,
-    "samples": [
-     "Frozen sausage recalled after complaints of plastic in product"
-    ]
-   },
-   {
-    "pathogen": "Foreign material (plastic)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 4,
-    "baseline_mean": 0.0,
-    "samples": [
-     "Frozen sausage recalled after complaints of plastic in product"
+     "Chips recalled because they were made in Colombia"
     ]
    }
   ],
   "news_only": [
    {
-    "pathogen": "Mycotoxin (unspecified)",
+    "pathogen": "Cyclospora",
     "headlines": 4,
     "register_records_this_week": 0,
     "samples": [
-     "Wholesome Pantry Apple Sauce Recalled For Elevated Patulin",
-     "Analysis of EU RASFF Data Finds Aflatoxins, Imported Foods Lead Mycotoxin-Related Notifications",
-     "Finland assesses safety of plant-based dairy products",
-     "Organic applesauce recalled because of elevated levels of patulin"
+     "FDA Closes Taylor Farms Lettuce Investigation, Announces Action Plan to Prevent Future Cyclospora Outbreaks",
+     "Italian reports cover Cyclospora and Salmonella cases",
+     "FDA found Cyclospora at Taylor Farms lettuce operation",
+     "Publisher’s Platform: Put Me Out of the Lettuce Business. Please."
     ]
    }
   ]
  },
  "alarm_reviews": [
   {
-   "label": "Salmonella · France",
-   "stratum_key": "country::Salmonella::Europe::France",
+   "label": "Salmonella · global",
+   "stratum_key": "global::Salmonella",
    "channel": "proportion",
-   "effect": 2.2,
-   "p_value": 0.009368200733742874,
+   "effect": 1.49,
+   "p_value": 0.006361792365109799,
    "fdr_pass": true,
-   "records": 11,
-   "distinct_firms": 11,
-   "top_firm": "grand frais les clayes sous bois",
+   "records": 32,
+   "distinct_firms": 29,
+   "top_firm": "origin: brazil | notifying: germany",
    "top_firm_share": 0.09,
    "outbreak_records": 0,
-   "headlines": 5,
+   "headlines": 7,
    "verdict_hint": "corroborated",
-   "reason": "5 headlines on Salmonella this week; 100% of records from RappelConso (FR)"
+   "reason": "7 headlines on Salmonella this week"
+  },
+  {
+   "label": "Salmonella · France",
+   "stratum_key": "country::Salmonella::Europe::France",
+   "channel": "count-only",
+   "effect": 2.05,
+   "p_value": 0.03054079816589861,
+   "fdr_pass": false,
+   "records": 12,
+   "distinct_firms": 11,
+   "top_firm": "corico",
+   "top_firm_share": 0.17,
+   "outbreak_records": 0,
+   "headlines": 7,
+   "verdict_hint": "corroborated",
+   "reason": "7 headlines on Salmonella this week; 100% of records from RappelConso (FR)"
+  },
+  {
+   "label": "Salmonella · Europe",
+   "stratum_key": "region::Salmonella::Europe",
+   "channel": "count-only",
+   "effect": 1.71,
+   "p_value": 0.01781722366920077,
+   "fdr_pass": false,
+   "records": 24,
+   "distinct_firms": 23,
+   "top_firm": "corico",
+   "top_firm_share": 0.08,
+   "outbreak_records": 0,
+   "headlines": 7,
+   "verdict_hint": "corroborated",
+   "reason": "7 headlines on Salmonella this week"
   }
  ]
 }
