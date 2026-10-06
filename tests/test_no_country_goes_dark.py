@@ -120,9 +120,14 @@ NOT_YET_RUN = {
     # and LEFT on 2026-10-03 — the fleet shard of that morning ("Gap finder
     # fleet: 2026-10-03 shard of 6 countries") wrote its first run_log. It is
     # now held to the 14-day freshness bar like every live country.
-    # cn added 2026-09-30 on the operator ruling "China only confirmed,
-    # published officially" (SAMR's own notices only).
-    "cn": "2026-09-30",
+    # cn LEFT this list on 2026-10-06. It was added 2026-09-30 on the
+    # operator ruling "China only confirmed, published officially" (SAMR's
+    # own notices only) and wrote its first run_log on the fleet shard of
+    # that morning. Held to the 14-day freshness bar from now on.
+    #
+    # AND "HAS RUN" IS NOT "IS WORKING": docs/data/gap_finder_cn/run_log.jsonl
+    # is one line. SAMR-only is a deliberately narrow mandate, so one run
+    # with nothing to show is not yet evidence either way.
     # in added 2026-10-05 (operator: "build India same concept as Greece"),
     # news-authority mode — FSSAI has no per-recall public page.
     "in": "2026-10-05",
@@ -176,7 +181,13 @@ NOT_YET_RUN = {
     # USDA FSIS — blocked by a 403, exactly like the rest — had gone
     # fifteen days without a row while the healthy FDA scraper made the
     # region look covered.
-    "us": "2026-09-23",
+    #
+    # us LEFT this list on 2026-10-06: docs/data/gap_finder_us/run_log.jsonl
+    # exists, so the 14-day freshness assertion covers it now. Its first
+    # rows are also what put 48 'FSIS' Source labels into Weekly_Rejected —
+    # countries/us.py sets authority_short="FSIS" and the gap-finder writer
+    # bypassed merge_master's alias map. Fixed at the writer on the same
+    # day; recorded here because this is where the config became live.
 }
 
 #: The union, for the freshness assertion, which does not care why.

@@ -58,6 +58,20 @@ INTENTIONAL = (
     re.compile(r"^admin\.ch/newnsb/"),
     # FSANZ republishes an amended alert at a new "updated-DDMMYY-" slug.
     re.compile(r"^foodstandards\.gov\.au/food-recalls/recall-alert/"),
+    # 2026-10-06. data.food.gov.uk/food-alerts/id.html is the FSA linked-data
+    # API's own CATALOG page, not a recall notice, and "?__htmlView=" is that
+    # API's HTML-view toggle — an empty-valued presentation parameter, never a
+    # recall identifier. The register holds three rows on it, all the same
+    # scrape of that one catalog page (archived Rejected 2026-08-26 by the
+    # operator as not_a_notice, plus a later re-scrape in Weekly_Rejected).
+    # Collapsing them to one key is correct and loses nothing: a real FSA
+    # alert lives at /food-alerts/id/<number>, which carries its identifier
+    # in the PATH and so cannot reach this key at all.
+    #
+    # NOT a precedent for query strings generally — the four incidents in the
+    # docstring above were all identifiers. This one is listed because the
+    # differing part is provably not one.
+    re.compile(r"^data\.food\.gov\.uk/food-alerts/id\.html$"),
 )
 
 
