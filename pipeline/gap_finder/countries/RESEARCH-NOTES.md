@@ -274,22 +274,51 @@ the first failure.
 
 ---
 
+## India (`in`) — added 2026-10-05 in news-authority mode
+
+Operator 2026-10-05: "build India same concept as Greece". The 2026-09-23
+research below still holds — FSSAI has no public per-recall page — so `in`
+runs exactly like Kenya and Egypt: `news_authority_mode=True`, record URL from
+a curated national-press whitelist (`india.py`), tier 1/2 only.
+
+What changed the decision: the daily global search of 2026-10-05 found FSSAI's
+recall of Everest cumin powder (batch E080668761, azoxystrobin and
+thiamethoxam above the limit), absent from all five sheets, and the register
+had never held a row from an Indian authority — the 12 India rows are all
+RASFF border rejections of Indian exports. A news-mode finder covers that;
+waiting for a register FSSAI does not publish covers nothing.
+
+Re-checked 2026-10-05:
+- `foscos.fssai.gov.in/food-recall`, `fssai.gov.in/advisories.php` and
+  `/cms/food-recall.php` render as JavaScript shells to an automated client.
+- The 2026 recall directions (Wonderland raisins 2026-07-30; Nilgiri Oil /
+  Aquagri; Everest cumin 2026-10-04) were found only as IANS/PTI press copy.
+- One earlier direction WAS published as a PDF:
+  `fssai.gov.in/upload/advisories/2024/06/<hash>Recall directions dt. 18-6-24.pdf`.
+  `authority_item_url_regex` accepts that shape, so an FSSAI document is
+  preferred over a news URL whenever one exists.
+- `pib.gov.in` was left out: a whole-government press bureau, the same reason
+  `gov.br` and `gob.mx` are kept out of the URL guard's escalation.
+
+Previous note (2026-09-23), kept for the record:
+> Found: `old.fssai.gov.in/Product_Recall.aspx` and
+> `foscos.fssai.gov.in/food-recall`. Both are **systems, not registers** —
+> the first is a legacy portal, the second the portal where a food business
+> *files* a recall. Neither publishes a public per-recall page.
+>
+> India appears to have no public recall register at all; recalls surface
+> through state Food Safety Commissioners and the press. **Candidate for
+> `news_authority_mode=True`**, which would need a curated outlet whitelist
+> doing real work, because Indian food-safety reporting is high-volume and
+> much of it is not a recall.
+>
+
+---
+
 ## Researched, no config written
 
 These were investigated on 2026-09-23 and **no per-recall page could be
 verified**. Each needs a different decision, not more of the same search.
-
-### India — FSSAI
-Found: `old.fssai.gov.in/Product_Recall.aspx` and
-`foscos.fssai.gov.in/food-recall`. Both are **systems, not registers** —
-the first is a legacy portal, the second the portal where a food business
-*files* a recall. Neither publishes a public per-recall page.
-
-India appears to have no public recall register at all; recalls surface
-through state Food Safety Commissioners and the press. **Candidate for
-`news_authority_mode=True`**, which would need a curated outlet whitelist
-doing real work, because Indian food-safety reporting is high-volume and
-much of it is not a recall.
 
 ### Malaysia — MOH / BKKM
 Found: `fsq.moh.gov.my/v6/xs/page.php?id=199`, a CMS with opaque numeric
