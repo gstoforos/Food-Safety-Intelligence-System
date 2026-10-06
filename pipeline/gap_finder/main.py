@@ -118,12 +118,74 @@ def _load_existing_urls(xlsx_path: str, sheet_name: str) -> set[str]:
         return set()
 
 
+def _apply_writer_guards(rows: list[dict], where: str) -> None:
+    """Run the guards `_write_sheet` runs, because this writer is not it.
+
+    WHY THIS IS HERE (audit 2026-10-06)
+    -----------------------------------
+    ``merge_master._write_sheet`` is the documented writer choke point.
+    ``_append_rows`` below does NOT go through it — it opens the workbook
+    with openpyxl and appends — so every guard at that choke point was
+    skipped for every row the 46-country fleet has ever written.
+
+    merge_master already anticipated writers like this one and exposes the
+    two guards as callables for exactly this purpose, each saying in its own
+    docstring that it is "callable by the writers that do not go through it":
+
+        apply_label_aliases             Source / Country canonicalisation
+        strip_empty_identifier_template the extractor's "(Recall ID <none>)"
+
+    Neither was ever called from here. ONE BYPASS, TWO SYMPTOMS, both
+    measured on main at fa15d2e:
+
+      * 48 rows in Weekly_Rejected carry Source 'FSIS'. SOURCE_ALIASES has
+        mapped "fsis" -> "USDA FSIS" since 2026-08;
+        pipeline/gap_finder/countries/us.py sets authority_short="FSIS";
+        this writer wrote it verbatim, and
+        test_publish_gate::test_usda_fsis_source_label_is_canonical went
+        red. The same bypass is how the bare 'Salute' label reached
+        **Recalls** on 2026-10-04 — the 2026-10-04 note in SOURCE_ALIASES
+        blames two hand-written lists that have to agree, which was half
+        the story: by then they did agree, and the row still got through,
+        because this path consulted neither.
+
+      * 2 rows in Pending carry "(Recall ID not provided)" in Reason
+        (Italian Ministero della Salute, AgriLanga Roccaverano DOP and BMS
+        Probios popcorn maize), and test_empty_identifier_template_never_
+        reaches_data went red. _EMPTY_ID_TEMPLATE has matched
+        "not provided" since it was written. The regex was never the
+        problem; the call site was missing.
+
+    Fixing the us.py config instead would have fixed one label on one of
+    46 configs, and stripping the two Reasons by hand — as the one-off
+    repairs of 2026-10-04 and 2026-10-05 did for the same template in other
+    rows — would have left the third recurrence to the next morning. The
+    guards are the single place that says what a label and a Reason may be,
+    so this writer borrows them.
+    """
+    try:
+        from pipeline.merge_master import (
+            apply_label_aliases,
+            strip_empty_identifier_template,
+        )
+    except Exception as exc:                                # pragma: no cover
+        print(f"  [ERROR] writer guards unavailable, rows written raw: "
+              f"{type(exc).__name__}: {str(exc)[:80]}", file=sys.stderr)
+        return
+    n_lab = apply_label_aliases(rows, where=where)
+    n_tpl = strip_empty_identifier_template(rows, where=where)
+    if n_lab or n_tpl:
+        print(f"  [guards] {where}: {n_lab} label(s) canonicalised, "
+              f"{n_tpl} Reason(s) cleaned", file=sys.stderr)
+
+
 def _append_rows(
     xlsx_path: str, sheet_name: str, rows: list[dict], dedupe_against: set[str],
 ) -> tuple[int, int]:
     """Append rows to xlsx sheet, deduplicating by URL. Returns (appended, skipped)."""
     if not rows:
         return 0, 0
+    _apply_writer_guards(rows, f"gap_finder/main -> {sheet_name}")
     try:
         from openpyxl import load_workbook, Workbook
     except ImportError:

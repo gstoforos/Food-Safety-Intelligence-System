@@ -255,6 +255,43 @@ NATURAL_TOXINS = {
     "πυρρολιζιδ",                        # Greek stem
     "pirrolizidin alkaloidok",           # Hungarian
     "pyrrolitsidiinialkaloidit",         # Finnish
+    # ── Tropane alkaloids (added 2026-10-06) ───────────────────────────
+    #
+    # THE SAME SHAPE AS THE PYRROLIZIDINE GAP THREE DAYS EARLIER, on the
+    # neighbouring family of plant alkaloids. The Italian gap finder
+    # refused the Ministero della Salute recall of Probios maize for
+    # popcorn (BMS Srl, lot 60183, TMC 30/04/2028, published 2026-09-22)
+    # with "unknown: No matching hazard category — defer to manual
+    # review", and the row then sat in Pending carrying the Italian
+    # hazard text 'Alcaloidi tropanici exceeding limit' because no needle
+    # here matched. Found by the morning-fix pass of 2026-10-06.
+    #
+    # As with the PAs, the hazard was never in doubt anywhere else:
+    # tools/alert_vocab.py has carried "tropane" under "Mushroom / plant
+    # toxins" since it was written, so a published tropane row already
+    # reaches subscribers. Only this gate could not see it.
+    #
+    # Tropane alkaloids (atropine, scopolamine/hyoscine) come from Datura
+    # seed contaminating cereals, maize, millet, buckwheat and herbal
+    # teas, and are capped for those foods by EU Regulation 2023/915.
+    # They belong with the natural toxins.
+    #
+    # "tropan" is the stem every language above shares (tropane,
+    # tropanici, tropánicos, tropaniques, Tropanalkaloide, tropaan,
+    # tropanowe); atropine and scopolamine are listed because a notice
+    # often names the substance instead of the family.
+    "tropane alkaloid", "tropane",
+    "tropan",                            # DE / NL / PL / Nordic stem
+    "alcaloidi tropanici", "tropanici",                   # Italian
+    "alcaloides tropánicos", "alcaloides tropanicos",     # Spanish
+    "alcaloides tropânicos",                              # Portuguese
+    "alcaloïdes tropaniques",                             # French
+    "τροπανικ",                          # Greek stem
+    "tropán alkaloidok",                 # Hungarian
+    "tropaanialkaloidit",                # Finnish
+    "atropine", "ατροπίνη", "ατροπινη", "atropina", "atropin",
+    "scopolamine", "σκοπολαμίνη", "σκοπολαμινη",
+    "scopolamina", "scopolamin", "hyoscine",
 }
 
 # REJECT — allergens (undeclared)
