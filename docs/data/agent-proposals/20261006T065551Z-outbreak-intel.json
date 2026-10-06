@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261006T065551Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853532"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853532",
+          "quote": "2026-06-23 RASFF (EU) Salmonella in pistachio paste from Italy",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ba5464fc8ff929a0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317",
+          "quote": "2026-06-23 RASFF (EU) Detection of Salmonella in sprouts, with suspected seed contamination",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6fcfbcebb2c3a22e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+          "quote": "2026-07-14 Ministero della Salute (IT) Fresh eggs category A, 6 or 30 eggs",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6638360d99d692e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "28010b942981c03a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868818"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868818",
+          "quote": "2026-08-26 RASFF (EU) Salmonella spp. in turkey breast from Italy",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0ed66e1381373de2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/ALLEGATO_RICHIAMO_HAMBURGER_SCOTTONA_200g_1790355807.pdf"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/ALLEGATO_RICHIAMO_HAMBURGER_SCOTTONA_200g_1790355807.pdf",
+          "quote": "2026-09-25 Ministero della Salute (IT) Scottona beef hamburger 200 g (2x100 g), lot 7726018994, use by 30/09, 02/10, 03/10/2026",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "116ffc7d418a2a3d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876749"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomatoes-off-the-menu-after-salmonella-cases-in-italy",
+          "quote": "",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876749",
+          "quote": "2026-10-02 RASFF (EU) Suspected Salmonella Napoli in arugula",
+          "retrieved_utc": "2026-10-06T06:47:09+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "68d65a1c8727a1c6"
+    }
+  ]
+}
