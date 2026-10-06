@@ -602,19 +602,60 @@ def _is_bare_allergen(pathogen: str) -> bool:
     return p in _BARE_ALLERGEN_PATHOGENS
 
 
+#: Hazard classes that are ONE family in the AFTS scope and must not be
+#: read as contradicting each other.
+#:
+#: WHAT THIS CAUGHT (morning-fix 2026-10-06)
+#: -----------------------------------------
+#: The Japanese CAA notice for Kinokuniya miso peanuts (rcl 35916,
+#: published 2026/10/05) gives its 回収理由 as 「虫（ノシメマダラメイガ）の混入」
+#: — contamination with an insect. Queued as
+#:
+#:     Pathogen  "Foreign material (pest)"
+#:     Reason    "Insect contamination: the Indian meal moth was found …"
+#:
+#: and refused by rule 7 as "Pathogen 'Foreign material (pest)' contradicts
+#: Reason (['physical'] vs ['pest'])". Both fields say the same thing. The
+#: Pathogen classifies 'physical' on "foreign material" and the Reason
+#: classifies 'pest' on "insect", the two sets share nothing, and the rule
+#: fired.
+#:
+#: 'physical' and 'pest' are not two hazards here. Rule 8's own scope line,
+#: twenty lines below, prints the AFTS scope as "… foreign material + pest
+#: + chemical hazards only" — one scope, listed together — and
+#: "Foreign material (pest)" is the register's EXISTING published label for
+#: this hazard, already carried by two FDA rows. Those two passed only
+#: because their Reasons happen to contain the words "foreign objects"
+#: alongside "pest", so they classified 'physical' on both sides. A row
+#: whose source page says only "insect" could never pass, which means the
+#: rule was refusing rows for the wording of the regulator's notice.
+#:
+#: Narrow on purpose. This pairs ONLY physical and pest. biological vs
+#: allergen, biological vs physical and chemical vs allergen — the
+#: mismatches rule 7 was written for, including the invented Listeria of
+#: 2026-08-02 — are untouched.
+_ONE_FAMILY = (frozenset({"physical", "pest"}),)
+
+
 def pathogen_reason_class_mismatch(pathogen: str, reason: str) -> bool:
     """True if Pathogen and Reason describe DIFFERENT hazard classes.
 
     Conservative by construction: returns False whenever EITHER field is
-    unclassifiable, and False whenever the classes overlap at all. It only
-    fires when both fields classify cleanly and share nothing — e.g.
-    biological vs allergen, biological vs physical.
+    unclassifiable, False whenever the classes overlap at all, and False
+    when the two sit in one `_ONE_FAMILY` group. It only fires when both
+    fields classify cleanly and share nothing — e.g. biological vs
+    allergen, biological vs physical.
     """
     p_cls = classify_hazard(pathogen)
     r_cls = classify_hazard(reason)
     if not p_cls or not r_cls:
         return False
-    return len(p_cls & r_cls) == 0
+    if p_cls & r_cls:
+        return False
+    for family in _ONE_FAMILY:
+        if p_cls <= family and r_cls <= family:
+            return False
+    return True
 
 
 
