@@ -128,9 +128,17 @@ NOT_YET_RUN = {
     # AND "HAS RUN" IS NOT "IS WORKING": docs/data/gap_finder_cn/run_log.jsonl
     # is one line. SAMR-only is a deliberately narrow mandate, so one run
     # with nothing to show is not yet evidence either way.
-    # in added 2026-10-05 (operator: "build India same concept as Greece"),
-    # news-authority mode — FSSAI has no per-recall public page.
-    "in": "2026-10-05",
+    # in LEFT this list on 2026-10-07. Added 2026-10-05 (operator: "build
+    # India same concept as Greece"), news-authority mode — FSSAI has no
+    # per-recall public page. docs/data/gap_finder_in/run_log.jsonl now
+    # exists (first run 2026-10-06T10:43:02Z, on the fleet shard of that
+    # morning), so this test asked for it by name — which is the mechanism
+    # working. Held to the 14-day freshness bar from here.
+    #
+    # AND "HAS RUN" IS NOT "IS WORKING", the same caveat as cn above: that
+    # first run found 44 candidates, verified 18, and accepted ONE. The
+    # news-authority mode is the wall br/kr/tw/vn/id/cl hit — discovery from
+    # news with no regulator notice to resolve back to.
     # ph, id, vn and cl LEFT on 2026-09-26/27 — the next shard after br/kr/tw.
     # This test asked for them by name the moment their run logs appeared,
     # which is the mechanism working: the grace list is not a place to park a
