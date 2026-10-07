@@ -58,6 +58,12 @@ from pipeline.merge_master import (  # noqa: E402
 )
 from pipeline.commit_github import git_commit_and_push  # noqa: E402
 
+#: Days a row's Date may lead today before it is not a publication date.
+#: Kept equal to the standing guard in pipeline/_gap_finder_guards.py
+#: (`d > today + timedelta(days=1)`), which this module does not call. See
+#: the 2026-10-07 note at the date-sanity gate.
+_FUTURE_TOLERANCE_DAYS = 1
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -949,8 +955,8 @@ def _item_to_recall(item: Dict[str, Any],
     # Drop rows where the date is implausible:
     #   • Older than today - 90 days  → archived recall, regular scrapers
     #     handled it long ago, no value re-discovering it now.
-    #   • Newer than today + 30 days  → hallucinated future date (real
-    #     recalls aren't published 30+ days in advance).
+    #   • Newer than today + 1 day    → a date that is not a publication
+    #     date (see the 2026-10-07 note below).
     # We allow the fallback ("today") to pass since the Notes tag already
     # flags it for claude-check Date enrichment.
     if not date_is_fallback:
@@ -962,11 +968,41 @@ def _item_to_recall(item: Dict[str, Any],
                 # Stale — drop. Don't pollute Pending with old recalls
                 # the scrapers already covered when they were fresh.
                 return None
-            if age_days < -30:
-                # Date is in the FUTURE by more than 30 days. Either
-                # Tavily extracted a "next review" / "valid until" date
-                # from the regulator page, or the extractor confused
-                # year fields. Drop.
+            if age_days < -_FUTURE_TOLERANCE_DAYS:
+                # Date is in the FUTURE. Either the extractor picked up a
+                # "best before" / "valid until" / "next review" date from
+                # the notice, or it confused year fields. Drop.
+                #
+                # TOLERANCE TIGHTENED 30d -> 1d (morning-fix 2026-10-07).
+                # A 30-day window is not a sanity check on a PUBLICATION
+                # date; it is a window wide enough to admit a best-before
+                # date, which is exactly what came through. Measured on
+                # main at c540527, Pending row 2, written by this module
+                # (ScrapedAt 2026-10-06T19:11:42Z, commit c0bf325):
+                #
+                #   Date   2026-10-30          23 days in the future
+                #   URL    .../2026/09_September/260904_03_BW_diverse_
+                #          Kaesesorten/...pdf
+                #
+                # The notice is from 2026-09-04 — its own URL says so — and
+                # 30.10.2026 is a date printed inside a Listeria cheese
+                # recall about shelf life. The row then made BVL look like
+                # the freshest source in the register:
+                # tests/test_scraper_output_health::
+                # test_no_source_has_a_future_last_row went red with
+                # {'BVL': '2026-10-30'}, and 'days since last row' for that
+                # source was negative.
+                #
+                # 1 DAY, AND THE NUMBER IS NOT A NEW OPINION. It is what
+                # pipeline/_gap_finder_guards.check_gap_finder_row has
+                # always enforced (`d > today + timedelta(days=1)`) for the
+                # rows that DO go through it — the official-feeds
+                # collectors and merge_master. This module never calls that
+                # guard and carries its own, looser copy; the copy is the
+                # defect, and the standing guard is the number to agree
+                # with. One day of slack is kept for the timezone case: a
+                # regulator publishing on its own tomorrow while this runs
+                # on UTC today.
                 return None
         except ValueError:
             # Couldn't parse our own output — shouldn't happen, but

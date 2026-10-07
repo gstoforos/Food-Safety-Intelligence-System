@@ -115,6 +115,37 @@ CANONICAL: Dict[str, str] = {
     "COMESA": "COMESA",
     "INVIMA (CO)": "CO-INVIMA",
     "ANMAT (AR)": "AR-ANMAT",
+    # ── 2026-10-07. THE SIX LABELS THE WRITER NOW PRODUCES. ─────────────
+    # merge_master.SOURCE_ALIASES gained six entries today so that the last
+    # six fleet configs stop stamping a bare authority name onto published
+    # rows (Hungary did it this morning). Every label the WRITER produces
+    # has to be identifiable here —
+    # tests/test_a_source_label_is_one_label::
+    # test_every_label_the_writer_produces_is_a_known_regulator holds that
+    # boundary — and four of the six were the Italy shape all over again:
+    # the bare collector name was in this table while the registry's own
+    # label, the one that actually reaches Recalls, was not.
+    #
+    #     "AFSCA" was here; "AFSCA (BE)" was not.
+    #     "FDA PH" was here; "FDA (PH)" was not.
+    #
+    # ONE AGENCY PER ID, including the two that were renamed: NÉBIH was
+    # merged into NKFH (hu.py records the 2026-09-30 move to nkfh.gov.hu),
+    # and Estonia's VTA became PTA (pta.agri.ee), which is the host the
+    # registry entry reads. Both names resolve to one identity so the
+    # independence checks do not count a rename as two observations.
+    "AFSCA (BE)": "BE-FAVV",
+    "FAVV-AFSCA": "BE-FAVV",
+    "NKFH (HU)": "HU-NKFH",
+    "NÉBIH": "HU-NKFH",
+    "NEBIH": "HU-NKFH",
+    "VTA (EE)": "EE-VTA",
+    "PTA": "EE-VTA",
+    "HAH (HR)": "HR-HAH",
+    "HAPIH": "HR-HAH",
+    "FDA (GH)": "GH-FDA",
+    "FDA Ghana": "GH-FDA",
+    "FDA (PH)": "PH-FDA",
 }
 
 # A re-report of another regulator's notice. Not an independent observation.

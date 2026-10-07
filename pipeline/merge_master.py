@@ -2651,6 +2651,49 @@ SOURCE_ALIASES = {
     "min. salute (it)": "Ministero della Salute (IT)",
     "ministero della salute": "Ministero della Salute (IT)",
     "ministero salute": "Ministero della Salute (IT)",
+    # ── 2026-10-07. THE SIX CONFIGS THE GENERIC RULE CANNOT REACH. ──────
+    # `registry_source_label` below was added on 2026-10-04 so the ~40 fleet
+    # configs that write a bare short name would not each need an entry
+    # here: a bare "X" becomes the registry label "X (CC)" when exactly one
+    # such label exists for the row's Country. Measured today across all 46
+    # configs in pipeline/gap_finder/countries/, it resolves 39 of them.
+    #
+    # SEVEN DID NOT RESOLVE, and six of those are not a spelling the rule
+    # can derive — the regulator's registry label is a DIFFERENT NAME, so
+    # "X (CC)" does not exist:
+    #
+    #     config              authority_short   registry label
+    #     hu.py               NÉBIH             NKFH (HU)
+    #     be.py               FAVV-AFSCA        AFSCA (BE)
+    #     ee.py               PTA               VTA (EE)
+    #     hr.py               HAPIH             HAH (HR)
+    #     gh.py               FDA Ghana         FDA (GH)
+    #     ph.py               FDA PH            FDA (PH)
+    #
+    # HUNGARY IS NOT HYPOTHETICAL. The seventh (kr.py) is fixed in
+    # `registry_source_label` itself. Hungary reached **Recalls** this
+    # morning: the SZEGA Camembert Kft. STEC recall of 2026-10-06
+    # (nkfh.gov.hu/hirek/termekvisszahivas-camembert-bertrand-cremier-...)
+    # published with Source "NÉBIH", and
+    # test_monitored_sources::test_every_published_source_is_counted went
+    # red asking for "NÉBIH" to be ADDED to the registry — which would have
+    # been the wrong repair: NÉBIH was merged into NKFH, hu.py's own
+    # docstring records the 2026-09-30 switch to nkfh.gov.hu, and the row's
+    # URL is on that host. The registry is right; the writer had no alias.
+    #
+    # This is the third recurrence in five days of one defect — Italy
+    # 2026-10-04 ("Salute"), Czechia 2026-10-03 ("SZPI", which the generic
+    # rule now covers), Hungary 2026-10-07 — and each time it was found by
+    # a row that had already published. The six below close the remaining
+    # configs, and tests/test_every_collector_label_is_a_registry_label.py
+    # derives the claim from the configs themselves, so config number 47
+    # cannot be added without one.
+    "nébih": "NKFH (HU)", "nebih": "NKFH (HU)",
+    "favv-afsca": "AFSCA (BE)", "favv afsca": "AFSCA (BE)",
+    "pta": "VTA (EE)",
+    "hapih": "HAH (HR)",
+    "fda ghana": "FDA (GH)",
+    "fda ph": "FDA (PH)",
 }
 
 
@@ -2669,6 +2712,33 @@ def registry_source_label(raw: str, country: str) -> str:
     short name, so rather than list them one by one: a bare name X maps to
     the registry label "X (CC)" when exactly one such label exists AND its
     country is the row's Country. Anything else is left alone.
+
+    THE COUNTRY KEY IS CANONICALISED TOO (2026-10-07)
+    -------------------------------------------------
+    The index was keyed on the country string exactly as
+    tools/monitored_sources.SOURCES spells it, while the caller passes the
+    row's Country — which `apply_label_aliases` has ALREADY rewritten
+    through COUNTRY_ALIASES by the time it gets here, because it does
+    Country before Source in the same loop. Any regulator whose registry
+    country is a COUNTRY_ALIASES *key* was therefore unreachable:
+
+        SOURCES          ("MFDS (KR)", "South Korea", ...)
+        COUNTRY_ALIASES  "south korea" -> "Korea, South"
+        lookup           ("mfds", "Korea, South")  -> miss
+
+    So kr.py's bare "MFDS" survived canonicalisation even though
+    "MFDS (KR)" is in the registry and is exactly the label this rule was
+    written to produce. Measured 2026-10-07 over all 46 configs in
+    pipeline/gap_finder/countries/: Korea was the ONLY one failing for this
+    reason rather than for a genuine rename (the other six are listed in
+    SOURCE_ALIASES above), and 18 rows in Rejected already carry Country
+    'South Korea'.
+
+    Fixing it at the caller — looking the label up before the Country alias
+    runs — would leave the index asymmetric and break again the next time
+    two callers apply the maps in a different order. The index is built
+    once, so it canonicalises its own country keys once, and then both
+    spellings reach the same entry whatever order a caller uses.
     """
     global _REGISTRY_BY_SHORT
     raw, country = str(raw or "").strip(), str(country or "").strip()
@@ -2682,8 +2752,14 @@ def registry_source_label(raw: str, country: str) -> str:
         _REGISTRY_BY_SHORT = {}
         for _label, _country, _dom in _S:
             m = re.match(r"^(.+?) \(([A-Z]{2})\)$", _label)
-            if m:
-                _REGISTRY_BY_SHORT.setdefault((m.group(1).lower(), _country), []).append(_label)
+            if not m:
+                continue
+            _short = m.group(1).lower()
+            _canon = COUNTRY_ALIASES.get(_country.lower(), _country)
+            for _c in dict.fromkeys((_country, _canon)):
+                _hits = _REGISTRY_BY_SHORT.setdefault((_short, _c), [])
+                if _label not in _hits:
+                    _hits.append(_label)
     hits = _REGISTRY_BY_SHORT.get((raw.lower(), country), [])
     return hits[0] if len(hits) == 1 else ""
 

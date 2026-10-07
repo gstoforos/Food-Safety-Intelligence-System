@@ -135,6 +135,43 @@ _HAZARD_GROUP_RULES = (
     # label naming a specific hazard family still wins: "chemical" as a bare
     # word is unambiguous only once everything more specific has been tried.
     ("chemical", "chemical"),
+    # ── 2026-10-07. THE FOURTH AND FIFTH TIME THIS CATCH-ALL LIED. ──────
+    # Three notes above record the same defect — SUPPLX yohimbine
+    # (2026-09-03), the DNP/fluoxetine supplement (2026-08-31), uninspected
+    # product (2026-09-25) — a hazard with no organism in it falling through
+    # to "pathogen-bacterial". Measured on main at c540527 it was still
+    # happening to ELEVEN published rows, and the schema sweep re-stamps
+    # every one of them daily (EnrichedAt 2026-10-07 on all eleven):
+    #
+    #   Delta-9-THC (above acute reference dose)          2   chemical
+    #   Mineral oil aromatic hydrocarbons (MOAH)          2   chemical
+    #   Tropane alkaloids [/ above the legal limit]       2   biotoxin
+    #   Pyrrolizidine alkaloids                           2   biotoxin
+    #   Ergot alkaloids                                   1   mycotoxin
+    #
+    # All five are in scope by name in the AFTS scope statement and all five
+    # are reachable by an alert term in tools/alert_vocab.py, so the only
+    # thing wrong was the hazard group — which is what every stratification
+    # on HazardGroup reads.
+    #
+    # WHY EACH TARGET:
+    #   THC is a chemical over a reference dose, which is what the
+    #   "chemical" group already holds (and "residue" / "adulterat" above
+    #   do not match "Delta-9-THC").
+    #   MOAH is a mineral-oil contaminant; "mineral oil" is matched rather
+    #   than the bare acronym so MOSH is covered by the same rule.
+    #   TROPANE and PYRROLIZIDINE alkaloids are PLANT toxins — biotoxin, the
+    #   group the bare ("toxin", "biotoxin") rule above would already have
+    #   given them if the word "alkaloid" contained "toxin".
+    #   ERGOT alkaloids are the exception and go to mycotoxin: ergot is
+    #   Claviceps purpurea, a fungus, so its alkaloids are a fungal toxin
+    #   like aflatoxin and ochratoxin above. Listed BEFORE the generic
+    #   alkaloid rule for that reason.
+    ("delta-9-thc", "chemical"), ("delta 9 thc", "chemical"),
+    ("thc", "chemical"), ("cannabinoid", "chemical"),
+    ("mineral oil", "chemical"),
+    ("ergot alkaloid", "mycotoxin"), ("ergot", "mycotoxin"),
+    ("alkaloid", "biotoxin"),
 )
 
 # Labels that name no hazard at all. They must not fall through to the

@@ -106,6 +106,20 @@ CATEGORY_MAP: Dict[str, str] = {
     # silently absorbed. That is the check working as designed.
     "confectionery": "confectionery-snacks",
     "soups, broths, sauces and condiments": "sauces-condiments",
+    # 23rd observed category, seen 2026-10-06 on RASFF #2026.8799
+    # (Clostridium botulinum in honey from Spain, notifId=877437), promoted
+    # that morning. Third time the same check has earned its keep — see the
+    # biscuit and non-alcoholic-beverage notes above — and the third time an
+    # unmapped term showed up as a gap rather than as a quiet "other".
+    #
+    # sauces-condiments, not "other". FoodCategory has no sweetener family
+    # (see pipeline/agents/_vocabulary.FoodCategory, 20 terms), and honey is
+    # a sweet spread: enrich_schema's own classifier had already filed this
+    # row as sauces-condiments from the product wording, so mapping it the
+    # same way makes the RASFF path agree with the general one instead of
+    # the two disagreeing on the same row. Royal jelly rides along with it;
+    # no row of either has ever carried a different value.
+    "honey and royal jelly": "sauces-condiments",
     "other food product / mixed": "other",
 }
 # NOTE on meat: RASFF's "poultry meat and poultry meat products" says
