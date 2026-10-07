@@ -4,20 +4,20 @@
   "Source": "RappelConso (FR)",
   "Company": "Toque du Chef",
   "Brand": "Toque du Chef",
-  "Product": "surimi",
+  "Product": "Surimi pasta salad",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Une analyse a mis en évidence la présence de Listeria monocytogenes",
+  "Reason": "An analysis revealed the presence of Listeria monocytogenes.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23712/interne",
-  "Notes": "voir liste des magasins en pièce jointe"
+  "Notes": "voir liste des magasins en pièce jointe [original Reason (fr): \"Une analyse a mis en évidence la présence de Listeria monocytogenes\"] [original product: Salade de pâtes Surimi] [morning-fix 2026-10-07: Reason was published wholly in French and is translated faithfully here (tests/test_language_policy, tests/test_reason_is_not_wholly_foreign were both red on it). Product was 'surimi', which names an ingredient, not the product: RappelConso's own listing for 06/10/2026, read at https://rappel.conso.gouv.fr/categorie/0/1 on 2026-10-07, gives the libellé as 'Salade de pâtes Surimi', marque 'Toque du chef'. No test was red on the Product — it is the short-name shape the English detector cannot see, found by reading every Product published in the last 26 h.]"
  },
  {
   "Date": "2026-10-06",
-  "Source": "NÉBIH",
+  "Source": "NKFH (HU)",
   "Company": "SZEGA Camembert Kft.",
   "Brand": "Camembert Bertrand Crémier",
   "Product": "Camembert",
@@ -52,7 +52,7 @@
   "Source": "RappelConso (FR)",
   "Company": "E.Leclerc Pau Tempo",
   "Brand": "Unbranded",
-  "Product": "araignee de porc marinee ail des ours",
+  "Product": "Marinated pork spider cut (araignée) with wild garlic",
   "Pathogen": "Salmonella",
   "Reason": "Detection of Salmonella",
   "Class": "Voluntary",
@@ -61,7 +61,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23695/interne",
-  "Notes": "e.leclerc pau tempo [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "e.leclerc pau tempo [promote 2026-10-05: status 'pending'->'pending' — passes every publish-gate rule] [original product: Araignée de porc marinée ail des ours] [morning-fix 2026-10-07: Product translated from the French read on RappelConso's own listing at https://rappel.conso.gouv.fr/categorie/0/1 on 2026-10-07 ('Araignée de porc marinée ail des ours', marque 'SANS MARQUE', motif 'Détection Salmonella', publiée le 05/10/2026). 'Araignée de porc' is the pork spider cut; the French word is kept in parentheses because the English name is not widely used and dropping it would lose the cut. 'Ail des ours' is wild garlic (ramsons). The Product-not-in-English needs-cleanup stamp left by reviewer 3 / the offline promoter is removed because the row no longer needs it. (The stamp's literal text is deliberately NOT quoted in this note: the removal is a substring strip, and quoting it here would make a re-run eat its own note.)]"
  },
  {
   "Date": "2026-10-05",
@@ -30894,5 +30894,53 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-06",
+  "Source": "RappelConso (FR)",
+  "Company": "SARL THITAN",
+  "Brand": "Unbranded",
+  "Product": "Gummies 10 mg — pineapple (ANANAS), apple (POMME), cola, blue razz and watermelon (PASTEQUE); loose, unpackaged (EN VRAC - NON CONDITIONNÉS); lots PI2604205170426, AP2604205170426, BL2604205170426, CO2604205170426, WA2604205170426",
+  "Pathogen": "Delta-9-THC (above acute reference dose)",
+  "Reason": "Non-compliant product: the THC level is too high and exceeds the acute reference dose for delta-9-THC.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23710/Interne",
+  "Notes": "[manual 2026-10-07: morning-fix missed-recall sweep. Searched all five sheets first — by URL, by recall id, by company, by brand, by product and by a distinctive word — and absent from every one. Fiche 23710 (réf. 2026-10-0039, version 1) read on its own authority page on 2026-10-07; date de publication 06/10/2026; marque 'sans marque'; distributeur/origine de fiche 'SARL THITAN'; commercialisation du 24/06/2026 au 29/07/2026. In scope: THC over a reference dose. [original Reason (fr): \"Non conformité des produits dù à un taux de THC trop élevé conduisant à un dépassement de la dose de référence aiguë en delta 9 THC\"] [original product: GUMMIES 10MG ANANAS (PINEAPLE) / POMME (APPLE) / COLA / BLUE RAZZ / PASTEQUE (WATERMELON)] [original brand: sans marque] [promote 2026-10-07: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-06",
+  "Source": "RappelConso (FR)",
+  "Company": "SARL THITAN",
+  "Brand": "Unbranded",
+  "Product": "Gummies 20 mg — elderberry and Mai Tai; loose, unpackaged (EN VRAC - NON CONDITIONNÉS); lots 26JD07602 (ELDERBERRY) and 26JD040903 (MAI TAI)",
+  "Pathogen": "Delta-9-THC (above acute reference dose)",
+  "Reason": "Non-compliant product: the THC level is too high and exceeds the acute reference dose for delta-9-THC.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23709/Interne",
+  "Notes": "[manual 2026-10-07: morning-fix missed-recall sweep. Searched all five sheets first — by URL, by recall id, by company, by brand, by product and by a distinctive word — and absent from every one. Fiche 23709 (réf. 2026-10-0038, version 1) read on its own authority page on 2026-10-07; date de publication 06/10/2026; marque 'sans marque'; responsable 'THITAN SARL'; commercialisation du 04/05/2026 au 29/07/2026. The fiche's own risk wording adds that the products are non-compliant under the novel-food regulation for unauthorised cannabinoids (THC/CBD). In scope: THC over a reference dose. [original Reason (fr): \"Non conformité des produits dù à un taux de THC trop élevé conduisant à un dépassement de la dose de référence aiguë en delta 9 THC\"] [original product: GUMMIES 20MG ELDERBERRY / MAI TAI] [original brand: sans marque] [promote 2026-10-07: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-06",
+  "Source": "CAA (JP)",
+  "Company": "Tomato Corporation",
+  "Brand": "—",
+  "Product": "Grated cheese (country of origin: Italy)",
+  "Pathogen": "Mold",
+  "Reason": "The product may be contaminated with mold.",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035928&screenkbn=01",
+  "Notes": "[manual 2026-10-07: morning-fix missed-recall sweep. Searched all five sheets first — by URL, by recall id, by company, by brand, by product and by a distinctive word — and absent from every one. Read on the CAA notice on 2026-10-07: 事業者名 トマトコーポレーション, 商品名 「粉チーズ（原産国：イタリア）」, 回収理由 「カビに汚染されている可能性」, 対応開始日 2026年10月05日; posted on the CAA listing (recall.caa.go.jp/result/index.php?screenkbn=01&category=1) under 掲載日 2026/10/06, which is the date this row carries, matching the convention of the CAA rows already in the register. The notice states no lot or best-before detail. Mould is in scope by operator decision 2026-09-07 and Tier 2 everywhere by operator rule 2026-10-03. [original Reason (ja): \"カビに汚染されている可能性\"] [original product: 粉チーズ（原産国：イタリア）] [original company: トマトコーポレーション — published English name not stated on the notice; standard romanisation used, per the operator rule of 2026-10-01] [promote 2026-10-07: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
