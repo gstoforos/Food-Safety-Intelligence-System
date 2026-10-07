@@ -174,6 +174,46 @@ def _load_existing_urls(xlsx_path: str, sheet_name: str) -> set[str]:
         wb.close()
 
 
+def _apply_writer_guards(rows: list[dict], where: str) -> None:
+    """Run the guards `_write_sheet` runs, because this writer is not it.
+
+    WHY THIS IS HERE (morning-fix 2026-10-07)
+    -----------------------------------------
+    The identical note on ``pipeline/gap_finder/main._apply_writer_guards``
+    was written on 2026-10-06 for the 46-country fleet writer, and
+    ``tests/test_a_writer_that_skips_the_choke_point_still_canonicalises.py``
+    was shipped the same day covering BOTH bypassing writers — the fleet's
+    and this one. Only the fleet's was fixed. The six Greek cases in that
+    file have been red on main ever since, which is how this got found:
+
+        test_greek_writer_canonicalises                       3 cases
+        test_greek_writer_strips_the_empty_identifier_template 3 cases
+
+    ``merge_master._write_sheet`` is the documented writer choke point and
+    ``_append_rows`` below does not go through it — it opens the workbook
+    with openpyxl and appends — so Source/Country canonicalisation and the
+    extractor's empty-identifier strip were skipped for every row this
+    collector has ever written. merge_master exposes both as callables for
+    exactly this purpose, each saying so in its own docstring.
+
+    Same body as the fleet writer's on purpose: two copies that must agree
+    is the defect this whole family of bugs is made of, so the shared thing
+    is the two merge_master callables, and each bypassing writer's job is
+    only to call them.
+    """
+    try:
+        from pipeline.merge_master import (
+            apply_label_aliases,
+            strip_empty_identifier_template,
+        )
+    except Exception as exc:                                # pragma: no cover
+        print(f"  [ERROR] writer guards unavailable, rows written raw: "
+              f"{type(exc).__name__}: {str(exc)[:80]}", file=sys.stderr)
+        return
+    apply_label_aliases(rows, where=where)
+    strip_empty_identifier_template(rows, where=where)
+
+
 def _append_rows(
     xlsx_path: str,
     sheet_name: str,
@@ -181,6 +221,7 @@ def _append_rows(
     new_rows: list[dict],
 ) -> int:
     """Append rows to the given sheet, preserving column order. Returns count appended."""
+    _apply_writer_guards(new_rows, f"gap_finder_gr/main -> {sheet_name}")
     from openpyxl import load_workbook, Workbook
 
     p = Path(xlsx_path)
