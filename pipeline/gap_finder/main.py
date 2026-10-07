@@ -1,45 +1,64 @@
 """
-AFTS Food Safety Intelligence — Gap Finder
-Orchestrator (parametric — supports any country via --country flag).
+AFTS Food Safety Intelligence — Greek Gap Finder
+Module 6: Orchestrator
 
-Wires the 4 pipeline stages end-to-end:
-  Stage 1: news_scraper.collect_rss + collect_google_news → candidates.jsonl
-  Stage 2: search_verifier.build_index + match_in_index   → verified.jsonl
-  Stage 3: extractor.extract_one (rules + LLM)            → pending.jsonl + rejected.jsonl
-  Stage 4: append rows to docs/data/recalls.xlsx          (idempotent, dedupe by URL)
+Single entry point invoked by GitHub Actions once a day at 21:00 Athens.
 
-All paths come from the CountryConfig. The xlsx file is shared across countries
-(single AFTS knowledge base); the per-country JSONL outputs are isolated.
+Pipeline:
+    1. news_scraper.collect()       — sweep 7 Greek news sites + Google News GR
+    2. efet_fetcher.verify_batch()  — match each news candidate to a canonical
+                                       EFET announcement; fetch the body
+    3. extractor.extract_batch()    — rule gate + LLM extraction → pending rows
+    4. write_pending()              — append accepted rows to recalls.xlsx
+                                       Pending sheet, idempotently (no duplicate
+                                       EFET URLs across runs)
+    5. write_rejected()             — append rejected rows to Weekly_Rejected
+                                       sheet (also idempotent)
+    6. write_run_log()              — daily audit JSONL row
+
+Idempotency: every write checks existing URLs in the target sheet first and
+skips rows that are already there. Safe to re-run the same day.
+
+Exit codes:
+    0 — success (any number of rows, including zero)
+    1 — fatal error (network, LLM unreachable, xlsx corrupt)
+    2 — partial failure (some records failed but pipeline completed)
 
 CLI:
-    python -m pipeline.gap_finder.main --country gr
-    python -m pipeline.gap_finder.main --country it --verbose
-    python -m pipeline.gap_finder.main --country it --dry-run     # no xlsx writes
-    python -m pipeline.gap_finder.main --country it --skip-news   # reuse existing JSONL
+    python -m pipeline.gap_finder_gr.main
+    python -m pipeline.gap_finder_gr.main --dry-run        # no writes
+    python -m pipeline.gap_finder_gr.main --xlsx PATH      # override xlsx path
+    python -m pipeline.gap_finder_gr.main --skip-news      # use existing candidates.jsonl
+    python -m pipeline.gap_finder_gr.main --skip-efet      # use existing verified.jsonl
+    python -m pipeline.gap_finder_gr.main --verbose
+
+Environment:
+    LLAMA_BASE_URL     — Tailscale IP of Hetzner VPS (or localhost on Mac)
+    LLAMA_MODEL        — default 'qwen2.5-7b-instruct'
+    LLAMA_API_KEY      — optional bearer token
+    LLAMA_TIMEOUT      — request timeout seconds (default 120)
 """
 
 from __future__ import annotations
 import argparse
 import json
-import re
-import os
 import sys
-import time
 import traceback
-import unicodedata
-from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
+# Flexible imports — work both as package and standalone script
 try:
-    from . import news_scraper, extractor
-    from .countries import get as get_country
-    from .countries.base import CountryConfig
+    from . import news_scraper, efet_fetcher, extractor
+    from .llama_client import LlamaClient, LlamaError
+    from .rules import classify
 except ImportError:
-    from gap_finder import news_scraper, extractor                     # type: ignore
-    from gap_finder.countries import get as get_country                # type: ignore
-    from gap_finder.countries.base import CountryConfig                # type: ignore
+    import news_scraper                            # type: ignore
+    import efet_fetcher                            # type: ignore
+    import extractor                               # type: ignore
+    from llama_client import LlamaClient, LlamaError  # type: ignore
+    from rules import classify                     # type: ignore
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -47,121 +66,140 @@ except ImportError:
 # ─────────────────────────────────────────────────────────────────────────────
 
 DEFAULT_XLSX = "docs/data/recalls.xlsx"
+DATA_DIR = "docs/data/gap_finder_gr"
+CANDIDATES_PATH = f"{DATA_DIR}/candidates.jsonl"
+VERIFIED_PATH = f"{DATA_DIR}/verified.jsonl"
+UNMATCHED_PATH = f"{DATA_DIR}/unmatched.jsonl"
+PENDING_OUT_PATH = f"{DATA_DIR}/pending_candidates.jsonl"
+REJECTED_OUT_PATH = f"{DATA_DIR}/rejected_records.jsonl"
+RUN_LOG_PATH = f"{DATA_DIR}/run_log.jsonl"
+
 PENDING_SHEET = "Pending"
-RECALLS_SHEET = "Recalls"
 REJECTED_SHEET = "Weekly_Rejected"
+RECALLS_SHEET = "Recalls"
+
+# Columns in target sheets (must match recalls.xlsx exactly)
+PENDING_COLUMNS = [
+    "Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
+    "Class", "Country", "Region", "Tier", "Outbreak", "URL", "Notes",
+    "ScrapedAt", "Status", "RejectedBy",
+]
+REJECTED_COLUMNS = PENDING_COLUMNS + ["RejectedAt", "RejectReason"]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# RUN STATE — tallies for the final summary
+# RUN-LEVEL STATE
 # ─────────────────────────────────────────────────────────────────────────────
 
-@dataclass
 class RunState:
-    country_code: str = ""
-    country_name: str = ""
-    started_at: str = ""
-    candidates_found: int = 0
-    verified_count: int = 0
-    unmatched_count: int = 0
-    extracted_accepted: int = 0
-    extracted_rejected: int = 0
-    appended_pending: int = 0
-    appended_rejected: int = 0
-    skipped_dupe_pending: int = 0
-    skipped_dupe_recalls: int = 0
-    skipped_dupe_rejected: int = 0
-    # Rows that CLASSIFIED ACCEPTED and were routed to Rejected only because
-    # the Llama box could not be reached. Added 2026-09-25 — see the block
-    # above the RUN SUMMARY for why a count is not enough on its own.
-    llm_extraction_failures: int = 0
-    errors: list[dict] = field(default_factory=list)
+    """Tracks counts and errors across the pipeline for the audit log."""
+    def __init__(self) -> None:
+        self.started_at = datetime.now(timezone.utc).isoformat()
+        self.candidates_found = 0
+        self.verified_matched = 0
+        self.verified_unmatched = 0
+        self.extracted_accepted = 0
+        self.extracted_rejected = 0
+        self.appended_pending = 0
+        self.appended_rejected = 0
+        self.skipped_dupe_pending = 0
+        self.skipped_dupe_rejected = 0
+        self.skipped_dupe_recalls = 0
+        self.errors: list[str] = []
 
-    def add_error(self, stage: str, exc: Exception) -> None:
-        self.errors.append({
-            "stage": stage, "type": type(exc).__name__, "msg": str(exc),
-            "traceback": traceback.format_exc()[:500],
-        })
+    def add_error(self, where: str, exc: Exception) -> None:
+        msg = f"[{where}] {type(exc).__name__}: {exc}"
+        self.errors.append(msg)
+        print(f"  ERROR: {msg}", file=sys.stderr)
+
+    def to_dict(self) -> dict:
+        return {
+            "started_at": self.started_at,
+            "finished_at": datetime.now(timezone.utc).isoformat(),
+            "candidates_found": self.candidates_found,
+            "verified_matched": self.verified_matched,
+            "verified_unmatched": self.verified_unmatched,
+            "extracted_accepted": self.extracted_accepted,
+            "extracted_rejected": self.extracted_rejected,
+            "appended_pending": self.appended_pending,
+            "appended_rejected": self.appended_rejected,
+            "skipped_dupe_pending": self.skipped_dupe_pending,
+            "skipped_dupe_rejected": self.skipped_dupe_rejected,
+            "skipped_dupe_recalls": self.skipped_dupe_recalls,
+            "errors": self.errors,
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# XLSX I/O (idempotent append, dedupe by URL)
+# XLSX I/O (idempotent append)
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _load_existing_urls(xlsx_path: str, sheet_name: str) -> set[str]:
-    """Read every URL already in the given sheet."""
-    if not Path(xlsx_path).exists():
-        return set()
+    """Return the set of URL values already present in the given sheet's URL column.
+    Used to skip duplicates on append."""
     try:
         from openpyxl import load_workbook
     except ImportError:
-        print("  [WARN] openpyxl missing — cannot dedupe", file=sys.stderr)
+        print("ERROR: openpyxl not installed. pip install openpyxl", file=sys.stderr)
+        raise
+
+    p = Path(xlsx_path)
+    if not p.exists():
         return set()
-    try:
-        wb = load_workbook(xlsx_path, read_only=True, data_only=True)
-        if sheet_name not in wb.sheetnames:
-            return set()
-        ws = wb[sheet_name]
-        headers = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
-        try:
-            url_col = headers.index("URL")
-        except ValueError:
-            return set()
-        urls: set[str] = set()
-        for row in ws.iter_rows(min_row=2, values_only=True):
-            if url_col < len(row) and row[url_col]:
-                urls.add(str(row[url_col]).strip())
+
+    wb = load_workbook(xlsx_path, read_only=True, data_only=True)
+    if sheet_name not in wb.sheetnames:
         wb.close()
-        return urls
-    except Exception as e:
-        print(f"  [WARN] dedupe read failed for {sheet_name}: {e}", file=sys.stderr)
         return set()
+
+    ws = wb[sheet_name]
+    rows = ws.iter_rows(values_only=True)
+    try:
+        header = next(rows, None)
+        if not header:
+            wb.close()
+            return set()
+        try:
+            url_col = list(header).index("URL")
+        except ValueError:
+            wb.close()
+            return set()
+
+        urls: set[str] = set()
+        for row in rows:
+            if row and len(row) > url_col and row[url_col]:
+                urls.add(str(row[url_col]).strip())
+        return urls
+    finally:
+        wb.close()
 
 
 def _apply_writer_guards(rows: list[dict], where: str) -> None:
     """Run the guards `_write_sheet` runs, because this writer is not it.
 
-    WHY THIS IS HERE (audit 2026-10-06)
-    -----------------------------------
-    ``merge_master._write_sheet`` is the documented writer choke point.
-    ``_append_rows`` below does NOT go through it — it opens the workbook
-    with openpyxl and appends — so every guard at that choke point was
-    skipped for every row the 46-country fleet has ever written.
+    WHY THIS IS HERE (morning-fix 2026-10-07)
+    -----------------------------------------
+    The identical note on ``pipeline/gap_finder/main._apply_writer_guards``
+    was written on 2026-10-06 for the 46-country fleet writer, and
+    ``tests/test_a_writer_that_skips_the_choke_point_still_canonicalises.py``
+    was shipped the same day covering BOTH bypassing writers — the fleet's
+    and this one. Only the fleet's was fixed. The six Greek cases in that
+    file have been red on main ever since, which is how this got found:
 
-    merge_master already anticipated writers like this one and exposes the
-    two guards as callables for exactly this purpose, each saying in its own
-    docstring that it is "callable by the writers that do not go through it":
+        test_greek_writer_canonicalises                       3 cases
+        test_greek_writer_strips_the_empty_identifier_template 3 cases
 
-        apply_label_aliases             Source / Country canonicalisation
-        strip_empty_identifier_template the extractor's "(Recall ID <none>)"
+    ``merge_master._write_sheet`` is the documented writer choke point and
+    ``_append_rows`` below does not go through it — it opens the workbook
+    with openpyxl and appends — so Source/Country canonicalisation and the
+    extractor's empty-identifier strip were skipped for every row this
+    collector has ever written. merge_master exposes both as callables for
+    exactly this purpose, each saying so in its own docstring.
 
-    Neither was ever called from here. ONE BYPASS, TWO SYMPTOMS, both
-    measured on main at fa15d2e:
-
-      * 48 rows in Weekly_Rejected carry Source 'FSIS'. SOURCE_ALIASES has
-        mapped "fsis" -> "USDA FSIS" since 2026-08;
-        pipeline/gap_finder/countries/us.py sets authority_short="FSIS";
-        this writer wrote it verbatim, and
-        test_publish_gate::test_usda_fsis_source_label_is_canonical went
-        red. The same bypass is how the bare 'Salute' label reached
-        **Recalls** on 2026-10-04 — the 2026-10-04 note in SOURCE_ALIASES
-        blames two hand-written lists that have to agree, which was half
-        the story: by then they did agree, and the row still got through,
-        because this path consulted neither.
-
-      * 2 rows in Pending carry "(Recall ID not provided)" in Reason
-        (Italian Ministero della Salute, AgriLanga Roccaverano DOP and BMS
-        Probios popcorn maize), and test_empty_identifier_template_never_
-        reaches_data went red. _EMPTY_ID_TEMPLATE has matched
-        "not provided" since it was written. The regex was never the
-        problem; the call site was missing.
-
-    Fixing the us.py config instead would have fixed one label on one of
-    46 configs, and stripping the two Reasons by hand — as the one-off
-    repairs of 2026-10-04 and 2026-10-05 did for the same template in other
-    rows — would have left the third recurrence to the next morning. The
-    guards are the single place that says what a label and a Reason may be,
-    so this writer borrows them.
+    Same body as the fleet writer's on purpose: two copies that must agree
+    is the defect this whole family of bugs is made of, so the shared thing
+    is the two merge_master callables, and each bypassing writer's job is
+    only to call them.
     """
     try:
         from pipeline.merge_master import (
@@ -172,166 +210,132 @@ def _apply_writer_guards(rows: list[dict], where: str) -> None:
         print(f"  [ERROR] writer guards unavailable, rows written raw: "
               f"{type(exc).__name__}: {str(exc)[:80]}", file=sys.stderr)
         return
-    n_lab = apply_label_aliases(rows, where=where)
-    n_tpl = strip_empty_identifier_template(rows, where=where)
-    if n_lab or n_tpl:
-        print(f"  [guards] {where}: {n_lab} label(s) canonicalised, "
-              f"{n_tpl} Reason(s) cleaned", file=sys.stderr)
+    apply_label_aliases(rows, where=where)
+    strip_empty_identifier_template(rows, where=where)
 
 
 def _append_rows(
-    xlsx_path: str, sheet_name: str, rows: list[dict], dedupe_against: set[str],
-) -> tuple[int, int]:
-    """Append rows to xlsx sheet, deduplicating by URL. Returns (appended, skipped)."""
-    if not rows:
-        return 0, 0
-    _apply_writer_guards(rows, f"gap_finder/main -> {sheet_name}")
-    try:
-        from openpyxl import load_workbook, Workbook
-    except ImportError:
-        print("  [ERROR] openpyxl missing — cannot write xlsx", file=sys.stderr)
-        return 0, 0
+    xlsx_path: str,
+    sheet_name: str,
+    columns: list[str],
+    new_rows: list[dict],
+) -> int:
+    """Append rows to the given sheet, preserving column order. Returns count appended."""
+    _apply_writer_guards(new_rows, f"gap_finder_gr/main -> {sheet_name}")
+    from openpyxl import load_workbook, Workbook
 
     p = Path(xlsx_path)
-    p.parent.mkdir(parents=True, exist_ok=True)
     if p.exists():
         wb = load_workbook(xlsx_path)
     else:
         wb = Workbook()
-        # Remove default sheet
-        if "Sheet" in wb.sheetnames:
+        # Remove the default empty sheet that openpyxl creates
+        if "Sheet" in wb.sheetnames and len(wb.sheetnames) == 1:
             del wb["Sheet"]
 
     if sheet_name not in wb.sheetnames:
         ws = wb.create_sheet(sheet_name)
-        # Headers = union of all row keys, with stable ordering
-        headers = list(rows[0].keys())
-        ws.append(headers)
+        ws.append(columns)  # write header
     else:
         ws = wb[sheet_name]
-        headers = [c.value for c in next(ws.iter_rows(min_row=1, max_row=1))]
 
-    appended = skipped = 0
-    for row in rows:
-        url = (row.get("URL") or "").strip()
-        if url and url in dedupe_against:
-            skipped += 1
-            continue
-        ws.append([row.get(h, "") for h in headers])
-        if url:
-            dedupe_against.add(url)
+    appended = 0
+    for row in new_rows:
+        values = [row.get(col, "") for col in columns]
+        ws.append(values)
         appended += 1
 
+    p.parent.mkdir(parents=True, exist_ok=True)
     wb.save(xlsx_path)
-    return appended, skipped
+    wb.close()
+    return appended
 
 
-def _recall_identity(row: dict) -> str:
-    """Content fingerprint for one accepted recall, independent of which news
-    outlet surfaced it. Multiple outlets cover the same EFET recall with
-    different URLs/titles; without this they each become a separate Pending
-    row a reviewer must merge by hand (run 27459015513 produced 7 rows for
-    2 real recalls).
+def write_pending_rows_to_xlsx(
+    xlsx_path: str,
+    rows: list[dict],
+    state: RunState,
+    verbose: bool = False,
+) -> None:
+    """Append accepted rows to Pending sheet, skipping URLs already present in
+    either Pending or the master Recalls sheet (don't re-pending something
+    already promoted)."""
+    if not rows:
+        return
 
-    Priority key: the authority recall ID embedded in Reason
-    (e.g. 'Recall ID 842632') — that's the regulator's own unique handle.
-    Fallback: normalized company + pathogen + first 3 product words.
-    """
-    import re as _re
+    existing_pending = _load_existing_urls(xlsx_path, PENDING_SHEET)
+    existing_recalls = _load_existing_urls(xlsx_path, RECALLS_SHEET)
+    if verbose:
+        print(f"[pending] existing URLs — Pending: {len(existing_pending)}, "
+              f"Recalls: {len(existing_recalls)}", file=sys.stderr)
 
-    def _norm(x: str) -> str:
-        x = (x or "").lower().strip()
-        x = unicodedata.normalize("NFD", x)
-        x = "".join(c for c in x if unicodedata.category(c) != "Mn")
-        return _re.sub(r"\s+", " ", x)
+    to_append: list[dict] = []
+    for r in rows:
+        url = (r.get("URL") or "").strip()
+        if not url:
+            to_append.append(r)
+            continue
+        if url in existing_pending:
+            state.skipped_dupe_pending += 1
+            if verbose:
+                print(f"  skip (already in Pending):  {url}", file=sys.stderr)
+            continue
+        if url in existing_recalls:
+            state.skipped_dupe_recalls += 1
+            if verbose:
+                print(f"  skip (already in Recalls):  {url}", file=sys.stderr)
+            continue
+        to_append.append(r)
 
-    def _squash(x: str) -> str:
-        # Aggressive: strip ALL non-alphanumeric so company legal-form
-        # variants collapse — "ΜΑΒΕΕ" == "Μ.Α.Β.Ε.Ε." == "Μ.Α.Β.Ε.Ε" — and
-        # outlet-to-outlet spelling/punctuation noise disappears.
-        return _re.sub(r"[^a-z0-9α-ω]", "", _norm(x))
+    if not to_append:
+        if verbose:
+            print("[pending] nothing new to append", file=sys.stderr)
+        return
 
-    company_sq = _squash(row.get("Company", ""))
-    pathogen = _norm(row.get("Pathogen", ""))
-
-    # The EFET recall ID is the regulator's own unique handle. When present
-    # AND we have a company, combine them: same company + same bulletin ID =
-    # same recall, regardless of how each outlet worded the product. This
-    # collapses the multi-outlet duplicates that vary company punctuation and
-    # product wording, WITHOUT over-merging two different firms that happen to
-    # appear in one combined bulletin (company is part of the key).
-    reason = row.get("Reason", "") or ""
-    m = _re.search(r"(?:recall\s*id|id|allerta|pratica|αρ\.?\s*παρτιδας)"
-                   r"\s*[:#]?\s*([0-9]{3,})", reason, _re.IGNORECASE)
-    recall_id = m.group(1) if m else ""
-
-    if company_sq and recall_id:
-        return f"cid:{company_sq}|{recall_id}"
-    if company_sq:
-        # No ID — fall back to company + first 2 product words.
-        product = " ".join(_norm(row.get("Product", "")).split()[:2])
-        return f"cp:{company_sq}|{product}"
-    # Empty extraction (LLM-failed rows): keep distinct by URL so a reviewer
-    # sees each one for manual fixing rather than silently merging them.
-    return f"url:{(row.get('URL') or '').strip()}"
+    appended = _append_rows(xlsx_path, PENDING_SHEET, PENDING_COLUMNS, to_append)
+    state.appended_pending = appended
+    print(f"[pending] appended {appended} row(s) to {xlsx_path}::{PENDING_SHEET}",
+          file=sys.stderr)
 
 
-def _richness(row: dict) -> int:
-    """Score how complete an extraction is, so when collapsing duplicates we
-    keep the best one. LLM-extraction-failed rows (empty company/brand) score
-    lowest and get dropped in favour of a fully-extracted sibling."""
-    score = 0
-    for field in ("Company", "Brand", "Product", "Pathogen", "Region"):
-        v = (row.get(field) or "").strip()
-        if v and "extraction failed" not in v.lower():
-            score += len(v)
-    return score
+def write_rejected_rows_to_xlsx(
+    xlsx_path: str,
+    rows: list[dict],
+    state: RunState,
+    verbose: bool = False,
+) -> None:
+    """Append rejected rows to Weekly_Rejected sheet, skipping already-rejected URLs."""
+    if not rows:
+        return
 
+    existing = _load_existing_urls(xlsx_path, REJECTED_SHEET)
+    if verbose:
+        print(f"[rejected] existing URLs in {REJECTED_SHEET}: {len(existing)}",
+              file=sys.stderr)
 
-def dedupe_by_recall_identity(rows: list[dict]) -> tuple[list[dict], int]:
-    """Collapse rows that describe the same recall, keeping the richest.
-    Returns (deduped_rows, n_collapsed)."""
-    best: dict[str, dict] = {}
-    order: list[str] = []
-    for row in rows:
-        key = _recall_identity(row)
-        if key not in best:
-            best[key] = row
-            order.append(key)
-        elif _richness(row) > _richness(best[key]):
-            best[key] = row
-    deduped = [best[k] for k in order]
-    return deduped, len(rows) - len(deduped)
+    to_append: list[dict] = []
+    for r in rows:
+        url = (r.get("URL") or "").strip()
+        if url and url in existing:
+            state.skipped_dupe_rejected += 1
+            if verbose:
+                print(f"  skip (already rejected): {url}", file=sys.stderr)
+            continue
+        to_append.append(r)
 
+    if not to_append:
+        if verbose:
+            print("[rejected] nothing new to append", file=sys.stderr)
+        return
 
-def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]:
-    """Write to Pending sheet. Skip URLs already in Pending OR Recalls.
-    Returns (appended, skipped_pending_dupe, skipped_recalls_dupe)."""
-    # Collapse same-recall duplicates from multiple news outlets first.
-    rows, collapsed = dedupe_by_recall_identity(rows)
-    if collapsed:
-        print(f"  [dedup] collapsed {collapsed} duplicate-recall row(s) "
-              f"→ {len(rows)} unique", file=sys.stderr)
-    pending_urls = _load_existing_urls(xlsx_path, PENDING_SHEET)
-    recalls_urls = _load_existing_urls(xlsx_path, RECALLS_SHEET)
-
-    pre_recalls_skip = sum(1 for r in rows if (r.get("URL") or "").strip() in recalls_urls)
-    rows_not_in_recalls = [r for r in rows if (r.get("URL") or "").strip() not in recalls_urls]
-
-    appended, pending_skipped = _append_rows(
-        xlsx_path, PENDING_SHEET, rows_not_in_recalls, pending_urls
-    )
-    return appended, pending_skipped, pre_recalls_skip
-
-
-def write_rejected_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int]:
-    """Write to Weekly_Rejected sheet. Dedupe by URL."""
-    rejected_urls = _load_existing_urls(xlsx_path, REJECTED_SHEET)
-    return _append_rows(xlsx_path, REJECTED_SHEET, rows, rejected_urls)
+    appended = _append_rows(xlsx_path, REJECTED_SHEET, REJECTED_COLUMNS, to_append)
+    state.appended_rejected = appended
+    print(f"[rejected] appended {appended} row(s) to {xlsx_path}::{REJECTED_SHEET}",
+          file=sys.stderr)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# JSONL I/O
+# JSONL I/O HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 
 def read_jsonl(path: str) -> list[dict]:
@@ -362,244 +366,101 @@ def append_jsonl(record: dict, path: str) -> None:
 # PIPELINE STAGES
 # ─────────────────────────────────────────────────────────────────────────────
 
-def stage_news_scraper(cfg: CountryConfig, verbose: bool = False) -> list[dict]:
+def stage_news_scraper(verbose: bool = False) -> list[dict]:
+    """Stage 1: discover candidate news articles."""
     print("\n=== Stage 1: News Scraper ===", file=sys.stderr)
-    rss = news_scraper.collect_rss(cfg, verbose=verbose)
-    gn = news_scraper.collect_google_news(cfg, verbose=verbose)
+    rss = news_scraper.collect_rss(verbose=verbose)
+    gn = news_scraper.collect_google_news(verbose=verbose)
     all_cands = rss + gn
     deduped = news_scraper.deduplicate(all_cands)
-    print(f"  RSS: {len(rss)}, Google News: {len(gn)}, deduped: {len(deduped)}",
-          file=sys.stderr)
-    news_scraper.write_jsonl(deduped, cfg.candidates_path)
-    return [c.to_dict() for c in deduped]
+    print(f"  RSS: {len(rss)}, Google News: {len(gn)}, "
+          f"deduped: {len(deduped)}", file=sys.stderr)
+    candidates = [c.to_dict() for c in deduped]
+    news_scraper.write_jsonl(deduped, CANDIDATES_PATH)
+    return candidates
 
 
-def stage_article_fetch(
-    candidates: list[dict], cfg: CountryConfig, verbose: bool = False,
-    max_age_days: int = 14,
-) -> tuple[list[dict], list[dict]]:
-    """Stage 2: enrich candidates with body=title+description, filter recent, dedupe.
-
-    Pragmatic design:
-      - Google News URLs are JS-redirect proxies — can't fetch real article.
-      - Direct-RSS feeds (ilfattoalimentare.it) provide rich <description> in RSS.
-      - So body = title + description. No HTTP fetch needed.
-
-    Critical filters (else Stage 3 runs 40+ min on historical noise):
-      1. **Date filter**: drop candidates older than max_age_days. Gap finder
-         only cares about NEW recalls — old ones already flowed through FSIS.
-      2. **Title-fingerprint dedupe**: multiple news outlets cover the same
-         recall. Keep ONE representative per story (the first encountered).
-
-    Schema-compatible with old verified.jsonl so extractor.py works unchanged.
-    """
-    print(f"\n=== Stage 2: Candidate Enrichment ===", file=sys.stderr)
+def stage_efet_verifier(candidates: list[dict], verbose: bool = False) -> tuple[list[dict], list[dict]]:
+    """Stage 2: match candidates to EFET announcements, fetch bodies."""
+    print("\n=== Stage 2: EFET Fetcher ===", file=sys.stderr)
     if not candidates:
         return [], []
 
-    now_utc = datetime.now(timezone.utc)
-    cutoff = now_utc.timestamp() - (max_age_days * 86400)
+    efet_index = efet_fetcher.fetch_efet_index(verbose=verbose)
+    print(f"  EFET index: {len(efet_index)} announcements", file=sys.stderr)
 
-    def parse_pub(s: str) -> Optional[float]:
-        """Best-effort RFC822/ISO → UNIX timestamp."""
-        if not s:
-            return None
-        for fmt in ["%a, %d %b %Y %H:%M:%S %Z",
-                    "%a, %d %b %Y %H:%M:%S %z",
-                    "%Y-%m-%dT%H:%M:%S%z",
-                    "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"]:
-            try:
-                dt = datetime.strptime(s, fmt)
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                return dt.timestamp()
-            except ValueError:
-                continue
-        return None
-
-    def title_tokens(t: str) -> set[str]:
-        """Distinctive tokens for similarity comparison."""
-        import unicodedata
-        n = unicodedata.normalize("NFD", t.lower())
-        n = "".join(c for c in n if unicodedata.category(c) != "Mn")
-        return set(re.findall(r"[a-z0-9]{4,}", n))
-
-    # Italian stopwords that shouldn't count toward title similarity
-    STOP_IT = {"richiamo", "richiamato", "richiamata", "richiamati", "ritiro",
-               "ritirato", "ritirata", "ritirati", "lotto", "lotti", "mercato",
-               "supermercati", "supermercato", "marca", "marchio", "prodotto",
-               "prodotti", "ministero", "salute", "rischio", "alimentare",
-               "presenza", "possibile"}
-
-    def is_duplicate(tokens: set[str], seen_token_sets: list[set[str]]) -> bool:
-        """Return True if this title shares ≥40% meaningful tokens with any prior."""
-        sig = tokens - STOP_IT
-        if len(sig) < 2:
-            return False
-        for prev in seen_token_sets:
-            prev_sig = prev - STOP_IT
-            if not prev_sig:
-                continue
-            overlap = len(sig & prev_sig) / max(len(sig | prev_sig), 1)
-            if overlap >= 0.4:
-                return True
-        return False
-
-    # Hard cap: even after date + dedup, never process more than this many
-    # records through Stage 3 (LLM extraction). Each LLM call is 5-10s; at 50
-    # records that's 4-8 min Stage 3, comfortably inside workflow timeout.
-    MAX_RECORDS = 50
-
-    too_old = 0
-    too_old_no_date = 0
-    seen_token_sets: list[set[str]] = []
-    dup_skipped = 0
-    capped = 0
     verified: list[dict] = []
-    now_iso = now_utc.isoformat()
+    unmatched: list[dict] = []
+    now = datetime.now(timezone.utc).isoformat()
 
-    # Sort candidates by published date desc (newest first) so the cap keeps
-    # the most recent records when there are too many.
-    def sort_key(c):
-        ts = parse_pub(c.get("published", ""))
-        return ts if ts is not None else 0
-    sorted_candidates = sorted(candidates, key=sort_key, reverse=True)
+    import time
+    for cand in candidates:
+        news_title = cand.get("title", "")
+        news_pub = cand.get("published", "")
+        match, score = efet_fetcher.match_candidate_to_efet(news_title, news_pub, efet_index)
 
-    # ── A. Cheap pre-filter: date + dedupe BEFORE we spend HTTP fetches ─────
-    pre_filtered: list[dict] = []
-    for cand in sorted_candidates:
-        if len(pre_filtered) >= MAX_RECORDS:
-            capped += 1
+        if not match:
+            unmatched.append({**cand, "best_score": score, "checked_at": now})
             continue
 
-        pub_ts = parse_pub(cand.get("published", ""))
-        if pub_ts is None:
-            too_old_no_date += 1
-        elif pub_ts < cutoff:
-            too_old += 1
-            continue
+        if not match.body:
+            time.sleep(efet_fetcher.REQUEST_DELAY)
+            match.body = efet_fetcher.fetch_announcement_body(match.url, verbose=verbose)
 
-        title = cand.get("title", "")
-        tokens = title_tokens(title)
-        if is_duplicate(tokens, seen_token_sets):
-            dup_skipped += 1
-            continue
-        seen_token_sets.append(tokens)
-        pre_filtered.append(cand)
+        record = efet_fetcher.VerifiedRecord(
+            news_url=cand.get("url", ""),
+            news_title=news_title,
+            news_published=news_pub,
+            news_source_domain=cand.get("source_domain", ""),
+            efet_url=match.url,
+            efet_title=match.title,
+            efet_date_iso=match.date_iso,
+            efet_body=match.body,
+            match_score=round(score, 4),
+            matched_at=now,
+        )
+        verified.append(record.to_dict())
 
-    # ── B. Parallel HTTP fetch via article_fetcher (the REAL enrichment) ────
-    # Google News redirector URLs get followed; real publisher HTML gets
-    # extracted via BeautifulSoup heuristics. Bodies typically 2000-5000
-    # chars — long enough to contain the hazard term that titles abbreviate.
-    print(f"  fetching {len(pre_filtered)} article bodies in parallel…",
-          file=sys.stderr)
-    try:
-        from . import article_fetcher
-    except ImportError:
-        import pipeline.gap_finder.article_fetcher as article_fetcher  # type: ignore
-    enriched_recs, failed_recs = article_fetcher.enrich_all(
-        pre_filtered, cfg, verbose=verbose)
-    fetched_ok = len(enriched_recs)
-    fetched_fail = len(failed_recs)
-
-    # ── C. Convert enriched records to dict (efet_body is real article text)
-    for rec in enriched_recs:
-        d = rec.to_dict()
-        d["discovered_via"] = "article_fetch"
-        verified.append(d)
-
-    # ── D. Fallback: keep failed-fetch candidates with RSS-description body
-    # so we don't lose visibility on them. Title+description is better than
-    # nothing — the classifier still has a shot at catching the hazard.
-    for cand in failed_recs:
-        title = cand.get("title", "")
-        description = cand.get("description", "")
-        body_parts = [title]
-        if description and description.lower() != title.lower():
-            body_parts.append(description)
-        body = "\n\n".join(body_parts)
-        pub_ts = parse_pub(cand.get("published", ""))
-        date_iso = ""
-        if pub_ts is not None:
-            date_iso = datetime.fromtimestamp(pub_ts, tz=timezone.utc).strftime("%Y-%m-%d")
-        record = {
-            "news_url": cand.get("url", ""),
-            "news_title": title,
-            "news_published": cand.get("published", ""),
-            "news_source_domain": cand.get("source_domain", ""),
-            "efet_url": cand.get("url", ""),
-            "efet_title": title,
-            "efet_date_iso": date_iso,
-            "efet_body": body,
-            "match_score": 1.0,
-            "matched_at": now_iso,
-            "discovered_via": "rss_fallback",
-            "fetch_status": cand.get("fetch_status", "failed"),
-        }
-        verified.append(record)
-
-    body_lens = [len(r["efet_body"]) for r in verified]
-    avg_len = sum(body_lens) // len(body_lens) if body_lens else 0
-    rich = sum(1 for l in body_lens if l > 200)
-    print(f"  candidates in:      {len(candidates)}", file=sys.stderr)
-    print(f"  too old (>{max_age_days}d):     {too_old}", file=sys.stderr)
-    print(f"  no date (kept):     {too_old_no_date}", file=sys.stderr)
-    print(f"  dup-title skipped:  {dup_skipped}", file=sys.stderr)
-    print(f"  capped (>{MAX_RECORDS}):       {capped}", file=sys.stderr)
-    print(f"  HTTP fetched ok:    {fetched_ok}", file=sys.stderr)
-    print(f"  HTTP fetched fail:  {fetched_fail} (fallback to RSS desc)",
-          file=sys.stderr)
-    print(f"  enriched out:       {len(verified)} (avg body {avg_len} chars, "
-          f"{rich} with >200 chars)", file=sys.stderr)
-
-    p = Path(cfg.verified_path)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    with p.open("w", encoding="utf-8") as f:
-        for r in verified:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
-
-    return verified, []
+    efet_fetcher.write_jsonl(verified, VERIFIED_PATH)
+    efet_fetcher.write_jsonl(unmatched, UNMATCHED_PATH)
+    print(f"  matched: {len(verified)}, unmatched: {len(unmatched)}", file=sys.stderr)
+    return verified, unmatched
 
 
-def stage_extractor(
-    verified: list[dict], cfg: CountryConfig, verbose: bool = False,
-) -> tuple[list[dict], list[dict]]:
+def stage_extractor(verified: list[dict], verbose: bool = False) -> tuple[list[dict], list[dict]]:
+    """Stage 3: rule gate + LLM extraction."""
     print("\n=== Stage 3: Extractor ===", file=sys.stderr)
     if not verified:
         return [], []
 
-    client = extractor.LlamaClient()
-    # Reset the circuit breaker so each run starts fresh. If the Llama box is
-    # down, the breaker trips after 2 failures and the rest of Stage 3 falls
-    # back to title-only instantly instead of hanging on per-record timeouts.
-    extractor.LlamaClient.reset_breaker()
-    print(f"  LlamaClient: {client.base_url}  model={client.model}",
-          file=sys.stderr)
+    client = LlamaClient()
+    print(f"  LlamaClient: {client.base_url}  model={client.model}", file=sys.stderr)
+
     if not client.health():
-        print(f"  ERROR: cannot reach llama-server at {client.base_url}",
-              file=sys.stderr)
-        return [], []
+        raise LlamaError(
+            f"llama-server unreachable at {client.base_url}. "
+            f"Check Tailscale connection and VPS status."
+        )
 
     pending_rows: list[dict] = []
     rejected_rows: list[dict] = []
 
     for i, v in enumerate(verified, 1):
         if verbose:
-            print(f"  [{i}/{len(verified)}] {v.get('efet_title', '')[:60]}",
+            print(f"  [{i}/{len(verified)}] {v.get('efet_title', '')[:65]}",
                   file=sys.stderr)
         try:
-            pending, rejected = extractor.extract_one(v, client, cfg, verbose=verbose)
+            pending, rejected = extractor.extract_one(v, client, verbose=verbose)
         except Exception as e:
-            print(f"  ERROR record {i}: {e}", file=sys.stderr)
+            print(f"  WARN: skipping record due to error: {e}", file=sys.stderr)
             continue
         if pending:
             pending_rows.append(pending)
         if rejected:
             rejected_rows.append(rejected)
 
-    extractor.write_jsonl(pending_rows, cfg.pending_path)
-    extractor.write_jsonl(rejected_rows, cfg.rejected_path)
-
+    extractor.write_jsonl(pending_rows, PENDING_OUT_PATH)
+    extractor.write_jsonl(rejected_rows, REJECTED_OUT_PATH)
     print(f"  accepted: {len(pending_rows)}, rejected: {len(rejected_rows)}",
           file=sys.stderr)
     return pending_rows, rejected_rows
@@ -610,136 +471,111 @@ def stage_extractor(
 # ─────────────────────────────────────────────────────────────────────────────
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="AFTS Gap Finder — Orchestrator (parametric)"
-    )
-    parser.add_argument("--country", required=True,
-                        help="ISO2 country code: gr, it, ...")
+    parser = argparse.ArgumentParser(description="AFTS Greek Gap Finder — Orchestrator")
     parser.add_argument("--xlsx", default=DEFAULT_XLSX,
                         help=f"Path to recalls.xlsx (default: {DEFAULT_XLSX})")
     parser.add_argument("--dry-run", action="store_true",
-                        help="Run pipeline but skip xlsx writes")
+                        help="Run all stages but do NOT write to xlsx")
     parser.add_argument("--skip-news", action="store_true",
-                        help="Skip Stage 1 — reuse existing candidates.jsonl")
-    parser.add_argument("--skip-verify", action="store_true",
-                        help="Skip Stage 2 — reuse existing verified.jsonl")
-    parser.add_argument("--max-age-days", type=int, default=14,
-                        help="Drop candidates older than N days (default: 14). "
-                             "Gap finder only cares about NEW recalls.")
+                        help=f"Skip Stage 1; load {CANDIDATES_PATH}")
+    parser.add_argument("--skip-efet", action="store_true",
+                        help=f"Skip Stages 1–2; load {VERIFIED_PATH}")
+    parser.add_argument("--skip-extract", action="store_true",
+                        help=f"Skip Stages 1–3; load {PENDING_OUT_PATH} and {REJECTED_OUT_PATH}")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
-    cfg = get_country(args.country)
-    state = RunState(
-        country_code=cfg.code, country_name=cfg.name_en,
-        started_at=datetime.now(timezone.utc).isoformat(),
-    )
-
-    print(f"=== AFTS Gap Finder ({cfg.code}/{cfg.name_en}) "
-          f"started {state.started_at} ===", file=sys.stderr)
-    print(f"  authority: {cfg.authority_short} ({cfg.authority_domain})",
+    state = RunState()
+    print(f"=== AFTS Greek Gap Finder run started {state.started_at} ===",
           file=sys.stderr)
-    print(f"  xlsx:      {args.xlsx}", file=sys.stderr)
-    print(f"  dry-run:   {args.dry_run}", file=sys.stderr)
+    print(f"  xlsx:    {args.xlsx}", file=sys.stderr)
+    print(f"  dry-run: {args.dry_run}", file=sys.stderr)
 
-    # ── Stage 1: News ───────────────────────────────────────────────────────
-    if args.skip_news:
-        candidates = read_jsonl(cfg.candidates_path)
-        print(f"\n[Stage 1] SKIPPED — loaded {len(candidates)} candidates",
-              file=sys.stderr)
-    else:
-        try:
-            candidates = stage_news_scraper(cfg, verbose=args.verbose)
-        except Exception as e:
-            state.add_error("news_scraper", e)
-            print(f"  ERROR: {e}", file=sys.stderr)
-            candidates = []
+    # ── Stage 1: news ──────────────────────────────────────────────────────
+    candidates: list[dict] = []
+    try:
+        if args.skip_efet or args.skip_extract or args.skip_news:
+            candidates = read_jsonl(CANDIDATES_PATH)
+            print(f"\n[Stage 1] SKIPPED — loaded {len(candidates)} from {CANDIDATES_PATH}",
+                  file=sys.stderr)
+        else:
+            candidates = stage_news_scraper(verbose=args.verbose)
+    except Exception as e:
+        state.add_error("news_scraper", e)
+        if args.verbose:
+            traceback.print_exc(file=sys.stderr)
     state.candidates_found = len(candidates)
 
-    # ── Stage 2: Article Fetch ──────────────────────────────────────────────
-    if args.skip_verify:
-        verified = read_jsonl(cfg.verified_path)
-        unmatched = read_jsonl(cfg.unmatched_path)
-        print(f"\n[Stage 2] SKIPPED — loaded {len(verified)} verified, "
-              f"{len(unmatched)} unmatched", file=sys.stderr)
-    else:
-        try:
-            verified, unmatched = stage_article_fetch(
-                candidates, cfg,
-                verbose=args.verbose,
-                max_age_days=args.max_age_days,
-            )
-        except Exception as e:
-            state.add_error("article_fetcher", e)
-            print(f"  ERROR: {e}", file=sys.stderr)
-            verified, unmatched = [], []
-    state.verified_count = len(verified)
-    state.unmatched_count = len(unmatched)
-
-    # ── Stage 3: Extract ────────────────────────────────────────────────────
+    # ── Stage 2: EFET ──────────────────────────────────────────────────────
+    verified: list[dict] = []
+    unmatched: list[dict] = []
     try:
-        pending_rows, rejected_rows = stage_extractor(verified, cfg, verbose=args.verbose)
+        if args.skip_efet or args.skip_extract:
+            verified = read_jsonl(VERIFIED_PATH)
+            unmatched = read_jsonl(UNMATCHED_PATH)
+            print(f"\n[Stage 2] SKIPPED — loaded {len(verified)} verified, "
+                  f"{len(unmatched)} unmatched", file=sys.stderr)
+        else:
+            verified, unmatched = stage_efet_verifier(candidates, verbose=args.verbose)
+    except Exception as e:
+        state.add_error("efet_fetcher", e)
+        if args.verbose:
+            traceback.print_exc(file=sys.stderr)
+    state.verified_matched = len(verified)
+    state.verified_unmatched = len(unmatched)
+
+    # ── Stage 3: extract ───────────────────────────────────────────────────
+    pending_rows: list[dict] = []
+    rejected_rows: list[dict] = []
+    try:
+        if args.skip_extract:
+            pending_rows = read_jsonl(PENDING_OUT_PATH)
+            rejected_rows = read_jsonl(REJECTED_OUT_PATH)
+            print(f"\n[Stage 3] SKIPPED — loaded {len(pending_rows)} pending, "
+                  f"{len(rejected_rows)} rejected", file=sys.stderr)
+        else:
+            pending_rows, rejected_rows = stage_extractor(verified, verbose=args.verbose)
     except Exception as e:
         state.add_error("extractor", e)
-        print(f"  ERROR: {e}", file=sys.stderr)
-        pending_rows, rejected_rows = [], []
+        if args.verbose:
+            traceback.print_exc(file=sys.stderr)
     state.extracted_accepted = len(pending_rows)
     state.extracted_rejected = len(rejected_rows)
-    # ── Count the rows the MODEL lost, not the rules ─────────────────────
-    #
-    # extractor.extract_one routes a row here when the Llama box times out or
-    # its circuit is open. That is the right handling — a half-parsed row must
-    # never reach Pending, and the recall is preserved for manual re-extraction
-    # rather than dropped. What was missing is that this is INDISTINGUISHABLE,
-    # everywhere downstream, from the rules rejecting a row on its merits.
-    #
-    # On 2026-09-25 the box died mid-request (RemoteDisconnected, then
-    # connection refused for the rest of the run) and the reviewer chain went
-    # red with exit 3 — visible. A gap finder in the same outage exits 0,
-    # writes status="completed" to its run log, and reports "candidates=14
-    # verified=9" to the freshness audit, which grades on age and says OK. The
-    # register already holds five such rows: South Africa's Deli Hummus
-    # Listeria recall (twice — 08-09 and 09-21), Czechia 09-15, Poland 09-19
-    # and 09-21. Real recalls, in Rejected, from a green run.
-    #
-    # This is the DEFAULT_TIMEOUT=45 incident's exact signature — "killed
-    # exactly the rows that classified ACCEPTED and routed them to Rejected" —
-    # with the box down instead of slow. The timeout fix raised 45s to 300s;
-    # it could not help when nothing is listening.
-    state.llm_extraction_failures = sum(
-        1 for r in rejected_rows
-        if str(r.get("RejectionReason") or "").startswith("llm-extraction-failed"))
 
-    # ── Stage 4: Write xlsx ─────────────────────────────────────────────────
-    print(f"\n=== Stage 4: Write to {args.xlsx} ===", file=sys.stderr)
+    # ── Stage 4: write xlsx ────────────────────────────────────────────────
+    print("\n=== Stage 4: Write to recalls.xlsx ===", file=sys.stderr)
     if args.dry_run:
-        print(f"  DRY RUN — no xlsx writes performed", file=sys.stderr)
+        print("  DRY RUN — no xlsx writes performed", file=sys.stderr)
         print(f"  would append: {len(pending_rows)} pending, "
               f"{len(rejected_rows)} rejected", file=sys.stderr)
     else:
         try:
-            app_p, skip_pending, skip_recalls = write_pending_rows(
-                pending_rows, args.xlsx
-            )
-            state.appended_pending = app_p
-            state.skipped_dupe_pending = skip_pending
-            state.skipped_dupe_recalls = skip_recalls
-
-            app_r, skip_rej = write_rejected_rows(rejected_rows, args.xlsx)
-            state.appended_rejected = app_r
-            state.skipped_dupe_rejected = skip_rej
+            write_pending_rows_to_xlsx(args.xlsx, pending_rows, state, verbose=args.verbose)
         except Exception as e:
-            state.add_error("write_xlsx", e)
-            print(f"  ERROR writing xlsx: {e}", file=sys.stderr)
+            state.add_error("write_pending", e)
+            if args.verbose:
+                traceback.print_exc(file=sys.stderr)
+        try:
+            write_rejected_rows_to_xlsx(args.xlsx, rejected_rows, state, verbose=args.verbose)
+        except Exception as e:
+            state.add_error("write_rejected", e)
+            if args.verbose:
+                traceback.print_exc(file=sys.stderr)
 
-    # ── Summary ─────────────────────────────────────────────────────────────
+    # ── Stage 5: run log ───────────────────────────────────────────────────
+    log_record = state.to_dict()
+    try:
+        append_jsonl(log_record, RUN_LOG_PATH)
+    except Exception as e:
+        print(f"WARN: could not write run log: {e}", file=sys.stderr)
+
+    # ── Summary ────────────────────────────────────────────────────────────
     print("\n" + "=" * 70, file=sys.stderr)
     print("RUN SUMMARY", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
-    print(f"  country:                 {cfg.code} ({cfg.name_en})", file=sys.stderr)
     print(f"  candidates found:        {state.candidates_found}", file=sys.stderr)
-    print(f"  verified (matched):      {state.verified_count}", file=sys.stderr)
-    print(f"  unmatched:               {state.unmatched_count}", file=sys.stderr)
+    print(f"  verified (matched EFET): {state.verified_matched}", file=sys.stderr)
+    print(f"  unmatched (no EFET):     {state.verified_unmatched}", file=sys.stderr)
     print(f"  extracted accepted:      {state.extracted_accepted}", file=sys.stderr)
     print(f"  extracted rejected:      {state.extracted_rejected}", file=sys.stderr)
     print(f"  → appended Pending:      {state.appended_pending}", file=sys.stderr)
@@ -747,129 +583,13 @@ def main() -> int:
     print(f"  skipped (dupe Pending):  {state.skipped_dupe_pending}", file=sys.stderr)
     print(f"  skipped (dupe Recalls):  {state.skipped_dupe_recalls}", file=sys.stderr)
     print(f"  skipped (dupe Rejected): {state.skipped_dupe_rejected}", file=sys.stderr)
-    print(f"  LLM failures (box down): {state.llm_extraction_failures}",
-          file=sys.stderr)
     print(f"  errors:                  {len(state.errors)}", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
 
-    # ── Make an outage visible without turning the fleet red ─────────────
-    #
-    # The exit code is deliberately NOT changed. That decision is from
-    # 2026-08-24 and it is recorded in every regional finder's workflow:
-    # "a VPS outage is not a workflow failure. Every regional finder
-    # hard-exited here, so one unreachable box turned the whole fleet red
-    # and buried the real cause. The finder itself reports honestly when
-    # the model is unavailable."
-    #
-    # The decision stands. What did not hold is the last sentence: the
-    # honest report went to stderr and nowhere else. The run log said
-    # "completed", the summary counted zero errors, and every automated
-    # watcher — the freshness audit, test_no_country_goes_dark,
-    # dispatch_watchdog — saw a healthy country. So the report now lands
-    # where it can be read: a GitHub annotation, the step summary, and a
-    # field in run_log.jsonl that tools/audit_freshness.py grades on.
-    if state.llm_extraction_failures:
-        _total = state.llm_extraction_failures
-        _accepted = state.extracted_accepted + _total
-        _all_of_them = _accepted > 0 and _total >= _accepted
-        _what = ("EVERY accepted row" if _all_of_them
-                 else f"{_total} of {_accepted} accepted rows")
-        _msg = (f"{cfg.code}: {_what} was routed to Rejected because the "
-                f"Llama box was unreachable. These are not content "
-                f"rejections — re-run this country once the box is up, or "
-                f"re-extract them by hand from the authority page. This run "
-                f"exits 0 by the 2026-08-24 policy; it is NOT a clean run.")
-        print(f"::error title=LLM unavailable ({cfg.code})::{_msg}")
-        _sm = os.environ.get("GITHUB_STEP_SUMMARY")
-        if _sm:
-            try:
-                with open(_sm, "a", encoding="utf-8") as _fh:
-                    _fh.write(f"\n### \u26a0 {cfg.code}: LLM unavailable\n\n{_msg}\n")
-            except OSError:
-                pass
-
-    # ── Run log ─────────────────────────────────────────────────────────────
-    _write_run_log(cfg, state, status="completed")
-
-    return 1 if state.errors else 0
-
-
-def _write_run_log(cfg, state, status: str, failed_stage: str = "",
-                   error: str = "") -> None:
-    """Append this run to the country's run_log.jsonl.
-
-    AUDIT 2026-09-16 — WHY THIS IS A FUNCTION NOW
-    ---------------------------------------------
-    The append used to be the second-to-last statement of main(). Eighteen
-    stages above it catch their own exceptions, but anything they miss —
-    an import error, a country config that raises, a bad response shape —
-    unwinds straight past it and NOTHING IS WRITTEN.
-
-    So run_log.jsonl records "last run that reached the end", not "last
-    run". A country that starts and dies every single day is
-    indistinguishable, in the only durable record there is, from one that
-    was never dispatched at all.
-
-    That is not hypothetical. Fourteen countries read as dark — the Nordic
-    five since 2026-05-31, the Central EU eight since 2026-06-14, Greece
-    since 2026-07-08 — while Greece commits a dated "auto-update" every
-    morning. Both facts are true at once precisely because a crash leaves
-    no trace here.
-
-    Now every exit writes a record, carrying the stage it died in. A
-    crashing country becomes fourteen dated crash records naming a stage,
-    which is a diagnosis; silence is not.
-    """
-    try:
-        rec = asdict(state)
-        rec["finished_at"] = datetime.now(timezone.utc).isoformat()
-        rec["status"] = status
-        if failed_stage:
-            rec["failed_stage"] = failed_stage
-        if error:
-            rec["error"] = str(error)[:500]
-        append_jsonl(rec, cfg.run_log_path)
-    except Exception as exc:        # noqa: BLE001
-        # Never let logging mask the real failure.
-        print(f"  WARN: could not write run log: {exc}", file=sys.stderr)
-
-
-def _main_guarded() -> int:
-    """main() with a run-log record guaranteed on every exit path."""
-    try:
-        return main()
-    except SystemExit:
-        raise
-    except BaseException as exc:                             # noqa: BLE001
-        import traceback
-        traceback.print_exc()
-        # Recover whatever context main() had built before it died, so the
-        # record names a country rather than being anonymous.
-        cfg = state = None
-        tb = sys.exc_info()[2]
-        while tb is not None:
-            lv = tb.tb_frame.f_locals
-            cfg = lv.get("cfg", cfg)
-            state = lv.get("state", state)
-            tb = tb.tb_next
-        if cfg is not None and state is not None:
-            stage = ""
-            tb2 = sys.exc_info()[2]
-            while tb2 is not None:
-                name = tb2.tb_frame.f_code.co_name
-                if name.startswith("stage_"):
-                    stage = name
-                tb2 = tb2.tb_next
-            _write_run_log(cfg, state, status="crashed",
-                           failed_stage=stage or "unknown",
-                           error=f"{type(exc).__name__}: {exc}")
-            print(f"  run log records a CRASH in "
-                  f"{stage or 'an unknown stage'}", file=sys.stderr)
-        else:
-            print("  crashed before a country config existed — nothing to "
-                  "log against", file=sys.stderr)
+    if state.errors:
         return 2
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(_main_guarded())
+    sys.exit(main())
