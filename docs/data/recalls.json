@@ -144,6 +144,22 @@
   "Notes": "Discovered via news: n-tv.de [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-08: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-07",
+  "Source": "CFS (HK)",
+  "Company": "Press Release",
+  "Brand": "Press Release",
+  "Product": "CFS urges public not to consume batch of imported prepackaged cheese suspected to be contaminated with Shiga toxin-producing E. coli",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "E. coli STEC",
+  "Class": "Recall",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/press/20261007_12650.html",
+  "Notes": "Press Release - CFS urges public not to consume batch of imported prepackaged cheese suspected to be contaminated with Shiga toxin-producing E. coli\n\n## CFS urges public not to consume batch of imported prepackaged cheese suspected to be contaminated with Shiga toxin-producing E. coli\n\nThe Centre fo  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-08: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-10-08: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-10-06",
   "Source": "RappelConso (FR)",
   "Company": "Toque du Chef",
@@ -334,6 +350,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876008",
   "Notes": "[RASFF #2026.8840; classification: alert notification; category: confectionery; notifId=876008]"
+ },
+ {
+  "Date": "2026-10-06",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Cedimar Srl",
+  "Brand": "",
+  "Product": "swordfish slices",
+  "Pathogen": "Mercury exceeding limit",
+  "Reason": "Presence of elevated levels of mercury",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Richiamo%20trancio%20pesce%20spada%20280926_1791288145.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-10-05",
