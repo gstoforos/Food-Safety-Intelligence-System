@@ -64,6 +64,22 @@
   "Notes": "FDA listing HTML (Layer 1)"
  },
  {
+  "Date": "2026-10-08",
+  "Source": "CDC",
+  "Company": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa",
+  "Brand": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical",
+  "Product": "Colorado, 2025–2026",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Clostridium botulinum — outbreak",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.cdc.gov/mmwr/volumes/75/wr/mm7539a2.htm?s_cid=OS_mm7539a2_w",
+  "Notes": "# Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa — Colorado, 2025–2026  | MMWR\n\nAuthor: CDCMMWR\nPublished: 2026-10-08T00:00:00Z\nSource: cdc.gov\nLanguage: en\n\n## Story\n\nNotes from the Field: Investigation of Unapproved Botulinum Toxin Product A  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-09: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-10-09: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-10-07",
   "Source": "RappelConso (FR)",
   "Company": "Le Marsigny",
@@ -31390,21 +31406,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
- },
- {
-  "Date": "2026-10-08",
-  "Source": "CDC",
-  "Company": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa",
-  "Brand": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical",
-  "Product": "Colorado, 2025–2026",
-  "Pathogen": "Clostridium botulinum",
-  "Reason": "Clostridium botulinum — outbreak",
-  "Class": "Recall",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://www.cdc.gov/mmwr/volumes/75/wr/mm7539a2.htm?s_cid=OS_mm7539a2_w",
-  "Notes": "# Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa — Colorado, 2025–2026  | MMWR\n\nAuthor: CDCMMWR\nPublished: 2026-10-08T00:00:00Z\nSource: cdc.gov\nLanguage: en\n\n## Story\n\nNotes from the Field: Investigation of Unapproved Botulinum Toxin Product A  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-09: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-10-09: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
  }
 ]
