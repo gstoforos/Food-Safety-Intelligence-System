@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-08",
+  "Source": "GIS (PL)",
+  "Company": "Bell Polska Sp. z o.o.",
+  "Brand": "",
+  "Product": "Boczek wieprzowy wędzone plastry",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii boczku wędzonego",
+  "Class": "Recall",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-boczku-wedzonego",
+  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [review-agent 2026-10-08: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged]"
+ },
+ {
   "Date": "2026-10-07",
   "Source": "RappelConso (FR)",
   "Company": "Le Marsigny",
@@ -206,6 +222,38 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878187",
   "Notes": "[RASFF #2026.8883; classification: alert notification; category: bivalve molluscs and products thereof; notifId=878187] [promote 2026-10-08: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+ },
+ {
+  "Date": "2026-10-07",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Germany | Notifying: France",
+  "Brand": "—",
+  "Product": "STEC O103:H2 detected in Ground meat",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "STEC O103:H2 detected in Ground meat; risk: potential risk; category: meat and meat products (other than poultry)",
+  "Class": "Information",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878330",
+  "Notes": "[RASFF #2026.8886; classification: information notification for attention; category: meat and meat products (other than poultry); notifId=878330]"
+ },
+ {
+  "Date": "2026-10-07",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: United Kingdom (Northern Ireland) | Notifying: European Commission",
+  "Brand": "—",
+  "Product": "Escherichia coli in  mussels",
+  "Pathogen": "Escherichia coli (generic)",
+  "Reason": "Escherichia coli in mussels; risk: not serious; category: bivalve molluscs and products thereof",
+  "Class": "Information",
+  "Country": "United Kingdom (Northern Ireland)",
+  "Region": "Unknown",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878334",
+  "Notes": "[RASFF #2026.8885; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=878334] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-10-06",
