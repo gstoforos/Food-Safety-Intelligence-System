@@ -1,9 +1,9 @@
 {
   "week_end": "2026-10-11",
-  "generated_utc": "2026-10-10T07:46:15+00:00",
-  "row_count": 58,
-  "tier1_count": 39,
-  "outbreak_count": 2,
+  "generated_utc": "2026-10-10T10:29:23+00:00",
+  "row_count": 57,
+  "tier1_count": 38,
+  "outbreak_count": 1,
   "dissent_count": 0,
   "rows": [
     {
@@ -233,27 +233,6 @@
       "Notes": "Press Release - CFS urges public not to consume two kinds of imported prepackaged salad and pesto products suspected to be contaminated with Salmonella\n\n## CFS urges public not to consume two kinds of imported prepackaged salad and pesto products suspected to be contaminated with Salmonella\n\nThe Cen  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [operator pass 2026-10-10] filled Date, Company, Brand, Product, Reason — CFS press release of 09.10.2026, read on its own page: products imported from the UK by ALF Retail Hong Kong Limited; the CFS learned of the incident from FSA (UK) and FSAI notifications. Same incident as FSA-PRIN-48-2026 and FSAI 2026.62. [original company/brand: Press Release] [original product: CFS urges public not to consume two kinds of imported prepackaged salad and pesto products suspected to be contaminated with Salmonella] [promote 2026-10-10: status 'pending_gap'->'pending' — passes every publish-gate rule]",
       "DateAdded": "2026-10-10",
       "LastUpdated": "2026-10-10",
-      "LastChecked": "",
-      "Week_Added": "2026-10-11",
-      "Reviewed": "N"
-    },
-    {
-      "Date": "2026-10-08",
-      "Source": "CDC",
-      "Company": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa",
-      "Brand": "Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical",
-      "Product": "Colorado, 2025–2026",
-      "Pathogen": "Clostridium botulinum",
-      "Reason": "Clostridium botulinum — outbreak",
-      "Class": "Recall",
-      "Country": "United States",
-      "Region": "North America",
-      "Tier": 1,
-      "Outbreak": 1,
-      "URL": "https://www.cdc.gov/mmwr/volumes/75/wr/mm7539a2.htm?s_cid=OS_mm7539a2_w",
-      "Notes": "# Notes from the Field: Investigation of Unapproved Botulinum Toxin Product Administered at a Medical Spa — Colorado, 2025–2026  | MMWR\n\nAuthor: CDCMMWR\nPublished: 2026-10-08T00:00:00Z\nSource: cdc.gov\nLanguage: en\n\n## Story\n\nNotes from the Field: Investigation of Unapproved Botulinum Toxin Product A  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-09: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-10-09: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]",
-      "DateAdded": "2026-10-09",
-      "LastUpdated": "2026-10-09",
       "LastChecked": "",
       "Week_Added": "2026-10-11",
       "Reviewed": "N"
