@@ -1208,7 +1208,13 @@ jobs:
               prod = str(merged.get("Product", "") or "")
               if prod.lstrip().startswith("#") or "\n" in prod:
                   probs.append("Product contains formatting debris (# or newline)")
-              if len(prod) > 160:
+              # A recall of several products lists them with "; " (FSA-PRIN-48-2026,
+              # Greencore: five products, 239 characters, rejected twice on
+              # 2026-10-08/09 as a "headline"). Length alone cannot tell a list
+              # from a headline; a list is judged item by item (operator 2026-10-10).
+              _prod_items = [p.strip() for p in prod.split(";") if p.strip()]
+              if len(prod) > 160 and (len(_prod_items) < 2
+                                      or any(len(p) > 160 for p in _prod_items)):
                   probs.append("Product looks like a headline, not a product name")
               # The regulator's own name must not appear in Product, Company or Brand.
               #
