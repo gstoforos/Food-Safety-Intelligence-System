@@ -143,7 +143,11 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     # 2026-09-30: the import-violation line was reversed
                     # (operator: "in scope, as uninspected"); a re-promoted
                     # Sempio must retire its archived copy too.
-                    "out_of_scope_import_reinspection")
+                    "out_of_scope_import_reinspection",
+                    # 2026-10-10: merge_master.REPAIRABLE_DEFECTS gained
+                    # "product looks like a headline" (FSA-PRIN-48-2026,
+                    # Greencore — a five-product "; " list); moved together.
+                    "product looks like a headline")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0

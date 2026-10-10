@@ -2241,6 +2241,13 @@ def promote_approved(
                 # Condition 2 (the full publish gate) still has to pass.
                 "company and brand are the same",
                 "no matching hazard category",
+                # 2026-10-10. The confirmer's "Product looks like a headline"
+                # is a judgement on the FIELD's shape, never on the recall:
+                # FSA-PRIN-48-2026 (Greencore, Salmonella, Tier 1) was
+                # archived on it twice for a five-product "; " list, which
+                # recall_review_agent no longer calls a headline. Condition
+                # 2 (the full publish gate) still has to pass.
+                "product looks like a headline",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):

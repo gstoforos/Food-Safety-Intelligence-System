@@ -179,6 +179,11 @@ _PLACEHOLDER_VALUES = frozenset({
     "", "none", "null", "n/a", "na", "-", "—", "tbd", "unknown", "nan", "0",
     "idem", "ditto", "id.", "same as above", "voir ci-dessus", "cf. ci-dessus",
     "s.o.", "idem que ci-dessus",
+    # 2026-10-10: CFS (HK) press release 20261009_12660 (M&S salad and pesto,
+    # Salmonella) reached Pending with Company = Brand = "Press Release" — the
+    # page's section label, folded in by the daily search's deterministic
+    # extract — and this gate passed it. A document type names no firm.
+    "press release", "news release", "media release",
 })
 
 # Regulator page-status banners that some scrapers fold into Company because
@@ -241,6 +246,13 @@ HAZARD_CLASS_KEYWORDS = {
         # above: a real biological hazard that just didn't name a genus.
         "unspecified microbiological", "autres contaminants biologiques",
         "other biological contaminant",
+        # 2026-10-10 (operator: "add it with verbatim microbial risk", Tier 1):
+        # RappelConso 23698, CHATKA canned king crab — "Suspicion de risque
+        # microbiologique, risque de gonflement". A regulator stating a
+        # microbiological risk without naming the organism, on a sealed
+        # container that may swell, is a biological hazard.
+        "microbiological risk", "risque microbiologique",
+        "suspected microbiological",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -356,6 +368,11 @@ HAZARD_CLASS_KEYWORDS = {
         # 2026-09-30: FDA Lipofit (undeclared fluoxetine and DNP) and the Thai
         # FDA furosemide alert classified as nothing.
         "fluoxetine", "furosemide", "dinitrophenol", "2,4-dnp",
+        # 2026-10-10: FDA Leader Formulas "Rapture" pre-workout powder
+        # (2026-10-07) published with Pathogen "1, 3-Dimethylamylamine
+        # (DMAA)" — a stimulant FDA treats as an unlawful supplement
+        # ingredient — and classified as nothing, so the curator refused it.
+        "dimethylamylamine", "dmaa",
         # 2026-10-01, from the daily global search: RappelConso 23655
         # (Royal Orient bamboo shoots, bisphenol A above the legal limit) and
         # 23592/23594 (hemp oil, delta-9-THC above the acute reference dose)
