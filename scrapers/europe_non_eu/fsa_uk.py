@@ -81,6 +81,34 @@ def _products_from_item(item: dict) -> str:
     return "; ".join(names)
 
 
+def _reason_from_item(item: dict) -> str:
+    """The FSA's own words for why, from the record — never empty if it says.
+
+    Order: description -> problem[].riskStatement -> title. Added
+    2026-10-10: FSA-PRIN-48-2026 (Greencore, Salmonella, five products)
+    carried no ``description``, so Reason was written empty and the publish
+    gate held a complete Tier-1 recall in Pending on "Reason is empty" until
+    the confirm agent archived it. The title ("Greencore recalls several
+    products due to the presence of Salmonella") is the FSA's own sentence
+    and is a correct Reason; it is used only when nothing better exists.
+    """
+    desc = str(item.get("description") or "").strip()
+    if desc:
+        return desc
+    probs = item.get("problem", [])
+    if isinstance(probs, dict):
+        probs = [probs]
+    risks = []
+    for p in probs or []:
+        if isinstance(p, dict):
+            r = str(p.get("riskStatement") or "").strip()
+            if r and r not in risks:
+                risks.append(r)
+    if risks:
+        return " ".join(risks)
+    return str(item.get("title") or "").strip()
+
+
 class FSAUKScraper(BaseScraper):
     AGENCY = "FSA (UK)"
     COUNTRY = "United Kingdom"
@@ -238,7 +266,7 @@ class FSAUKScraper(BaseScraper):
                     Product=(_products_from_item(item)
                              or item.get("title", ""))[:300],
                     Pathogen=matched_kw,
-                    Reason=item.get("description", "")[:300],
+                    Reason=_reason_from_item(item)[:300],
                     Class=klass,
                     URL=url,
                     Outbreak=(1 if "illness" in summary or "outbreak" in summary
