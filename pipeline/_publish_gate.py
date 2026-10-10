@@ -857,6 +857,17 @@ _NON_FOOD_FIRM_MARKERS = (
     "compounded",
 )
 
+#: A clinical or cosmetic event is not a food event, whatever the agent.
+#: 2026-10-10 (operator: "the syringe — remove it, it's not food"): CDC MMWR
+#: 75(39), "Investigation of Unapproved Botulinum Toxin Product Administered
+#: at a Medical Spa — Colorado", published to Recalls as a Tier-1
+#: Clostridium botulinum outbreak because the hazard word matched. Read in
+#: Company, Brand, Product, Reason and the URL slug.
+_NON_FOOD_EXPOSURE_MARKERS = (
+    "medical spa", "med spa", "medspa", "botulinum toxin product",
+    "botulinum neurotoxin product", "cosmetic injection", "administered at a",
+)
+
 _MIRROR_IN_SOURCE = re.compile(
     r"\(\s*(?:via\s+)?((?:google\s+news|news\s*feed|rss|google|bing|"
     r"duckduckgo|tavily|exa|brave|perplexity|openrouter)[^)]*)\)",
@@ -900,6 +911,16 @@ def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
                 "business; FDA files drug, device and food notices in one "
                 "recalls bucket, so the host and path do not establish that "
                 "a notice is about food")
+            break
+
+    blob = " ".join((company, brand, product,
+                     str(row.get("Reason") or "").lower(), slug))
+    for marker in _NON_FOOD_EXPOSURE_MARKERS:
+        if marker in blob:
+            out.append(
+                f"the row's own text describes a clinical or cosmetic exposure "
+                f"({marker!r}), not a food — an injected toxin is not a food "
+                "recall, whatever hazard word it shares with one")
             break
     return out
 
