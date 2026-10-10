@@ -10,12 +10,12 @@
   "week_end_display": "4 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-10T03:26:58.738576+00:00",
-  "prev_total": 70,
+  "generated_utc": "2026-10-10T07:46:14.026791+00:00",
+  "prev_total": 71,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 75,
+    "total": 76,
     "tier1": 50,
     "outbreaks": 1,
     "delta": 5,
@@ -24,7 +24,7 @@
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 32,
-    "pct": 43
+    "pct": 42
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -99,5 +99,5 @@
       "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-wrights-of-mario-oak-sliced-s"
     }
   ],
-  "country_count": 27
+  "country_count": 28
 }
