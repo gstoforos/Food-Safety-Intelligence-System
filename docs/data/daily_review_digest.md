@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-10-07 (Athens)
+# FSIS Daily Review — 2026-10-10 (Athens)
 
-Mode: **live** · generated 2026-10-07T15:14:29+03:00
-Recalls rows reviewed: **1934** · in-progress week (never published): **W41**
+Mode: **live** · generated 2026-10-10T14:31:41+03:00
+Recalls rows reviewed: **1995** · in-progress week (never published): **W41**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -63,6 +63,10 @@ Recalls rows reviewed: **1934** · in-progress week (never published): **W41**
   - Evidence: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked)
   - Duplicate of: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria
   - id `4ae9dcc6ef9bc9fc` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
+- **[cross_source_dup · medium]** 2026-10-08 · Greencore · Salmonella — https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026
+  - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsai (ie))
+  - Duplicate of: https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products
+  - id `a56be5e7e21754e5` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cross_source_dup · medium]** 2026-09-03 · Frutas y Hortalizas del Sur S.A. · E. coli O145 (STEC) — https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fda)
   - Duplicate of: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple

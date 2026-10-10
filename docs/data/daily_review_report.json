@@ -1,17 +1,17 @@
 {
-  "generated": "2026-10-07T15:14:29+03:00",
-  "date": "2026-10-07",
+  "generated": "2026-10-10T14:31:41+03:00",
+  "date": "2026-10-10",
   "mode": "live",
   "in_progress_week": "W41",
   "counts": {
-    "recalls_rows": 1934,
+    "recalls_rows": 1995,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 18,
+    "proposed_deletions": 19,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -315,6 +315,32 @@
           "Country": "Canada",
           "Tier": 1,
           "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria"
+        }
+      },
+      {
+        "id": "a56be5e7e21754e5",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (fsai (ie))",
+        "row": {
+          "Date": "2026-10-08",
+          "Source": "FSA (UK)",
+          "Company": "Greencore",
+          "Product": "Pinch Pan Poppin’ Chicken Pasanda & Nutty Pilau Rice; Pinch Bangin’ Butter Chicken & Nutty Pilau Rice; M&S Super Nutty Wholefood with a Soy & Ginger Dressing; M&S Nutrient Dense Nutty Super Wholefood; M&S Fresh Collection Pistachio Pesto",
+          "Pathogen": "Salmonella",
+          "Country": "United Kingdom",
+          "Tier": 1,
+          "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026"
+        },
+        "duplicate_of": {
+          "Date": "2026-10-08",
+          "Source": "FSAI (IE)",
+          "Company": "Greencore",
+          "Product": "M&S Food Super Nutty Wholefood with a Soy & Ginger Dressing 200 g; M&S Food Nutrient Dense Nutty Super Wholefood 285 g; M&S Collection Pistachio and Parmigiano Reggiano Cheese Pesto 115 g",
+          "Pathogen": "Salmonella",
+          "Country": "Ireland",
+          "Tier": 1,
+          "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products"
         }
       },
       {
