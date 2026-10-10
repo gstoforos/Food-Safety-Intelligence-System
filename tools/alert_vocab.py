@@ -124,7 +124,10 @@ PATHOGEN: dict[str, list[str]] = {
     # did. If you disagree, delete this line — the row stays accurate either
     # way, it simply stops reaching anyone.
     "Unspecified microbiological contamination": [
-        "unspecified microbiological", "microbiological contamination"],
+        "unspecified microbiological", "microbiological contamination",
+        # 2026-10-10: RappelConso 23698 canned king crab, "suspected
+        # microbiological risk (container swelling)".
+        "microbiological risk"],
     "Ochratoxin": ["ochratoxin"],                                   # 91
     "Patulin": ["patulin"],                                         # 2
     "T-2 / HT-2 toxin": ["t-2", "ht-2", "t2 toxin"],                # 10
@@ -169,7 +172,10 @@ PATHOGEN: dict[str, list[str]] = {
                                         # bisphenol A migrating from cans.
                                         "bisphenol"],  # 4
     "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine",
-                                              "sildenafil", "tadalafil"],  # 1
+                                              "sildenafil", "tadalafil",
+                                              # 2026-10-10: FDA Leader Formulas
+                                              # pre-workout, DMAA (2026-10-07).
+                                              "dimethylamylamine", "dmaa"],  # 2
     # 2026-10-01: RappelConso 23592 / 23594, hemp oils above the acute
     # reference dose for delta-9-THC — published and reachable by no term.
     "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (",
@@ -180,7 +186,10 @@ PATHOGEN: dict[str, list[str]] = {
                                            "physical/foreign", "physical hazard",
                                            "glass", "metal fragment",
                                            "hard plastic", "shell fragment",
-                                           "stones", "sand)"],      # 41
+                                           "stones", "sand)",
+                                           # 2026-10-10: BVL Schneider Kochkäse
+                                           # (2026-10-07), "Plastic fragments".
+                                           "plastic fragment"],      # 41
     "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform",
                         "total bacterial count"],                   # 9
     "Rodent / pest contamination": ["rodent", "mouse contamination",
