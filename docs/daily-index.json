@@ -3,66 +3,67 @@
     {
       "date": "2026-10-09",
       "url": "daily/2026-10-09.html",
-      "total": 13,
-      "tier1": 11,
+      "total": 18,
+      "tier1": 15,
       "outbreak": 0,
       "by_region": {
-        "Europe": 12,
-        "North America": 1
+        "Europe": 16,
+        "North America": 1,
+        "Asia": 1
       },
-      "generated": "2026-10-10T07:12:19Z"
+      "generated": "2026-10-10T07:46:08Z"
     },
     {
       "date": "2026-10-08",
       "url": "daily/2026-10-08.html",
-      "total": 9,
-      "tier1": 8,
+      "total": 11,
+      "tier1": 10,
       "outbreak": 1,
       "by_region": {
-        "Europe": 6,
+        "Europe": 8,
         "North America": 2,
         "Asia": 1
       },
-      "generated": "2026-10-10T07:12:20Z"
+      "generated": "2026-10-10T07:46:07Z"
     },
     {
       "date": "2026-10-07",
       "url": "daily/2026-10-07.html",
-      "total": 16,
-      "tier1": 12,
-      "outbreak": 0,
+      "total": 19,
+      "tier1": 15,
+      "outbreak": 1,
       "by_region": {
-        "Europe": 11,
+        "Europe": 14,
         "North America": 2,
         "Asia": 2,
         "Unknown": 1
       },
-      "generated": "2026-10-10T07:12:22Z"
+      "generated": "2026-10-10T07:46:05Z"
     },
     {
       "date": "2026-10-06",
       "url": "daily/2026-10-06.html",
-      "total": 13,
-      "tier1": 7,
+      "total": 14,
+      "tier1": 8,
       "outbreak": 0,
       "by_region": {
-        "Europe": 10,
+        "Europe": 11,
         "Asia": 2,
         "North America": 1
       },
-      "generated": "2026-10-10T07:12:23Z"
+      "generated": "2026-10-10T07:46:04Z"
     },
     {
       "date": "2026-10-05",
       "url": "daily/2026-10-05.html",
-      "total": 12,
-      "tier1": 7,
+      "total": 13,
+      "tier1": 8,
       "outbreak": 0,
       "by_region": {
-        "Europe": 9,
+        "Europe": 10,
         "Asia": 3
       },
-      "generated": "2026-10-10T07:12:24Z"
+      "generated": "2026-10-10T07:46:03Z"
     },
     {
       "date": "2026-10-04",
