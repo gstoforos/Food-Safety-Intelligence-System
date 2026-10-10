@@ -227,8 +227,11 @@ def test_the_queued_row_is_status_pending(workbook_copy, novel_row):
     wb = load_workbook(workbook_copy, read_only=True, data_only=True)
     rows = list(wb["Pending"].iter_rows(values_only=True))
     hdr = [str(c or "") for c in rows[0]]
+    # Matched on the synthetic firm, not on the word "pesto": a real Pending
+    # row may name a pesto too (FSA-PRIN-48-2026, 2026-10-10, lists "M&S
+    # Fresh Collection Pistachio Pesto" among five products).
     hits = [dict(zip(hdr, x)) for x in rows[1:]
-            if "pesto" in str(dict(zip(hdr, x)).get("Product", "")).lower()]
+            if str(dict(zip(hdr, x)).get("Company", "")).startswith("UNIT TEST")]
     wb.close()
     assert len(hits) == 1
     assert str(hits[0]["Status"]).lower() == "pending"
