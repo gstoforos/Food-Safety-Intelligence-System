@@ -135,6 +135,12 @@ MOULD = {
     "mould", "moulds", "mold", "molds", "mouldy", "moldy",
     "mould contamination", "mold contamination",
     "moisissure", "moisissures", "muffa", "moho", "schimmel", "mögel",
+    # 2026-10-11: "muggsopp" (Norwegian) and "skimmel"/"skimmelsvamp"
+    # (Danish) were missing while Swedish "mögel" was present. The bare
+    # Norwegian "mugg" is deliberately NOT listed — it is also the ordinary
+    # word for a mug, and the homograph machinery below only protects terms
+    # that carry an accent to demand.
+    "muggsopp", "muggvekst", "skimmel", "skimmelsvamp",         # no / da
     "pleśń", "plesn", "penész", "hometta",
     "μούχλα", "ευρωτίασ", "fungal growth", "fungal contamination",
     "カビ", "真菌",                                                # Japanese
@@ -172,6 +178,11 @@ MICROBIAL_TOXINS = {
     "micotoxina",          # Spanish/Portuguese
     "mykotoksyn",          # Polish
     "hometoksiini", "hometoksiinit",   # Finnish ("home" = mold)
+    # 2026-10-11: Foodtrade AS's pistachio-kernel recall of 2026-09-25 read
+    # "funn av muggsoppgift over grenseverdi" — literally mould-fungus
+    # poison, i.e. a mycotoxin — and matched nothing.
+    "muggsoppgift", "muggift",         # Norwegian
+    "mykotoksin",                      # Norwegian / Danish / Swedish stem
     "mykotoksiini",        # Finnish (formal)
     "myglutoxín",          # Icelandic
     # Patulin
@@ -246,6 +257,17 @@ NATURAL_TOXINS = {
     # "pirolizyd" / "pyrrolizid" / "πυρρολιζιδ" are stems: Polish and
     # Greek inflect the adjective, German compounds it
     # (Pyrrolizidinalkaloide), and a stem matches every form.
+    # ── Nordic / Germanic plant toxins (added 2026-10-11) ───────────────
+    # Same pass, same cause as the plantevernmid entry in
+    # SYNTHETIC_CHEMICALS. Sbselite's blue poppy seeds from Türkiye were
+    # archived 2026-09-18 as "funn av plantetoksiner over grenseverdi" with
+    # no category matched. The register already PUBLISHES this hazard in
+    # English ("toxic plant substances", Herbapol nettle tea, 2026-09-21),
+    # so only this gate could not read it.
+    "plantetoksin", "plantegift", "giftige plantestoffer",      # no / da
+    "växttoxin", "växtgift",                                    # Swedish
+    "pflanzengift", "pflanzliche giftstoffe",                   # German
+    "plantentoxine", "plantengif",                              # Dutch
     "pyrrolizidine alkaloid", "pyrrolizidine",
     "pyrrolizidin",                      # German / Dutch / Nordic stem
     "alcaloidi pirrolizidinici", "pirrolizidin",          # Italian stem
@@ -509,6 +531,28 @@ SYNTHETIC_CHEMICALS = {
     "pesticide", "φυτοφάρμακο", "φυτοφαρμακο", "pesticida", "pesticidi", "fitofarmaco",
     "plaguicida", "plaguicidas", "fitofarmacêutico", "pesticidas",
     "pestizid", "pestizide", "pflanzenschutzmittel",            # German
+    # ── Nordic plant-protection agents (added 2026-10-11) ───────────────
+    #
+    # THE ROWS THAT FOUND THIS. Mattilsynet publishes a pesticide recall as
+    # "funn av plantevernmiddel over grenseverdi" and nothing here matched
+    # the Norwegian word at all, so `classify` returned
+    # category='unknown' -> reject. BAMA's kale recall of 2026-10-05
+    # (grønnkål, pesticide residues above the limit, sold nationwide at
+    # REMA 1000, KIWI, MENY, Spar, Joker, Bunnpris) was archived on
+    # 2026-10-06 with the authority URL already in hand, and for the five
+    # days that followed nine news rows for the same recall were archived
+    # again, each one "no-authority-url: no official Mattilsynet
+    # press-release URL in the source article" — the URL was in the
+    # archive the whole time.
+    #
+    # "plantevernmid" is a stem on purpose: it covers plantevernmiddel,
+    # plantevernmidler and plantevernmiddelrester, which a Germanic
+    # language will compound further without warning.
+    "plantevernmid",                                            # Norwegian
+    "växtskyddsmedel", "bekämpningsmedel",                      # Swedish
+    "plantebeskyttelsesmiddel", "pesticidrest", "sprøjtemiddel",  # Danish
+    "kasvinsuojeluaine", "torjunta-aine",                       # Finnish
+    "gewasbeschermingsmiddel",                                  # Dutch
     "pesticide", "bestrijdingsmiddel",                          # Dutch (also "pesticide")
     "pesticide", "pesticides",                                  # French (same)
     "pestycyd", "pestycydy",                                    # Polish
@@ -629,6 +673,14 @@ FOREIGN_MATTER = {
     "üveg", "üvegdarab", "üvegszilánk",                         # Hungarian
     "glas", "glasbitar", "glasskärva",                          # Swedish
     "glass", "glassbiter", "glassplint",                        # Norwegian
+    # 2026-10-11: "glasspartikler" is the word Mattilsynet used for Baza
+    # Nordic's sauerkraut recall of 2026-09-25, and the lexicon had five
+    # other Norwegian glass compounds but not that one. Bare "glass" could
+    # not rescue it: "glass" is in _FM_BOUND (so "stone" does not match
+    # "Blackstone"), and a word anchor cannot reach inside a Germanic
+    # compound. The spelling has to be listed, which is how every other
+    # entry on these lines got here.
+    "glasspartikler", "glasspartiklar", "glaspartikler",        # no / sv / da
     "glas", "glasstykker", "glasskår",                          # Danish (same form)
     "lasi", "lasinsiruja", "lasinpalat",                        # Finnish
     "lasinpaloja", "lasinsirpaleet", "lasipala",                # Finnish declensions
