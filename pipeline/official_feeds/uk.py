@@ -20,10 +20,12 @@ from __future__ import annotations
 
 import re
 
+from datetime import date, timedelta
+
 from ..base import Record, FeedSource, register
 from ..fetch import get_json, parse_iso
 
-API = "https://data.food.gov.uk/food-alerts/id"
+API = "https://data.food.gov.uk/food-alerts/id.json"
 
 _TYPE_MAP = {
     "PRIN": "recall",
@@ -105,20 +107,39 @@ def _firm(item: dict) -> str:
         firm = m.group("firm").strip(" \t-–—:")
         if 2 <= len(firm) <= 80:
             return firm
+    est = _establishment(item)
+    if est:
+        return est
+    return ""
+
+
+#: FSA Food Alerts for Action (FSA-FAFA-*) list the producing establishment
+#: as one of the productDetails names — "The establishment: Yasensvit Ltd,
+#: Kyiv, Ukraine" (FSA-FAFA-03-2026, Salmonella in raw shell eggs,
+#: 2026-10-10). That line is the firm, not a product: before 2026-10-11 it
+#: was written into Product and Company stayed empty, so the publish gate
+#: held a Tier-1 alert in Pending.
+_ESTABLISHMENT = re.compile(r"^\s*the\s+establishment\s*:\s*(?P<firm>.+?)\s*$", re.I)
+
+
+def _product_names(item: dict) -> list:
+    pd = item.get("productDetails", [])
+    if isinstance(pd, dict):
+        pd = [pd]
+    return [str(p["productName"]) for p in pd or []
+            if isinstance(p, dict) and p.get("productName")]
+
+
+def _establishment(item: dict) -> str:
+    for name in _product_names(item):
+        m = _ESTABLISHMENT.match(name)
+        if m and 2 <= len(m.group("firm")) <= 120:
+            return m.group("firm").strip()
     return ""
 
 
 def _product(item: dict) -> str:
-    pd = item.get("productDetails", [])
-    if isinstance(pd, list):
-        names = []
-        for p in pd:
-            if isinstance(p, dict) and p.get("productName"):
-                names.append(str(p["productName"]))
-        return "; ".join(names)
-    if isinstance(pd, dict):
-        return str(pd.get("productName", ""))
-    return ""
+    return "; ".join(n for n in _product_names(item) if not _ESTABLISHMENT.match(n))
 
 
 def _country_codes(item: dict) -> list[str]:
@@ -164,8 +185,12 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     (those are emitted by scotland.py). An alert tagged for multiple
     countries including England/Wales/NI is kept here.
 
-    `limit` is the API's _pageSize. It is NOT a cap on how many alerts we
-    want — see the pagination note below. Leave it at 50.
+    `limit` IS NO LONGER SENT TO THE API and is retained only so existing
+    callers (scotland.py, main.py, the tests) keep working. This endpoint
+    rejects unrecognised query parameters and has no recognised paging
+    parameter at all; the page cap is a server-side default reported in
+    meta.limit. Passing a different value here changes nothing. See the
+    note in the body.
     """
     # ---------------------------------------------------------------------
     # SILENT SCRAPER FAILURE (found 2026-08-07).
@@ -198,78 +223,142 @@ def fetch(limit: int = 50, include_scotland: bool = False,
     # ---------------------------------------------------------------------
     #
     # ---------------------------------------------------------------------
-    # THE PAGE SIZE IS CAPPED — PAGINATE, DO NOT ENLARGE (fix 2026-08-13).
+    # THE PAGE SIZE IS CAPPED AND `_page` IS IGNORED — SLICE BY DATE
+    # (fix 2026-08-15, replacing the 2026-08-13 `_page` attempt).
     #
-    # On 2026-08-11 a 90-day window came back with exactly 50 items, the page
-    # size. The collection is served OLDEST-FIRST, so a full page means the
-    # newest alerts fell off the end: a real truncation risk, and the same
-    # shape as the July failure — right query, wrong slice, no error.
+    # History of three wrong answers to the same question:
     #
-    # The fix attempted then was to raise _pageSize 50 -> 250. That was
-    # WRONG. Epimorphics caps _pageSize server-side, and the request is
-    # rejected outright:
+    #   1. `_sort=-created`      ignored by the API; served 2018 alerts.
+    #   2. `_pageSize=250`       400 Client Error. Took out UK AND Scotland
+    #                            (scotland.py delegates here) on every run.
+    #   3. `_page=<n>`           ALSO 400 from GitHub Actions, and useless
+    #                            anyway. Both established by measurement on
+    #                            2026-08-15:
     #
-    #     GET .../food-alerts/id?min-created=2026-05-15&_pageSize=250
-    #     -> 400 Client Error
+    #        _pageSize=200  -> 200 accepted, metadata "limit": 50.
+    #                          The server CLAMPS to 50; it does not error.
+    #        _pageSize=250  -> 400.
+    #        _page=0 vs _page=1 -> identical first item (FSA-PRIN-23-2026),
+    #                          and the payload carries no page/next/prev
+    #                          metadata at all. `_page` does nothing.
     #
-    # which took out UK *and* Scotland (scotland.py delegates here) for every
-    # run until it was noticed. A bigger page was never the answer; the API
-    # pages, so the collector must page too.
+    # So: at most 50 records per request, and no pagination parameter that
+    # works. The ONLY lever that changes the result set is the date window,
+    # and `min-created` + `max-created` are both honoured (verified: the
+    # window 2026-04-27..2026-06-15 returns exactly 15 alerts).
     #
-    # `_page` is 0-based. Each page is requested until a SHORT page arrives,
-    # which is the only reliable end-of-collection signal on this API.
+    # Therefore the lookback is walked in DATE SLICES. A slice that comes
+    # back full (50) is ambiguous — it may have been truncated — so it is
+    # SPLIT IN HALF and re-fetched until every slice returns short. That
+    # makes truncation impossible rather than merely unlikely, which is the
+    # failure mode that cost a month of UK recalls twice already.
     #
-    # Because this endpoint ignores unknown parameters instead of rejecting
-    # them, `_page` being honoured is verified from the DATA: if a page
-    # returns nothing we have not already seen, it is being ignored and we
-    # stop rather than loop forever on page 0. `max_pages` is a hard backstop.
+    # ── THE ANSWER, 2026-08-19: `_pageSize` IS NOT A PARAMETER AT ALL ────
+    #
+    # Four wrong diagnoses preceded this one, and every one of them was a
+    # guess made without the server's own explanation, because get_json
+    # discarded the response body and all anyone ever saw was
+    #     400 Client Error:  for url: ...
+    # with an empty reason. Once _raise_with_body() started printing the
+    # body, the FSA answered in one line:
+    #
+    #     "message": "These parameters haven't been recognized: _pageSize"
+    #
+    # Not the page size. Not `_page`. Not the date window. Not the TLS
+    # fingerprint or the User-Agent. The parameter itself is unknown to
+    # this API, and the service now REJECTS unknown parameters instead of
+    # ignoring them. From the response metadata:
+    #
+    #     "comment": "Updated beta-service, API backward compatible",
+    #     "version": "2.0.1",
+    #     "limit": 50
+    #
+    # `limit: 50` is returned when NOTHING is asked for. The cap is a
+    # server-side default that no query parameter controls — which is why
+    # `_pageSize=200` was silently clamped to 50 back when unknown
+    # parameters were still ignored, and why `_pageSize=250` looked like a
+    # size problem when it was a recognition problem all along.
+    #
+    # So the parameter is simply dropped. Sending nothing is valid against
+    # the strict service AND against any lenient deployment, which the
+    # earlier "fixes" were not.
+    #
+    # The cap is READ FROM THE RESPONSE (`meta.limit`) rather than
+    # hardcoded, so if the FSA raises or lowers it the slicing adapts
+    # instead of silently over- or under-fetching. PAGE_CAP_DEFAULT is only
+    # the value used before the first response comes back.
+    #
+    # Date slicing stays and is still load-bearing: the window
+    # 2025-01-01..2026-08-19 returns exactly 50 items with limit 50, i.e.
+    # truncated with no indication in the payload. Nothing about this API
+    # tells you a result set was cut short — the slicing is the only thing
+    # that makes truncation impossible.
     # ---------------------------------------------------------------------
-    from datetime import date, timedelta
-    since = (date.today() - timedelta(days=lookback_days)).isoformat()
-
+    PAGE_CAP_DEFAULT = 50  # meta.limit as served on 2026-08-19
+    page_cap = PAGE_CAP_DEFAULT
+    today = date.today()
+    start = today - timedelta(days=lookback_days)
+    since = start.isoformat()      # used in the log lines and the guards below
     items: list[dict] = []
     seen_ids: set[str] = set()
+    slices: list[tuple[date, date]] = [(start, today)]
+    n_req = 0
 
-    for page in range(max_pages):
-        data = get_json(API, params={"min-created": since,
-                                     "_pageSize": limit,
-                                     "_page": page})
-        batch = data.get("items", []) or []
-
-        fresh = []
+    def _add(batch) -> int:
+        added = 0
         for it in batch:
             key = str(it.get("@id") or it.get("notation") or "")
             if key and key in seen_ids:
                 continue
             if key:
                 seen_ids.add(key)
-            fresh.append(it)
+            items.append(it)
+            added += 1
+        return added
 
-        if batch and not fresh:
-            # Every item on this page was already collected: `_page` is being
-            # ignored and the API is re-serving page 0. Keep what we have —
-            # it is a valid first page — and stop, loudly.
-            print(f"  [WARN] FSA food-alerts appears to ignore _page "
-                  f"(page {page} repeated page {page - 1}). Stopping with "
-                  f"{len(items)} items; coverage may be incomplete.")
+    while slices:
+        if n_req >= max_pages:
+            print(f"  [WARN] FSA food-alerts: hit the {max_pages}-request "
+                  f"backstop with {len(slices)} date slice(s) unfetched. "
+                  f"Coverage may be incomplete.")
             break
+        lo, hi = slices.pop(0)
+        n_req += 1
+        # NO PAGING PARAMETER IS SENT. See the note above: this API
+        # rejects unrecognised parameters, and there is no recognised one.
+        data = get_json(API, params={"min-created": lo.isoformat(),
+                                     "max-created": hi.isoformat()})
+        batch = data.get("items", []) or []
+        _add(batch)
 
-        items.extend(fresh)
+        # Take the cap from the server rather than trusting a constant.
+        served = data.get("meta") or {}
+        try:
+            served_limit = int(served.get("limit") or 0)
+        except (TypeError, ValueError):
+            served_limit = 0
+        if served_limit > 0 and served_limit != page_cap:
+            print(f"  [FSA] page cap is {served_limit} (was assuming "
+                  f"{page_cap}) — adapting")
+            page_cap = served_limit
 
-        if len(batch) < limit:
-            break          # short page = end of the collection
-    else:
-        print(f"  [WARN] FSA food-alerts hit the {max_pages}-page backstop "
-              f"({len(items)} items). Raise max_pages or shorten "
-              f"lookback_days.")
+        if len(batch) >= page_cap and (hi - lo).days > 1:
+            # Full page: the slice may be truncated. Halve it and redo.
+            mid = lo + (hi - lo) / 2
+            slices.append((lo, mid))
+            slices.append((mid, hi))
+        elif len(batch) >= page_cap:
+            print(f"  [WARN] FSA food-alerts: {lo}..{hi} is a single day and "
+                  f"still returned a full page ({len(batch)}). Cannot narrow "
+                  f"further; that day may be truncated.")
 
     # A window this wide is never legitimately empty — the FSA publishes
     # several alerts a week. Empty means the query stopped working again,
     # and that has to be loud rather than green.
     if not items:
         raise RuntimeError(
-            f"FSA food-alerts returned 0 items for min-created={since} "
-            f"(_pageSize={limit}). The FSA publishes several alerts a week, "
+            f"FSA food-alerts returned 0 items for min-created={since}. "
+            f"The FSA publishes several alerts a week, "
             f"so an empty {lookback_days}-day window means the query is "
             f"being ignored — which is exactly how a month of UK recalls was "
             f"lost in July 2026. Check the parameter names against "
@@ -287,7 +376,7 @@ def fetch(limit: int = 50, include_scotland: bool = False,
             f"success.")
 
     print(f"  [FSA] {len(items)} alerts since {since} "
-          f"across {min(max_pages, (len(items) // limit) + 1)} page(s); "
+          f"across {n_req} request(s), page cap {page_cap}; "
           f"newest {newest[:10] or '?'}")
 
     records: list[Record] = []
