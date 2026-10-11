@@ -6,12 +6,13 @@
     "month_name": "September 2026",
     "month_start": "2026-09-01",
     "month_end": "2026-09-30",
-    "total": 278,
-    "tier1": 199,
+    "total": 291,
+    "tier1": 206,
     "outbreaks": 7,
     "top_pathogen": "Salmonella spp.",
-    "summary": "September 2026: 278 recalls, 199 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp..",
-    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M09-marketing.pdf"
+    "summary": "September 2026: 291 recalls, 206 Tier-1, 7 outbreak(s). Leading pathogen: Salmonella spp..",
+    "pdf_url": "https://fsis.advfood.tech/marketing/2026-M09-marketing.pdf",
+    "notified_total": 291
   },
   {
     "filename": "2026-M08.html",
@@ -20,13 +21,13 @@
     "month_name": "August 2026",
     "month_start": "2026-08-01",
     "month_end": "2026-08-31",
-    "total": 234,
-    "tier1": 177,
+    "total": 235,
+    "tier1": 178,
     "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "August 2026: 234 recalls, 177 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "August 2026: 235 recalls, 178 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M08-marketing.pdf",
-    "notified_total": 234
+    "notified_total": 235
   },
   {
     "filename": "2026-M07.html",
@@ -50,11 +51,11 @@
     "month_name": "June 2026",
     "month_start": "2026-06-01",
     "month_end": "2026-06-30",
-    "total": 243,
-    "tier1": 192,
+    "total": 242,
+    "tier1": 191,
     "outbreaks": 4,
     "top_pathogen": "Salmonella spp.",
-    "summary": "June 2026: 243 recalls, 192 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
+    "summary": "June 2026: 242 recalls, 191 Tier-1, 4 outbreak(s). Leading pathogen: Salmonella spp..",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M06-marketing.pdf",
     "notified_total": 243
   },
@@ -108,11 +109,11 @@
     "month_name": "February 2026",
     "month_start": "2026-02-01",
     "month_end": "2026-02-28",
-    "total": 33,
-    "tier1": 29,
+    "total": 32,
+    "tier1": 28,
     "outbreaks": 3,
     "top_pathogen": "Salmonella spp.",
-    "summary": "February 2026: 33 recalls, 29 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp.."
+    "summary": "February 2026: 32 recalls, 28 Tier-1, 3 outbreak(s). Leading pathogen: Salmonella spp.."
   },
   {
     "filename": "2026-M01.html",
