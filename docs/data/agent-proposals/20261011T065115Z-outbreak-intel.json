@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261011T065115Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oysters-clams-linked-to-salmonella-outbreak-river-closed-to-harvesting"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms oysters. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oysters-clams-linked-to-salmonella-outbreak-river-closed-to-harvesting",
+          "quote": "Oyster and clam harvesting has been shut down on a stretch of the Little Wicomico River in Northumberland County in Virginia after state health officials traced a Salmonella outbreak in Pennsylvania back to shellfish pulled from those waters.",
+          "retrieved_utc": "2026-10-11T06:43:52+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella",
+          "quote": "2026-06-30 CFIA Certain Five Star Shellfish Inc. brand oysters recalled due to Salmonella",
+          "retrieved_utc": "2026-10-11T06:43:52+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "20b4e0ecce663aab"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.food-safety.com/articles/11912-fao-responds-to-cyclospora-outbreak-with-agrifood-water-safety-resource"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus cyclospora; food terms lettuce. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.food-safety.com/articles/11912-fao-responds-to-cyclospora-outbreak-with-agrifood-water-safety-resource",
+          "quote": "Strengthening detection and outbreak investigation is of course essential to understanding and addressing food safety risks. Prevention, however, remains key to protecting public health",
+          "retrieved_utc": "2026-10-11T06:49:29+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-iceberg-lettuce-central-mexico-because-possible-health-risk",
+          "quote": "2026-07-18 FDA Iceberg lettuce from central Mexico (shredded/chopped/blend food-service & retail; multipl",
+          "retrieved_utc": "2026-10-11T06:49:29+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4aac703d2aa33831"
+    }
+  ]
+}
