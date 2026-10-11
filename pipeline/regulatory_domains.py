@@ -41,6 +41,7 @@ REGULATOR_DOMAINS: Dict[str, Tuple[str, str]] = {
     "inspection.canada.ca":         ("CFIA",          "Canada"),
     "recalls-rappels.canada.ca":    ("CFIA",          "Canada"),
     "quebec.ca":                    ("MAPAQ",         "Canada"),
+    "mapaq.gouv.qc.ca":             ("MAPAQ",         "Canada"),
     # ── Europe (EU + non-EU) ──────────────────────────────────────────
     "food.gov.uk":                  ("FSA",           "United Kingdom"),
     "foodstandards.gov.scot":       ("FSS",           "United Kingdom"),

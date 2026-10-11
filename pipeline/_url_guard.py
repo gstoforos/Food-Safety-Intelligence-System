@@ -150,11 +150,12 @@ _AUTHORITY_HOSTS = (
     "ispch.cl", "minsal.cl", "achipia.gob.cl", "kebs.org",
     "nfsa.gov.eg", "fdaghana.gov.gh", "thencc.org.za", "thencc.gov.za",
     "fssai.gov.in", "foscos.fssai.gov.in",   # India (2026-10-05)
+    "mapaq.gouv.qc.ca",                      # MAPAQ Québec (2026-10-11); quebec.ca is an umbrella
 )
 
 #: Whole-government umbrella domains a country config accepts, kept OUT of
 #: _AUTHORITY_HOSTS on purpose (escalation risk, above).
-UMBRELLA_HOSTS = ("gov.br", "gob.mx")
+UMBRELLA_HOSTS = ("gov.br", "gob.mx", "quebec.ca")   # quebec.ca: whole Québec government (2026-10-11)
 
 #: Reject reasons that are a claim about REACHABILITY, not about content.
 #: Anything here is answerable by the URL already on the row.

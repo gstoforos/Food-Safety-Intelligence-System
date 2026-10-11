@@ -1311,6 +1311,30 @@ def _is_terminal_rejection(desc: str) -> bool:
     # reversals with different dates — see _POLICY_REVERSALS.
     if _reversal_excuses(d):
         return False
+    # ── AN EXPLICITLY SUPERSEDED ARCHIVE ROW NO LONGER BLOCKS (2026-10-11) ──
+    #
+    # "[SUPERSEDED <date> — …]" is the marker this repo already uses to
+    # retire an archive row whose verdict was wrong: it is what
+    # tests/test_a_recall_is_not_both_published_and_rejected.py accepts as
+    # saying which copy wins, and what three earlier morning passes wrote
+    # (2026-10-05, -06, -08, -10). It had no effect here, so a wrong verdict
+    # stayed PERMANENT no matter what a human wrote next to it.
+    #
+    # THE ROW THAT FOUND THIS. BAMA's kale recall (Mattilsynet, 2026-10-05)
+    # was archived as "allergen: Undeclared allergen — out of scope (Rule B
+    # reject)" because the classifier had no Norwegian word for a
+    # plant-protection agent. "allergen" is in _TERMINAL_REJECTION_MARKERS,
+    # so load_rejected_urls made the misclassification a permanent verdict:
+    # tools/add_manual_row.py could not re-queue the recall even with the
+    # authority page read and quoted, and reported only "Nothing queued —
+    # append_to_pending skipped every row", which is indistinguishable from
+    # a duplicate. A wrong classification must not be able to make itself
+    # unappealable.
+    #
+    # UNRESOLVED is deliberately NOT listed. It marks a contradiction nobody
+    # has decided yet; only SUPERSEDED is a decision.
+    if "superseded" in d.lower():
+        return False
     # Lower-cased once. The reversal check above used to compute this as
     # `dl_all` on its way past; when that check moved into
     # _reversal_excuses (2026-09-25) the name went with it and the
@@ -2332,11 +2356,51 @@ def promote_approved(
                 except Exception:                       # pragma: no cover
                     _repromote_ok = False               # fail closed
 
+            # ── FOURTH EXCEPTION (2026-10-11): AN EXPLICITLY SUPERSEDED
+            #    ARCHIVE ROW IS NOT A VERDICT ANY MORE. ────────────────────
+            # "[SUPERSEDED <date> — …]" is already how this repo retires an
+            # archive row whose verdict was wrong (four morning passes have
+            # written it; test_a_recall_is_not_both_published_and_rejected
+            # accepts it as saying which copy wins). _is_terminal_rejection
+            # now reads it, which lets such a row back into Pending — and
+            # this guard, like the reversal case above, never asked, so the
+            # row reached Pending and was refused here instead.
+            #
+            # BAMA's kale recall (Mattilsynet, 2026-10-05, pesticide
+            # residues above the limit) is the row: archived as "allergen:
+            # Undeclared allergen — out of scope" because the classifier had
+            # no Norwegian word for a plant-protection agent. Same three
+            # conditions as every exception above — the archived reason is
+            # explicitly superseded, the row passes the FULL publish gate
+            # now, and the re-entry is stamped into Notes.
+            if not _repromote_ok:
+                try:
+                    from pipeline._publish_gate import publish_blockers
+                    if ("superseded" in (_prior_reason or "").lower()
+                            and not publish_blockers(clean)):
+                        _repromote_ok = True
+                        _repromote_kind = "superseded"
+                except Exception:                       # pragma: no cover
+                    _repromote_ok = False               # fail closed
+
             if _repromote_ok:
-                # Two exceptions, two different stories. The log and the Notes
-                # stamp must say WHICH one fired, or the sheet records a
+                # Each exception tells a different story. The log and the
+                # Notes stamp must say WHICH one fired, or the sheet records a
                 # repaired field where the truth was an unfetchable page.
-                if _repromote_kind == "reversal":
+                if _repromote_kind == "superseded":
+                    log.warning(
+                        "re-promotion ALLOWED %s — the archive row is "
+                        "explicitly SUPERSEDED (%s); the row passes the full "
+                        "publish gate",
+                        str(clean.get("URL", ""))[:90], _prior_reason[:90])
+                    clean["Notes"] = (
+                        str(clean.get("Notes") or "").strip()
+                        + f" [re-promotion allowed 2026-10-11: the archive row "
+                          f"carrying {_prior_reason[:160]!r} is explicitly "
+                          f"marked SUPERSEDED, and the row passes every "
+                          f"publish-gate rule]"
+                    ).strip()
+                elif _repromote_kind == "reversal":
                     log.warning(
                         "re-promotion ALLOWED %s — archived under a scope line "
                         "the operator has since reversed (%s); the row passes "
@@ -2701,6 +2765,9 @@ SOURCE_ALIASES = {
     "hapih": "HAH (HR)",
     "fda ghana": "FDA (GH)",
     "fda ph": "FDA (PH)",
+    # 2026-10-11: countries/ca.py writes "MAPAQ"; the registry label is
+    # "MAPAQ QC" (no parentheses), so the generic "X (CC)" rule cannot reach it.
+    "mapaq": "MAPAQ QC",
 }
 
 
@@ -2801,11 +2868,84 @@ def registry_source_label(raw: str, country: str) -> str:
 # This is the permanent guard, at the writer, matching the colon and bracket
 # variants. It removes ONLY the parenthesised/bracketed placeholder — a real
 # reference number is never touched, which is the whole point of rule 10.
-_EMPTY_ID_TEMPLATE = re.compile(
+#
+# 2026-10-11 — TWO MORE SPELLINGS, both already PUBLISHED when found.
+#
+#   "(Recall ID TBA)"   NKFH (HU), 2026-10-06, SZEGA Camembert Kft., STEC
+#                       in raw-milk Camembert. The alternation above lists
+#                       "tbd" and not "tba", so the row published the
+#                       placeholder to subscribers. Added here with the
+#                       spelled-out forms the same slot attracts
+#                       ("to be advised/announced/confirmed", "pending").
+#
+#   "(Recall ID 1234567890)"
+#                       Ruokavirasto (FI), 2026-10-09, Munax Oy. The model
+#                       filled the slot with INVENTED DIGITS instead of a
+#                       word, so every word-based alternative missed it and
+#                       the row published a reference number that exists
+#                       nowhere. A fabricated identifier is worse than an
+#                       admitted blank: it looks checkable.
+#
+# Only an UNMISTAKABLE placeholder digit run is removed — one repeated digit
+# ("000000", "11111") or a strict ascending/descending run of four or more
+# ("1234567890", "987654321"). No regulator issues those. The guard must
+# never touch a real reference, which is the whole point of rule 10, and the
+# three KEEPERS in tests/test_empty_identifier_template_never_reaches_data.py
+# ("842632", "FSA-PRIN-47-2026", "H-0700-2026") pin that.
+_PLACEHOLDER_DIGITS = re.compile(r"^(?:(\d)\1{3,}|\d{4,})$")
+
+
+def _is_placeholder_digits(digits: str) -> bool:
+    """True for a digit run no authority would ever issue as a reference."""
+    if not _PLACEHOLDER_DIGITS.match(digits or ""):
+        return False
+    if len(set(digits)) == 1:                       # 0000, 11111
+        return True
+    asc = "".join(str((int(digits[0]) + i) % 10) for i in range(len(digits)))
+    desc = "".join(str((int(digits[0]) - i) % 10) for i in range(len(digits)))
+    return digits in (asc, desc)                    # 1234567890, 987654321
+
+
+_EMPTY_ID_WORDS = re.compile(
     r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*"
     r"(?:n\s*/?\s*a|not\s+(?:provided|specified|available|printed|given)|"
-    r"unknown|none|null|tbd|-+|\?+)\s*[)\]]\s*",
+    r"unknown|none|null|tbd|tba|t\.?b\.?[ad]\.?|pending|"
+    r"to\s+be\s+(?:advised|announced|confirmed|determined)|"
+    r"-+|\?+)\s*[)\]]\s*",
     re.IGNORECASE)
+
+#: The digit-run variant. Kept separate so the callable above decides, and
+#: combined into _EMPTY_ID_TEMPLATE below so every existing caller — and
+#: every existing test that imports the name — keeps working unchanged.
+_EMPTY_ID_DIGITS = re.compile(
+    r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*(\d{4,})\s*[)\]]\s*",
+    re.IGNORECASE)
+
+
+class _EmptyIdTemplate:
+    """`_EMPTY_ID_TEMPLATE`: the word forms, plus placeholder digit runs.
+
+    Exposes the `.search()` / `.sub()` surface of a compiled pattern because
+    tests and callers use it as one.
+    """
+
+    def search(self, text: str):
+        m = _EMPTY_ID_WORDS.search(text or "")
+        if m:
+            return m
+        for m in _EMPTY_ID_DIGITS.finditer(text or ""):
+            if _is_placeholder_digits(m.group(1)):
+                return m
+        return None
+
+    def sub(self, repl: str, text: str) -> str:
+        out = _EMPTY_ID_WORDS.sub(repl, text or "")
+        return _EMPTY_ID_DIGITS.sub(
+            lambda m: repl if _is_placeholder_digits(m.group(1)) else m.group(0),
+            out)
+
+
+_EMPTY_ID_TEMPLATE = _EmptyIdTemplate()
 
 
 def strip_empty_identifier_template(rows, *, where: str = "") -> int:

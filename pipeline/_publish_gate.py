@@ -455,6 +455,11 @@ HAZARD_CLASS_KEYWORDS = {
         "tropanici", "tropanicos",             # Salute IT / AESAN ES-PT
         "datura", "stramonium", "jimsonweed",
         "atropine", "scopolamine", "hyoscyamine",
+        # Opium alkaloids in poppy seed (2026-10-11: Mattilsynet, Sbselite
+        # blue poppy seeds, morphine and codeine above the limit, archived as
+        # an "allergen" because nothing here knew the words).
+        "opium alkaloid", "morphine", "codeine", "thebaine", "noscapine",
+        "opiumsalkaloid", "morfin", "kodein",
         # Plant cardiac glycosides (2026-09-30: FDA Niwali tejocote, "products
         # contain yellow oleander (Thevetia peruviana)", classified as nothing).
         "oleander", "thevetia", "cardiac glycoside",
@@ -925,6 +930,21 @@ def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
     return out
 
 
+#: Agency acronyms that must never stand alone as a recalling firm.
+_AGENCY_ACRONYMS = frozenset({
+    "fss", "fsa", "fsai", "fda", "usda", "fsis", "cfia", "fsanz", "mpi", "cfs",
+    "sfa", "caa", "mhlw", "mfds", "efet", "aesan", "bvl", "ages", "nvwa",
+    "afsca", "favv", "blv", "osav", "usav", "dgccrf", "gis", "szpi", "nkfh",
+    "nebih", "anvisa", "cofepris", "sfda", "nafdac", "ukhsa", "cdc", "rasff",
+})
+
+
+def _only_agency_acronyms(company: str) -> bool:
+    toks = [t for t in re.split(r"[\s,;/&+()-]+|\band\b|\bet\b|\bund\b",
+                                 company.lower()) if t and t.strip()]
+    return bool(toks) and all(t.strip(". ") in _AGENCY_ACRONYMS for t in toks)
+
+
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
     """Return every reason this row must not be published. Empty == publishable.
 
@@ -951,6 +971,17 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             f"Reason is only a reference number ({reason!r}) — the hazard is "
             "not described. 'Recall ID 842632' was the extractor prompt's own "
             "worked example and leaked onto unrelated recalls")
+
+    # 2b. The regulator is not the recalling firm (2026-10-11). Food Standards
+    #     Scotland's news item on the Ukrainian-eggs alert reached Pending
+    #     with Company = Brand = "FSS and FSA" and was promoted: the reviewer's
+    #     regulator-name check knows full names, not acronyms, and the offline
+    #     promoter asks only this gate. A Company made of nothing but agency
+    #     acronyms names no firm.
+    _co = str(row.get("Company") or "").strip()
+    if _co and _only_agency_acronyms(_co):
+        problems.append(
+            f"Company {_co!r} is the regulator, not the recalling firm")
 
     # 3. Controlled vocabularies, and free prose leaking into them.
     region = str(row.get("Region") or "").strip()

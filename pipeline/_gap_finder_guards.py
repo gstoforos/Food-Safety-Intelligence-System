@@ -122,6 +122,7 @@ REGULATOR_HOSTS = frozenset({
     "invima.gov.co", "ispch.cl", "minsal.cl", "achipia.gob.cl",
     "nafdac.gov.ng", "kebs.org", "nfsa.gov.eg", "fdaghana.gov.gh",
     "fssai.gov.in", "foscos.fssai.gov.in",   # India (2026-10-05)
+    "quebec.ca", "mapaq.gouv.qc.ca",         # Canada — MAPAQ Québec (2026-10-11)
     "thencc.org.za", "thencc.gov.za",
 })
 
