@@ -21,8 +21,8 @@ Every incident below links to the originating regulatory notice.
    https://rappel.conso.gouv.fr/fiche-rappel/23648/interne
 9. 30 SEP · Listeria · E.Leclerc Marly — France · RappelConso (FR)
    https://rappel.conso.gouv.fr/fiche-rappel/23651/interne
-10. 29 SEP · Listeria · Funkció Kft. (HU 771 EK) — Hungary · NKFH (HU)
-   https://nkfh.gov.hu/hirek/termekvisszahivas-auchan-nivo-fuestoelt-suelt-sonka-listeria-jelenlete-miatt
+10. 30 SEP · Listeria · RASFF notification — Latvia · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/876599
 
 Full month, all records and methodology:
 https://fsis.advfood.tech
