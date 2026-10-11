@@ -315,6 +315,24 @@ Previous note (2026-09-23), kept for the record:
 
 ---
 
+## Canada — Québec (`ca`) — added 2026-10-11, MAPAQ only
+
+Operator 2026-10-11: "yes" to writing the MAPAQ collector. The dashboard's
+"Sources monitored" tile advertised MAPAQ QC with nothing collecting it
+(`scrapers/mapaq.py` is the Qatar MoPH scraper under a permuted filename);
+the newest MAPAQ row was 2026-04-13.
+
+Page shape, verified against the two MAPAQ rows already in Recalls:
+`quebec.ca/nouvelles/actualites/details/<wording>-<slug>-<numeric id>`, where
+the wording is "mise-en-garde-a-la-population", "avis-de-ne-pas-consommer",
+"absence-dinformations-necessaires" or "mise-a-jour". quebec.ca is the whole
+Québec government, so the regex is scoped to those wordings and the host is
+an umbrella in `_url_guard.UMBRELLA_HOSTS`. The site renders as a JavaScript
+shell to automated clients, so there is no index to scan; discovery is the
+Greek route (news + search resolved back to the quebec.ca notice). MAPAQ also
+distributes the same releases on newswire.ca — discovery only, never the
+record URL. CFIA (federal) stays with its own scraper.
+
 ## Researched, no config written
 
 These were investigated on 2026-09-23 and **no per-recall page could be
