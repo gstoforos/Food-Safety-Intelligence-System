@@ -60,6 +60,25 @@ CODES = all_codes()
 #: Only for configs added or verified on 2026-09-23 — the older ones were
 #: verified when they were written and are not re-litigated here.
 KNOWN_URLS = {
+    # Canada — MAPAQ Québec (2026-10-11). The two good URLs are the MAPAQ rows
+    # already published in Recalls; quebec.ca is the whole Québec government.
+    "ca": (
+        ["https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-"
+         "population-innocuite-non-assuree-depices-haitiennes-vendues-par-"
+         "lentreprise-marche-rio-69749",
+         "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-"
+         "population-presence-possible-de-salmonelle-dans-les-barres-de-chocolat-"
+         "aux-pistaches-et-les-bouchees-de-chocolat-aux-pistaches-preparees-et-"
+         "vendues-par-lentreprise-chocostyle-440-69727",
+         "https://www.quebec.ca/nouvelles/actualites/details/avis-de-ne-pas-"
+         "consommer-de-marinade-en-pot-de-verre-preparee-et-vendue-par-"
+         "lentreprise-le-grand-gout-66361"],
+        ["https://www.quebec.ca/nouvelles/actualites/details/nomination-au-"
+         "conseil-des-ministres-12345",
+         "https://www.quebec.ca/en/health/health-issues/a-z/salmonellosis",
+         "https://www.quebec.ca/alimentation/rappels-aliments",
+         "https://www.quebec.ca/nouvelles/actualites"],
+    ),
     "sg": (
         ["https://www.sfa.gov.sg/news-publications/newsroom/recall-of-coolibah-"
          "herbs-gourmet-salad-mix-due-to-exceeding-levels-of-bacillus-cereus",
@@ -293,7 +312,7 @@ def test_a_shared_government_host_is_scoped_to_the_agency(code):
     """gov.br is all of Brazil's federal government; gob.mx all of
     Mexico's. A bare host match makes any ministry an authority."""
     cfg = get(code)
-    if cfg.authority_domain not in ("gov.br", "gob.mx", "gov.pl", "gouv.fr"):
+    if cfg.authority_domain not in ("gov.br", "gob.mx", "gov.pl", "gouv.fr", "quebec.ca"):
         pytest.skip("not a shared government host")
     rx = cfg.authority_item_url_regex
     assert "/" in rx, f"{code}: regex must include a path, not just the host"

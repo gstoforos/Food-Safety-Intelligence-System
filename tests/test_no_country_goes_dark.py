@@ -196,6 +196,11 @@ NOT_YET_RUN = {
     # countries/us.py sets authority_short="FSIS" and the gap-finder writer
     # bypassed merge_master's alias map. Fixed at the writer on the same
     # day; recorded here because this is where the config became live.
+    #
+    # Canada — MAPAQ Québec, added 2026-10-11 (operator: "yes" to the MAPAQ
+    # collector). The dashboard tile had advertised MAPAQ with no collector;
+    # last register row 2026-04-13.
+    "ca": "2026-10-11",
 }
 
 #: The union, for the freshness assertion, which does not care why.

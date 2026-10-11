@@ -54,6 +54,27 @@ LEAKS = (
     "(Recall ID: not provided)", "(Recall ID not provided)",
     "(Recall ID: unknown)", "[Recall ID: N/A]", "(recall id: none)",
     "(Recall ID: -)", "(Recall ID: ?)",
+    # ── 2026-10-11: two more, both found ALREADY PUBLISHED ──────────────
+    # "tbd" was in the alternation and "tba" was not, so NKFH (HU)
+    # 2026-10-06 — SZEGA Camembert Kft., STEC in raw-milk Camembert —
+    # published "(Recall ID TBA)" to subscribers.
+    "(Recall ID TBA)", "(Recall ID: TBA)", "(Recall ID T.B.A.)",
+    "(Recall ID: to be advised)", "(Recall ID pending)",
+    # And the model does not always fill the slot with a WORD. Ruokavirasto
+    # (FI) 2026-10-09, Munax Oy, published "(Recall ID 1234567890)" — a
+    # reference number that exists nowhere, which is worse than an admitted
+    # blank because it looks checkable.
+    "(Recall ID 1234567890)", "(Recall ID: 0123456789)",
+    "(Recall ID 000000)", "(Recall ID: 11111)", "(Recall ID 987654321)",
+)
+
+#: Digit runs that are NOT placeholders and must survive. A guard that eats
+#: a real reference destroys the row's citation, which is what rule 10 is
+#: for. 842632 is the leaked prompt example and a genuine-looking id; it
+#: stays, exactly as the KEEPERS below require.
+REAL_DIGIT_IDS = (
+    "(Recall ID 842632)", "(Recall ID: 23743)", "(Recall ID 12660)",
+    "(Recall ID 2026)", "(Recall ID: 878744)",
 )
 
 #: A REAL reference number must survive untouched — that is what rule 10
@@ -74,6 +95,19 @@ def test_every_known_spelling_of_the_placeholder_is_matched(leak):
     rows = [{"Reason": body}]
     assert strip_empty_identifier_template(rows) == 1
     assert rows[0]["Reason"] == "Pyrrolizidine alkaloids above the limit."
+
+
+@pytest.mark.parametrize("real", REAL_DIGIT_IDS)
+def test_a_plausible_digit_reference_is_never_stripped(real):
+    """Only an UNMISTAKABLE placeholder run goes: one repeated digit, or a
+    strict ascending/descending sequence of four or more. Everything else a
+    regulator could actually have issued is left alone."""
+    body = "Listeria monocytogenes detected. " + real
+    rows = [{"Reason": body}]
+    assert strip_empty_identifier_template(rows) == 0, (
+        f"{real!r} looks like a real regulator reference and was stripped. "
+        f"The row loses its citation.")
+    assert rows[0]["Reason"] == body
 
 
 @pytest.mark.parametrize("keeper", KEEPERS)

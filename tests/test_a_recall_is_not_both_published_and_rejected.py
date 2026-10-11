@@ -106,14 +106,18 @@ def test_every_shared_url_says_which_copy_wins(sheet, reason_col):
     _, sh = _sheets()
     if sheet not in sh or "Recalls" not in sh:
         pytest.skip(f"{sheet} not present")
-    published = set(_norm(sh["Recalls"]["URL"])) - {"", "nan"}
+    # Compared the way the writer compares them (2026-10-11): the old exact
+    # string match let ~35 contradictions hide behind a trailing slash, a
+    # capital letter or http vs https.
+    from pipeline.merge_master import _normalize_url_for_dedup as _key
+    published = {_key(u) for u in sh["Recalls"]["URL"].astype(str)} - {"", "nan"}
     arch = sh[sheet]
     if reason_col not in arch.columns:
         pytest.skip(f"{sheet} has no {reason_col}")
 
     silent = []
     for _, r in arch.iterrows():
-        if str(r.get("URL") or "").strip().lower() not in published:
+        if _key(str(r.get("URL") or "")) not in published:
             continue
         reason = str(r.get(reason_col) or "").lower()
         if not any(m in reason for m in RESOLVED):
