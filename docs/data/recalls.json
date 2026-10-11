@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-11",
+  "Source": "HAH (HR)",
+  "Company": "STUDENAC d.o.o. Hrvatska",
+  "Brand": "MIJUKIĆ-PROM",
+  "Product": "Dalmatian bacon, 100g slice",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "The product does not comply with Commission Regulation (EC) No 2073/2005 of 15 November 2005 on microbiological criteria for foodstuffs due to the presence of Listeria monocytogenes.",
+  "Class": "Recall",
+  "Country": "Croatia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.hapih.hr/opoziv-proizvoda-dalmatinska-panceta-narezak-100g-2/",
+  "Notes": "Discovered via news: index.hr"
+ },
+ {
   "Date": "2026-10-10",
   "Source": "FSA (UK)",
   "Company": "Yasensvit Ltd",
