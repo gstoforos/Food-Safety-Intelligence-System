@@ -143,10 +143,31 @@ def test_it_catches_a_published_verdict_that_does_not_recompute(board):
     # weakened: the denominator defect this file exists for is still asserted
     # unconditionally by test_it_catches_the_2026_09_21_denominator_defect,
     # which works off meta and passes on an empty board.
-    if not board.get("signals"):
-        pytest.skip("live board has no signals this week — nothing to "
-                    "publish a contradictory verdict on (quiet week, "
-                    "candidates=0); the meta-level injection still runs")
+    #
+    # NARROWED 2026-10-12. That guard was written at the wrong granularity
+    # and went red again for the same reason one level down. The reviewer's
+    # FDR recompute runs over the SHARE channel only —
+    # signal_stats_reviewer.py:133, `[s for s in sigs if s.get("channel") ==
+    # "proportion"]` — so a board carrying signals of which none is a
+    # proportion row has nothing to disagree about either. The live board for
+    # 2026-10-05/11 is exactly that: 12 strata tested, 1 candidate, and that
+    # one signal is channel "count-only". `board["signals"]` was truthy, the
+    # skip did not fire, and `disagreements` was empty for a reason that is
+    # still not a defect.
+    #
+    # The condition is therefore the set the recompute actually reads. A
+    # guard that fails forever is a guard everyone learns to ignore, and
+    # fixing one at the wrong level buys about three weeks.
+    share = [s for s in (board.get("signals") or [])
+             if s.get("channel") == "proportion"]
+    if not share:
+        pytest.skip(
+            f"live board has no share-channel (proportion) signal this week "
+            f"— {len(board.get('signals') or [])} signal(s), channels "
+            f"{sorted({str(s.get('channel')) for s in (board.get('signals') or [])})}"
+            f"; the FDR recompute only reads proportion rows, so there is "
+            f"nothing to publish a contradictory verdict on. The meta-level "
+            f"injection still runs.")
     b = copy.deepcopy(board)
     b["meta"]["strata_tested"] = 500            # enormous family
     b["meta"]["fdr_m"] = 500

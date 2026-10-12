@@ -152,3 +152,88 @@ def test_a_deeper_path_on_the_same_slug_is_allowed():
     """Anchors and query strings are presentation, not fabrication."""
     assert url_overwrite_refusal(COLLECTOR_ROW, REAL + "#details") == ""
     assert url_overwrite_refusal(COLLECTOR_ROW, REAL + "?lang=en") == ""
+
+
+# ==========================================================================
+# THE SAME SHAPE, A SECOND ROUTE IN (morning fix 2026-10-12)
+# ==========================================================================
+# url_overwrite_refusal refused the Macroom shape on two signals: a Notes
+# stamp from the official-feed collector, and a `source_id=` the proposal
+# could be measured against. A scraper's HTML LISTING FALLBACK has neither,
+# and it reads hrefs out of the regulator's own markup just as the collector
+# does — so the shape went through again, on a live Tier-1 recall:
+#
+#   Pending, FSAI (IE), SuperValu Smoked Salmon
+#     row's href  .../food-alerts/recall-of-specific-batches-of-various-supervalu-sm
+#     proposal    + "oked-salmon-products-due-to-the-presence-of-listeria-monocytogenes"
+#     Notes       "FSAI HTML listing fallback — ..." then "URL confirmed"
+#
+# FSAI's own alert listing truncates its slugs at 49 characters — verified
+# 2026-10-12 against https://www.fsai.ie/news-and-alerts/all-alerts, where
+# the link reads "...various-SuperValu-Sm", and that 98-character URL serves
+# the alert (11 October 2026, Listeria monocytogenes). The long slug is not
+# a page. It produced a duplicate Pending row, which the confirmer then
+# rejected for an empty Date.
+
+_FSAI_REAL = ("https://www.fsai.ie/news-and-alerts/food-alerts/"
+              "recall-of-specific-batches-of-various-supervalu-sm")
+_FSAI_FABRICATED = ("https://www.fsai.ie/news-and-alerts/food-alerts/"
+                    "recall-of-specific-batches-of-various-supervalu-smoked-"
+                    "salmon-products-due-to-the-presence-of-listeria-"
+                    "monocytogenes")
+
+
+def test_a_listing_fallback_href_is_not_overwritten():
+    row = {"URL": _FSAI_REAL,
+           "Notes": "FSAI HTML listing fallback — claude-check please enrich "
+                    "Pathogen+Date+Reason from detail page"}
+    why = url_overwrite_refusal(row, _FSAI_FABRICATED)
+    assert why, "the live 2026-10-12 overwrite must be refused"
+    assert "regulator's own markup" in why
+
+
+def test_the_cfia_listing_fallback_is_covered_too():
+    """The other scraper with this route in — same stamp, different agency."""
+    row = {"URL": "https://recalls-rappels.canada.ca/en/alert-recall/some-slug",
+           "Notes": "CFIA HTML listing fallback — claude-check needs to enrich"}
+    assert url_overwrite_refusal(
+        row, "https://recalls-rappels.canada.ca/en/alert-recall/some-slug"
+             "-recalled-due-to-listeria-monocytogenes-contamination")
+
+
+def test_a_path_extension_is_refused_with_no_notes_at_all():
+    """The general statement of the defect.
+
+    Rules keyed on Notes only refuse rows that happen to carry the right
+    stamp. The evidence is in the URL column: a proposal that keeps the
+    whole of the row's path and runs on past it is the headline glued on.
+    """
+    why = url_overwrite_refusal({"URL": _FSAI_REAL, "Notes": ""},
+                                _FSAI_FABRICATED)
+    assert why and "runs" in why, why
+
+
+def test_a_listing_page_may_still_be_replaced_by_a_notice_under_it():
+    """The move the reviewer exists to make must stay allowed.
+
+    A row sitting on an agency index SHOULD be moved to the notice, and
+    that is a path extension. Refusing it would break the reviewer.
+    """
+    row = {"URL": "https://www.fsai.ie/news-and-alerts/food-alerts",
+           "Notes": ""}
+    assert url_overwrite_refusal(row, _FSAI_REAL) == ""
+
+
+def test_a_sibling_notice_is_not_a_path_extension():
+    """Replacing one notice with a different one is not this defect."""
+    row = {"URL": _FSAI_REAL, "Notes": ""}
+    assert url_overwrite_refusal(
+        row, "https://www.fsai.ie/news-and-alerts/food-alerts/"
+             "recall-of-a-batch-of-goats-milk-kefir") == ""
+
+
+def test_adding_a_slash_or_query_is_still_not_an_overwrite():
+    """Guards the new rule against the oldest false positive here."""
+    row = {"URL": _FSAI_REAL, "Notes": ""}
+    assert url_overwrite_refusal(row, _FSAI_REAL + "/") == ""
+    assert url_overwrite_refusal(row, _FSAI_REAL + "?utm=1") == ""
