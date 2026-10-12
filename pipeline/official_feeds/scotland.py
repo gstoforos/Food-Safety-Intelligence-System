@@ -1,45 +1,33 @@
-"""
-Scotland source — Food Standards Scotland (FSS).
+# -*- coding: utf-8 -*-
+"""SHIM. The Scotland collector lives in
+``pipeline.official_feeds.sources.scotland``.
 
-Per AFTS spec, Scotland is tracked SEPARATELY from the rest of the UK.
-FSS recalls are published through the same FSA Food Alerts API, tagged with
-country=GB-SCT. We reuse the UK fetcher with include_scotland=True so the
-records come out attributed to FSS / Scotland.
-"""
+Same story as ``pipeline/official_feeds/uk.py`` next to it, and worse in one
+way: the copy that used to sit here was OLDER than the live module. Its
+header still described page-size clamping as the truncation fix, which
+``sources/scotland.py`` had already replaced with date slicing in
+``uk.fetch``. Anyone reading this path to find out how Scotland avoids
+truncation was reading a retired answer.
 
+Re-export only, and no ``import *`` — see the note in uk.py.
+``tests/test_no_shadow_source_module.py`` keeps it this way.
+"""
 from __future__ import annotations
 
-from ..base import Record, FeedSource, register
-from . import uk as _uk
+from typing import Any
+
+from pipeline.official_feeds.sources import scotland as _real
+from pipeline.official_feeds.sources.scotland import fetch  # noqa: F401
 
 
-def fetch(limit: int = 50) -> list[Record]:
-    # `limit` is uk.fetch's _pageSize, and the FSA API CAPS it server-side.
-    #
-    # This read 250 between 2026-08-11 and 2026-08-13, matching a change made
-    # in uk.py to avoid page truncation. The endpoint rejected it outright:
-    #     GET .../food-alerts/id?min-created=...&_pageSize=250 -> 400
-    # which killed Scotland as well as the UK, because this delegates.
-    #
-    # Truncation is now handled the way the API intends — uk.fetch pages with
-    # _page at a page size the server accepts. Do NOT raise this number.
-    return _uk.fetch(limit=limit, include_scotland=True)
+def __getattr__(name: str) -> Any:
+    try:
+        return getattr(_real, name)
+    except AttributeError:
+        raise AttributeError(
+            f"module {__name__!r} is a shim for "
+            f"{_real.__name__!r}, which has no attribute {name!r}") from None
 
 
-SCOTLAND = FeedSource(
-    code="scotland",
-    name_en="Scotland",
-    authority_short="FSS",
-    fetcher=fetch,
-    region="Europe",
-    timezone="Europe/London",
-    run_local_hour=9,
-    cron_utc_offsets=(8, 9),
-    gnews_authority="Food Standards Scotland",
-    gnews_terms=("salmonella", "listeria", "E. coli", "botulism",
-                 "undeclared allergen"),
-    gnews_hl="en-GB", gnews_gl="GB", gnews_ceid="GB:en",
-    gnews_days_back=3,
-)
-
-register(SCOTLAND)
+def __dir__():
+    return sorted(set(globals()) | set(dir(_real)))
