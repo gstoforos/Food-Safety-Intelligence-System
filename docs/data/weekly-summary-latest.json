@@ -10,21 +10,21 @@
   "week_end_display": "11 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-12T03:27:01.068405+00:00",
+  "generated_utc": "2026-10-12T07:29:24.567742+00:00",
   "prev_total": 76,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 81,
-    "tier1": 59,
+    "total": 82,
+    "tier1": 60,
     "outbreaks": 2,
-    "delta": 5,
-    "delta_pct": 7
+    "delta": 6,
+    "delta_pct": 8
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 25,
-    "pct": 31
+    "pct": 30
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -86,17 +86,17 @@
     },
     {
       "rank": 5,
-      "date": "2026-10-09",
+      "date": "2026-10-11",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "MUJKIĆ-PROM",
-      "brand": "Okusi zavičaja",
-      "product": "Dalmatian bacon, 100g slice",
-      "country": "Croatia",
-      "source": "HAH (HR)",
-      "url": "https://www.hapih.hr/opoziv-proizvoda-dalmatinska-panceta-narezak-100g/"
+      "company": "SuperValu",
+      "brand": "SuperValu",
+      "product": "SuperValu Smoked Salmon 40 g and SuperValu Smoked Salmon 150 g — batch codes 1027992 1 0 (40 g) and 1027989 6 0 (150 g), use-by 17/10/26",
+      "country": "Ireland",
+      "source": "FSAI (IE)",
+      "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-supervalu-sm"
     }
   ],
   "country_count": 21

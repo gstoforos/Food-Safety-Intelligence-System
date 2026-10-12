@@ -205,7 +205,7 @@
   {
    "label": "MAPAQ QC",
    "country": "Canada",
-   "domain": "mapaq.gouv.qc.ca quebec.ca"
+   "domain": "quebec.ca mapaq.gouv.qc.ca"
   },
   {
    "label": "COFEPRIS (MX)",
