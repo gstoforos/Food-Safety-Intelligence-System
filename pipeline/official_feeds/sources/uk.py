@@ -107,20 +107,48 @@ def _firm(item: dict) -> str:
         firm = m.group("firm").strip(" \t-–—:")
         if 2 <= len(firm) <= 80:
             return firm
+    est = _establishment(item)
+    if est:
+        return est
+    return ""
+
+
+#: FSA Food Alerts for Action (FSA-FAFA-*) list the producing establishment
+#: as one of the productDetails names — "The establishment: Yasensvit Ltd,
+#: Kyiv, Ukraine" (FSA-FAFA-03-2026, Salmonella in raw shell eggs,
+#: 2026-10-10). That line is the firm, not a product: before 2026-10-11 it
+#: was written into Product and Company stayed empty, so the publish gate
+#: held a Tier-1 alert in Pending.
+#:
+#: WHERE THIS FIX SPENT A DAY (morning fix 2026-10-12). The change below was
+#: written on 2026-10-11 and uploaded to pipeline/official_feeds/uk.py — a
+#: stale SHADOW COPY of this module that nothing imports. The live collector
+#: and tests/test_an_establishment_line_is_the_firm.py both read
+#: pipeline/official_feeds/sources/uk.py, so the tests stayed red and the
+#: next FAFA alert would have been held in Pending exactly as before. The
+#: shadow is now a re-export shim and tests/test_no_shadow_source_module.py
+#: holds it that way.
+_ESTABLISHMENT = re.compile(r"^\s*the\s+establishment\s*:\s*(?P<firm>.+?)\s*$", re.I)
+
+
+def _product_names(item: dict) -> list:
+    pd = item.get("productDetails", [])
+    if isinstance(pd, dict):
+        pd = [pd]
+    return [str(p["productName"]) for p in pd or []
+            if isinstance(p, dict) and p.get("productName")]
+
+
+def _establishment(item: dict) -> str:
+    for name in _product_names(item):
+        m = _ESTABLISHMENT.match(name)
+        if m and 2 <= len(m.group("firm")) <= 120:
+            return m.group("firm").strip()
     return ""
 
 
 def _product(item: dict) -> str:
-    pd = item.get("productDetails", [])
-    if isinstance(pd, list):
-        names = []
-        for p in pd:
-            if isinstance(p, dict) and p.get("productName"):
-                names.append(str(p["productName"]))
-        return "; ".join(names)
-    if isinstance(pd, dict):
-        return str(pd.get("productName", ""))
-    return ""
+    return "; ".join(n for n in _product_names(item) if not _ESTABLISHMENT.match(n))
 
 
 def _country_codes(item: dict) -> list[str]:
