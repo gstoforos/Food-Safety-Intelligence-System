@@ -1,13 +1,13 @@
 {
  "AESAN (ES)": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-07-31T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "AFSCA (BE)": {
   "consecutive_zero_runs": 2,
@@ -20,14 +20,14 @@
   "total_runs": 2
  },
  "AGES (AT)": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-06-25T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "ANMAT (AR)": {
   "consecutive_zero_runs": 4,
@@ -110,24 +110,24 @@
   "total_runs": 2
  },
  "BVL (DE)": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-07-29T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "CFIA": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-09-21T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "north_america",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "CFS (HK)": {
   "consecutive_zero_runs": 2,
@@ -170,24 +170,24 @@
   "total_runs": 4
  },
  "EFET (GR)": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-09-07T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "FDA": {
-  "consecutive_zero_runs": 1,
+  "consecutive_zero_runs": 2,
   "last_error": "",
-  "last_nonzero_utc": "2026-10-07T15:26:53+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "north_america",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 8
+  "total_runs": 12
  },
  "FDA (GH)": {
   "consecutive_zero_runs": 2,
@@ -210,34 +210,34 @@
   "total_runs": 2
  },
  "FSA (UK)": {
-  "consecutive_zero_runs": 1,
+  "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-09-30T15:10:59+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
-  "last_yield": 0,
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
+  "last_yield": 1,
   "region": "europe_non_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "FSAI (IE)": {
   "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-10-07T15:26:53+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 10,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "FSANZ (AU)": {
-  "consecutive_zero_runs": 1,
+  "consecutive_zero_runs": 2,
   "last_error": "",
   "last_nonzero_utc": "2026-09-30T15:10:59+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "oceania",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "FSSAI (IN)": {
   "consecutive_zero_runs": 2,
@@ -360,14 +360,14 @@
   "total_runs": 2
  },
  "MPI (NZ)": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 3,
   "last_error": "",
   "last_nonzero_utc": "2026-09-11T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
   "last_yield": 0,
   "region": "oceania",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "MSP (UY)": {
   "consecutive_zero_runs": 2,
@@ -502,22 +502,22 @@
  "RASFF (EU)": {
   "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-10-09T13:42:04+00:00",
-  "last_run_utc": "2026-10-09T13:42:04+00:00",
-  "last_yield": 22,
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
+  "last_yield": 51,
   "region": "eu_wide",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 6
+  "total_runs": 7
  },
  "RappelConso (FR)": {
   "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-10-07T15:26:53+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
-  "last_yield": 41,
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
+  "last_yield": 32,
   "region": "europe_eu",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "Ruokavirasto (FI)": {
   "consecutive_zero_runs": 2,
@@ -600,14 +600,14 @@
   "total_runs": 2
  },
  "USDA FSIS": {
-  "consecutive_zero_runs": 2,
+  "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-09-08T00:00:00+00:00",
-  "last_run_utc": "2026-10-07T15:26:53+00:00",
-  "last_yield": 0,
+  "last_nonzero_utc": "2026-10-12T01:11:41+00:00",
+  "last_run_utc": "2026-10-12T01:11:41+00:00",
+  "last_yield": 1,
   "region": "north_america",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 2
+  "total_runs": 3
  },
  "UVHVVR (SI)": {
   "consecutive_zero_runs": 2,
