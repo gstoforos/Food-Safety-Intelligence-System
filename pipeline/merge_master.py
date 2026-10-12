@@ -1786,6 +1786,28 @@ def cleanup_orphan_rejected(pending: List[Dict[str, Any]],
 # notice at does not.
 _REJECTED_URL_CACHE: Dict[str, Tuple[float, Dict[str, str]]] = {}
 
+#: Which archive sheet each guard entry came from: normalised URL -> sheet.
+#:
+#: WHY A SIDE MAP AND NOT A PREFIX ON THE REASON (morning fix 2026-10-12).
+#: The re-promotion guard's log line and its Notes stamp both said "already
+#: in Weekly_Rejected" unconditionally, while load_rejected_urls reads
+#: _REJECT_SHEETS — Rejected AND Weekly_Rejected. An operator sent to the
+#: wrong sheet finds nothing and concludes the guard is lying about the row.
+#:
+#: Measured 2026-10-12: FSIS PHA-10062026-01 (Grace chicken Vienna
+#: sausages) is in Rejected and in NO weekly sheet, and
+#: `promote_gate_passing --apply` reported it as "already in
+#: Weekly_Rejected".
+#:
+#: The sheet name does NOT go into the reason string. The note at the
+#: "NOT TRUNCATED. 2026-10-04." block above is explicit about what happens
+#: when anything is prepended to a stored reason: every re-promotion
+#: exception is a substring search over that value, and padding it pushed
+#: the real defect name out of reach and made 34 archive rows permanently
+#: unre-promotable. So the provenance travels beside the reason, never
+#: inside it.
+_REJECTED_URL_SHEET: Dict[str, Dict[str, str]] = {}
+
 
 # Sheets consulted, in order of precedence. "Rejected" is the PERMANENT
 # archive written by tools/wipe_weekly_rejected.py; "Weekly_Rejected" is the
@@ -1833,7 +1855,9 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
     cached = _REJECTED_URL_CACHE.get(key)
     if cached and cached[0] == stamp:
         return cached[1]
+    _REJECTED_URL_SHEET.pop(key, None)
     out: Dict[str, str] = {}
+    sheets: Dict[str, str] = {}
     no_url = 0
     try:
         wb = load_workbook(xlsx_path, read_only=True, data_only=True)
@@ -1982,8 +2006,13 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
                 prev = out.get(u)
                 if prev is None:
                     out[u] = cand
+                    sheets[u] = sheet
                 elif _is_terminal_rejection(cand) and not _is_terminal_rejection(prev):
                     out[u] = cand
+                    # Provenance follows the verdict that won, not the first
+                    # sheet read — otherwise naming the sheet is worse than
+                    # not naming it.
+                    sheets[u] = sheet
         wb.close()
     except Exception as exc:  # pragma: no cover - defensive
         log.warning("Rejection re-promotion guard unavailable (%s: %s)",
@@ -1993,7 +2022,23 @@ def load_rejected_urls(xlsx_path: Optional[Path] = None) -> Dict[str, str]:
         log.warning("re-promotion guard: %d archived rejection(s) carry no "
                     "URL and cannot block a re-ingestion", no_url)
     _REJECTED_URL_CACHE[key] = (stamp, out)
+    _REJECTED_URL_SHEET[key] = sheets
     return out
+
+
+def rejected_sheet_for(normalised_url: str,
+                       xlsx_path: Optional[Path] = None) -> str:
+    """Which archive sheet holds the verdict the guard is quoting.
+
+    Falls back to naming both sheets rather than guessing one: a wrong
+    sheet name is worse than an honest "one of these", because it reads as
+    a fact and sends the reader somewhere the row is not.
+    """
+    if xlsx_path is None:
+        xlsx_path = (Path(__file__).resolve().parent.parent / "docs" / "data"
+                     / "recalls.xlsx")
+    got = _REJECTED_URL_SHEET.get(str(Path(xlsx_path)), {}).get(normalised_url)
+    return got or " or ".join(_REJECT_SHEETS)
 
 
 def promote_approved(
@@ -2443,12 +2488,18 @@ def promote_approved(
 
         if _u_now and _u_now in previously_rejected and not _repromote_ok:
             _prior = previously_rejected[_u_now]
-            log.warning("re-promotion BLOCKED %s — already in Weekly_Rejected "
-                        "(%s)", str(clean.get("URL", ""))[:90], _prior[:120])
+            # NAME THE SHEET THE VERDICT IS ACTUALLY IN (2026-10-12). Both
+            # of these read "Weekly_Rejected" unconditionally while the guard
+            # loads Rejected as well, so an operator chasing a blocked row
+            # was sent to a sheet that does not contain it — see
+            # _REJECTED_URL_SHEET for the live row that showed it.
+            _sheet = rejected_sheet_for(_u_now)
+            log.warning("re-promotion BLOCKED %s — already in %s (%s)",
+                        str(clean.get("URL", ""))[:90], _sheet, _prior[:120])
             clean["Notes"] = (
                 str(clean.get("Notes") or "").strip()
                 + f" [re-promotion blocked 2026-08-02: this URL is already in "
-                  f"Weekly_Rejected — {_prior[:200]}]"
+                  f"{_sheet} — {_prior[:200]}]"
             ).strip()
             if not clean.get("RejectedBy"):
                 clean["RejectedBy"] = "repromotion-guard"

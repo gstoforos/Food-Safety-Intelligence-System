@@ -16,7 +16,35 @@ from typing import Any, Dict
 from urllib.parse import urlparse
 
 
-_COLLECTOR_SOURCED = re.compile(r"\[via official-feed collector\]", re.I)
+#: Notes that say "this URL is an href read out of the regulator's own
+#: markup", which is the strongest evidence available and not a reviewer's
+#: to overwrite.
+#:
+#: WIDENED 2026-10-12. This matched the official-feed collector only. The
+#: SCRAPERS have a second route to the same kind of href — the HTML listing
+#: fallback (scrapers/europe_eu/fsai.py, scrapers/north_america/cfia.py),
+#: which pulls `href="/news-and-alerts/food-alerts/<slug>"` straight out of
+#: the listing page and stamps "<AGENCY> HTML listing fallback" in Notes.
+#: Those rows carry no `source_id=`, so neither rule 1 nor rule 2 below
+#: fired, and the Macroom shape went through again:
+#:
+#:   Pending, FSAI (IE), SuperValu Smoked Salmon, 2026-10-12
+#:     collector href  .../food-alerts/recall-of-specific-batches-of-various-supervalu-sm
+#:     reviewer 1 set  .../food-alerts/recall-of-specific-batches-of-various-supervalu-
+#:                     smoked-salmon-products-due-to-the-presence-of-listeria-monocytogenes
+#:     Notes           "[url-agent 2026-10-12: ... URL confirmed]"
+#:
+#: FSAI's own alert listing publishes the slug truncated at 49 characters —
+#: verified 2026-10-12 against https://www.fsai.ie/news-and-alerts/all-alerts,
+#: which renders the link as "...various-SuperValu-Sm", and the 98-character
+#: URL is the page that serves the alert (11 October 2026, SuperValu Smoked
+#: Salmon 40 g / 150 g, Listeria monocytogenes). The 164-character slug is
+#: the headline glued back on and is not a page. It cost a duplicate Pending
+#: row, which the confirmer then rejected for an empty Date — so a real
+#: Tier-1 recall spent a day unpublished behind a URL nobody could read.
+_COLLECTOR_SOURCED = re.compile(
+    r"\[via official-feed collector\]"
+    r"|\b(?:[A-Z][A-Za-z()]*\s+)?HTML\s+listing\s+fallback\b", re.I)
 
 #: Paths that are an agency INDEX, never one notice. A proposed URL landing
 #: on one of these is the failure above, whatever its anchors match.
@@ -37,7 +65,8 @@ def url_overwrite_refusal(row: Dict[str, Any], proposed: str) -> str:
         """Equal once a trailing slash, a #fragment and a ?query are set
         aside. Those are presentation, not a different document, so
         adding one is not an overwrite and must not be refused."""
-        strip = lambda s: re.split(r"[?#]", s.strip().lower(), 1)[0].rstrip("/")
+        strip = lambda s: re.split(r"[?#]", s.strip().lower(),
+                                   maxsplit=1)[0].rstrip("/")
         return strip(a) == strip(b)
 
     if not new or _same(new, cur):
@@ -45,10 +74,13 @@ def url_overwrite_refusal(row: Dict[str, Any], proposed: str) -> str:
 
     notes = str(row.get("Notes") or "")
 
-    # 1. The collector read this href out of the regulator's own markup.
+    # 1. The row's URL is an href read out of the regulator's own markup —
+    #    either by the official-feed collector or by a scraper's HTML
+    #    listing fallback. Both are the regulator's own link.
     if cur and _COLLECTOR_SOURCED.search(notes):
-        return ("row came from the official-feed collector, whose URL is the "
-                "regulator's own href — a reviewer does not overwrite it")
+        return ("row's URL is an href read out of the regulator's own markup "
+                "(official-feed collector or HTML listing fallback) — a "
+                "reviewer does not overwrite it")
 
     # 2. The proposed URL extends past the recorded identifier: a truncated
     #    slug with the headline glued back on.
@@ -62,6 +94,42 @@ def url_overwrite_refusal(row: Dict[str, Any], proposed: str) -> str:
                 return ("proposed URL runs %d characters past source_id %r — "
                         "a truncated regulator slug with the headline appended "
                         "is not a page" % (len(tail), slug[-36:]))
+
+    # 2b. THE SAME SHAPE, WITHOUT A source_id (2026-10-12).
+    #
+    # Rule 2 needs `source_id=` in Notes to know what the regulator's own
+    # slug was. Plenty of rows do not carry one — every scraper HTML-listing
+    # fallback row, for a start — and for those the evidence is sitting in
+    # the URL column itself: a proposal that keeps the whole of the current
+    # path and then runs on past it is a truncated slug with the headline
+    # appended, whatever Notes says.
+    #
+    # Rule 1 now also covers the listing-fallback rows, so this is belt and
+    # braces for them; what it adds on its own is every OTHER row with no
+    # source_id, and it is the general statement of the defect rather than
+    # one more instance of it. Reviewer 1's job is to find a page, not to
+    # lengthen the one it was given.
+    #
+    # NOT refused here: the current URL being an agency INDEX. Moving from a
+    # listing to a notice under it is a real extension and the whole point
+    # of the reviewer — rule 3 below is what keeps the move from going the
+    # other way.
+    try:
+        if cur:
+            p_old = (urlparse(cur).path or "/").rstrip("/")
+            p_new = (urlparse(new).path or "/").rstrip("/")
+            if (p_old and len(p_old) > 1
+                    and not _LISTING_PATH.match(p_old.strip("/"))
+                    and p_new.lower().startswith(p_old.lower())):
+                tail = p_new[len(p_old):].strip("/")
+                if len(tail) > 8:
+                    return ("proposed URL keeps the whole of the row's own "
+                            "path and runs %d characters past it (%r) — a "
+                            "truncated regulator slug with the headline "
+                            "appended is not a page"
+                            % (len(tail), tail[:48]))
+    except Exception:                                        # noqa: BLE001
+        pass
 
     # 3. An agency index is never one notice.
     try:
