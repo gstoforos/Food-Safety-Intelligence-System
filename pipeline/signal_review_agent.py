@@ -63,9 +63,25 @@ WHAT THIS AGENT ADDS — four things the count channel does not test
      A hint is a hint. It is written next to the alarm, never in place of
      the alarm, and the page shows both.
 
+  5. SENTINEL CHANNEL  (operator 2026-10-12: "C. bot is deadly").
+     Some hazards are significant at ONE record. Public health treats a
+     single botulism case as an emergency; the count detector needs >= 4
+     records and a non-zero baseline, so it can never see them (W41: two
+     C. botulinum notifications — BLV (CH) pork terrine, 2 cases; RASFF honey
+     from Spain — were in the register and on no statistical board). Every
+     record this week whose canonical hazard is in SENTINEL_HAZARDS, and
+     every Outbreak = 1 record, is listed with the regulator's own URL. No
+     statistic, no threshold: the record itself is the finding.
+     BOTULISM-RISK INDICATORS are flagged the same way (operator 2026-10-12:
+     "Flag them"): a regulator's own wording of container swelling or a
+     sterilization / thermal-process failure (W41: RappelConso canned king
+     crab, "risk of swelling"). Labelled as an indicator, never as a
+     confirmed C. botulinum finding.
+
 WHAT IT DELIBERATELY DOES NOT DO
 --------------------------------
-  * It does not alarm. It annotates. The detector's alarm list is unchanged.
+  * It does not alarm. It annotates. The detector's alarm list is unchanged
+    (the sentinel lane is a separate list, never mixed into the alarms).
   * It does not predict. Every string it writes describes this week.
   * It does not fetch anything. It reads the workbook and the board.
 
@@ -85,6 +101,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
@@ -107,6 +124,47 @@ NEWS_PULSE = ROOT / "docs" / "data" / "news-pulse.jsonl"
 NEWS_BURST = 3            # headlines on one pathogen in the week = corroboration
 CLUSTER_SHARE = 0.60      # one firm supplies this share of a stratum's week
 PUBLISHER_SHARE = S.PUBLISHER_DOMINANCE
+
+# Canonical hazards (signal_detector.canon_pathogen labels) flagged at a
+# single record. Keep this short: a sentinel list that fires every week is
+# a second watchboard, not a sentinel.
+SENTINEL_HAZARDS = ("Clostridium botulinum",)
+
+# Botulism-risk indicators (operator 2026-10-12: "Flag them"). A swollen,
+# bulging or blown container, or a sterilization / thermal-process failure,
+# is how a C. botulinum problem in a canned or sealed product usually first
+# shows up — often before any organism is named. Matched on the regulator's
+# own Pathogen and Reason text only; nothing is inferred. Word-bounded so
+# "Bulgaria" is not "bulging". Pasteurization deviations are NOT matched
+# (a pasteurized product is not a commercial-sterility claim) unless the
+# notice also names container swelling.
+_SWELL = (r"\bswell(?:ing|ed)?\b|\bswollen\b|\bbulg(?:ing|ed|e)\b|\bblown\b|"
+          r"\bbloat(?:ed|ing)?\b|\bpuff(?:y|ed)\b|\bbomb(?:age|[ée]e?s?)\b|"
+          r"\bgonfl(?:ement|[ée]e?s?)\b|\bhinchad[oa]s?\b|\babombad[oa]s?\b|"
+          r"\brigonfi(?:amento|at[oaie])\b|\bbombaggio\b|\baufgebl[aä]h|"
+          r"διογκ|φουσκωμ")
+_UNDERPROCESS = (r"\bunder-?process(?:ed|ing)\b|"
+                 r"\b(?:insufficient|inadequate|incomplete)(?:ly)?\s+(?:heat[- ]treat\w*|"
+                 r"steril(?:iz|is)\w*|thermal(?:ly)?\s+process\w*|retort\w*)|"
+                 r"\bsteril(?:iz|is)\w*\s+(?:failure|deviation|defect)|"
+                 r"\bst[ée]rilisation\s+insuffisante\b|\bd[ée]faut\s+de\s+st[ée]rilisation\b|"
+                 r"\bnot\s+commercially\s+sterile\b|\black\s+of\s+commercial\s+sterility\b|"
+                 r"\besterilizaci[óo]n\s+(?:insuficiente|deficiente)\b")
+BOTULISM_RISK_MARKERS = re.compile(f"(?:{_SWELL})|(?:{_UNDERPROCESS})", re.I)
+_PASTEUR = re.compile(r"pasteuri[sz]", re.I)
+
+
+def botulism_risk_indicator(pathogen: Any, reason: Any) -> bool:
+    """True when the regulator's own text names container swelling or a
+    sterilization / thermal-process failure (see BOTULISM_RISK_MARKERS)."""
+    txt = f"{pathogen or ''} || {reason or ''}"
+    if txt.strip(" |").lower() in ("", "nan", "nan || nan"):
+        return False
+    if not BOTULISM_RISK_MARKERS.search(txt):
+        return False
+    if _PASTEUR.search(txt) and not re.search(_SWELL, txt, re.I):
+        return False
+    return True
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -233,6 +291,72 @@ def outbreak_channel(corpus: S.Corpus, week: pd.Period) -> Dict:
             "company": str(r.get("Company"))[:80],
             "country": str(r.get("Country")),
         } for _, r in recs.head(12).iterrows()],
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2b. sentinel channel — significant at one record, never scored
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _clean(v: Any) -> str:
+    if v is None or (isinstance(v, float) and math.isnan(v)):
+        return ""
+    t = str(v).strip()
+    return "" if t.lower() in ("nan", "none") else t
+
+
+def sentinel(corpus: S.Corpus, week: pd.Period) -> Dict:
+    recs = _records(corpus, week)
+    items: List[Dict] = []
+    for _, r in recs.iterrows():
+        haz = str(r.get("pathogen_c"))
+        why = []
+        if haz in SENTINEL_HAZARDS:
+            why.append("sentinel hazard")
+        elif botulism_risk_indicator(_clean(r.get("Pathogen")), _clean(r.get("Reason"))):
+            why.append("botulism-risk indicator")
+        if _truthy(r.get("Outbreak")):
+            why.append("outbreak-flagged")
+        if not why:
+            continue
+        items.append({
+            "date": str(r.get("Date"))[:10],
+            "hazard": haz,
+            "pathogen": _clean(r.get("Pathogen")),
+            "source": _clean(r.get("Source")),
+            "company": _clean(r.get("Company"))[:80],
+            "product": _clean(r.get("Product"))[:120],
+            "country": _clean(r.get("Country")),
+            "tier": _clean(r.get("Tier")),
+            "outbreak": _truthy(r.get("Outbreak")),
+            "url": _clean(r.get("URL")),
+            "why": why,
+        })
+    # sentinel hazards, then botulism-risk indicators, then outbreak-only;
+    # newest first within each
+    def _rank(x: Dict) -> int:
+        return (0 if "sentinel hazard" in x["why"] else
+                1 if "botulism-risk indicator" in x["why"] else 2)
+    items.sort(key=lambda x: x["date"], reverse=True)
+    items.sort(key=_rank)                                           # stable
+    by_hazard = Counter(i["hazard"] for i in items if "sentinel hazard" in i["why"])
+    return {
+        "hazards": list(SENTINEL_HAZARDS),
+        "n": len(items),
+        "n_sentinel_hazard": sum(by_hazard.values()),
+        "n_botulism_risk_indicator": sum(1 for i in items
+                                         if "botulism-risk indicator" in i["why"]),
+        "n_outbreak": sum(1 for i in items if i["outbreak"]),
+        "by_hazard": dict(by_hazard),
+        "items": items,
+        "indicators": ("container swelling (swollen / bulging / blown) or a "
+                       "sterilization / thermal-process failure, in the "
+                       "regulator's own Pathogen or Reason text"),
+        "note": ("flagged at a single record, no statistic: these hazards are "
+                 "below the detector's 4-record floor by nature, and one "
+                 "botulism case is a public-health emergency. A botulism-risk "
+                 "indicator is the regulator's own wording (swelling, "
+                 "under-sterilization), not a confirmed C. botulinum finding"),
     }
 
 
@@ -416,6 +540,9 @@ def render(review: Dict) -> str:
          f"corpus {m['corpus_week_total']} · alarms reviewed {len(review['alarm_reviews'])} "
          f"· novel {len(review['novelty'])} · outbreak-flagged {review['outbreak_channel']['observed']} "
          f"· headlines {review['news']['n_headlines']}"]
+    for sn in review.get("sentinel", {}).get("items", []):
+        L.append(f"  SENTINEL {sn['hazard']:<33} {sn['date']} · {sn['source']} · "
+                 f"{sn['company'][:40]} · {' + '.join(sn['why'])}")
     for nv in review["novelty"]:
         L.append(f"  NOVEL   {nv['pathogen']:<34} {nv['observed']} record(s) · {nv['severity']}"
                  f"{' · FIRST APPEARANCE EVER' if nv['first_appearance_ever'] else ''} · untestable")
@@ -477,8 +604,10 @@ def main(argv: Optional[List[str]] = None) -> int:
             "generated_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "agent": "signal_review_agent", "model": None,
             "advisory_only": True,
-            "channels": ["novelty", "outbreak", "news_corroboration", "alarm_review"],
+            "channels": ["sentinel", "novelty", "outbreak", "news_corroboration",
+                         "alarm_review"],
         },
+        "sentinel": sentinel(corpus, week),
         "novelty": novelty(corpus, strata, week),
         "outbreak_channel": outbreak_channel(corpus, week),
         "news": news,
