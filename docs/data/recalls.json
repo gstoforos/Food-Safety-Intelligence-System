@@ -32,6 +32,22 @@
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [morning fix 2026-10-12: filled Date, Company, Brand, Product, Pathogen, Reason, Tier — read in full on the FSAI alert page 2026-10-11 (fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-specific-batches-of-various-SuperValu-Sm): published Sunday 11 October 2026; brand SuperValu; SuperValu Smoked Salmon 40 g and 150 g; approval number IE DN0012 EU; batches 1027992 1 0 and 1027989 6 0; use-by 17/10/26; hazard the presence of Listeria monocytogenes. Company and Product previously held the listing title 'SuperValu Smoked Salmon products' — a product read as a firm. The alert names no producer other than the brand, so Company is the brand and the approval number is recorded here rather than guessed into a firm name. FSAI publishes its own alert slugs truncated at 49 characters, so this 98-character URL is the canonical page] [promote 2026-10-12: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-11",
+  "Source": "NFSA (EG)",
+  "Company": "Yasensvit Ltd",
+  "Brand": "",
+  "Product": "Eggs",
+  "Pathogen": "Salmonella Enteritidis",
+  "Reason": "Contaminated with Salmonella Enteritidis (No Recall ID provided)",
+  "Class": "Alert",
+  "Country": "Egypt",
+  "Region": "Africa",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBUWmtsaG4ySWVMZTFaQzBSVUIxSENpcnpYczNWOTFGRUFWdGw0YnpPSHB0RlV4WUJ1bzJXWkZjX252MnIyZ1BxTHA4OEpCdmMtel9MNGdIRTQxRFc2NEd1ZFJPbGRyS0pGLUVZOHBaeEdxNWVnWWhCSENJenEyZw?oc=5",
+  "Notes": "News-authority source: see.news (no official NFSA per-recall portal)"
+ },
+ {
   "Date": "2026-10-10",
   "Source": "FSA (UK)",
   "Company": "Yasensvit Ltd",
@@ -46,6 +62,22 @@
   "Outbreak": 1,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026",
   "Notes": "source_id=FSA-FAFA-03-2026 [via official-feed collector] [url-agent 2026-10-11: pending_gap→pending_gap_v1 URL confirmed] [operator pass 2026-10-11] Company filled from this row's OWN Product text, which read \"The establishment: Yasensvit Ltd, Kyiv, Ukraine; Raw shell-on eggs - Product Code 3UA1012066\"; the establishment was moved out of Product. The publish gate was refusing the row on \"Company is empty\" while the value sat in the row. alerts.food.gov.uk is robots-disallowed to this pass and was NOT fetched; no fact is added beyond what the row already carried. [original product: The establishment: Yasensvit Ltd, Kyiv, Ukraine; Raw shell-on eggs - Product Code 3UA1012066] [operator pass 2026-10-11] Serotype, the 36 linked cases in England and the advice are from the FSA/UKHSA press release of 10 Oct 2026 on GOV.UK: https://www.gov.uk/government/news/the-food-standards-agency-calls-on-businesses-to-withdraw-and-recall-eggs-from-one-ukrainian-food-business-as-investigations-find-salmonella-enteritid [promote 2026-10-11: status 'pending_gap_v1'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-10",
+  "Source": "MAPAQ QC",
+  "Company": "Marché Sultan",
+  "Brand": "",
+  "Product": "Hummus (Halal)",
+  "Pathogen": "E. coli",
+  "Reason": "Possible presence of E. coli",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-e-coli-dans-du-hummus-halal-prepare-et-vendu-par-lentreprise-marche-sultan-72638",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [tier-guard: E. coli is always Tier 1; forced from Tier 2]"
  },
  {
   "Date": "2026-10-09",
@@ -414,6 +446,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23728/interne",
   "Notes": "[operator pass 2026-10-11] RappelConso fiche 23728, published 09/10/2026, read on its own page: motif \"Histamine\"; risques \"Norovirus\" et \"Toxines endogènes : histamine\"; fiche filed by \"AVENIR 2000 Hyper U\". Re-queued after reviewer 2 archived it on 2026-10-09 as unable to confirm the page. [original product: Longe de thon Albacore] [promote 2026-10-11: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying 'unknown: Arrived already marked rejected; confirmer did not re-review [SUPERSEDED 2026-10-11 — [operator pass 2026-10-11] fiche 23728 read on its own page; haza' is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-09",
+  "Source": "MAPAQ QC",
+  "Company": "les boulangeries Ange",
+  "Brand": "",
+  "Product": "Framboise pastries (framboises pâtisseries)",
+  "Pathogen": "Norovirus",
+  "Reason": "Presence of norovirus",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-norovirus-dans-diverses-patisseries-aux-framboises-preparees-et-vendues-par-les-boulangeries-ange-72633",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-10-08",
@@ -1086,6 +1134,22 @@
   "Outbreak": 0,
   "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-escherichia-coli-produkujacej-toksyne-shiga-stec-w-dwoch-rodzajach-sera-z-surowego-mleka-krowiego",
   "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [pathogen-specialised: 'Escherichia coli (generic)' -> 'Shiga toxin-producing E. coli (STEC)', derived from this row's own Reason, which names the organism the family label does not] [safety-hold: reviewed but not approved this run; not promoted] [operator pass 2026-10-10] filled Company, Product, Reason, Tier — GIS warning of 06.10.2026, read on its own page: producer Gillot SAS, Le Moulin, 61220 Saint-Hilaire-de-Briouze, France; Camembert au lait cru 250 g (Le Petit Cru) and Camembert Bertrand Crémier 250 g, both lot 232511. [original product: wykrycie obecności bakterii Escherichia coli produkującej toksynę Shiga (STEC) w dwóch rodzajach sera z surowego mleka krowiego] [promote 2026-10-10: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-06",
+  "Source": "MAPAQ QC",
+  "Company": "Gestion famille Déziel inc. (IGA Grenville)",
+  "Brand": "",
+  "Product": "Ground beef (viande hachée)",
+  "Pathogen": "Plastic",
+  "Reason": "Presence of possible plastic pieces",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-morceaux-de-plastique-dans-toutes-les-varietes-et-tous-les-formats-de-viande-hachee-prepares-et-vendus-par-lentreprise-gestion-famille-deziel-inc-iga-grenville-72610",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec]"
  },
  {
   "Date": "2026-10-05",
