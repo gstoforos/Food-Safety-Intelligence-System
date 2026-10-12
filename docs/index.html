@@ -398,6 +398,14 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
 .sg-legend i{display:inline-block;width:8px;height:8px;border-radius:50%}
 .sg-method{font-size:13px;line-height:1.6;color:var(--muted)}
 .sg-method code{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);background:rgba(255,255,255,.05);padding:1px 5px;border-radius:2px}
+.sg-sent{border-left:3px solid #f87171}
+.sg-sn{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.sg-sn>div{background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:9px 11px;font-size:12px;line-height:1.5}
+.sg-sn b{color:var(--text)}
+.sg-sn .t{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#f87171;border:1px solid rgba(248,113,113,.4);border-radius:3px;padding:1px 6px;margin-left:6px;white-space:nowrap}
+.sg-sn .t.a{color:#fbbf24;border-color:rgba(251,191,36,.45)}
+.sg-sn small{color:var(--dim)}
+.sg-sn a{color:var(--cyan);text-decoration:none}
 .sg-ledger{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:12px}
 .sg-lw{border:1px solid var(--brd);border-radius:3px;padding:8px 10px;background:var(--s2)}
 .sg-lw .wk{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);letter-spacing:.06em;display:flex;justify-content:space-between}
@@ -422,6 +430,7 @@ The weekly report now covers one calendar week, <strong>Monday to Sunday</strong
   <div class="kpi"><div class="kv" id="sk-gen" style="color:var(--muted);font-size:16px;line-height:20px">—</div><div class="kl">Last scan (UTC)</div></div>
 </div>
 <div class="sg-grid">
+  <div class="sg-panel sg-sent"><div class="sec">Sentinel hazards · C. botulinum · botulism-risk indicators · outbreaks · flagged at one record</div><div id="sg-sentinel"><p class="loading">Loading…</p></div></div>
   <div class="sg-panel"><div class="sec">Alarm feed · this week · FDR-controlled</div><div id="sg-alarms"><p class="loading">Loading…</p></div></div>
   <div class="sg-panel"><div class="sec">Watchboard · every stratum with a scorable baseline · 12-week series</div><div id="sg-board"><p class="loading">Loading…</p></div></div>
   <div class="sg-panel"><div class="sec">Alarm timeline · walk-forward · bar = records that week · dot = alarm</div><div id="sg-timeline"><p class="loading">Loading…</p></div></div>
@@ -546,6 +555,21 @@ function sgWeekRange(meta){
   const f=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'});
   return `ISO week ${f(a)} – ${f(b)}`;
 }
+async function sgSentinel(meta){
+  // docs/data/signals-review.json, written by pipeline/signal_review_agent.py.
+  // C. botulinum (and every Outbreak = 1 record) is listed at ONE record:
+  // the detector's 4-record floor can never see it, and one botulism case is
+  // a public-health emergency. No statistic is shown because none applies.
+  const el=document.getElementById('sg-sentinel');if(!el)return;
+  let rv=null;
+  try{const r=await fetch('data/signals-review.json?_='+Date.now(),{cache:'no-store'});if(r.ok)rv=await r.json();}catch(e){}
+  const sn=rv&&rv.sentinel;
+  if(!sn){el.innerHTML='<div class="sg-empty">Sentinel lane not available yet — written every Monday by <code>signal-review-agent.yml</code>.</div>';notifyHeight();return;}
+  const stale=meta&&meta.week&&rv.meta&&rv.meta.week!==meta.week?` <small>(review is for ${sgEsc(rv.meta.week)})</small>`:'';
+  const it=sn.items||[];
+  el.innerHTML=it.length?`<div class="sg-sn">${it.map(x=>`<div><b>${sgEsc(x.hazard)}</b>${x.why.map(w=>`<span class="t${w==='botulism-risk indicator'?' a':''}">${sgEsc(w)}</span>`).join('')}<br><small>${sgEsc(x.date)} · ${sgEsc(x.source)} · ${sgEsc(x.country)}</small><br>${sgEsc(x.company)}<br><small>${sgEsc(x.product)}</small>${/^https?:\/\//i.test(x.url||'')?`<br><a href="${sgEsc(x.url)}" target="_blank" rel="noopener">regulator notice ↗</a>`:''}</div>`).join('')}</div><div class="sg-empty" style="margin-top:8px">${sgEsc(sn.note||'')}${stale}</div>`:`<div class="sg-empty">No ${sgEsc((sn.hazards||[]).join(', '))}, no botulism-risk indicator and no outbreak-flagged record this week.${stale}</div>`;
+  notifyHeight();
+}
 async function loadSignals(){
   const $=id=>document.getElementById(id);
   let d;
@@ -574,6 +598,8 @@ async function loadSignals(){
   $('sk-cov').title=meta.coverage_note||'';
   $('sk-gen').textContent=(meta.generated_utc||'').replace('T',' ').replace(/\+00:00$/,'').slice(0,16)||'—';
   $('sig-count').textContent=sig.length?`(${sig.length})`:'';
+  // ── sentinel hazards (signal review agent; one record is the finding) ──
+  sgSentinel(meta);
   // ── alarm feed ──
   if(!sig.length){
     const lowNote=(meta.corpus_week_total!=null&&ledger.length>=4)?(()=>{
