@@ -10,21 +10,21 @@
   "week_end_display": "11 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-12T07:29:24.567742+00:00",
+  "generated_utc": "2026-10-12T15:27:05.208647+00:00",
   "prev_total": 76,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 82,
-    "tier1": 60,
+    "total": 86,
+    "tier1": 62,
     "outbreaks": 2,
-    "delta": 6,
-    "delta_pct": 8
+    "delta": 10,
+    "delta_pct": 13
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 25,
-    "pct": 30
+    "pct": 29
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -99,5 +99,5 @@
       "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-supervalu-sm"
     }
   ],
-  "country_count": 21
+  "country_count": 23
 }
