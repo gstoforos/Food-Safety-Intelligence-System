@@ -40,8 +40,9 @@ currently run never.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -56,6 +57,51 @@ N_SHARDS = 7
 # the 2026-10-02 notices — one an aflatoxin recall — reached no sheet until
 # the Morning Fix found them by hand the next day.
 DAILY = ("jp",)
+
+# ── CATCH-UP (morning fix 2026-10-12) ──────────────────────────────────────
+# shard_for() deals round-robin off a SORTED list, keyed on the weekday. That
+# keeps the shards balanced to within one country, and it has a property the
+# docstring did not state: a country's shard is its POSITION in the sorted
+# list, so adding one config re-deals the whole fleet. Every code that sorts
+# after the new one moves back a shard, and a country that moves backwards
+# waits up to thirteen days for its next turn instead of seven.
+#
+# MEASURED. tests/test_no_country_goes_dark.py went red on 2026-10-12:
+#
+#     vn  last ran 2026-09-27 (Sunday), 14 days ago, bar is 14
+#
+# Vietnam did not crash and was not un-dispatched. It was on Sunday's shard,
+# and the configs added since — th, cn, in, us, ca — walked it to Wednesday
+# and then to Thursday, each move skipping its turn. Five additions in three
+# weeks, and the country with 50 candidates and zero accepted rows is the one
+# that went quiet.
+#
+# The same arithmetic means a BRAND-NEW config waits for its shard: ca.py
+# landed 2026-10-11 and sits on Saturday, so MAPAQ Québec — whose dashboard
+# tile has advertised a collector since the spring and whose last register
+# row is 2026-04-13 — would first run 2026-10-17. Two in-scope MAPAQ notices
+# (quebec.ca ...-72638, ...-72639) were already unrecorded when this was
+# written.
+#
+# So the shard stays as it is, balanced, and a catch-up rides on top of it:
+# any registered country whose newest run_log record is older than
+# CATCHUP_DAYS — or which has none at all — joins today's run, oldest first,
+# at most CATCHUP_MAX a day. That bounds staleness at CATCHUP_DAYS + 1
+# whatever the re-deal does, and it is self-healing: a country that runs
+# today drops off the list tomorrow.
+#
+# The cap is the job budget, not timidity. The fleet is 50 minutes with a
+# 12-minute per-country cap; a shard of 7 plus 3 catch-ups is 10 countries
+# at the observed ~6 minutes, which is the same order as a shard of 7 on a
+# bad day. Without the cap, the morning after twelve configs are added in
+# one go (which happened on 2026-09-23) the catch-up alone would be twelve
+# countries and the job would time out with no record for most of them —
+# the failure this is meant to prevent.
+CATCHUP_DAYS = 9
+CATCHUP_MAX = 3
+
+#: Where gap_finder/main writes one record per exit, per country.
+DATA_DIR = ROOT / "docs" / "data"
 
 
 def registered_codes() -> List[str]:
@@ -91,14 +137,78 @@ def shard_for(codes: List[str], day: Optional[date] = None,
     return [c for i, c in enumerate(sorted(codes)) if i % n_shards == idx]
 
 
+def last_run(code: str, data_dir: Optional[Path] = None) -> Optional[str]:
+    """Newest ISO timestamp in a country's run_log, or None if it never ran.
+
+    Reads the same records tests/test_no_country_goes_dark.py reads, so the
+    catch-up below and the test that measures staleness cannot disagree
+    about what "last ran" means.
+    """
+    f = (data_dir or DATA_DIR) / f"gap_finder_{code}" / "run_log.jsonl"
+    try:
+        lines = f.read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return None
+    best = ""
+    for line in lines:
+        if not line.strip():
+            continue
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        t = str(r.get("finished_at") or r.get("started_at") or "")
+        if t > best:
+            best = t
+    return best or None
+
+
+def _age_days(stamp: Optional[str], now: datetime) -> float:
+    """Days since `stamp`; a float infinity for a country that never ran."""
+    if not stamp:
+        return float("inf")
+    try:
+        when = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+    except ValueError:
+        return float("inf")
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return (now - when).total_seconds() / 86400.0
+
+
+def catchup_codes(codes: List[str], day: Optional[date] = None,
+                  data_dir: Optional[Path] = None,
+                  stale_days: int = CATCHUP_DAYS,
+                  limit: int = CATCHUP_MAX) -> List[str]:
+    """Registered countries overdue for a run, oldest first, capped.
+
+    See the CATCHUP note at the top of this module for why a weekly shard
+    alone does not bound staleness.
+    """
+    now = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) \
+        if day else datetime.now(timezone.utc)
+    aged = [(_age_days(last_run(c, data_dir), now), c) for c in codes]
+    overdue = [(a, c) for a, c in aged if a > stale_days]
+    # Oldest first, then alphabetical, so the order is deterministic and a
+    # never-run country (inf) is never starved by a merely-stale one.
+    overdue.sort(key=lambda t: (-t[0], t[1]))
+    return [c for _, c in overdue[:max(0, int(limit))]]
+
+
 def todays_codes(codes: List[str], day: Optional[date] = None,
-                 n_shards: int = N_SHARDS) -> List[str]:
-    """What the fleet runs on `day`: that weekday's shard plus every DAILY
-    country that is registered. shard_for() alone stays a clean partition
-    (each country exactly once a week); the daily extras ride on top."""
+                 n_shards: int = N_SHARDS,
+                 data_dir: Optional[Path] = None) -> List[str]:
+    """What the fleet runs on `day`: that weekday's shard, plus every DAILY
+    country that is registered, plus up to CATCHUP_MAX overdue countries.
+
+    shard_for() alone stays a clean partition (each country exactly once a
+    week); the daily extras and the catch-up ride on top."""
     out = shard_for(codes, day, n_shards)
     for c in DAILY:
         if c in codes and c not in out:
+            out.append(c)
+    for c in catchup_codes(codes, day, data_dir):
+        if c not in out:
             out.append(c)
     return out
 
@@ -133,11 +243,21 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     d = date.fromisoformat(a.date) if a.date else None
-    todays = todays_codes(registered_codes(), d, a.shards)
+    codes = registered_codes()
+    todays = todays_codes(codes, d, a.shards)
     # stdout is consumed by the workflow — codes only, comma separated.
     print(",".join(todays))
+    # stderr is the step summary a human reads. Name the catch-ups: a
+    # country appearing off its shard is a staleness finding, and it should
+    # not look like a shard that silently grew.
+    caught = catchup_codes(codes, d)
     print(f"shard {(d or datetime.now(timezone.utc).date()).isoweekday()} "
           f"of {a.shards}: {len(todays)} countries", file=sys.stderr)
+    if caught:
+        for c in caught:
+            lr = last_run(c)
+            print(f"  catch-up {c}: last ran {lr[:10] if lr else 'NEVER'} "
+                  f"(> {CATCHUP_DAYS} days)", file=sys.stderr)
     return 0
 
 

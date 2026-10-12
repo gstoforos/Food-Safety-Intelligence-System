@@ -74,7 +74,15 @@ SOURCES = [
     ("USDA FSIS", "United States", "fsis.usda.gov"),
     ("CDC", "United States", "cdc.gov"),
     ("CFIA", "Canada", "inspection.canada.ca"),
-    ("MAPAQ QC", "Canada", "mapaq.gouv.qc.ca"),
+    # Two hosts, both live. MAPAQ's own site carries the programme pages;
+    # the per-notice "mise en garde à la population" pages are published on
+    # the whole-of-government portal quebec.ca, which is what
+    # pipeline/gap_finder/countries/ca.py sets as authority_domain and what
+    # every published MAPAQ QC row in the register links to. Listing only
+    # mapaq.gouv.qc.ca here left the ca config monitored-but-not-counted
+    # from the morning it was added (2026-10-11) — caught by
+    # tests/test_monitored_sources.py::test_every_gap_finder_country_is_counted.
+    ("MAPAQ QC", "Canada", "quebec.ca mapaq.gouv.qc.ca"),
     ("COFEPRIS (MX)", "Mexico", "gob.mx"),
     # ── Latin America ──
     ("ANVISA (BR)", "Brazil", "gov.br"),
