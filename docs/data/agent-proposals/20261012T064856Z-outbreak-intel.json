@@ -1,0 +1,682 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261012T064856Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/851868",
+          "quote": "2026-06-16 RASFF (EU) Salmonella Enteritidis in fresh chicken drumettes from Poland",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "387bc75f10ae829b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
+          "quote": "2026-07-06 RASFF (EU) Salmonella enteritidis in frozen chicken pieces",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "9417336630f56424"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (4 out of 5 samples) in sliced chicken breast fillets, Pol",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "b2ba1bdfa1ecd796"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Infantis (in 4 out of 5 units) and Salmonella Enteritidis (in 1 out of 5 units)",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "efdd610e936f4fbb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in chicken thighs from Poland.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f3f6bdb846e095e1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223",
+          "quote": "2026-07-16 RASFF (EU) Salmonella Enteritidis detected (1 out of 5 samples) in chicken drumsticks",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "bd59214a091d388b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x20",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "75907fb82d60fdf5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x30",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "8444adbf3702edcf"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2c0b716637791bae"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "66a291bdb1fe9181"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997",
+          "quote": "2026-08-13 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in boneless, skinless chicken thighs.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "bba7b7321835cd96"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "1ba61d138a6176f1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136",
+          "quote": "2026-08-18 RASFF (EU) Stwierdzenie obecności Salmonella Enteritidis w filecie  z piersi kurczaka,  pochodzącego ",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "8a6e65926a1cd52c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "5c14139ad19104b2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Pumpkin seeds",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "6125238a35a3f6b3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Mixes containing pumpkin seeds; mélange sportif; mélange babylone; mélange spécial salade ",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "e854caeeee337919"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642",
+          "quote": "2026-08-28 RASFF (EU) Salmonella enteritidis and infantis in chicken meat originating in Romania",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "0d2b5ea995d972af"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022",
+          "quote": "2026-09-01 RASFF (EU) Presence of Salmonella enteritidis in pumpkin seeds from France",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "7f27ec75bbae22f0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "808eb1b6e388f5dd"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669",
+          "quote": "2026-09-14 RASFF (EU) Salmonella Enteritidis in frozen duck from Poland",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "0ebecaada09ba0e4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569",
+          "quote": "2026-09-15 RASFF (EU) riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origin",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "0644bd0dc44e2656"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/875990"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/875990",
+          "quote": "2026-09-28 RASFF (EU) Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f906448a22d9577c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501",
+          "quote": "2026-09-30 RASFF (EU) Salmonella Enteritidis in fresh turkey meat from Poland",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "8a851aafb1b234a2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497",
+          "quote": "2026-10-08 RASFF (EU) Salmonella enteritidis in eggs from Spain",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "39b8f8bb17296ac3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/oregon-public-health-officials-investigating-possible-foodborne-outbreak",
+          "quote": "Deschutes County Health Services, working with the Oregon Health Authority and other partners, has issued a Health Alert Network advisory telling health care providers in Deschutes County and the surrounding Central Oregon communities that it is investigating a multistate outbreak of Salmonella Enteritidis infections.",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026",
+          "quote": "2026-10-10 FSA (UK) Raw shell-on eggs from Ukraine (Yasensvit Ltd, Kyiv), product code 3UA1012066",
+          "retrieved_utc": "2026-10-12T06:46:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2ae2e4c8fdb334e1"
+    }
+  ]
+}
