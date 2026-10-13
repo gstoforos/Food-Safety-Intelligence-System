@@ -38,6 +38,7 @@ WHAT IT WILL NOT DO
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from collections import Counter
 from datetime import datetime, timezone
@@ -102,6 +103,55 @@ _HAZARD_GROUP_RULES = (
     ("physical", "foreign-material"), ("glass fragment", "foreign-material"),
     ("metal fragment", "foreign-material"), ("plastic fragment", "foreign-material"),
     ("heavy metal", "heavy-metal"),
+    # ── 2026-10-13. THE SIXTH TIME THIS CATCH-ALL LIED. ──────────────────
+    # The MAPAQ Québec row for IGA Grenville ground beef (2026-10-06,
+    # "Presence of possible plastic pieces") reached Recalls with Pathogen
+    # written as the bare material noun "Plastic". Every QUALIFIED form was
+    # already here — "plastic fragment", "glass fragment", "metal
+    # fragment" — so the bare noun matched nothing and a foreign-material
+    # recall was filed HazardGroup "pathogen-bacterial". It was the only
+    # one of the register's 63 foreign-material rows in the bacterial
+    # bucket, and the schema sweep re-stamped it every morning.
+    #
+    # The shape is general, not one label: measured on main at 98a7746b,
+    # _hazard_group() sent "Glass", "Metal", "Plastic pieces", "Rubber",
+    # "Wood", "Stones" and "Bone fragments" to the bacterial catch-all
+    # too. A review agent writing the hazard as free text has no reason to
+    # prefer the qualified form, so the bare nouns are listed here rather
+    # than waiting for the next one to publish.
+    #
+    # SAFE AS BARE WORDS, unlike the publish gate's physical class (which
+    # reads Product and Reason, where "plastic packaging" and "slivered
+    # almonds" appear). _hazard_group() reads ONLY the Pathogen label, and
+    # a Pathogen label containing "glass" or "plastic" names a physical
+    # hazard. "heavy metal" is matched ABOVE, so "Lead (heavy metal)"
+    # still reaches heavy-metal and never the bare "metal" rule here.
+    #
+    # The bare MATERIAL NOUNS themselves are NOT substrings in this table
+    # (review 2026-10-13): as substrings they caught "Salmonella in
+    # SANDwiches", "METALaxyl (pesticide)", "PLASTICizers (phthalates)" and
+    # "Listeria ... on a WOOD plank". They are matched as whole words, and
+    # only on a label that names no organism — see _BARE_MATERIAL below.
+    # The qualified forms stay here as substrings.
+    ("bone fragment", "foreign-material"),
+    ("shell fragment", "foreign-material"),
+    # Same sweep, same shape, three more published rows whose label names a
+    # metal, a drug or a fungal toxin without using the word this table was
+    # waiting for:
+    #
+    #   "Mercury exceeding limit"        1   -> heavy-metal  (no "heavy metal")
+    #   "1, 3-Dimethylamylamine (DMAA)"  1   -> chemical     (no "undeclared")
+    #   "Deoxynivalenol (DON)"           1   -> mycotoxin    (no "toxin")
+    #
+    # Each is already reachable by a term in tools/alert_vocab.py, so, as
+    # with the eleven of 2026-10-07, only the group was wrong. Bare "lead"
+    # is deliberately NOT added: "Lead (heavy metal)" is the register's own
+    # form for it and the "heavy metal" rule above already catches it.
+    ("mercury", "heavy-metal"), ("arsenic", "heavy-metal"),
+    ("cadmium", "heavy-metal"),
+    ("dimethylamylamine", "chemical"), ("dmaa", "chemical"),
+    ("deoxynivalenol", "mycotoxin"), ("fumonisin", "mycotoxin"),
+    ("cardiac glycoside", "biotoxin"), ("oleander", "biotoxin"),
     ("aflatoxin", "mycotoxin"), ("ochratoxin", "mycotoxin"),
     ("mycotoxin", "mycotoxin"), ("zearalenone", "mycotoxin"),
     ("patulin", "mycotoxin"),
@@ -248,6 +298,21 @@ def _notice_from_class(cls: str) -> str:
     return ""
 
 
+# Bare material nouns (2026-10-13), whole words only, and only when the
+# label names no organism: "Plastic", "Glass", "Metal", "Stones" are
+# foreign material; "Salmonella in sandwiches" and "Metalaxyl" are not.
+_BARE_MATERIAL = re.compile(
+    r"\b(?:plastics?|glass|metals?|rubber|wood(?:en)?|stones?|wires?|gravel|"
+    r"sand|slivers?)\b(?:\s+(?:pieces?|fragments?|particles?|shards?))?",
+    re.I)
+_ORGANISM_WORDS = (
+    "salmonell", "listeri", "coli", "stec", "clostrid", "botul", "bacillus",
+    "cereus", "staphyl", "campylob", "vibrio", "yersin", "shigell",
+    "cronobact", "norovir", "hepatitis", "virus", "mould", "mold", "yeast",
+    "parasit", "cyclospor", "anisakis", "bacteri", "microb", "pathogen",
+)
+
+
 def _hazard_group(pathogen: str) -> str:
     p = (pathogen or "").strip().lower()
     if not p:
@@ -265,6 +330,8 @@ def _hazard_group(pathogen: str) -> str:
     for needle, group in _HAZARD_GROUP_RULES:
         if needle in p:
             return group
+    if _BARE_MATERIAL.search(p) and not any(o in p for o in _ORGANISM_WORDS):
+        return "foreign-material"
     for needle in _NOT_A_HAZARD:
         if needle in p:
             return "unknown"
