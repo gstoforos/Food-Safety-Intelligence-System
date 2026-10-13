@@ -87,6 +87,32 @@ NON_MICROBIAL = [
     ("Lead (heavy metal)", "heavy-metal"),
     ("Foreign material (glass fragment)", "foreign-material"),
     ("Uninspected product (hazard not assessed)", "hazard-not-assessed"),
+    # ── morning-fix 2026-10-13. THE BARE NOUN. ──────────────────────────
+    # The MAPAQ Québec row for IGA Grenville ground beef published with
+    # Pathogen written as the bare material noun "Plastic" and landed in
+    # the bacterial bucket — the only one of the register's 63
+    # foreign-material rows to do so. Every QUALIFIED form was already in
+    # _HAZARD_GROUP_RULES ("plastic fragment", "glass fragment"), so this
+    # file's cases, all of them qualified too, could not see the hole.
+    #
+    # A review agent writing the hazard as free text has no reason to
+    # prefer the qualified form, so the bare nouns are asserted here. Six
+    # of them were measured landing in the bacterial bucket on main at
+    # 98a7746b: Glass, Metal, Plastic pieces, Rubber, Wood, Stones.
+    ("Plastic", "foreign-material"),
+    ("Plastic pieces", "foreign-material"),
+    ("Glass", "foreign-material"),
+    ("Metal", "foreign-material"),
+    ("Rubber", "foreign-material"),
+    ("Wood", "foreign-material"),
+    ("Stones", "foreign-material"),
+    ("Bone fragments", "foreign-material"),
+    # Same sweep: three published labels that name a metal, a drug and a
+    # fungal toxin without using the word the table was waiting for.
+    ("Mercury exceeding limit", "heavy-metal"),
+    ("1, 3-Dimethylamylamine (DMAA)", "chemical"),
+    ("Deoxynivalenol (DON)", "mycotoxin"),
+    ("Yellow oleander (cardiac glycosides)", "biotoxin"),
 ]
 
 
@@ -138,3 +164,21 @@ def test_mould_is_the_open_decision_and_is_recorded_as_one():
         "mould's hazard group has changed — if that was the operator "
         "decision this test records, move 'Mold'/'Mould' into "
         "NON_MICROBIAL with its new group and delete this test")
+
+
+# ── review 2026-10-13: the bare material nouns are WHOLE WORDS, and never on
+# a label that names an organism. As substrings they filed these as
+# foreign material. None of them is in the register today; the next one
+# would be.
+NOT_FOREIGN_MATERIAL = [
+    "Salmonella in sandwiches",
+    "Listeria monocytogenes (smoked salmon on wood plank)",
+    "Metalaxyl (pesticide residue)",
+    "Plasticizers (phthalates)",
+    "E. coli in stone fruit",
+]
+
+
+@pytest.mark.parametrize("pathogen", NOT_FOREIGN_MATERIAL, ids=NOT_FOREIGN_MATERIAL)
+def test_a_material_word_inside_another_word_or_beside_an_organism_is_not_foreign_material(pathogen):
+    assert _hazard_group(pathogen) != "foreign-material", pathogen

@@ -197,10 +197,13 @@ NOT_YET_RUN = {
     # bypassed merge_master's alias map. Fixed at the writer on the same
     # day; recorded here because this is where the config became live.
     #
-    # Canada — MAPAQ Québec, added 2026-10-11 (operator: "yes" to the MAPAQ
-    # collector). The dashboard tile had advertised MAPAQ with no collector;
-    # last register row 2026-04-13.
-    "ca": "2026-10-11",
+    # ca LEFT this list on 2026-10-13: docs/data/gap_finder_ca/run_log.jsonl
+    # records its first dispatch, 2026-10-12T10:49Z — 25 candidates, 11
+    # verified, 3 appended to Pending — and all three of those rows are now
+    # published (MAPAQ Québec: Marché Sultan hummus, les boulangeries Ange
+    # raspberry pastries, IGA Grenville ground beef). The 14-day freshness
+    # assertion covers it from here, so the entry is deleted rather than
+    # left behind, exactly as "us" was on 2026-10-06.
 }
 
 #: The union, for the freshness assertion, which does not care why.
