@@ -1,22 +1,8 @@
 {
-  "generated_utc": "2026-10-11T09:22:52.160352+00:00",
+  "generated_utc": "2026-10-13T18:59:48.030393+00:00",
   "checked_back_months": 3,
   "anchor_month_end": "2026-09-30",
   "updated_months": [
-    {
-      "year_m": "2026-M09",
-      "year": 2026,
-      "month_num": 9,
-      "month_name": "September 2026",
-      "month_start": "2026-09-01",
-      "month_end": "2026-09-30",
-      "filename": "2026-M09.html",
-      "report_url": "https://fsis.advfood.tech/2026-M09.html",
-      "old_total": 278,
-      "new_total": 291,
-      "delta": 13,
-      "first_publish": false
-    },
     {
       "year_m": "2026-M08",
       "year": 2026,
@@ -26,15 +12,15 @@
       "month_end": "2026-08-31",
       "filename": "2026-M08.html",
       "report_url": "https://fsis.advfood.tech/2026-M08.html",
-      "old_total": 234,
-      "new_total": 235,
+      "old_total": 235,
+      "new_total": 236,
       "delta": 1,
       "first_publish": false
     }
   ],
   "label_flips": [],
   "primary_cta": {
-    "label": "VIEW MONTHLY DASHBOARD",
-    "url": "https://www.advfood.tech/#monthly"
+    "label": "VIEW REFRESHED REPORT",
+    "url": "https://fsis.advfood.tech/2026-M08.html"
   }
 }

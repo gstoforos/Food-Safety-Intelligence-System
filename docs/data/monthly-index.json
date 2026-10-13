@@ -21,13 +21,13 @@
     "month_name": "August 2026",
     "month_start": "2026-08-01",
     "month_end": "2026-08-31",
-    "total": 235,
-    "tier1": 178,
+    "total": 236,
+    "tier1": 179,
     "outbreaks": 4,
     "top_pathogen": "Listeria monocytogenes",
-    "summary": "August 2026: 235 recalls, 178 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
+    "summary": "August 2026: 236 recalls, 179 Tier-1, 4 outbreak(s). Leading pathogen: Listeria monocytogenes.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M08-marketing.pdf",
-    "notified_total": 235
+    "notified_total": 236
   },
   {
     "filename": "2026-M07.html",

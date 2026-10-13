@@ -4,7 +4,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Dorfkäserei Geifertshofen",
   "Brand": "Dorfkäserei Geifertshofen",
-  "Product": "fromage vigneron, fromage viticole d'âge moyen, geifertshofener classics, fromage de trollinger souabe, fromage à la crème souabe fromage au poivre de geifertshofen fromage au trèfle bleu de  geifertshofen,",
+  "Product": "Various organic cheeses: winegrower cheese, medium-aged vintner cheese, Geifertshofener Classics, Swabian Trollinger cheese, Swabian cream cheese, Geifertshofen pepper cheese, Geifertshofen blue-clover cheese",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria",
   "Class": "Voluntary",
@@ -13,62 +13,62 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23763/interne",
-  "Notes": "coté nature, bio souffel, nature et culture [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "coté nature, bio souffel, nature et culture [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [translated 2026-10-13: Product -> English. Read on https://rappel.conso.gouv.fr/fiche-rappel/23763/interne: fiche title \"Divers fromages BIO Dorfkäserei Geifertshofen\", \"Nom de la marque du produit\" \"Dorfkäserei Geifertshofen\", \"Motif du rappel\" \"Listeria\", \"Risques encourus par le consommateur\" \"Listeria monocytogenes (agent responsable de la listériose)\", date 12/10/2026.] [original product: fromage vigneron, fromage viticole d'âge moyen, geifertshofener classics, fromage de trollinger souabe, fromage à la crème souabe fromage au poivre de geifertshofen fromage au trèfle bleu de  geifertshofen,]"
  },
  {
   "Date": "2026-10-12",
   "Source": "RappelConso (FR)",
   "Company": "Distribution Vallegrain",
   "Brand": "Distribution Vallegrain",
-  "Product": "joue de porc",
-  "Pathogen": "Salmonella",
-  "Reason": "Presence of un ou plusieurs germes pathogènes dans les échantillons",
+  "Product": "Pork cheek",
+  "Pathogen": "Escherichia coli and Salmonella spp.",
+  "Reason": "Presence of one or more pathogenic germs in the samples",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23720/interne",
-  "Notes": "boucherie etwein [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "boucherie etwein [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [translated 2026-10-13: Product -> English. Read on https://rappel.conso.gouv.fr/fiche-rappel/23720/interne: \"Nom du produit\" \"JOUE DE PORC\", \"Marque\" \"DISTRIBUTION VALLEGRAIN\", \"Motif du rappel\" \"Présence d'un ou plusieurs germes pathogènes dans les échantillons\", \"Risques encourus par le consommateur\" \"Escherichia coli\" AND \"Salmonella spp (agent responsable de la salmonellose)\", distributor \"BOUCHERIE ETWEIN\", date 12/10/2026.] [original product: joue de porc] [original Reason (fr): \"Presence of un ou plusieurs germes pathogènes dans les échantillons\"] [hazard 2026-10-13: Pathogen was 'Salmonella', but the fiche's \"Risques encourus par le consommateur\" names BOTH Escherichia coli and Salmonella spp., so no E. coli alert could reach this row. Two-hazard form as used at idx 229. Tier is 1 on either hazard.]"
  },
  {
   "Date": "2026-10-12",
   "Source": "RappelConso (FR)",
   "Company": "Hachage au Niveau du Rayon Traditionnel",
   "Brand": "Hachage au Niveau du Rayon Traditionnel",
-  "Product": "haché de boeuf",
+  "Product": "Ground beef",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Détéction de listéria",
+  "Reason": "Detection of Listeria",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23747/interne",
-  "Notes": "grand frais situé à lieusaint [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "grand frais situé à lieusaint [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [translated 2026-10-13: Product -> English. Read on https://rappel.conso.gouv.fr/fiche-rappel/23747/interne: fiche title \"Haché de boeuf\", \"Nom de la marque du produit\" \"Hachage au niveau du rayon traditionnel\", \"Motif du rappel\" \"Détéction de Listéria\" (the regulator's own spelling), \"Risques encourus\" \"Listeria monocytogenes (agent responsable de la listériose)\", distributor \"Grand frais situé à Lieusaint\", date 12/10/2026.] [original product: haché de boeuf] [original Reason (fr): \"Détéction de listéria\"]"
  },
  {
   "Date": "2026-10-12",
   "Source": "RappelConso (FR)",
   "Company": "Auchan",
   "Brand": "Auchan",
-  "Product": "petit saucisson parmesan 75g",
+  "Product": "Small Parmesan dry sausage, 75 g",
   "Pathogen": "Salmonella",
-  "Reason": "Suite à la présence de la Salmonella spp. (agent responsable de la salmonellose)",
+  "Reason": "Following the presence of Salmonella spp. (the agent responsible for salmonellosis)",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23742/interne",
-  "Notes": "toute enseigne distribuant la marque auchan [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "toute enseigne distribuant la marque auchan [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [translated 2026-10-13: Product -> English. Read on https://rappel.conso.gouv.fr/fiche-rappel/23742/interne: \"Noms des modèles ou références\" \"PETIT SAUCISSON PARMESAN 75G\", \"Nom de la marque du produit\" \"AUCHAN\", \"Origine de la fiche\" \"AUCHAN RETAIL SERVICES AUCHAN\", \"Motif du rappel\" \"Suite à la présence de la Salmonella spp (agent responsable de la salmonellose)\", date 12/10/2026.] [original product: petit saucisson parmesan 75g] [original Reason (fr): \"Suite à la présence de la Salmonella spp. (agent responsable de la salmonellose)\"] [detector-miss 2026-10-13: reviewer 3 did NOT stamp this row '[needs cleanup: Product not in English]' — detect_language's two-hit threshold cannot see a name this short, the same way it could not see 'foie de poulet'. The threshold is deliberately not loosened (see tests/test_reason_is_not_wholly_foreign.py); the morning read of every Product published in the last 26 h is what caught it.]"
  },
  {
   "Date": "2026-10-12",
   "Source": "FSANZ (AU)",
-  "Company": "Tweedvale Dairies Reduced Fat Milk",
+  "Company": "Tweedvale Dairies PTY LTD",
   "Brand": "—",
-  "Product": "1L and 2L",
+  "Product": "Tweedvale Dairies Reduced Fat Milk, 1 L and 2 L (use by 21/10/2026)",
   "Pathogen": "Escherichia coli (generic)",
   "Reason": "Microbial ( E. coli ) contamination.",
   "Class": "Recall",
@@ -77,14 +77,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/tweedvale-dairies-reduced-fat-milk-1l-and-2l",
-  "Notes": "nan [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [field-fix 2026-10-13: the alert title was split down the middle — Company held 'Tweedvale Dairies Reduced Fat Milk' (the product) and Product held '1L and 2L' (the pack sizes), and FoodCategory was 'unknown' because no term in '1L and 2L' names a food. The FSANZ alert, https://www.foodstandards.gov.au/food-recalls/recall-alert/tweedvale-dairies-reduced-fat-milk-1l-and-2l, prints company \"Tweedvale Dairies PTY LTD\", product \"Tweedvale Dairies Reduced Fat Milk - 1L and 2L\", \"Use By 21/10/2026\", \"Recall published 12 October 2026\", sold \"in independent retailers including IGA in SA\". FoodCategory -> dairy-other, which is what enrich_schema.derive() now returns for the restored product. The literal string 'nan' at the head of Notes — a stringified float from the writer — is cleared in the same edit.]"
  },
  {
-  "Date": "2026-10-12",
+  "Date": "2026-08-19",
   "Source": "GIS (PL)",
   "Company": "PPHU Balser Marian Górz",
   "Brand": "",
-  "Product": "Cheese",
+  "Product": "Regional ball cheese from Zakopane (ser gałka z Zakopanego), 280 g — lot 07286, use by 25.09.2026",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes (Recall ID GIS-2026-08-19-001)",
   "Class": "Alert",
@@ -93,7 +93,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-sera-podpuszczkowego",
-  "Notes": "Discovered via news: portalspozywczy.pl [locality: Czarny Dunajec, Wróblówka, Poland] [confirm-agent 2026-10-13: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: portalspozywczy.pl [locality: Czarny Dunajec, Wróblówka, Poland] [confirm-agent 2026-10-13: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [date-fix 2026-10-13: Date was 2026-10-12, the date this row was DISCOVERED in a portalspozywczy.pl article, not the date of the notice. The GIS warning at https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-sera-podpuszczkowego is dated 19.08.2026 — read this pass on the regulator's own notice — and the row's own Reason already carried the regulator's dated identifier GIS-2026-08-19-001. Date -> 2026-08-19, report_week W42 -> W34. NOTE FOR THE OPERATOR: this moves one row out of October/W42 and into August, a CLOSED month whose report and subscriber email are already out. The August report is NOT rebuilt here.] [product read on the same page: \"SER GAŁKA Z ZAKOPANEGO 280g\", batch \"07286\", use-by \"25.09.2026\"; producer \"PPHU Balser Marian Górz Wróblówka, 102B, 34-408 Czarny Dunajec\"] [original product: SER GAŁKA Z ZAKOPANEGO 280g]"
  },
  {
   "Date": "2026-10-11",
@@ -1237,7 +1237,7 @@
   "Company": "Gestion famille Déziel inc. (IGA Grenville)",
   "Brand": "",
   "Product": "Ground beef (viande hachée)",
-  "Pathogen": "Plastic",
+  "Pathogen": "Foreign material (plastic pieces)",
   "Reason": "Presence of possible plastic pieces",
   "Class": "Recall",
   "Country": "Canada",
@@ -1245,7 +1245,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-morceaux-de-plastique-dans-toutes-les-varietes-et-tous-les-formats-de-viande-hachee-prepares-et-vendus-par-lentreprise-gestion-famille-deziel-inc-iga-grenville-72610",
-  "Notes": "Discovered via news: quebec.ca [locality: Quebec]"
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [hazard-label 2026-10-13: Pathogen was the bare material noun 'Plastic', which no term in tools/alert_vocab.py can reach and which pipeline/_publish_gate's qualified-forms-only physical class refuses, so this published row was unreachable by every subscriber alert AND refused by the curator. HazardGroup was 'pathogen-bacterial' — the only one of the register's 63 foreign-material rows in the bacterial bucket. Relabelled to the register's own form using this row's OWN wording: Reason 'Presence of possible plastic pieces' and the URL slug 'presence-possible-de-morceaux-de-plastique'. Nothing is added that the row did not say. The quebec.ca notice could not be opened this pass (agent proxy: 'url exceeds the maximum fetchable length', HTTP 403) and no fact here needs it. pipeline/enrich_schema._hazard_group is fixed for the shape, not the label.]"
  },
  {
   "Date": "2026-10-05",
@@ -32350,5 +32350,37 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879047",
   "Notes": "[RASFF #2026.9013; classification: alert notification; category: poultry meat and poultry meat products; notifId=879047] [promote 2026-10-13: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-12",
+  "Source": "GIS (PL)",
+  "Company": "Mlecz Ser Górskie Sp. z o. o.",
+  "Brand": "—",
+  "Product": "Regional cheeses, batch 261.2026/M: Gałka Naturalna 250 g; Gałka with wild garlic 250 g; Gałka with paprika 250 g; Gałka Smoked 250 g; \"Tabliczka\" Smoked 250 g; \"Kukurydza\" Smoked 280 g; \"Korbacz\" Natural 1 kg; \"Sietniok\" Smoked 180 g",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Detection of Listeria monocytogenes in one batch of cheeses (various kinds)",
+  "Class": "Recall",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-serow-rozne-rodzaje",
+  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-10-13: no recalling firm on the row (Brand '—'); not published and not rejected — reviewer 2 to read the firm from the notice] [reviewer-2 stand-in 2026-10-13: the Recall review agent did not run its 03:xx UTC pass today (reviewers 1 and 3 both did), so this row sat held on an empty Company with the producer printed on its own notice. Read on https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-serow-rozne-rodzaje: producer \"Mlecz Ser Górskie Sp. z o. o. ul. ks. Juliana Łyska 7A, 34-480 Jabłonka\", hazard \"wykrycie obecności bakterii Listeria monocytogenes\", batch \"261.2026/M\", publication \"12.10.2026\", eight products with best-before 18.10.2026 / 07.11.2026. A DIFFERENT notice from the same producer's 2026-09-09 warning already in Recalls (batch 223.2026/M) — different batch, different URL. Product and Reason translated; product designations (Gałka, Tabliczka, Kukurydza, Korbacz, Sietniok) kept as printed.] [original product: wykrycie obecności bakterii Listeria monocytogenes w jednej partii serów (różne rodzaje)] [promote 2026-10-13: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-12",
+  "Source": "CFS (HK)",
+  "Company": "Kung Wo Dou Bun Chong",
+  "Brand": "Kung Wo Dou Bun Chong",
+  "Product": "Rose preserved bean curd",
+  "Pathogen": "Bacillus cereus",
+  "Reason": "Bacillus cereus at 140 000 per gram in a sample of preserved bean curd collected from a retailer in Shum Shui Po. The CFS instructed the retailer to stop sale, remove from shelves and recall the affected batch, and the retailer surrendered the remaining stock for disposal. Affected batch sold 24 September to 9 October 2026.",
+  "Class": "Recall",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/press/20261012_12665.html",
+  "Notes": "[manual 2026-10-13: AFTS morning fix pass, missed-recall sweep. Read on the CFS press release https://www.cfs.gov.hk/english/press/20261012_12665.html, dated \"Monday, October 12, 2026\": headline \"CFS finds excessive Bacillus cereus in sample of preserved bean curd\"; level \"the sample contained Bacillus cereus at a level of 140 000 per gram\"; sample \"collected from a retailer in Sham Shui Po\"; the CFS \"instructed it to stop sale, remove from shelves and recall the affected batch of the product\" and \"The retailer has voluntarily surrendered the remaining products from the same batch to the CFS for disposal\". Absent from all five sheets on base 98a7746b — searched by URL, by \"12665\", by \"腐乳\", by \"bean curd\" and by \"公和\".] [original product: 玫瑰腐乳 — the CFS notes \"(No product name in English)\", so the English above is a faithful translation of the Chinese plus the CFS's own words \"preserved bean curd\"] [original company: 公和荳品廠 — the CFS prints no English name for the firm; rendered as its standard romanization, per the operator rule of 2026-10-01] [the CFS does not name the retailer, only \"a retailer in Shum Shui Po\"; the firm above is the maker named on the product line] [no lot code or best-before is printed on the notice — the CFS gives only the batch's sales period] [Pending row corrected in place; collector values were {\"Source\": \"CFS\", \"Company\": \"Press Release\", \"Brand\": \"Press Release\", \"Product\": \"CFS finds excessive Bacillus cereus in sample of preserved bean curd\"}] [promote 2026-10-13: status 'pending_gap_v1'->'pending' — passes every publish-gate rule] [tier-guard: Bacillus cereus bare Bacillus cereus in low-moisture product (cereulide risk) is Tier 1; forced from Tier 2]"
  }
 ]
