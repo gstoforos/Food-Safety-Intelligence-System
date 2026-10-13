@@ -80,6 +80,22 @@
   "Notes": "nan [promote 2026-10-12: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
  },
  {
+  "Date": "2026-10-12",
+  "Source": "GIS (PL)",
+  "Company": "PPHU Balser Marian Górz",
+  "Brand": "",
+  "Product": "Cheese",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes (Recall ID GIS-2026-08-19-001)",
+  "Class": "Alert",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-sera-podpuszczkowego",
+  "Notes": "Discovered via news: portalspozywczy.pl [locality: Czarny Dunajec, Wróblówka, Poland] [confirm-agent 2026-10-13: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-10-11",
   "Source": "HAH (HR)",
   "Company": "STUDENAC d.o.o. Hrvatska",
