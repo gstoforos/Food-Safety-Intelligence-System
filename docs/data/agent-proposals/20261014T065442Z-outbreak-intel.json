@@ -1,0 +1,682 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261014T065442Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22566/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22566/Interne",
+          "quote": "2026-06-16 RappelConso (FR) Plain bacon matchsticks (lardons), U Bio organic, French pork (VPF), 2x75g",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "932b8a46fb8446ce"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/852509"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/852509",
+          "quote": "2026-06-18 RASFF (EU) Salmonella spp. on Chicken Breast Schnitzel from Germany",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "76366169cb30f081"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/852493"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/852493",
+          "quote": "2026-06-18 RASFF (EU) Salmonella spp. on Chicken Cordon Bleu from Germany",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "de604622f02e3747"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22614/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22614/Interne",
+          "quote": "2026-06-19 RappelConso (FR) Fuet (dry-cured sausage) extra quality 155g",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "16a78b973af75fe2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22567/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22567/Interne",
+          "quote": "2026-06-19 RappelConso (FR) Fuet (dry-cured sausage) extra 170g",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9c9a99da58bdffdb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22613/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22613/Interne",
+          "quote": "2026-06-19 RappelConso (FR) 3-pepper duck skewers",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "27e52233cc6ad6d7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853189",
+          "quote": "2026-06-22 RASFF (EU) Eggs from a Dutch stable that tested positive for Salmonella",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ac97a69d6fb5f2fc"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853532"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853532",
+          "quote": "2026-06-23 RASFF (EU) Salmonella in pistachio paste from Italy",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f4f7fb7324e2a34c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853317",
+          "quote": "2026-06-23 RASFF (EU) Detection of Salmonella in sprouts, with suspected seed contamination",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "08472e304ad3cab6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-marks-and-sp"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-marks-and-sp",
+          "quote": "2026-06-24 FSAI (IE) M&S Food Pink Lady Apple Slices 225g; M&S Food Pink Lady Apple 90g; M&S Café Pink Lady App",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "219336b711bf88f2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22643/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22643/Interne",
+          "quote": "2026-06-25 RappelConso (FR) 3045 - hand-sliced Scottish salmon 1,5/1,8",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9d769963e4852606"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22640/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22640/Interne",
+          "quote": "2026-06-25 RappelConso (FR) Pork bites - la grignotte",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "523f0a12252262e4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853518"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/853518",
+          "quote": "2026-06-26 RASFF (EU) Salmonella Dublin in bovine meat from Germany",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5bf41f703e75c1ac"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22635/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22635/Interne",
+          "quote": "2026-06-26 RappelConso (FR) x6 330g",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a1cf06abf325a568"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22632/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22632/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Halal beef and poultry merguez",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5ca8cc399e54dde1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22675/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22675/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Bistrot dry liver sausage 200g vpf",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8822b38303fd7f74"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22656/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22656/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Provençal pork araignée (spider cut)",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7f2aa7fc3be58082"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I",
+          "quote": "2026-06-30 FSAI (IE) Butchers Selection Irish Turkey Burgers Mediterranean Style",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ebab8efaa20599f4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22660/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22660/Interne",
+          "quote": "2026-06-30 RappelConso (FR) Marinated pork \"surprise\" with chorizo flavor (marinated pork preparation), sold at the In",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "668c0b7bcb083911"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22725/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22725/Interne",
+          "quote": "2026-07-03 RappelConso (FR) Pollock fillet",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1b1d008241ee35a6"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856117"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856117",
+          "quote": "2026-07-07 RASFF (EU) Salmonella found on turkey cutlets",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c922705adce90d11"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22737/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22737/Interne",
+          "quote": "2026-07-07 RappelConso (FR) Pure pork dry-cured sausage",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "dc1ae073383d6d95"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22761/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22761/Interne",
+          "quote": "2026-07-08 RappelConso (FR) Unbranded beef slice",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4eaa7d0527cddc6a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22806/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22806/Interne",
+          "quote": "2026-07-10 RappelConso (FR) Chicken breast fillet 5 kg under protective atmosphere",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0c3266f9314fa287"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22780/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/eu-wide-seasonal-salmonella-outbreak-strikes-again",
+          "quote": "More than 800 confirmed infections have occurred between January 2023 and September 2026.",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22780/Interne",
+          "quote": "2026-07-10 RappelConso (FR) 10 frozen veal rissolettes 100g (1kg)",
+          "retrieved_utc": "2026-10-14T06:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "86fcfd4943502604"
+    }
+  ]
+}
