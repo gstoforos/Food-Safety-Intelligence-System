@@ -302,6 +302,20 @@ HAZARD_CLASS_KEYWORDS = {
         # nothing). Qualified forms only, as above.
         "extraneous material", "extraneous matter", "shell fragment",
         "gravel-like", "gravel fragment",
+        # ── Audit 2026-10-14 ──────────────────────────────────────────
+        # "metal pieces" was here; "plastic pieces" and "glass pieces"
+        # were not. The MAPAQ QC row of 2026-10-06 reads Pathogen
+        # "Plastic", Reason "Presence of possible plastic pieces" — the
+        # curator refused the hazard of a PUBLISHED row
+        # (tests/test_curator_scope_2026_09_09.py was RED on main at
+        # b80a59a4) purely because of the missing material word.
+        # Qualified forms only, for the reason given above: a bare
+        # "plastic" or "glass" token here would classify "sold in
+        # plastic tubs" and "in a glass jar" as physical hazards, and
+        # this class is matched against Reason as well as Pathogen.
+        "plastic piece", "glass piece", "rubber piece", "wood piece",
+        "plastic particle", "glass particle", "metal particle",
+        "plastic shard", "pieces of rubber", "pieces of wood",
     ),
     "chemical": (
         "chemical contaminant", "chemical residue", "pesticide", "fungicide",

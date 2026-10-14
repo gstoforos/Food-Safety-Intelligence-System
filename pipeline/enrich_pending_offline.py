@@ -70,6 +70,20 @@ RULES: Tuple[Tuple[str, str], ...] = (
     (r"\bcadmium\b",                             "Cadmium (heavy metal)"),
     (r"\bmercur|\bmercure\b",                    "Mercury (heavy metal)"),
     (r"\barsenic\b",                             "Arsenic (heavy metal)"),
+    # ── biogenic amines / endogenous toxins ──────────────────────────────
+    # GAP FOUND 2026-10-14. RappelConso fiche 23765 (13/10/2026, filet de
+    # maquereau, SUPER U St Ciers sur Gironde) reached Pending TWICE with
+    # Reason "Presence histamine >200mg" and Pathogen empty, and this
+    # enricher reported "no hazard term in the row's own text" — so the
+    # publish gate held it on "Pathogen is empty" and reviewer 2 then
+    # rejected it with a factually wrong reason ("the URL is a listing
+    # page"; /fiche-rappel/23765/interne is the per-recall page). The
+    # register has published histamine FIVE times already —
+    # "Histamine", "Histamine / scombrotoxin", "Histamine (endogenous
+    # biotoxin)" — including the near-identical Super U Mirepoix mackerel
+    # fillet of 2026-08-20. The scombrotoxin spelling is matched too
+    # because RappelConso and the FSA both use it.
+    (r"histamin|scombrotox",                     "Histamine"),
     # ── bacteria and viruses ─────────────────────────────────────────────
     (r"listeria monocytogenes|list[ée]ria monocytogen",
                                                  "Listeria monocytogenes"),
@@ -91,11 +105,47 @@ RULES: Tuple[Tuple[str, str], ...] = (
     (r"\bmould\b|\bmold\b|moisissure",           "Mold"),
     # ── physical / foreign material, with the material named where stated ─
     (r"stone|noyau|pierre",                      "Foreign material (stones)"),
-    (r"\bglass\b|\bverre\b",                     "Foreign material (glass)"),
-    (r"m[ée]tall?iqu|\bmetal\b",                 "Foreign material (metal)"),
-    (r"\bplastic\b|plastique",                   "Foreign material (plastic)"),
-    (r"\bwood\b|\bbois\b",                       "Foreign material (wood)"),
-    (r"\binsect|\bpest\b|nuisible",              "Foreign material (pest)"),
+    # GAP FOUND 2026-10-14. This whole block was ENGLISH + FRENCH only,
+    # in a register that publishes foreign-material rows from BVL (DE),
+    # BLV (CH), AGES (AT), Ministero della Salute (IT), AESAN (ES),
+    # NVWA (NL), GIS (PL), SZPI (CZ) and NKFH (HU). Measured cost: the
+    # GIS (PL) notice of 13.10.2026 — "możliwa obecność fragmentów szkła
+    # w jednej partii wody butelkowanej" (KRYSTYNKA sparkling mineral
+    # water 330 ml, batch FS224/3, Uzdrowisko Ciechocinek S.A.) — sat in
+    # Pending with Pathogen empty because no rule here speaks Polish.
+    #
+    # The non-EN/FR additions are QUALIFIED (a fragment/piece word next
+    # to the material) on purpose: bare "Glas" (DE), "glas" (NL) and
+    # "vetro" (IT) all mean a JAR as often as they mean broken glass,
+    # and "szklanka" is a tumbler. The pre-existing bare \bglass\b and
+    # \bverre\b are left exactly as they were — this widens the rule,
+    # it does not loosen what already worked.
+    (r"\bglass\b|\bverre\b|"
+     r"(?:fragment|od[łl]am|kawa[łl]|okruch)\w*\s+szk[łl]\w*|"
+     r"szk[łl]\w*\s+(?:fragment|od[łl]am)\w*|"
+     r"glassplitter|glasscherben|glasfragment|glasst[üu]ck|"
+     r"frammenti di vetro|pezzi di vetro|"
+     r"(?:trozos|fragmentos|restos) de (?:vidrio|cristal)|"
+     r"(?:stukjes|glasdeeltjes|scherven) glas|glasscherven|"
+     r"(?:st[řr][íi]pk|[úu]lomk)\w*\s+skla|[üu]vegszil[áa]nk",
+                                                 "Foreign material (glass)"),
+    (r"m[ée]tall?iqu|\bmetal\b|metallsplitter|metallst[üu]ck|"
+     r"frammenti metallici|fragmentos de metal|metaaldeeltjes|"
+     r"fragment\w*\s+metal\w*|kov\w*\s+[úu]lomk",
+                                                 "Foreign material (metal)"),
+    (r"\bplastic\b|plastique|kunststoff|plastik|plastica|pl[áa]stico|"
+     r"fragment\w*\s+(?:tworzyw|plastik)",       "Foreign material (plastic)"),
+    (r"\bwood\b|\bbois\b|\bholz\b|legno|madera|\bhout\b|drewn",
+                                                 "Foreign material (wood)"),
+    # The pest rule knew only "insect", "pest" and "nuisible". FSAI alert
+    # 2026.65 of 13 Oct 2026 (Ready brek Original 450 g / 750 g and Tesco
+    # Super Smooth Porridge 750 g) says "possible presence of flour
+    # beetle" — the word the FSAI and the FSA actually use. So do
+    # "weevil", "larvae" and "moth"; none of them matched.
+    (r"\binsect|\bpest\b|nuisible|\bbeetle|\bweevil|\blarvae?\b|"
+     r"\bmaggot|\bmoth\b|\bmites?\b|\bk[äa]fer\b|charan[çc]on|"
+     r"coleotter|escarabajo|\bkever\b|chrz[ąa]szcz|owad",
+                                                 "Foreign material (pest)"),
     (r"corps [ée]tranger|foreign (?:body|bodies|object|material)",
                                                  "Foreign material"),
     # ── packaging integrity: a real, published hazard class ──────────────

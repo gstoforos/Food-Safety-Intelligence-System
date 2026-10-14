@@ -76,6 +76,7 @@ import subprocess
 import logging
 import time
 from pathlib import Path
+from typing import Optional
 
 log = logging.getLogger(__name__)
 
@@ -101,21 +102,110 @@ def _run(cmd: list[str], **kwargs) -> subprocess.CompletedProcess:
     return result
 
 
+def _rel(cwd: str, path: str) -> str:
+    """Caller-supplied path -> repo-relative POSIX path.
+
+    THE 2026-10-13 SILENT OVERWRITE (fixed 2026-10-14)
+    --------------------------------------------------
+    Nine callers hand this module an ABSOLUTE path:
+
+        git_commit_and_push(ROOT, [str(XLSX_PATH)], msg)   # gap_finder_tavily
+                                                           # gap_finder_exa
+                                                           # gap_finder_ddgs
+                                                           # gap_finder_brave
+                                                           # gap_finder_perplexity
+                                                           # gap_finder_openai
+                                                           # daily_recall_search_exa
+                                                           # url_resurrect (retired)
+                                                           # gap_finder_gemini (must not run)
+
+    `str(ROOT / "docs/data/recalls.xlsx")` is the SAME FILE as XLSX_REL, but
+    it is a different dict key — and every cumulative-file guard in this
+    module is written as `if rel in (XLSX_REL, JSON_REL): continue`. The
+    alias walked straight past all of them. _restore_non_cumulative then
+    copied the bot's own stale workbook over the freshly-pulled remote, and
+    the row-union merge that runs next read its "remote" side back out of
+    that same (now stale) working-tree file — so the union was a no-op, the
+    no-shrink canary passed on stale == stale, and the push succeeded.
+
+    Measured: on 2026-10-13 the operator uploaded the morning fix pass at
+    19:12-19:14 UTC (Recalls 2022 -> 2024 rows, plus field repairs on the
+    GIS/FSANZ/MAPAQ/RappelConso rows). The next commit, "Tavily gap-finder
+    (standalone): +4 rows to Pending", landed at 19:15:05 UTC with its
+    parent set to the last upload — and Recalls back at 2022 rows with
+    every field repair gone. The whole pass was lost 3 minutes after it
+    was uploaded, and layer 3 saw nothing because both sides were stale.
+
+    Normalising at the entry point fixes all nine callers at once, which is
+    why the fix is here and not in each caller.
+    """
+    p = Path(path)
+    if p.is_absolute():
+        try:
+            p = p.relative_to(Path(cwd).resolve())
+        except ValueError:
+            try:
+                p = p.resolve().relative_to(Path(cwd).resolve())
+            except ValueError:
+                return path  # genuinely outside the repo — leave it alone
+    return p.as_posix()
+
+
+def _is_cumulative(rel: str) -> bool:
+    """True for the shared-state files that must be row-merged, never
+    copied over. Accepts any spelling `_rel` can produce."""
+    return rel.replace("\\", "/").lstrip("./") in (XLSX_REL, JSON_REL)
+
+
 def _row_union_merge_xlsx(cwd: str, ours_snapshot: Path) -> bool:
     """Row-union our snapshot with the freshly-pulled remote xlsx, write
     back to the remote location in the working tree. xlsx_merge enforces
     a canary (merged >= max(remote, ours) per sheet) and raises on
     shrink — we treat that as a hard fail.
 
-    Returns True on success, False on failure (caller decides fallback)."""
+    Returns True on success, False on failure (caller decides fallback).
+
+    THE REMOTE SIDE IS READ FROM GIT, NOT FROM THE WORKING TREE (2026-10-14).
+    It used to be read from `Path(cwd) / XLSX_REL`, on the assumption that a
+    pull had just put the remote's workbook there. Anything that writes that
+    path between the pull and this call — `_restore_non_cumulative` reached
+    through the absolute-path alias, or a `git stash pop` silently choosing
+    "ours" for a binary file — turns the union into stale-vs-stale, which is
+    a no-op that the no-shrink canary cannot see. Asking git for
+    `origin/<branch>:docs/data/recalls.xlsx` removes that assumption: the
+    remote side is the remote, whatever is on disk.
+    """
     try:
         from pipeline.xlsx_merge import merge_xlsx_with_remote
         remote_xlsx = Path(cwd) / XLSX_REL
-        counts = merge_xlsx_with_remote(
-            remote_path=remote_xlsx,
-            ours_path=ours_snapshot,
-            out_path=remote_xlsx,
-        )
+        remote_side = remote_xlsx
+        tmp_remote: Optional[Path] = None
+        branch = (_run(["git", "-C", cwd, "branch", "--show-current"])
+                  .stdout.strip() or "main")
+        blob = subprocess.run(
+            ["git", "-C", cwd, "show", f"origin/{branch}:{XLSX_REL}"],
+            capture_output=True)
+        if blob.returncode == 0 and blob.stdout:
+            # Outside the repo (review 2026-10-14): a file in the work tree
+            # left behind by an exception could be staged by a later step.
+            import tempfile
+            tmp_remote = Path(tempfile.mkdtemp(prefix="fsis-remote-")) / "recalls.xlsx"
+            tmp_remote.write_bytes(blob.stdout)
+            remote_side = tmp_remote
+            log.info("xlsx row-union: remote side read from origin/%s (%d bytes)",
+                     branch, len(blob.stdout))
+        else:
+            log.warning("xlsx row-union: could not read origin/%s:%s — "
+                        "falling back to the working tree", branch, XLSX_REL)
+        try:
+            counts = merge_xlsx_with_remote(
+                remote_path=remote_side,
+                ours_path=ours_snapshot,
+                out_path=remote_xlsx,
+            )
+        finally:
+            if tmp_remote is not None:
+                shutil.rmtree(tmp_remote.parent, ignore_errors=True)
         log.info("xlsx row-union merge: recalls remote=%d ours=%d merged=%d; "
                  "pending remote=%d ours=%d merged=%d",
                  counts.get("recalls_remote", -1),
@@ -171,14 +261,19 @@ def _save_snapshots(cwd: str, files: list[str], tmp: Path) -> dict[str, Path]:
     """Save physical copies of all relevant files to tmp/ so we can
     reconcile against the new remote after a pull. Always saves xlsx +
     json mirror, even if caller didn't list them, because they're
-    cumulative shared state."""
+    cumulative shared state.
+
+    Keys are repo-relative, always: a snapshot stored under an absolute
+    path would be invisible to the `_is_cumulative` guards that decide what
+    may be copied back over the working tree. See _rel()."""
     saved: dict[str, Path] = {}
     # Union of caller's files + always-cumulative files
-    targets = list(dict.fromkeys(list(files) + [XLSX_REL, JSON_REL]))
+    targets = list(dict.fromkeys(
+        [_rel(cwd, f) for f in files] + [XLSX_REL, JSON_REL]))
     for rel in targets:
         src = Path(cwd) / rel
         if src.exists():
-            dst = tmp / rel.replace("/", "__")
+            dst = tmp / rel.replace("/", "__").replace("\\", "__")
             try:
                 shutil.copy2(src, dst)
                 saved[rel] = dst
@@ -190,9 +285,15 @@ def _save_snapshots(cwd: str, files: list[str], tmp: Path) -> dict[str, Path]:
 def _restore_non_cumulative(cwd: str, saved: dict[str, Path]) -> None:
     """For non-cumulative files (HTML outputs, configs, etc.), copy our
     snapshot over the working tree. Cumulative files (xlsx, json) are
-    handled separately by the row-merge path."""
+    handled separately by the row-merge path.
+
+    The key is normalised BEFORE the skip test. A caller-supplied absolute
+    path is the same file as XLSX_REL under a different dict key, and
+    before 2026-10-14 that alias walked past this guard and copied a stale
+    workbook over the just-pulled remote. See _rel()."""
     for rel, snap in saved.items():
-        if rel in (XLSX_REL, JSON_REL):
+        rel = _rel(cwd, rel)
+        if _is_cumulative(rel):
             continue
         dest = Path(cwd) / rel
         try:
@@ -204,8 +305,10 @@ def _restore_non_cumulative(cwd: str, saved: dict[str, Path]) -> None:
 
 def _restage_all(cwd: str, files: list[str]) -> None:
     """Re-stage everything after a merge. Includes xlsx + json explicitly
-    in case caller didn't list them."""
-    targets = list(dict.fromkeys(list(files) + [XLSX_REL, JSON_REL]))
+    in case caller didn't list them. Paths are normalised so an absolute
+    caller path and XLSX_REL are staged once, not twice. See _rel()."""
+    targets = list(dict.fromkeys(
+        [_rel(cwd, f) for f in files] + [XLSX_REL, JSON_REL]))
     for rel in targets:
         # Stage regardless of whether file exists (handles deletions too)
         _run(["git", "-C", cwd, "add", "--", rel])
@@ -424,6 +527,14 @@ def git_commit_and_push(repo_dir: Path, files: list[str], message: str) -> bool:
     post-push verification. Returns True on success."""
     try:
         cwd = str(repo_dir)
+
+        # NORMALISE FIRST (2026-10-14). Nine callers pass absolute paths;
+        # every cumulative-file guard below compares against the relative
+        # XLSX_REL / JSON_REL, so an absolute spelling of the same file
+        # aliases past all of them. See _rel() for what that cost on
+        # 2026-10-13. Dedupe too: a caller that passes both spellings must
+        # not get two snapshots of one file.
+        files = list(dict.fromkeys(_rel(cwd, f) for f in files))
 
         # Configure committer (CI-friendly)
         _run(["git", "-C", cwd, "config", "user.email",
