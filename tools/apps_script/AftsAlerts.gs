@@ -737,7 +737,7 @@ var PATHOGEN_VOCAB = {
   "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol"],
   "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine", "sildenafil", "tadalafil", "dimethylamylamine", "dmaa"],
   "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (", "tetrahydrocannabinol"],
-  "Foreign material / physical hazard": ["foreign material", "foreign body", "physical/foreign", "physical hazard", "glass", "metal fragment", "hard plastic", "shell fragment", "stones", "sand)", "plastic fragment"],
+  "Foreign material / physical hazard": ["foreign material", "foreign body", "physical/foreign", "physical hazard", "glass", "metal fragment", "shell fragment", "stones", "sand)", "plastic"],
   "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform", "total bacterial count"],
   "Rodent / pest contamination": ["rodent", "mouse contamination", "rat poison", "insect", "pest infestation"],
   "Process deviation (sterilisation / pasteurisation)": ["sterilization", "sterilisation", "pasteurization", "pasteurisation", "process deviation"],
@@ -781,16 +781,16 @@ var COUNTRY_LIST = [
   "Bulgaria", "Canada", "Chile", "China", "Colombia", "Croatia", "Cyprus",
   "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
   "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
-  "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
-  "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
-  "Madagascar", "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands",
-  "New Zealand", "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama",
-  "Peru", "Philippines", "Poland", "Portugal", "Romania", "Russia",
-  "Rwanda", "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa",
-  "Spain", "Sri Lanka", "Sweden", "Switzerland", "Syria", "Taiwan",
-  "Thailand", "Turkey", "Uganda", "Ukraine", "United Arab Emirates",
-  "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vietnam",
-  "EU-wide / multi-country"
+  "Hungary", "Iceland", "India", "Indonesia", "Iran", "Ireland", "Italy",
+  "Japan", "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon",
+  "Lithuania", "Madagascar", "Malawi", "Mexico", "Morocco", "Nepal",
+  "Netherlands", "New Zealand", "Nicaragua", "Nigeria", "Norway",
+  "Pakistan", "Panama", "Peru", "Philippines", "Poland", "Portugal",
+  "Romania", "Russia", "Rwanda", "Serbia", "Singapore", "Slovakia",
+  "Slovenia", "South Africa", "Spain", "Sri Lanka", "Sweden",
+  "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey", "Uganda",
+  "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
+  "Uruguay", "Uzbekistan", "Vietnam", "EU-wide / multi-country"
 ];
 
 var COUNTRY_ALIASES = {
