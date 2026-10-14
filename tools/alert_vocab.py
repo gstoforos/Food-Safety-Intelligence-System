@@ -185,11 +185,26 @@ PATHOGEN: dict[str, list[str]] = {
     "Foreign material / physical hazard": ["foreign material", "foreign body",
                                            "physical/foreign", "physical hazard",
                                            "glass", "metal fragment",
-                                           "hard plastic", "shell fragment",
+                                           "shell fragment",
                                            "stones", "sand)",
                                            # 2026-10-10: BVL Schneider Kochkäse
-                                           # (2026-10-07), "Plastic fragments".
-                                           "plastic fragment"],      # 41
+                                           # (2026-10-07), "Plastic fragments" —
+                                           # chased with the token "plastic
+                                           # fragment". Four days later the
+                                           # MAPAQ QC row of 2026-10-06 published
+                                           # with Pathogen exactly "Plastic" and
+                                           # no alert could reach it either, so
+                                           # on 2026-10-14 the qualified tokens
+                                           # ("hard plastic", "plastic fragment")
+                                           # were replaced by the bare noun. The
+                                           # pathogen haystack is row["Pathogen"]
+                                           # ALONE — a hazard-label field — so
+                                           # "plastic" is safe here in a way it
+                                           # is NOT safe in _publish_gate (which
+                                           # also reads Reason, where "sold in
+                                           # plastic tubs" lives) or in
+                                           # product_axes (which reads Product).
+                                           "plastic"],               # 42
     "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform",
                         "total bacterial count"],                   # 9
     "Rodent / pest contamination": ["rodent", "mouse contamination",
@@ -359,7 +374,17 @@ COUNTRY: list[str] = [
     "Bulgaria", "Canada", "Chile", "China", "Colombia", "Croatia", "Cyprus",
     "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",
     "Finland", "France", "Georgia", "Germany", "Greece", "Hong Kong",
-    "Hungary", "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
+    "Hungary",
+    # Iceland entered the register on 2026-10-14 — MAST (IS) notice
+    # "salmonella-i-kryddi", Salmonella in Timur berry (Zanthoxylum
+    # armatum) from Nepal, recalled by Lifa ehf. The row had been sitting
+    # in Pending passing the full publish gate since 2026-10-13, so the
+    # next hourly merge would have published it either way; no offered
+    # word reached it. Found by
+    # test_alert_vocab.py::test_every_register_country_is_offered — the
+    # same gap this test caught for Russia on 2026-10-02.
+    "Iceland",
+    "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
     "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
     "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",

@@ -487,14 +487,17 @@ def translate_french_rows(wb) -> int:
             unstamped = all(s not in _get(ws, r, "Notes") for s in STAMPS)
             if unstamped:
                 bits.append(
-                    "[detector-miss %s: reviewer 3 did NOT stamp this row "
-                    "'[needs cleanup: Product not in English]' — "
+                    "[detector-miss %s: reviewer 3 did NOT apply its "
+                    "Product-not-in-English cleanup stamp to this row — "
                     "detect_language's two-hit threshold cannot see a name "
                     "this short, the same way it could not see 'foie de "
                     "poulet'. The threshold is deliberately not loosened "
                     "(see tests/test_reason_is_not_wholly_foreign.py); the "
                     "morning read of every Product published in the last "
-                    "26 h is what caught it.]" % TODAY)
+                    "26 h is what caught it. REWORDED 2026-10-14: this note "
+                    "used to quote the stamp verbatim, which left three "
+                    "already-translated rows looking stamped to the next "
+                    "morning's pass.]" % TODAY)
             _note(ws, r, " ".join(bits), drop=STAMPS)
             print(f"  Recalls row {r} (fiche {fiche}): Product {was_p[:40]!r} "
                   f"-> {spec['product'][:40]!r}"
