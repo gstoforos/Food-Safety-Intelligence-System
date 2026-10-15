@@ -1,0 +1,352 @@
+[
+  {
+    "proposal_id": "1995af9353ace58f",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "ed8bdfc668787e56",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "630ccb78e6be014d",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "cd37c38444eabd25",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "376cad3465bf6137",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "0b1d929b53158f28",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "f666eafe3f5e3936",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "23fa3f2bb55a2e56",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "052bb88786faeb4d",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "b936cf4c7339c37a",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "c1e0ce13312bf44f",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "26cf7798ff82f93b",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "7d536ac0ad60baa2",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "26fe34b1ee7fa41e",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "70d6e4a8f2e90640",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "2386f8e93595b0c3",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "2e0184adc952a908",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "4328bbf93b068e3c",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "7b747451f70c2f3c",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "3122e7f2f79a54d4",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "40142d95024edec5",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "cd43cf34e9079886",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "71dec074f49af570",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "4e57bdfc8265bdd5",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "dfc6c93ca863396b",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "b7ee6e869146d620",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "8ed73cc6ca9928b9",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "7ed77e3c5e3706ad",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "c6acc58142d031c3",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "bfa9be90797a9963",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "48cb932fdafa87de",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "bb8cf79bae5c9e33",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "931e99e3d97d6902",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "935e78aa8fc5c646",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "631a3062644c85c9",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "d472456a131b0ea1",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "dcdb7ffd66fe866d",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "ce778e8fcc243dd1",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "86374876905bff22",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "e9511603e3f695ca",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "04eed62be37bcf48",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "4d8d8eaccd64f3bf",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "339ca420bc243f29",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "e8a43c0207a52d91",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "c0f5ab663a1db1e9",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "502090e809315b90",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "0f68b13ec368a2b5",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "0a10d93523bcf278",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "e0dbe465408aca1c",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  },
+  {
+    "proposal_id": "964960a06f42ba50",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  }
+]

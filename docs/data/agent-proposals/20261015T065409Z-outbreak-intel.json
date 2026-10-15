@@ -1,0 +1,1357 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261015T065409Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x20",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "1995af9353ace58f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x30",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ed8bdfc668787e56"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497",
+          "quote": "2026-10-08 RASFF (EU) Salmonella enteritidis in eggs from Spain",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "630ccb78e6be014d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "cd37c38444eabd25"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "376cad3465bf6137"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "0b1d929b53158f28"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Pumpkin seeds",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f666eafe3f5e3936"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Mixes containing pumpkin seeds; mélange sportif; mélange babylone; mélange spécial salade ",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "23fa3f2bb55a2e56"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022",
+          "quote": "2026-09-01 RASFF (EU) Presence of Salmonella enteritidis in pumpkin seeds from France",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "052bb88786faeb4d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "b936cf4c7339c37a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026",
+          "quote": "2026-10-10 FSA (UK) Raw shell-on eggs from Ukraine (Yasensvit Ltd, Kyiv), product code 3UA1012066",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "c1e0ce13312bf44f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBUWmtsaG4ySWVMZTFaQzBSVUIxSENpcnpYczNWOTFGRUFWdGw0YnpPSHB0RlV4WUJ1bzJXWkZjX252MnIyZ1BxTHA4OEpCdmMtel9MNGdIRTQxRFc2NEd1ZFJPbGRyS0pGLUVZOHBaeEdxNWVnWWhCSENJenEyZw?oc=5"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBUWmtsaG4ySWVMZTFaQzBSVUIxSENpcnpYczNWOTFGRUFWdGw0YnpPSHB0RlV4WUJ1bzJXWkZjX252MnIyZ1BxTHA4OEpCdmMtel9MNGdIRTQxRFc2NEd1ZFJPbGRyS0pGLUVZOHBaeEdxNWVnWWhCSENJenEyZw?oc=5",
+          "quote": "2026-10-11 NFSA (EG) Eggs",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "26cf7798ff82f93b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879407"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879407",
+          "quote": "2026-10-13 RASFF (EU) Suspicion of salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "7d536ac0ad60baa2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
+          "quote": "2026-07-06 RASFF (EU) Salmonella enteritidis in frozen chicken pieces",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "26fe34b1ee7fa41e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (4 out of 5 samples) in sliced chicken breast fillets, Pol",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "70d6e4a8f2e90640"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Infantis (in 4 out of 5 units) and Salmonella Enteritidis (in 1 out of 5 units)",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2386f8e93595b0c3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in chicken thighs from Poland.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2e0184adc952a908"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223",
+          "quote": "2026-07-16 RASFF (EU) Salmonella Enteritidis detected (1 out of 5 samples) in chicken drumsticks",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4328bbf93b068e3c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997",
+          "quote": "2026-08-13 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in boneless, skinless chicken thighs.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "7b747451f70c2f3c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "3122e7f2f79a54d4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136",
+          "quote": "2026-08-18 RASFF (EU) Stwierdzenie obecności Salmonella Enteritidis w filecie  z piersi kurczaka,  pochodzącego ",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "40142d95024edec5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/869642",
+          "quote": "2026-08-28 RASFF (EU) Salmonella enteritidis and infantis in chicken meat originating in Romania",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "cd43cf34e9079886"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669",
+          "quote": "2026-09-14 RASFF (EU) Salmonella Enteritidis in frozen duck from Poland",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "71dec074f49af570"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569",
+          "quote": "2026-09-15 RASFF (EU) riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origin",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4e57bdfc8265bdd5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/875990"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/spanish-authorities-urged-to-share-salmonella-outbreak-details",
+          "quote": "More than a dozen people have been sickened in Spain as part of a Salmonella outbreak linked to eggs. | A Salmonella Enteritidis outbreak has affected 13 people, and domestically produced eggs are suspected to be the vehicle of infection.",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/875990",
+          "quote": "2026-09-28 RASFF (EU) Salmonella Enteritidis and Salmonella Infantis in frozen chicken thighs",
+          "retrieved_utc": "2026-10-15T06:43:58+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "dfc6c93ca863396b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1144-2026\""
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1144-2026\"",
+          "quote": "2026-06-24 FDA Trafa Pharmaceuticals Inc. brand ORGANIC MORINGA LEAF POWDER; NET WEIGHT: 15 KGS; packaged",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b7ee6e869146d620"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1149-2026\""
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1149-2026\"",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet, SKU 10150, Net wt. 5oz. Product is refrigerated. UPC 1",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8ed73cc6ca9928b9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1148-2026\""
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://api.fda.gov/food/enforcement.json?search=recall_number:\"H-1148-2026\"",
+          "quote": "2026-06-25 FDA Fresh to You Burger Chicken Fillet Deluxe with Bacon, SKU 10303, Net wt. 5.9oz. Product is",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7ed77e3c5e3706ad"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/total-nutrition-inc-recalls-organic-moringa-products-following-supplier-initiated-recall-due",
+          "quote": "2026-06-27 FDA TNVitamins 100% Organic Moringa Capsules (1,200 mg) and 100% Organic Moringa Powder",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c6acc58142d031c3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859413",
+          "quote": "2026-07-17 RASFF (EU) Salmonella spp. in chopped pistachios from Italy, produced with raw material from the Unit",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bfa9be90797a9963"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/relay-peak-research-llc-recalls-zen-principler-moringa-capsules-because-possible-health-risk",
+          "quote": "2026-07-19 FDA Moringa Leaf Powder Capsules",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "48cb932fdafa87de"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860573"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/860573",
+          "quote": "2026-07-21 RASFF (EU) Salmonella detected in grated almonds from Austria, manufactured from raw almonds originat",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bb8cf79bae5c9e33"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "931e99e3d97d6902"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk",
+          "quote": "2026-08-03 FDA Pistachio Nut Butter",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "935e78aa8fc5c646"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026",
+          "quote": "2026-08-05 FDA Fresh jalapeño peppers grown in Sinaloa, Mexico — distributed to wholesalers, restaurants ",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "631a3062644c85c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lexunder-inc-recalls-food-live-brand-green-powder-products-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lexunder-inc-recalls-food-live-brand-green-powder-products-because-possible-health-risk",
+          "quote": "2026-08-07 FDA Green Powder Products",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d472456a131b0ea1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
+          "quote": "2026-08-09 FDA Finished products (e.g. dips, salsa, guacamole and more) containing jalapeno",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "dcdb7ffd66fe866d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lidl-us-recalls-vitasia-asian-style-wok-spice-mix-due-potential-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lidl-us-recalls-vitasia-asian-style-wok-spice-mix-due-potential-salmonella-contamination",
+          "quote": "2026-08-11 FDA Asian Style Wok Spice Mix, 1.58 oz (45 g), UPC 4335619355491, lot 155846, best by JUN 2028",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ce778e8fcc243dd1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods",
+          "quote": "2026-08-12 FDA Finished products such as dips, salsa, guacamole, and more containing jalapeno.",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "86374876905bff22"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential",
+          "quote": "2026-08-14 FDA Finished products such as Pico de Gallo, Stuffed Mushrooms, and Soup-mix Containing Jalape",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e9511603e3f695ca"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hampton-grocers-inc-recalls-its-8-ounce-packages-lacnola-lactation-granola-because-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hampton-grocers-inc-recalls-its-8-ounce-packages-lacnola-lactation-granola-because-possible-health",
+          "quote": "2026-08-14 FDA Granola",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "04eed62be37bcf48"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk",
+          "quote": "2026-08-14 FDA Salad dressing",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4d8d8eaccd64f3bf"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hardies-fresh-foods-recalls-jalapenos-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hardies-fresh-foods-recalls-jalapenos-because-possible-health-risk",
+          "quote": "2026-08-17 FDA Pepper Jalapenos",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "339ca420bc243f29"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e8a43c0207a52d91"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/panorama-produce-recalls-mangoes-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/panorama-produce-recalls-mangoes-due-possible-salmonella-contamination",
+          "quote": "2026-08-29 FDA Mangoes",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c0f5ab663a1db1e9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "502090e809315b90"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0f68b13ec368a2b5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/foods-alive-recalls-organic-moringa-leaf-powder-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/foods-alive-recalls-organic-moringa-leaf-powder-because-possible-health-risk",
+          "quote": "2026-09-04 FDA Moringa Leaf Powder",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0a10d93523bcf278"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+          "quote": "2026-09-09 CDC Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e0dbe465408aca1c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/more-information-on-sierra-nevada-graziers-raw-cheese-outbreak",
+          "quote": "",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
+          "quote": "2026-09-10 FDA Broccoli Sprouts",
+          "retrieved_utc": "2026-10-15T06:47:19+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "964960a06f42ba50"
+    }
+  ]
+}
