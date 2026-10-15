@@ -32,6 +32,22 @@
   "Notes": "argel sud est [offline-enrich 2026-10-14: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [promote 2026-10-14: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-14",
+  "Source": "RappelConso (FR)",
+  "Company": "Nos Régions Ont du Talent",
+  "Brand": "Nos Régions Ont du Talent",
+  "Product": "tome des bauges aop (vendu au rayon coupe)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Presence of E. coli STEC o26:h11",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23788/interne",
+  "Notes": "e.leclerc"
+ },
+ {
   "Date": "2026-10-13",
   "Source": "RappelConso (FR)",
   "Company": "Emb 94073 le",
@@ -254,6 +270,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879407",
   "Notes": "[RASFF #2026.9098; classification: alert notification; category: eggs and egg products; notifId=879407] [promote 2026-10-14: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-13",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Germany",
+  "Brand": "—",
+  "Product": "Ochratoxin A in black sunflower seeds in shell from Turkey",
+  "Pathogen": "Ochratoxin",
+  "Reason": "Ochratoxin A in black sunflower seeds in shell from Turkey; risk: serious; category: nuts, nut products and seeds",
+  "Class": "Information",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879284",
+  "Notes": "[RASFF #2026.9105; classification: information notification for attention; category: nuts, nut products and seeds; notifId=879284]"
  },
  {
   "Date": "2026-10-12",
