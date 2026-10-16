@@ -944,6 +944,47 @@ def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
     return out
 
 
+#: 2026-10-16 (review of the morning fix): AGES's weekly "Radar für
+#: Infektionskrankheiten" bulletin, 15 Oct 2026, reached Pending twice through
+#: the Exa daily search — German and English pages — with Company = Brand =
+#: the bulletin's own title, Product = its date ("15 October 2026 - AGES"),
+#: Pathogen "Salmonella", Outbreak 1. It passed every rule here. A disease
+#: surveillance bulletin is not a recall: it names no product and no firm.
+_SURVEILLANCE_BULLETIN_MARKERS = (
+    "radar for infectious diseases", "radar für infektionskrankheiten",
+    "radar fuer infektionskrankheiten", "epidemiological bulletin",
+    "epidemiologisches bulletin", "weekly surveillance report",
+    "communicable disease report", "communicable diseases report",
+)
+_MONTHS = (r"(?:jan(?:uary|uar)?|feb(?:ruary|ruar)?|m(?:arch|ärz|aerz|ar)|"
+           r"apr(?:il)?|ma[iy]|jun[ei]?|jul[iy]?|aug(?:ust)?|sep(?:tember)?|"
+           r"o[ck]t(?:ober)?|nov(?:ember)?|de[cz](?:ember)?|janvier|février|"
+           r"mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|"
+           r"décembre)")
+#: A Product that is nothing but a date, optionally followed by a site or
+#: agency name ("15 October 2026 - AGES", "15. Oktober 2026 - AGES").
+_DATE_ONLY_PRODUCT = re.compile(
+    r"^\s*\d{1,2}\.?\s*" + _MONTHS + r"\.?\s+\d{4}\s*(?:[-–—|:]\s*[^\d]{0,40})?$",
+    re.IGNORECASE)
+
+
+def _bulletin_blockers(row: Dict[str, Any]) -> List[str]:
+    out: List[str] = []
+    product = str(row.get("Product") or "").strip()
+    if product and _DATE_ONLY_PRODUCT.match(product):
+        out.append(f"Product {product!r} is a date, not a food — the row is a "
+                   "dated page (bulletin, news digest), not a recall notice")
+    url = str(row.get("URL") or "").lower()
+    blob = " ".join((str(row.get("Company") or ""), str(row.get("Brand") or ""),
+                     product, url.replace("-", " "))).lower()
+    for m in _SURVEILLANCE_BULLETIN_MARKERS:
+        if m in blob:
+            out.append(f"the row is a disease-surveillance bulletin ({m!r}), not "
+                       "a recall — it names no recalled product and no firm")
+            break
+    return out
+
+
 #: Agency acronyms that must never stand alone as a recalling firm.
 _AGENCY_ACRONYMS = frozenset({
     "fss", "fsa", "fsai", "fda", "usda", "fsis", "cfia", "fsanz", "mpi", "cfs",
@@ -996,6 +1037,9 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     if _co and _only_agency_acronyms(_co):
         problems.append(
             f"Company {_co!r} is the regulator, not the recalling firm")
+
+    # 2c. A surveillance bulletin is not a recall (2026-10-16, AGES radar).
+    problems.extend(_bulletin_blockers(row))
 
     # 3. Controlled vocabularies, and free prose leaking into them.
     region = str(row.get("Region") or "").strip()
