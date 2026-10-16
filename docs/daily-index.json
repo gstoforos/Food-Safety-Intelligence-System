@@ -1,27 +1,39 @@
 {
   "entries": [
     {
-      "date": "2026-10-14",
-      "url": "daily/2026-10-14.html",
-      "total": 3,
-      "tier1": 2,
+      "date": "2026-10-15",
+      "url": "daily/2026-10-15.html",
+      "total": 5,
+      "tier1": 3,
       "outbreak": 0,
       "by_region": {
-        "Europe": 3
+        "Europe": 5
       },
-      "generated": "2026-10-15T07:11:52Z"
+      "generated": "2026-10-16T07:11:57Z"
+    },
+    {
+      "date": "2026-10-14",
+      "url": "daily/2026-10-14.html",
+      "total": 5,
+      "tier1": 4,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 4,
+        "Asia": 1
+      },
+      "generated": "2026-10-16T07:11:58Z"
     },
     {
       "date": "2026-10-13",
       "url": "daily/2026-10-13.html",
-      "total": 15,
+      "total": 16,
       "tier1": 9,
       "outbreak": 0,
       "by_region": {
-        "Europe": 14,
+        "Europe": 15,
         "Asia": 1
       },
-      "generated": "2026-10-15T07:11:53Z"
+      "generated": "2026-10-16T07:12:00Z"
     },
     {
       "date": "2026-10-12",
@@ -35,7 +47,7 @@
         "Asia": 2,
         "North America": 1
       },
-      "generated": "2026-10-15T07:11:54Z"
+      "generated": "2026-10-16T07:12:01Z"
     },
     {
       "date": "2026-10-11",
@@ -47,7 +59,7 @@
         "Europe": 2,
         "Africa": 1
       },
-      "generated": "2026-10-15T07:11:55Z"
+      "generated": "2026-10-16T07:12:02Z"
     },
     {
       "date": "2026-10-10",
@@ -59,7 +71,7 @@
         "Europe": 1,
         "North America": 1
       },
-      "generated": "2026-10-15T07:11:56Z"
+      "generated": "2026-10-16T07:12:04Z"
     },
     {
       "date": "2026-10-09",
@@ -72,20 +84,7 @@
         "North America": 2,
         "Asia": 1
       },
-      "generated": "2026-10-15T07:11:57Z"
-    },
-    {
-      "date": "2026-10-08",
-      "url": "daily/2026-10-08.html",
-      "total": 10,
-      "tier1": 9,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 8,
-        "North America": 1,
-        "Asia": 1
-      },
-      "generated": "2026-10-15T07:11:58Z"
+      "generated": "2026-10-16T07:12:05Z"
     }
   ]
 }
