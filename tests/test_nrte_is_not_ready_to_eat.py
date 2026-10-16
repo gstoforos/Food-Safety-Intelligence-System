@@ -141,7 +141,11 @@ class TestTheRegisterRows:
 
     IMPORT_FIRMS = ("mays chemical", "sobico", "bci foods", "maple leaf",
                     "corte argentino", "shan distribution",
-                    "asian america", "el eden", "sempio")
+                    "asian america", "el eden", "sempio",
+                    # 2026-10-16 (operator: "no name"): FSIS PHA-10062026-01,
+                    # Grace chicken Vienna sausages from Jamaica — the alert
+                    # names no firm, only "the importer".
+                    "importer; brand grace")
 
     @classmethod
     def _is_import(cls, r):
