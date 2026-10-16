@@ -74,6 +74,30 @@ PATHOGENS_TIER_1 = {
 }
 
 PATHOGENS_TIER_2 = {
+    # 2026-10-16. Four organisms the publish gate's 'biological' class
+    # names and this lexicon did not, so a news-discovered recall citing
+    # them classified "unknown: No matching hazard category" — found by the
+    # keyword-by-keyword sweep in
+    # tests/test_import_eligibility_is_in_gap_finder_scope.py. All are
+    # unambiguous genus or species names with no homograph exposure; the
+    # ambiguous short forms the gate also carries (" hav ", "ecoli",
+    # "cholera" alone) are deliberately NOT copied — see the Hepatitis A
+    # note below for what a bare three-letter needle does here.
+    "cryptosporidium", "cyclospora", "echinococcus",
+    "vibrio cholerae", "vibrio alginolyticus",
+    # Foodborne PARASITES. "named pathogens" in the printed scope, and the
+    # gate's 'biological' class names every one of these. Anisakis was the
+    # ugliest miss of the whole sweep: "Anisakis parasite found in the
+    # fish" classified REJECT/allergen, because the only lexicon that could
+    # see any of those words was the allergen list, matching "fish". A
+    # parasite recall in a fish product — which is the only kind there is —
+    # could not reach the register at all.
+    "toxoplasma", "giardia", "anisakis", "taenia", "trichinella",
+    # "VTEC detected" and "Enterobacter sakazakii detected" also classified
+    # unknown: the gate names both, and "vtec" is how FSA/FSAI write STEC
+    # while Enterobacter sakazakii is Cronobacter's former name, still used
+    # on infant-formula notices.
+    "vtec", "enterobacter",
     "campylobacter", "καμπυλοβακτηρίδιο", "καμπυλοβακτηριδιο",
     "yersinia", "γερσίνια", "γερσινια",
     "shigella", "σιγκέλλα", "σιγκελλα",
@@ -157,6 +181,12 @@ MOULD = {
 # Greek nouns inflect (αφλατοξίνη → αφλατοξινών gen.pl.), Italian uses 'aflatossina'/
 # 'aflatossine'. We include stems where helpful to match all inflected forms.
 MICROBIAL_TOXINS = {
+    # 2026-10-16, same sweep: three mycotoxins the publish gate names and
+    # this lexicon did not. Unambiguous names only — the gate's " don ",
+    # "t-2 /" and "t-2/" spacing variants are NOT copied, because this
+    # matcher word-anchors short terms and "HT-2 toxin" already reaches
+    # "t-2 toxin" here.
+    "alternaria", "citrinin", "sterigmatocystin",
     # Aflatoxin
     "aflatoxin", "aflatoxins", "αφλατοξιν",
     "aflatossin",          # Italian stem (aflatossina/aflatossine)
@@ -664,6 +694,41 @@ HEAVY_METALS = {
 
 # REJECT — foreign matter
 FOREIGN_MATTER = {
+    # 2026-10-16. The plainest English phrasings of this hazard were
+    # MISSING while twenty languages' words for glass were present. The
+    # lexicon had "foreign matter" and "foreign body" but not "foreign
+    # MATERIAL" or "foreign OBJECT" — and "Foreign material (metal)",
+    # "Foreign material (glass)" and "Foreign material (pest)" are what the
+    # register's own Pathogen column says, on every foreign-body row it has
+    # ever published. The classifier could not read its own register's
+    # vocabulary: "Foreign material found in the product" classified
+    # unknown while "Foreign matter found in the product" accepted. Found
+    # by putting the publish gate's 'physical' class through classify()
+    # keyword by keyword — see
+    # tests/test_import_eligibility_is_in_gap_finder_scope.py. All
+    # unambiguous multi-word phrases, so no homograph exposure.
+    "foreign material", "foreign materials", "foreign-material",
+    "foreign object", "foreign objects", "foreign-object",
+    "foreign-body", "extraneous material", "extraneous matter",
+    "hard foreign object", "stone-like foreign object",
+    # The commonest English phrasings of a metal/wood/wire foreign body,
+    # all absent on 2026-10-16 while the register published row after row
+    # of "Foreign material (metal)". "Metal particles found in the
+    # product" and "Metal contamination of the product" both classified
+    # unknown. Multi-word and unambiguous, as the gate's 'physical' class
+    # has them; a BARE "metal" is deliberately still absent, because
+    # "found by metal detection" is routine wording on pathogen notices.
+    "metal particle", "metal particles", "metal contamination",
+    "metal pieces", "pieces of metal", "metal sliver", "metal slivers",
+    "metal shard", "metal shards", "wire fragment", "pieces of wire",
+    "wood piece", "wood pieces", "pieces of wood",
+    "aluminium fragment", "aluminium sliver",
+    "aluminum fragment", "aluminum sliver",
+    "gravel fragment", "gravel-like", "shell fragment", "hard plastic",
+    "shard", "shards", "splinter", "splinters",
+    "sliver of", "slivers of", "fremdkoerper",
+    "sharp object", "sharp objects",
+    "physical contamination", "physical hazard",
     "glass", "γυαλί", "γυαλι", "verre", "vetro", "frammenti di vetro",
     "cristal", "vidrio", "fragmentos de vidrio",
     "vidro", "fragmentos de vidro",
@@ -846,6 +911,61 @@ _PATHOGENS_T2_N = _normalize_set(PATHOGENS_TIER_2)
 _MICROBIAL_TOXINS_N = _normalize_set(MICROBIAL_TOXINS)
 _MOULD_N = _normalize_set(MOULD)
 _NATURAL_TOXINS_N = _normalize_set(NATURAL_TOXINS)
+
+# UNINSPECTED PRODUCT / IMPORT-ELIGIBILITY VIOLATIONS (2026-10-16).
+# NOT a local lexicon: the publish gate's own list, imported, so this
+# classifier and the gate cannot disagree about what "uninspected" means.
+# tests/test_import_eligibility_is_in_gap_finder_scope.py asserts they are
+# the same set. The gate's list is narrow on purpose (no bare "inspection",
+# only qualified import-reinspection wording) — see the long note beside
+# HAZARD_CLASS_KEYWORDS["uninspected"] in pipeline/_publish_gate.py.
+from pipeline._publish_gate import (                        # noqa: E402
+    HAZARD_CLASS_KEYWORDS as _GATE_HAZARD_CLASSES,
+)
+
+UNINSPECTED = set(_GATE_HAZARD_CLASSES["uninspected"])
+_UNINSPECTED_N = _normalize_set(UNINSPECTED)
+
+# THE SAME SHAPE OF GAP, SWEPT 2026-10-16.
+#
+# Having found "uninspected" missing here, the whole of the printed AFTS
+# scope was put through classify() one hazard at a time. FIVE MORE kinds of
+# recall the publish gate publishes were being rejected by this classifier:
+#
+#   named toxin (histamine)   "Histamine above 200 mg/kg"      -> unknown
+#   pest                      "rodent droppings in the product"-> unknown
+#   THC over a ref. dose      "THC above the acute ref. dose"  -> unknown
+#   MOAH                      "MOAH detected"                  -> unknown
+#   undeclared DRUG           "undeclared sildenafil"          -> ALLERGEN
+#
+# The last is the worst: "undeclared" is an allergen lexicon word, so every
+# undeclared-medicine supplement recall the fleet discovered was rejected as
+# an allergen recall — while the register has published them all along
+# (X10 Natural Enhancement and biQ-FEL, both 2026-09-15, both sildenafil).
+# It cost a real row this morning: produktwarnung.eu's 2026-10-14 NRW
+# warning on "Mixed Herbal Blend Paste" (undeclared sildenafil) reached
+# Weekly_Rejected, and would have been rejected on hazard grounds too had
+# an authority URL been found.
+#
+# SYNTHETIC_CHEMICALS here happened to carry "pesticide", "bisphenol" and
+# "additive", which is why those three passed; it is simply narrower than
+# the gate's list. Rather than widen four local lexicons by hand and leave
+# the next decision to drift again, the gate's own IN-SCOPE class lists are
+# imported. The invariant this buys is asserted by
+# tests/test_import_eligibility_is_in_gap_finder_scope.py: anything the
+# publish gate recognises as an in-scope hazard class, classify() must not
+# reject as out of scope.
+#
+# "allergen" and "fermentation" are NOT imported — allergen-only is out of
+# scope by Rule B, and unintended fermentation/spoilage is a quality
+# defect, which the printed scope excludes.
+_GATE_IN_SCOPE_CLASSES = ("pest", "biotoxin", "chemical")
+GATE_PEST = set(_GATE_HAZARD_CLASSES["pest"])
+GATE_BIOTOXIN = set(_GATE_HAZARD_CLASSES["biotoxin"])
+GATE_CHEMICAL = set(_GATE_HAZARD_CLASSES["chemical"])
+_GATE_PEST_N = _normalize_set(GATE_PEST)
+_GATE_BIOTOXIN_N = _normalize_set(GATE_BIOTOXIN)
+_GATE_CHEMICAL_N = _normalize_set(GATE_CHEMICAL)
 # ── Homograph protection (2026-09-26) ────────────────────────────────────
 #
 # Short terms that must be matched WITH their diacritics, against text that
@@ -1173,6 +1293,53 @@ def classify(
                         _haystack_accented=reject_blob_acc)
     _sc = _contains_any(reject_blob, _SYNTHETIC_CHEMICALS_N,
                         _haystack_accented=reject_blob_acc)
+    # ── UNINSPECTED PRODUCT / IMPORT-ELIGIBILITY (2026-10-16) ──────────
+    # In scope since 2026-09-25, extended to import violations 2026-09-30.
+    # This classifier was never told, exactly as it was never told about
+    # mould (2026-09-07) or foreign matter (2026-09-30): the decision
+    # reached pipeline/_publish_gate.py, pipeline/merge_master.py,
+    # pipeline/enrich_schema.py, tools/alert_vocab.py and
+    # tools/apps_script/AftsAlerts.gs, and stopped one gate short.
+    #
+    # The cost, measured on the register of 2026-10-16: FOUR FSIS
+    # import-eligibility notices sat in the archives rejected as
+    # "allergen: Undeclared allergen — out of scope (Rule B reject)"
+    # while the scraper path had published every one of them —
+    # asian-america-trading, el-eden-import, sempio-food and
+    # shanghai-ravioli. FSIS's own hazard sentence on these notices reads
+    # "may contain undeclared allergens, harmful bacteria, or other
+    # contaminants", and "Siluriformes FISH products" puts an allergen
+    # lexicon word in the title, so the allergen reject was the only
+    # branch left; the rest fell through to "unknown". A news-discovered
+    # import-eligibility recall could therefore never reach the register
+    # while a scraped one always could — the same asymmetry the
+    # 2026-09-30 foreign-matter note describes.
+    #
+    # The vocabulary is IMPORTED from the publish gate rather than copied,
+    # so the two gates cannot drift and the gate's false-friend work is
+    # not re-litigated here: a bare "inspection" is deliberately absent
+    # ("insanitary conditions found during inspection" is a real phrase on
+    # genuine pathogen notices) and only QUALIFIED import-reinspection
+    # wording is listed ("confirmed by FSIS routine import re-inspection
+    # sampling" is on the Prime Line LISTERIA row). Matched on the hazard
+    # text only, never the product description, like the three above.
+    # Placed AFTER the pathogen/toxin/mould accepts so a named pathogen
+    # still decides the category, and BEFORE the allergen reject so the
+    # quoted "undeclared allergens" sentence cannot steal the row.
+    _un = _contains_any(reject_blob, _UNINSPECTED_N,
+                        _haystack_accented=reject_blob_acc)
+    # The five further gaps swept on 2026-10-16 (see the note beside
+    # _GATE_IN_SCOPE_CLASSES). Hazard text only, and all three run AFTER
+    # the pathogen/toxin/mould accepts and BEFORE the allergen reject, for
+    # the same two reasons: a named pathogen must still decide the
+    # category, and "undeclared sildenafil" must not be read as an
+    # allergen recall.
+    _pest = _contains_any(reject_blob, _GATE_PEST_N,
+                          _haystack_accented=reject_blob_acc)
+    _bio = _contains_any(reject_blob, _GATE_BIOTOXIN_N,
+                         _haystack_accented=reject_blob_acc)
+    _chem = _contains_any(reject_blob, _GATE_CHEMICAL_N,
+                          _haystack_accented=reject_blob_acc)
 
     # ── ACCEPT path (pathogens & toxins — more specific than allergen mention) ─
     outbreak = detect_outbreak(reason)
@@ -1252,6 +1419,41 @@ def classify(
             matched_term=_sc,
             rule="Synthetic/environmental chemical — in AFTS scope (Rule B "
                  "reject retired 2026-09-30).",
+            outbreak_qualifies=False,
+        )
+    if _un:
+        return Classification(
+            verdict="accept", category="uninspected", tier=2,
+            matched_term=_un,
+            rule="Uninspected product / import-eligibility violation — in "
+                 "AFTS scope since 2026-09-25 (import violations "
+                 "2026-09-30); filed as 'Uninspected product (hazard not "
+                 "assessed)'.",
+            outbreak_qualifies=False,
+        )
+    if _bio:
+        return Classification(
+            verdict="accept", category="biotoxin", tier=2,
+            matched_term=_bio,
+            rule="Biotoxin / natural toxin — in AFTS scope (publish-gate "
+                 "'biotoxin' class; gap swept 2026-10-16).",
+            outbreak_qualifies=False,
+        )
+    if _pest:
+        return Classification(
+            verdict="accept", category="pest", tier=3,
+            matched_term=_pest,
+            rule="Pest — in AFTS scope (printed scope names pest; "
+                 "publish-gate 'pest' class; gap swept 2026-10-16).",
+            outbreak_qualifies=False,
+        )
+    if _chem:
+        return Classification(
+            verdict="accept", category="chemical", tier=3,
+            matched_term=_chem,
+            rule="Chemical contaminant, residue or undeclared medicine — "
+                 "in AFTS scope (publish-gate 'chemical' class; gap swept "
+                 "2026-10-16).",
             outbreak_qualifies=False,
         )
 
