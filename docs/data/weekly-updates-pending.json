@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-16T10:09:10.193351+00:00",
+  "generated_utc": "2026-10-17T12:47:38.021631+00:00",
   "checked_back_weeks": 4,
   "anchor_week_end": "2026-10-11",
   "anchor_friday": "2026-10-11",
@@ -12,8 +12,9 @@
       "week_start": "2026-10-05",
       "week_end": "2026-10-11",
       "old_total": 86,
-      "new_total": 88,
-      "delta": 2
+      "new_total": 89,
+      "delta": 3,
+      "note": "old_total kept at 86 from the unsent 2026-10-16 manifest (W41 86->88), so the update email covers all three additions"
     }
   ],
   "primary_cta": {
