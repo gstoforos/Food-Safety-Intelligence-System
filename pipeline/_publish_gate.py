@@ -985,6 +985,54 @@ def _bulletin_blockers(row: Dict[str, Any]) -> List[str]:
     return out
 
 
+#: 2026-10-17 (review of the morning fix). Three shapes that passed every
+#: rule here and reached Pending in one day:
+#:   * NAFDAC "public-alert-no-041-2024" — a 2024 EU Safety Gate (RAPEX) alert
+#:     on a Nivea roll-on DEODORANT, Date set to the 2026 discovery day. Two
+#:     more NAFDAC alerts numbered /2025 and /2022 had already been published
+#:     the same way (removed by repair_2026_10_17). The row's own URL carries
+#:     the alert's year; a Date in another year is the scrape date.
+#:   * a cosmetic / non-food consumer product announced through the EU's
+#:     non-food alert system.
+#:   * an AGES English page whose Company was the site section heading
+#:     "Product Warnings & Product (Recalls)".
+_ALERT_NO_YEAR = re.compile(
+    r"(?:public[-_]?alert|alert|alerta|aviso|notice|komunikat|ostrzezenie)"
+    r"[-_a-z]*[-_]no?[-_]?(\d{1,4})[-/](20\d{2})", re.IGNORECASE)
+_NON_FOOD_PRODUCT_MARKERS = (
+    "deodorant", "antiperspirant", "shampoo", "sunscreen", "lipstick",
+    "body lotion", "toothpaste", "non-food products", "rapex",
+    "safety gate", "cosmetic product", "cosmetics",
+)
+_SECTION_HEADING_FIRMS = (
+    "product warnings", "product recalls", "produktwarnungen",
+    "produktrückrufe", "produktrueckrufe", "food alerts", "public alerts",
+)
+
+
+def _shape_blockers_2026_10_17(row: Dict[str, Any]) -> List[str]:
+    out: List[str] = []
+    url = str(row.get("URL") or "")
+    m = _ALERT_NO_YEAR.search(url)
+    date = str(row.get("Date") or "")[:4]
+    if m and date.isdigit() and m.group(2) != date:
+        out.append(f"the URL's own alert number ({m.group(0)!r}) is from "
+                   f"{m.group(2)}, the Date from {date} — the Date is the "
+                   "discovery day, or the row re-publishes an old alert")
+    blob = " ".join(str(row.get(k) or "") for k in ("Product", "Reason")).lower() \
+        + " " + url.lower().replace("-", " ")
+    for t in _NON_FOOD_PRODUCT_MARKERS:
+        if _word_in(blob, t):
+            out.append(f"the row's own text names a non-food consumer product "
+                       f"({t!r}) — this is a food recall register")
+            break
+    co = str(row.get("Company") or "").strip().lower()
+    if co and any(h in co for h in _SECTION_HEADING_FIRMS):
+        out.append(f"Company {row.get('Company')!r} is a website section "
+                   "heading, not the recalling firm")
+    return out
+
+
 #: Agency acronyms that must never stand alone as a recalling firm.
 _AGENCY_ACRONYMS = frozenset({
     "fss", "fsa", "fsai", "fda", "usda", "fsis", "cfia", "fsanz", "mpi", "cfs",
@@ -1040,6 +1088,10 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
 
     # 2c. A surveillance bulletin is not a recall (2026-10-16, AGES radar).
     problems.extend(_bulletin_blockers(row))
+
+    # 2d. Alert-year mismatch, non-food consumer product, section heading
+    #     as Company (2026-10-17).
+    problems.extend(_shape_blockers_2026_10_17(row))
 
     # 3. Controlled vocabularies, and free prose leaking into them.
     region = str(row.get("Region") or "").strip()
