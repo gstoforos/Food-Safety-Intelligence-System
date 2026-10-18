@@ -1,6 +1,6 @@
 {
   "week_end": "2026-10-18",
-  "generated_utc": "2026-10-18T07:04:38+00:00",
+  "generated_utc": "2026-10-18T14:41:29+00:00",
   "row_count": 71,
   "tier1_count": 46,
   "outbreak_count": 0,
@@ -1497,5 +1497,7 @@
       "Week_Added": "2026-10-18",
       "Reviewed": "N"
     }
-  ]
+  ],
+  "sheet_wiped_utc": "2026-10-18T14:41:29+00:00",
+  "note": "Weekly_Review was cleared for this window after the Sunday 17:00 Athens email. These are the rows that email covered, kept so a re-send is correct rather than empty. week_end identifies the window; the next promotion replaces this file."
 }
