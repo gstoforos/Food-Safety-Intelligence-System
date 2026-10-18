@@ -280,8 +280,36 @@ def merge_xlsx_with_remote(
              "Reason", "Class", "Country", "Region", "Tier", "Outbreak",
              "URL", "Notes"]
         )
-    rec_merged = _merge_unique(rec_remote, rec_ours, _dedup_key)
-    _assert_no_shrink("Recalls", rec_remote, rec_ours, rec_merged, _dedup_key)
+    rec_merged_raw = _merge_unique(rec_remote, rec_ours, _dedup_key)
+    _assert_no_shrink("Recalls", rec_remote, rec_ours, rec_merged_raw, _dedup_key)
+    # A row the REMOTE side REMOVED from Recalls must not come back
+    # (2026-10-18). On 2026-10-17 the operator's upload removed two NAFDAC
+    # rows and archived two CFS (HK) duplicates; the next writer ("Recall
+    # URL agent ... merge attempt 1") was in flight with the pre-upload
+    # workbook, lost the push race, and this union appended all four back —
+    # still published 16 hours later. Pending has had exactly this guard
+    # since 2026-10-02 (below); Recalls never did. A union cannot tell
+    # "deleted on purpose" from "not there yet", so the archive decides:
+    # an OUR-side row is dropped only when its key is absent from the
+    # remote's Recalls AND its URL is on record in the remote's Rejected or
+    # Weekly_Rejected. Remote rows are never dropped, and an ours-only row
+    # with no archive entry (an ordinary new row from the losing run) still
+    # merges. The no-shrink canary checks the raw union, as for Pending.
+    _, _rj_rows = _read_sheet(remote_path, "Rejected")
+    _, _wj_rows_r = _read_sheet(remote_path, "Weekly_Rejected")
+    _rec_archived = {str(r.get("URL") or "").strip().lower()
+                     for r in list(_rj_rows) + list(_wj_rows_r)} - {""}
+    _rec_remote_keys = {_dedup_key(r) for r in rec_remote}
+    rec_merged = [
+        r for r in rec_merged_raw
+        if _dedup_key(r) in _rec_remote_keys
+        or str(r.get("URL") or "").strip().lower() not in _rec_archived
+    ]
+    _resurrect = len(rec_merged_raw) - len(rec_merged)
+    if _resurrect:
+        log.warning("xlsx row-union: %d removed Recalls row(s) NOT resurrected "
+                    "(absent from remote Recalls, archived on the remote)",
+                    _resurrect)
     rec_keys = {_dedup_key(r) for r in rec_merged}
 
     pen_headers, pen_remote = _read_sheet(remote_path, "Pending")

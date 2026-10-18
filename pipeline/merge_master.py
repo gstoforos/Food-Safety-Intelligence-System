@@ -3404,14 +3404,22 @@ def _write_sheet(wb: Workbook,
                         str(_row.get("Source") or "") != "RASFF (EU)":
                     continue
                 _v = _row.get(_col)
-                if not isinstance(_v, str) or not _looks_non_english(_v):
+                # 2026-10-18: no looks_non_english() precondition. A RASFF
+                # subject carries a COMPLETE English half, so the whole
+                # string never reads as non-English and the guard never fired
+                # on the one shape it exists for (ten published rows, e.g.
+                # "przekroczenie NDP ochratoksyny A w mące żytniej ... ///
+                # exceedance of the maximum permitted level ..."). The split's
+                # own guards (substantial other half, different language)
+                # decide; looks_non_english() tests what REMAINS.
+                if not isinstance(_v, str) or not _v.strip():
                     continue
                 _en = _split_bilingual(_v)
                 if _en and _en != _v:
                     log.info("Bilingual %s split at writer [%s]: kept the "
                              "English half (%r)", _col, sheet_name, _en[:70])
                     _row[_col] = _en
-                elif _col == "Reason":
+                elif _col == "Reason" and _looks_non_english(_v):
                     _still_foreign += 1
         if _still_foreign:
             log.warning(
