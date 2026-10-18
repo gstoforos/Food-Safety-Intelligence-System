@@ -1,0 +1,16 @@
+[
+  {
+    "proposal_id": "5eef70c0e12508f5",
+    "action": "flag",
+    "applied": true,
+    "refusals": [],
+    "detail": "logged (no row written)"
+  },
+  {
+    "proposal_id": "2a26c56bcddd00c8",
+    "action": "link_event",
+    "applied": false,
+    "refusals": [],
+    "detail": "would apply (dry run)"
+  }
+]

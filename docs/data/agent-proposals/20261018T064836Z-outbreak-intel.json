@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261018T064836Z",
+  "proposals": [
+    {
+      "action": "flag",
+      "target": {
+        "news_url": "https://foodpoisoningbulletin.com/2026/chicken-wraps-e-coli-o157h7-outbreak-sickens-38"
+      },
+      "changes": {
+        "epidemiology": {
+          "pathogen": "Escherichia coli O157:H7",
+          "serotypes": [
+            "O157:H7"
+          ],
+          "cases": 38,
+          "deaths": null,
+          "hospitalisations": null,
+          "countries": null,
+          "implicated_food": "ready to eat, multi-ingredient chicken wraps",
+          "period": null,
+          "agencies": [
+            "FDA"
+          ]
+        }
+      },
+      "reason": "Outbreak with NO product recall — nothing for a recall-derived register to ingest. Logged so the gap is visible instead of silent. Chicken Wraps E. coli O157:H7 Outbreak Sickens 38",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/chicken-wraps-e-coli-o157h7-outbreak-sickens-38",
+          "quote": "Sickens 38",
+          "retrieved_utc": "2026-10-18T06:44:44+00:00"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "outbreak-intel",
+      "proposal_id": "5eef70c0e12508f5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/chicken-wraps-e-coli-o157h7-outbreak-sickens-38"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; food terms multi. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/chicken-wraps-e-coli-o157h7-outbreak-sickens-38",
+          "quote": "Sickens 38",
+          "retrieved_utc": "2026-10-18T06:44:44+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-10-18T06:44:44+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2a26c56bcddd00c8"
+    }
+  ]
+}
