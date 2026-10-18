@@ -571,6 +571,13 @@ HAZARD_CLASS_KEYWORDS = {
         "not presented for import re-inspection",
         "ineligible for importation", "ineligible import",
         "not eligible to export",
+        # Cold-chain failure, ruled in 2026-10-18 (operator: FSIS Kayem Foods,
+        # Class I, "possible temperature abuse" of ready-to-eat meat and
+        # poultry). Like uninspected product it names a CONDITION under which
+        # a hazard may have grown, not a measured hazard. Qualified forms
+        # only: a bare "temperature" appears in storage advice on every notice.
+        "temperature abuse", "cold-chain deviation", "cold chain deviation",
+        "cold-chain failure", "cold chain failure",
     ),
 }
 

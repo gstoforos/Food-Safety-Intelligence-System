@@ -250,6 +250,10 @@ _NOT_A_HAZARD = ("unspecified hazard", "none (", "organoleptic",
 _NO_HAZARD_ASSESSED = (
     "uninspected", "hazard not assessed", "without the benefit of inspection",
     "without benefit of inspection", "false inspection mark",
+    # 2026-10-18: a cold-chain failure (FSIS Kayem, "possible temperature
+    # abuse") is a condition under which a hazard may have grown, not a
+    # measured hazard — same group, never the bacterial catch-all.
+    "temperature abuse", "cold-chain deviation", "cold chain deviation",
 )
 
 # Organisms whose NAME contains a hazard word that belongs to another group.
