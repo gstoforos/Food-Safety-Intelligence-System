@@ -257,22 +257,6 @@
  },
  {
   "Date": "2026-10-16",
-  "Source": "NAFDAC (NG)",
-  "Company": "CIN",
-  "Brand": "",
-  "Product": "Multivitamin Supplements",
-  "Pathogen": "Risk of Serious Injury or Death From Poisoning",
-  "Reason": "The products are at risk of causing serious injury or death from poisoning.",
-  "Class": "Alert",
-  "Country": "Nigeria",
-  "Region": "Africa",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://nafdac.gov.ng/public-alert-no-023-2025-recall-of-multivitamin-supplements-due-to-risk-of-serious-injury-or-death-from-poisoning/",
-  "Notes": "Discovered via news: punchng.com [locality: USA]"
- },
- {
-  "Date": "2026-10-16",
   "Source": "AGES (AT)",
   "Company": "Lidl Österreich",
   "Brand": "Milbona",
@@ -308,16 +292,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Poland | Notifying: Poland",
   "Brand": "—",
-  "Product": "przekroczenie NDP ochratoksyny A w mące żytniej TYP 720 pochodzącej z Polski ///exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland",
+  "Product": "exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland",
   "Pathogen": "Ochratoxin",
-  "Reason": "przekroczenie NDP ochratoksyny A w mące żytniej TYP 720 pochodzącej z Polski ///exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland; risk: serious; category: cereals and bakery products",
+  "Reason": "exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland; risk: serious; category: cereals and bakery products",
   "Class": "Information",
   "Country": "Poland",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877211",
-  "Notes": "[RASFF #2026.9208; classification: information notification for attention; category: cereals and bakery products; notifId=877211] [promote 2026-10-17: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.9208; classification: information notification for attention; category: cereals and bakery products; notifId=877211] [promote 2026-10-17: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-10-18] [original product (bilingual RASFF subject): \"przekroczenie NDP ochratoksyny A w mące żytniej TYP 720 pochodzącej z Polski ///exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland\"] [original reason (bilingual RASFF subject): \"przekroczenie NDP ochratoksyny A w mące żytniej TYP 720 pochodzącej z Polski ///exceedance of the maximum permitted level (MPL) for ochratoxin A in type 720 rye flour originating from Poland; risk: serious; category: cereals and bakery products\"]"
  },
  {
   "Date": "2026-10-16",
@@ -736,22 +720,6 @@
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [enriched 2026-10-17 from the authority page: FSAI food alert 2026.66 read this pass — \"Wednesday, 14 October 2026\", \"Category 1: requiring action\", \"due to the presence of Listeria monocytogenes\", country of origin Ireland, five products with the use-by dates above, no batch codes listed and no manufacturer named. The row had sat in Pending at 'pending_enrichment' with Date, Pathogen and Reason empty and the alert title copied into Company, Product and Reason alike. Verified by URL against all five sheets before enriching: this is a DIFFERENT alert from the SuperValu Smoked Salmon 40 g/150 g recall published at 2026-10-11 and from Skellig Bay at 2026-10-12. Tier is recomputed by the pipeline, never hand-set.] [promote 2026-10-17: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Date is empty; Company is empty (Brand set) — the publish gate requires the recal'; that defect is repaired and the row now passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
  },
  {
-  "Date": "2026-10-14",
-  "Source": "NAFDAC (NG)",
-  "Company": "Nivea",
-  "Brand": "Nivea",
-  "Product": "Roll-On Deodorant",
-  "Pathogen": "Safety Concerns",
-  "Reason": "Recalled due to safety concerns (Recall ID 041/2024)",
-  "Class": "Alert",
-  "Country": "Nigeria",
-  "Region": "Africa",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://nafdac.gov.ng/public-alert-no-041-2024-alert-on-the-recall-of-nivea-roll-on-deodorant-due-to-safety-concerns-by-european-union-rapid-alert-system-for-dangerous-non-food-products-rapex-authorities/",
-  "Notes": "Discovered via news: vanguardngr.com [locality: European Union] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/ng/rules.py: unknown: No matching hazard category — defer to manual review. | Discovered via news: vanguardngr.com | No matching hazard category — de'; that defect is repaired and the row now passes every publish-gate rule]"
- },
- {
   "Date": "2026-10-13",
   "Source": "RappelConso (FR)",
   "Company": "Emb 94073 le",
@@ -1006,38 +974,6 @@
   "Outbreak": 0,
   "URL": "https://www.mattilsynet.no/tilbakekallinger/aspens-pistasj-iskrem-kalles-tilbake-pa-grunn-av-aflatoksin",
   "Notes": "Discovered via news: mattilsynet.no"
- },
- {
-  "Date": "2026-10-13",
-  "Source": "NAFDAC (NG)",
-  "Company": "Chigodson International Company Limited",
-  "Brand": "Japata",
-  "Product": "Alcoholic Bitters",
-  "Pathogen": "Adulterated",
-  "Reason": "Adulterated lots (Recall ID 027/2022)",
-  "Class": "Alert",
-  "Country": "Nigeria",
-  "Region": "Africa",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://nafdac.gov.ng/public-alert-no-027-2022-adulterated-lots-of-japata-alcoholic-bitters-100-ml-all-variants-produced-by-chigodson-international-company-limited-lagos/",
-  "Notes": "Discovered via news: punchng.com [locality: Lagos] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/ng/rules.py:  | Discovered via news: thisdaylive.com | No matching hazard category — defer to manual review.'; that defect is repaired and the row now passes every publish-gate rule]"
- },
- {
-  "Date": "2026-10-13",
-  "Source": "CFS (HK)",
-  "Company": "公和荳品廠",
-  "Brand": "公和荳品廠",
-  "Product": "Bottled preserved bean curd",
-  "Pathogen": "Bacillus cereus exceeding limit",
-  "Reason": "The sample contained Bacillus cereus at a level of 140,000 per gram, exceeding the limit of 100,000 per gram for ready-to-eat food.",
-  "Class": "Alert",
-  "Country": "Hong Kong",
-  "Region": "Asia",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_633.html",
-  "Notes": "Discovered via news: dimsumdaily.hk"
  },
  {
   "Date": "2026-10-12",
@@ -1652,16 +1588,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Italy | Notifying: Italy",
   "Brand": "—",
-  "Product": "Presenza di E Coli STEC in formaggio a latte crudo // Presence of STEC *E. coli* in raw milk cheese",
+  "Product": "Presence of STEC *E. coli* in raw milk cheese",
   "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Presenza di E Coli STEC in formaggio a latte crudo // Presence of STEC *E. coli* in raw milk cheese; risk: serious; category: milk and milk products",
+  "Reason": "Presence of STEC *E. coli* in raw milk cheese; risk: serious; category: milk and milk products",
   "Class": "Alert",
   "Country": "Italy",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878695",
-  "Notes": "[RASFF #2026.9005; classification: alert notification; category: milk and milk products; notifId=878695] [promote 2026-10-10: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.9005; classification: alert notification; category: milk and milk products; notifId=878695] [promote 2026-10-10: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-10-18] [original product (bilingual RASFF subject): \"Presenza di E Coli STEC in formaggio a latte crudo // Presence of STEC *E. coli* in raw milk cheese\"] [original reason (bilingual RASFF subject): \"Presenza di E Coli STEC in formaggio a latte crudo // Presence of STEC *E. coli* in raw milk cheese; risk: serious; category: milk and milk products\"]"
  },
  {
   "Date": "2026-10-09",
@@ -1744,22 +1680,6 @@
   "Notes": "[operator ruling 2026-10-16] RappelConso fiche 23741 (2026-10-0070), published 09/10/2026, read on its own page 2026-10-16: motif \"dépassement LMR Abamectin\"; risque \"Dépassement des limites autorisées de pesticides\"; distributeurs \"SCANORMANDE-LECASUD-ALDI SAUVIAN\"; \"Origine de la fiche : CARPENTIERE FRANCE\" (submitter, no legal name printed). Added to the closed week 41 by operator ruling. [original product: RAISIN ROSE RED GLOBE CAT I ORIGINE ITALIE] [promote 2026-10-16: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
-  "Date": "2026-10-09",
-  "Source": "CFS (HK)",
-  "Company": "Marks & Spencer",
-  "Brand": "Marks & Spencer",
-  "Product": "Prepackaged salad and pesto",
-  "Pathogen": "Salmonella",
-  "Reason": "Suspected contamination with Salmonella",
-  "Class": "Alert",
-  "Country": "Hong Kong",
-  "Region": "Asia",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_632.html",
-  "Notes": "Discovered via news: info.gov.hk [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
- },
- {
   "Date": "2026-10-08",
   "Source": "GIS (PL)",
   "Company": "Bell Polska Sp. z o.o.",
@@ -1830,14 +1750,14 @@
   "Brand": "—",
   "Product": "Salmonella enteritidis in eggs from Spain",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella enteritidis in eggs from Spain//Salmonella enteritidis en huevos procedentes de España.; risk: serious; category: eggs and egg products",
+  "Reason": "Salmonella enteritidis in eggs from Spain; risk: serious; category: eggs and egg products",
   "Class": "Alert",
   "Country": "Spain",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497",
-  "Notes": "[RASFF #2026.8921; classification: alert notification; category: eggs and egg products; notifId=877497] [promote 2026-10-09: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.8921; classification: alert notification; category: eggs and egg products; notifId=877497] [promote 2026-10-09: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-10-18] [original reason (bilingual RASFF subject): \"Salmonella enteritidis in eggs from Spain//Salmonella enteritidis en huevos procedentes de España.; risk: serious; category: eggs and egg products\"]"
  },
  {
   "Date": "2026-10-08",
@@ -1862,14 +1782,14 @@
   "Brand": "—",
   "Product": "E. coli in clams from Italy",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "E. coli in clams from Italy // E. coli en chirlas procedentes de Italia; risk: serious; category: bivalve molluscs and products thereof",
+  "Reason": "E. coli in clams from Italy; risk: serious; category: bivalve molluscs and products thereof",
   "Class": "Information",
   "Country": "Italy",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878519",
-  "Notes": "[RASFF #2026.8962; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=878519] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[RASFF #2026.8962; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=878519] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [morning fix 2026-10-18] [original reason (bilingual RASFF subject): \"E. coli in clams from Italy // E. coli en chirlas procedentes de Italia; risk: serious; category: bivalve molluscs and products thereof\"]"
  },
  {
   "Date": "2026-10-08",
@@ -2324,16 +2244,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Pakistan | Notifying: Poland",
   "Brand": "—",
-  "Product": "Stwierdzenie przekroczenia NDP ochratoksyny A w ryżu brązowym kraj pochodzenia Pakistan/// Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.",
+  "Product": "Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.",
   "Pathogen": "Ochratoxin",
-  "Reason": "Stwierdzenie przekroczenia NDP ochratoksyny A w ryżu brązowym kraj pochodzenia Pakistan/// Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.; risk: potential risk; category: cereals and bakery products",
+  "Reason": "Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.; risk: potential risk; category: cereals and bakery products",
   "Class": "Border Rejection",
   "Country": "Pakistan",
   "Region": "Asia",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877599",
-  "Notes": "[RASFF #2026.8830; classification: border rejection notification; category: cereals and bakery products; notifId=877599] [promote 2026-10-07: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.8830; classification: border rejection notification; category: cereals and bakery products; notifId=877599] [promote 2026-10-07: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-10-18] [original product (bilingual RASFF subject): \"Stwierdzenie przekroczenia NDP ochratoksyny A w ryżu brązowym kraj pochodzenia Pakistan/// Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.\"] [original reason (bilingual RASFF subject): \"Stwierdzenie przekroczenia NDP ochratoksyny A w ryżu brązowym kraj pochodzenia Pakistan/// Finding of Ochratoxin A levels exceeding the maximum permitted level in brown rice originating from Pakistan.; risk: potential risk; category: cereals and bakery products\"]"
  },
  {
   "Date": "2026-10-06",
@@ -2982,14 +2902,14 @@
   "Brand": "—",
   "Product": "histamine in thawed yellowfin tuna steak",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "presenza di istamina oltre il valore soglia in trancio decongelato di tonno pinne gialle///// histamine in thawed yellowfin tuna steak; risk: serious; category: fish and fish products",
+  "Reason": "histamine in thawed yellowfin tuna steak; risk: serious; category: fish and fish products",
   "Class": "Information",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876861",
-  "Notes": "[RASFF #2026.8750; classification: information notification for attention; category: fish and fish products; notifId=876861] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[RASFF #2026.8750; classification: information notification for attention; category: fish and fish products; notifId=876861] [promote 2026-10-03: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-10-18] [original reason (bilingual RASFF subject): \"presenza di istamina oltre il valore soglia in trancio decongelato di tonno pinne gialle///// histamine in thawed yellowfin tuna steak; risk: serious; category: fish and fish products\"]"
  },
  {
   "Date": "2026-10-02",
@@ -4662,14 +4582,14 @@
   "Brand": "—",
   "Product": "Salmonella Typhimurium in frozen chicken from Brazil",
   "Pathogen": "Salmonella",
-  "Reason": "Salmonella Typhimurium in frozen chicken from Brazil // Salmonella Typhimurium en pollo congelado de Brasil; risk: serious; category: poultry meat and poultry meat products",
+  "Reason": "Salmonella Typhimurium in frozen chicken from Brazil; risk: serious; category: poultry meat and poultry meat products",
   "Class": "Border Rejection",
   "Country": "Brazil",
   "Region": "Latin America",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874896",
-  "Notes": "[RASFF #2026.8446; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=874896]"
+  "Notes": "[RASFF #2026.8446; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=874896] [morning fix 2026-10-18] [original reason (bilingual RASFF subject): \"Salmonella Typhimurium in frozen chicken from Brazil // Salmonella Typhimurium en pollo congelado de Brasil; risk: serious; category: poultry meat and poultry meat products\"]"
  },
  {
   "Date": "2026-09-23",
@@ -5014,14 +4934,14 @@
   "Brand": "—",
   "Product": "Aflatoxins in pistachios from Iran",
   "Pathogen": "Aflatoxin",
-  "Reason": "Aflatoxins in pistachios from Iran // Aflatoxinas en pistachos de Irán; risk: serious; category: nuts, nut products and seeds",
+  "Reason": "Aflatoxins in pistachios from Iran; risk: serious; category: nuts, nut products and seeds",
   "Class": "Border Rejection",
   "Country": "Iran",
   "Region": "Middle East",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874236",
-  "Notes": "[RASFF #2026.8347; classification: border rejection notification; category: nuts, nut products and seeds; notifId=874236]"
+  "Notes": "[RASFF #2026.8347; classification: border rejection notification; category: nuts, nut products and seeds; notifId=874236] [morning fix 2026-10-18] [original reason (bilingual RASFF subject): \"Aflatoxins in pistachios from Iran // Aflatoxinas en pistachos de Irán; risk: serious; category: nuts, nut products and seeds\"]"
  },
  {
   "Date": "2026-09-21",
@@ -5412,16 +5332,16 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Italy | Notifying: Poland",
   "Brand": "—",
-  "Product": "Obecność Listeria monocytogenes w szynce wieprzowej surowej dojrzewającej pochodzącej z Włoch///Presence of Listeria monocytogenes in rawcured pork ham from Italy",
+  "Product": "Presence of Listeria monocytogenes in rawcured pork ham from Italy",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Obecność Listeria monocytogenes w szynce wieprzowej surowej dojrzewającej pochodzącej z Włoch///Presence of Listeria monocytogenes in rawcured pork ham from Italy; risk: serious; category: meat and meat products (other than poultry)",
+  "Reason": "Presence of Listeria monocytogenes in rawcured pork ham from Italy; risk: serious; category: meat and meat products (other than poultry)",
   "Class": "Alert",
   "Country": "Italy",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/873231",
-  "Notes": "[RASFF #2026.8292; classification: alert notification; category: meat and meat products (other than poultry); notifId=873231] [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.]"
+  "Notes": "[RASFF #2026.8292; classification: alert notification; category: meat and meat products (other than poultry); notifId=873231] [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.] [morning fix 2026-10-18] [original product (bilingual RASFF subject): \"Obecność Listeria monocytogenes w szynce wieprzowej surowej dojrzewającej pochodzącej z Włoch///Presence of Listeria monocytogenes in rawcured pork ham from Italy\"] [original reason (bilingual RASFF subject): \"Obecność Listeria monocytogenes w szynce wieprzowej surowej dojrzewającej pochodzącej z Włoch///Presence of Listeria monocytogenes in rawcured pork ham from Italy; risk: serious; category: meat and meat products (other than poultry)\"]"
  },
  {
   "Date": "2026-09-18",
@@ -11620,7 +11540,7 @@
   "Source": "RASFF (EU)",
   "Company": "Origin: Italy | Notifying: Spain",
   "Brand": "—",
-  "Product": "Presencia de E.coli  en chirla procedente de Italia // Presence of E. coli in clams from Italy",
+  "Product": "Presence of E. coli in clams from Italy",
   "Pathogen": "Escherichia coli (generic)",
   "Reason": "Presence of E. coli in clams from Italy; risk: serious; category: bivalve molluscs and products thereof",
   "Class": "Information",
@@ -11629,7 +11549,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/864588",
-  "Notes": "[RASFF #2026.7031; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=864588] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "[RASFF #2026.7031; classification: information notification for attention; category: bivalve molluscs and products thereof; notifId=864588] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [morning fix 2026-10-18] [original product (bilingual RASFF subject): \"Presencia de E.coli  en chirla procedente de Italia // Presence of E. coli in clams from Italy\"]"
  },
  {
   "Date": "2026-08-07",
@@ -33486,5 +33406,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-16",
+  "Source": "RappelConso (FR)",
+  "Company": "CRUSTA C",
+  "Brand": "Unbranded",
+  "Product": "Whole cooked chilled shrimp, 20/30 count, wild Penaeus indicus caught in the Western Indian Ocean (FAO 51), lot 9262800232, use by 16/10/2026",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23785/interne",
+  "Notes": "a l'eau poisson; azur maree; pechrie cettoise; provence maree; super u; halles de jojo; intermarche; centre leclerc [morning fix 2026-10-18] RappelConso fiche 23785 (2026-10-0114), published 16/10/2026, read on its own page 2026-10-18: origine de la fiche \"CRUSTA C\"; lot 9262800232; DLC 16/10/2026; sold 07/10–13/10/2026. [original product: Crevette entière cuite réfrigérée 20/30 sauvage penaeus indicus péchée en océan indien ouest FAO51] [collector product was 'cr20cz', a scraper artifact] [promote 2026-10-18: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
