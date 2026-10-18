@@ -233,6 +233,13 @@ PATHOGEN: dict[str, list[str]] = {
         "without benefit of inspection", "produced without inspection",
         "false inspection mark", "false mark of inspection",
         "false usda mark", "hazard not assessed"],                  # 4
+    # 2026-10-18 (operator: Kayem Foods, FSIS Class I, ~1.58 million lb of
+    # ready-to-eat meat and poultry, "possible temperature abuse" — in
+    # scope). A cold-chain failure names no measured hazard, so it is filed
+    # with the hazard-not-assessed group, and needs its own alert words.
+    "Temperature abuse / cold-chain failure": [
+        "temperature abuse", "cold-chain", "cold chain",
+        "temperature deviation"],
 }
 
 # Terms REMOVED from the old alerts.html list on 2026-09-14 and why. Kept here
