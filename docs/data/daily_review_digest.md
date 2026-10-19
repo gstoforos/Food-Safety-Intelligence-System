@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-10-18 (Athens)
+# FSIS Daily Review — 2026-10-19 (Athens)
 
-Mode: **live** · generated 2026-10-18T13:03:11+03:00
-Recalls rows reviewed: **2089** · in-progress week (never published): **W42**
+Mode: **live** · generated 2026-10-19T14:28:16+03:00
+Recalls rows reviewed: **2092** · in-progress week (never published): **W43**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -75,10 +75,14 @@ Recalls rows reviewed: **2089** · in-progress week (never published): **W42**
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsa (uk))
   - Duplicate of: https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026
   - id `e96aa2b1ef3d3756` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
+- **[cross_source_dup · medium]** 2026-01-23 · Danone · Cereulide (B. cereus toxin) — https://www.fsai.ie/news-and-alerts/latest-news/danone-infant-formula-and-follow-on-formula-recall
+  - Evidence: same content identity (date + company + pathogen) as a row from a different source (afsca (be))
+  - Duplicate of: https://favv-afsca.be/nl/producten/terugroeping-van-danone-0
+  - id `29c0d765f326ca61` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W06, W34, W36, W37, W39, W40
-- Monthlies: M08, M09
+- Weeklies: W05, W06, W34, W36, W37, W39, W40
+- Monthlies: M01, M08, M09
 
 ## 5. Asset / deliverable integrity
 - **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule

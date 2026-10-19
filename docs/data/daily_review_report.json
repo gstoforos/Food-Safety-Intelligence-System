@@ -1,17 +1,17 @@
 {
-  "generated": "2026-10-18T13:03:11+03:00",
-  "date": "2026-10-18",
+  "generated": "2026-10-19T14:28:16+03:00",
+  "date": "2026-10-19",
   "mode": "live",
-  "in_progress_week": "W42",
+  "in_progress_week": "W43",
   "counts": {
-    "recalls_rows": 2089,
+    "recalls_rows": 2092,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 19,
+    "proposed_deletions": 20,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -394,6 +394,32 @@
           "Tier": 1,
           "URL": "https://www.food.gov.uk/news-alerts/alert/fsa-prin-20-2026"
         }
+      },
+      {
+        "id": "29c0d765f326ca61",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (afsca (be))",
+        "row": {
+          "Date": "2026-01-23",
+          "Source": "FSAI (IE)",
+          "Company": "Danone",
+          "Product": "Infant formula and follow-on formula (specific batches)",
+          "Pathogen": "Cereulide (B. cereus toxin)",
+          "Country": "Ireland",
+          "Tier": 1,
+          "URL": "https://www.fsai.ie/news-and-alerts/latest-news/danone-infant-formula-and-follow-on-formula-recall"
+        },
+        "duplicate_of": {
+          "Date": "2026-01-23",
+          "Source": "AFSCA (BE)",
+          "Company": "Danone",
+          "Product": "Various Nutrilon infant formula",
+          "Pathogen": "Cereulide (B. cereus toxin)",
+          "Country": "Belgium",
+          "Tier": 1,
+          "URL": "https://favv-afsca.be/nl/producten/terugroeping-van-danone-0"
+        }
       }
     ],
     "escalate": false,
@@ -401,6 +427,7 @@
   },
   "stale_reports": {
     "weeklies": [
+      "W05",
       "W06",
       "W34",
       "W36",
@@ -409,12 +436,14 @@
       "W40"
     ],
     "monthlies": [
+      "M01",
       "M08",
       "M09"
     ]
   },
   "rebuilt": {
     "weeklies": [
+      "W05",
       "W06",
       "W34",
       "W36",
@@ -422,6 +451,8 @@
       "W39",
       "W40"
     ],
-    "monthlies": []
+    "monthlies": [
+      "M01"
+    ]
   }
 }
