@@ -3,8 +3,8 @@
   "week": "2026-10-12/2026-10-18",
   "week_start": "2026-10-12",
   "week_end": "2026-10-18",
-  "corpus_week_total": 77,
-  "generated_utc": "2026-10-19T02:26:40+00:00",
+  "corpus_week_total": 78,
+  "generated_utc": "2026-10-19T06:50:05+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -240,7 +240,7 @@
   "records": []
  },
  "news": {
-  "n_headlines": 33,
+  "n_headlines": 31,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
@@ -248,16 +248,16 @@
   "pathogens": [
    {
     "pathogen": "Salmonella",
-    "headlines": 11,
+    "headlines": 10,
     "burst": true,
     "baseline_weeks": 7,
     "baseline_mean": 10.0,
     "samples": [
+     "Stricter Dutch rules planned as Salmonella battle continues",
+     "FDA warns importers about Salmonella, recalls and supplier verification failures",
      "Novel Bacteriophage-Based Biosensor Test Method Shows Potential for Rapid Detection of Viable Foodborne Pathog",
      "Ukrainian egg firm comments on UK Salmonella link",
-     "Spanish authorities urged to share Salmonella outbreak details",
-     "Salmonella Outbreak in Monongalia County, WV",
-     "EU-wide seasonal Salmonella outbreak strikes again"
+     "Spanish authorities urged to share Salmonella outbreak details"
     ]
    },
    {
@@ -320,6 +320,26 @@
     ]
    },
    {
+    "pathogen": "Clostridium botulinum",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 1.29,
+    "samples": [
+     "Publisher's Platform: Comments sought on FDA petition to add botulism to the infant formula testing list"
+    ]
+   },
+   {
+    "pathogen": "Clostridium perfringens",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.86,
+    "samples": [
+     "Publisher's Platform: Comments sought on FDA petition to add botulism to the infant formula testing list"
+    ]
+   },
+   {
     "pathogen": "Foreign material (shell fragments)",
     "headlines": 1,
     "burst": false,
@@ -337,16 +357,6 @@
     "baseline_mean": 0.0,
     "samples": [
      "Salmonella Outbreak Linked to Shellfish From Wicomico River, VA"
-    ]
-   },
-   {
-    "pathogen": "Possible incomplete pasteurization (process deviation)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 7,
-    "baseline_mean": 1.29,
-    "samples": [
-     "Oregon public health officials investigating possible foodborne outbreak"
     ]
    }
   ],
@@ -369,8 +379,8 @@
    "label": "Tier 3 · Europe",
    "stratum_key": "tier::3::Europe",
    "channel": "proportion",
-   "effect": 2.53,
-   "p_value": 0.0025642803808593223,
+   "effect": 2.5,
+   "p_value": 0.0028634387312215315,
    "fdr_pass": true,
    "records": 12,
    "distinct_firms": 12,
@@ -386,16 +396,16 @@
    "stratum_key": "region::Salmonella::Europe",
    "channel": "count-only",
    "effect": 1.37,
-   "p_value": 0.20431675265913113,
+   "p_value": 0.22303457298728302,
    "fdr_pass": false,
    "records": 21,
    "distinct_firms": 21,
    "top_firm": "e.leclerc",
    "top_firm_share": 0.05,
    "outbreak_records": 0,
-   "headlines": 11,
+   "headlines": 10,
    "verdict_hint": "corroborated",
-   "reason": "11 headlines on Salmonella this week"
+   "reason": "10 headlines on Salmonella this week"
   }
  ]
 }

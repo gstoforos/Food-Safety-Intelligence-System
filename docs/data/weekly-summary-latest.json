@@ -10,7 +10,7 @@
   "week_end_display": "18 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-19T03:27:02.231035+00:00",
+  "generated_utc": "2026-10-19T06:55:47.803164+00:00",
   "prev_total": 89,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
@@ -23,8 +23,8 @@
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 19,
-    "pct": 24
+    "cases": 20,
+    "pct": 26
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -86,18 +86,18 @@
     },
     {
       "rank": 5,
-      "date": "2026-10-15",
+      "date": "2026-10-16",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Origin: Czechia | Notifying: Slovakia",
-      "brand": "—",
-      "product": "Presence of Listeria monocytogenes in Beef Steak Tartare from the Czech Republic",
-      "country": "Czechia",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879425"
+      "company": "Krasnyi Oktyabr Inc.",
+      "brand": "Starfish Seafood",
+      "product": "Starfish Seafood Premium Cold Smoked Norwegian Salmon Sliced, 227 g (8 oz) vacuum-sealed frozen packages, lot D080-148, best before 27.11.2027, UPC 4751048940099, origin Latvia",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/krasnyi-oktyabr-inc-recalls-starfish-seafood-premium-cold-smoked-norwegian-salmon-sliced-227g8oz"
     }
   ],
-  "country_count": 25
+  "country_count": 24
 }
