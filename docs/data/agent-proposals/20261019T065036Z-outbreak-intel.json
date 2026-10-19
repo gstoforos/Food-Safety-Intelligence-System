@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261019T065036Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article; food terms multi. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw",
+          "quote": "50 patients",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-initiates-recall-frozen-greenwise-organic-iqf-blueberries-due",
+          "quote": "2026-07-06 FDA Organic IQF Frozen Blueberries 10 oz",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "e306b05ba06dd808"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus escherichia; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw",
+          "quote": "50 patients",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/publix-recalls-all-lots-greenwise-organic-frozen-blueberries-and-whole-mixed-berries-due-potential-e",
+          "quote": "2026-07-30 FDA Organic IQF Frozen Blueberries and Whole Mixed Berries, 10 oz and 48 oz",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6ee38dfe43f80cd2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o157h7"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o157:h7. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/sunday-edition-nsw",
+          "quote": "50 patients",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o157h7",
+          "quote": "2026-10-15 FDA Raw Mild Cheddar Cheese — one lot, lot code and best-by 7/22/27",
+          "retrieved_utc": "2026-10-19T06:49:06+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1f4a0eb67bd318f2"
+    }
+  ]
+}
