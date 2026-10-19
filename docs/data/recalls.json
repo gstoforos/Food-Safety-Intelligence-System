@@ -33454,5 +33454,21 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/krasnyi-oktyabr-inc-recalls-starfish-seafood-premium-cold-smoked-norwegian-salmon-sliced-227g8oz",
   "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [morning fix 2026-10-19] Read on FDA's own notice page 2026-10-19: FDA Publish Date October 16, 2026 (used as Date); Company Announcement Date October 9, 2026; firm Krasnyi Oktyabr Inc. of Brooklyn, New York; brand Starfish Seafood; 227 g (8 oz) vacuum-sealed frozen packages; lot D080-148; best before 27.11.2027; UPC 4751048940099; origin Latvia; hazard potential Listeria monocytogenes; distributed to NY, FL, GA, NJ, PA, OH; 'No illnesses have been reported to date'. A DIFFERENT notice from the published sibling (Starfish Seafood TRIO, lot D139149161-153, 2026-10-09): different product, lot, UPC and distribution list, on its own FDA URL. The collector's Product was the page headline and Date/Pathogen were empty, stamped 'FDA HTML fallback — claude-check needs to enrich Date+Pathogen'; claude_check does not run. [promote 2026-10-19: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-01-23",
+  "Source": "FSAI (IE)",
+  "Company": "Danone infant formula and follow-on formula",
+  "Brand": "Danone infant formula and follow-on formula",
+  "Product": "| Food Safety Authority of Ireland",
+  "Pathogen": "Cereulide (B. cereus toxin)",
+  "Reason": "Cereulide",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/latest-news/danone-infant-formula-and-follow-on-formula-recall",
+  "Notes": "The Food Safety Authority of Ireland (FSAI) today advises that Danone is recalling specific batches of its infant formula and follow-on formula due to the potential presence of cereulide. The implicated products were manufactured in Ireland and exported to a number of EU countries, the UK and third   [via Tavily gap-finder, deterministic extract] [gap-gate 2026-05-06: pending_gap → pending_gap_v1] [gap-gate 2026-05-06: pending_gap_v1 → pending_gap_v2] [claude-check 2026-05-07: pass; pass | All fields verified: date 2026-01-23 matches page header; Company (Danone) and Product (infant formula and follow] [gap-gate 2026-05-07: pending_gap_v2 → pending (Claude verified)] [week-fix 2026-07-25: report_week W04->W05; Thursday-to-Thursday rule — week runs 2026-01-23 Fri -> 2026-01-29 Thu, labelled by ISO week of the closing Thursday]"
  }
 ]
