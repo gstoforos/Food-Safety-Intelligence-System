@@ -101,6 +101,7 @@ so the classifier cannot drift between the two callers.
 from __future__ import annotations
 import re
 from typing import Any, Dict, List, Set
+from urllib.parse import urlparse
 
 # Controlled vocabularies. A value outside these is an extraction artifact,
 # not a regional judgement call.
@@ -1055,6 +1056,148 @@ def _only_agency_acronyms(company: str) -> bool:
     return bool(toks) and all(t.strip(". ") in _AGENCY_ACRONYMS for t in toks)
 
 
+# ---------------------------------------------------------------------------
+# A WEBSITE IS NOT A FIRM, A NUMBER IS NOT A FIRM, AND THE AUTHORITY IS NOT
+# THE PRODUCT (audit 2026-10-19)
+# ---------------------------------------------------------------------------
+# Rule 2b closed the ACRONYM half of this gap on 2026-10-11 and wrote down
+# why it had to exist: "the reviewer's regulator-name check knows full names,
+# not acronyms, and the offline promoter asks only this gate." The full-name
+# half stayed open for eight days. On 2026-10-19 at 03:27 UTC the offline
+# promoter published this row into the register, Tier-1, inside week 42:
+#
+#     Date      2026-10-15
+#     Source    Livsmedelsverket (SE)
+#     Company   '121'
+#     Brand     '121'
+#     Product   'Edsviken - Livsmedelsverket'
+#     Pathogen  'Escherichia coli (generic)'
+#     Reason    'E. coli'
+#     URL       https://www.livsmedelsverket.se/foretagande-regler-kontroll/
+#               sa-kontrolleras-ditt-foretag/sok---muselkontroll-oppna-och-
+#               stangda-produktionsomraden/edsviken
+#     Notes     '... [via DDGS gap-finder, deterministic extract]
+#                [promote 2026-10-19: ... passes every publish-gate rule]'
+#
+# The Notes are right, and that is the defect. The URL is Sweden's shellfish
+# production-AREA classification page for Edsviken — the area is open with a
+# restriction on oyster harvesting because of high E. coli in the water. It
+# names no firm, no brand, no product, no lot, and announces no recall: it is
+# a water-quality classification, not a regulatory action (R2), and the URL
+# is a status page, not a per-recall notice (R3). Three of its fields are
+# scrape debris: Product is the page's <title>, and Company and Brand hold
+# the bare number 121.
+#
+# recall_review_agent._AGENCY_NAMES would have caught the Product. The
+# offline promoter never runs the review agent. Ported here as three
+# deterministic rules, each first measured against the whole live register
+# (2091 Recalls rows, 31 Pending, both review sheets, 2196 Rejected):
+#
+#   (a) a name field with no letter anywhere in it. '121' names no firm.
+#       One hit in the whole corpus — this row.
+#   (b) a name field holding THE HOST OF THE ROW'S OWN URL.
+#       'lebensmittelwarnung.de' (Recalls row 1026, BVL, 2026-07-07) is the
+#       German portal that published the notice, not the dairy; that row's
+#       own Notes name the firm: "Company (Hof Dannwisch)". One hit.
+#
+#       The first draft of (b) tested "the value looks like a bare
+#       hostname" and flagged FIVE good rows: 'E.Leclerc' (×5, the French
+#       retailer), 'F.Duvacher', 'G.D', 'Pawell.Co', 'SUPPLX.com'. A firm
+#       name with a dot and no space is ordinary in French and in
+#       e-commerce, and this file's own rule-6 note says it plainly: a gate
+#       that cries wolf on good rows gets switched off. What actually makes
+#       'lebensmittelwarnung.de' wrong is not its shape but its referent —
+#       it is the publisher of the very URL on the row. Tested against the
+#       host instead, (b) hits that one row and nothing else: E.Leclerc's
+#       notices are published on rappel.conso.gouv.fr and SUPPLX.com's on
+#       fda.gov, so neither can collide.
+#   (c) the authority's own name inside PRODUCT. Product ONLY, deliberately.
+#       All 689 RASFF rows carry 'Origin: <x> | Notifying: <y>' in Company by
+#       established convention, and 'Notifying: European Commission' is a
+#       correct value on RASFF #2026.8885, not a defect — checking Company
+#       would refuse the entire RASFF series. Against Product the rule hits
+#       exactly three published rows, every one of them a known defect the
+#       reviewers had already written up and nobody had repaired:
+#         row 42   'Edsviken - Livsmedelsverket'                   (removed)
+#         row 2019 "... 400g | Food Standards Australia New Zealand" (suffix)
+#         row 2065 '| Food Safety Authority of Ireland'           (no product)
+#       The Rejected sheet holds 30 more of the same shape — Swedish job ads,
+#       consultation notices ('Remiss'), Mattilsynet hearings — which is the
+#       proof that the model-backed reviewers do refuse it and the
+#       deterministic gate did not.
+def _has_no_letter(value: str) -> bool:
+    """True when the value contains no alphabetic character, in any script.
+
+    str.isalpha() is Unicode-aware, so this is correct for a Japanese,
+    Chinese, Korean, Greek, Cyrillic, Hebrew or Arabic firm name without
+    this module having to carry a table of script ranges — an earlier draft
+    spelled the ranges out by hand and was both longer and narrower.
+    """
+    return not any(ch.isalpha() for ch in str(value or ""))
+
+
+def _is_own_url_host(value: str, url: str) -> bool:
+    """True when `value` is the hostname that published `url`.
+
+    Compared with the leading 'www.' dropped from both sides, so
+    'lebensmittelwarnung.de' matches a URL on www.lebensmittelwarnung.de.
+    """
+    host = urlparse(str(url or "")).netloc.lower().split(":")[0]
+    if not host:
+        return False
+    def _bare(h: str) -> str:
+        return h[4:] if h.startswith("www.") else h
+    candidate = _bare(str(value or "").strip().lower().rstrip("/"))
+    return bool(candidate) and candidate == _bare(host)
+
+#: Values that mean "no value" in this register and are never a defect.
+_NAME_SENTINELS = frozenset({"", "—", "-", "–", "n/a", "na", "none",
+                             "unbranded", "not specified", "unknown"})
+
+#: Food-authority proper names. The reviewer's own list
+#: (recall_review_agent._AGENCY_NAMES), widened with every authority name
+#: measured as having actually reached a name field in the live corpus.
+_AUTHORITY_OWN_NAMES = (
+    "agencia española", "agencia espanola", "food standards",
+    "autorité", "bundesamt", "ministero della salute", "ministry of health",
+    "food safety authority", "federal agency", "health canada",
+    "food and drug administration", "livsmedelsverket", "mattilsynet",
+    "ruokavirasto", "europese commissie", "european commission",
+    "commission européenne", "centre for food safety",
+    "food safety and inspection service",
+    "produktwarnungen", "lebensmittelwarnung",
+    "fødevarestyrelsen", "foedevarestyrelsen",
+)
+
+
+def _name_field_blockers_2026_10_19(row: Dict[str, Any]) -> List[str]:
+    """Company/Brand must be a name; Product must not be the authority."""
+    out: List[str] = []
+    for field in ("Company", "Brand"):
+        value = str(row.get(field) or "").strip()
+        if value.lower() in _NAME_SENTINELS:
+            continue
+        if _has_no_letter(value):
+            out.append(
+                f"{field} {value!r} contains no letter — a firm name is not a "
+                "number; the scraper wrote page debris into a name field")
+        elif _is_own_url_host(value, row.get("URL")):
+            out.append(
+                f"{field} {value!r} is the website that published this "
+                "notice, not the recalling firm — that host belongs in "
+                "Source, and the firm is named on the notice itself")
+    product = str(row.get("Product") or "").strip().lower()
+    if product and product not in _NAME_SENTINELS:
+        for name in _AUTHORITY_OWN_NAMES:
+            if name in product:
+                out.append(
+                    f"Product {str(row.get('Product'))[:70]!r} carries the "
+                    f"authority's own name ({name!r}) — the page <title> or "
+                    "its site-name suffix was parsed as the product")
+                break
+    return out
+
+
 def publish_blockers(row: Dict[str, Any]) -> List[str]:
     """Return every reason this row must not be published. Empty == publishable.
 
@@ -1099,6 +1242,9 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     # 2d. Alert-year mismatch, non-food consumer product, section heading
     #     as Company (2026-10-17).
     problems.extend(_shape_blockers_2026_10_17(row))
+
+    # 2e. The reviewer's FULL-NAME regulator check, ported (2026-10-19).
+    problems.extend(_name_field_blockers_2026_10_19(row))
 
     # 3. Controlled vocabularies, and free prose leaking into them.
     region = str(row.get("Region") or "").strip()
