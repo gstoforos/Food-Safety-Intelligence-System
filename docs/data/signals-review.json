@@ -4,7 +4,7 @@
   "week_start": "2026-10-12",
   "week_end": "2026-10-18",
   "corpus_week_total": 77,
-  "generated_utc": "2026-10-18T16:22:00+00:00",
+  "generated_utc": "2026-10-19T02:26:40+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -240,7 +240,7 @@
   "records": []
  },
  "news": {
-  "n_headlines": 32,
+  "n_headlines": 33,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
@@ -261,6 +261,19 @@
     ]
    },
    {
+    "pathogen": "Listeria monocytogenes",
+    "headlines": 4,
+    "burst": true,
+    "baseline_weeks": 7,
+    "baseline_mean": 4.14,
+    "samples": [
+     "Lidl recalls gelato because of Listeria contamination",
+     "Starfish Cold Smoked Norwegian Salmon Recalled For Listeria",
+     "Farm Boy L’Ancetre Life Smart Cheese Recalled For Listeria",
+     "USDA to expand testing at deli counters"
+    ]
+   },
+   {
     "pathogen": "Coliform / total bacterial count",
     "headlines": 4,
     "burst": true,
@@ -271,18 +284,6 @@
      "Salmonella Outbreak in Monongalia County, WV",
      "USDA to expand testing at deli counters",
      "Deschutes County Oregon Salmonella Outbreak Investigated"
-    ]
-   },
-   {
-    "pathogen": "Listeria monocytogenes",
-    "headlines": 3,
-    "burst": true,
-    "baseline_weeks": 7,
-    "baseline_mean": 4.14,
-    "samples": [
-     "Starfish Cold Smoked Norwegian Salmon Recalled For Listeria",
-     "Farm Boy L’Ancetre Life Smart Cheese Recalled For Listeria",
-     "USDA to expand testing at deli counters"
     ]
    },
    {
