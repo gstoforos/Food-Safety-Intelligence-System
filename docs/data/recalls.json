@@ -176,6 +176,22 @@
   "Notes": "client privee [offline-enrich 2026-10-19: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-10-19: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
  },
  {
+  "Date": "2026-10-19",
+  "Source": "RappelConso (FR)",
+  "Company": "Unbranded",
+  "Brand": "Unbranded",
+  "Product": "caissette saucisses de volaille 5 kg s/atm",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23859/interne",
+  "Notes": "rhd"
+ },
+ {
   "Date": "2026-10-17",
   "Source": "FDA",
   "Company": "Lidl US",
