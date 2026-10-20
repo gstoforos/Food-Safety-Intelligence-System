@@ -1,13 +1,24 @@
 {
   "entries": [
     {
+      "date": "2026-10-19",
+      "url": "daily/2026-10-19.html",
+      "total": 12,
+      "tier1": 12,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 12
+      },
+      "generated": "2026-10-20T07:12:38Z"
+    },
+    {
       "date": "2026-10-18",
       "url": "daily/2026-10-18.html",
       "total": 0,
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-10-19T07:11:58Z"
+      "generated": "2026-10-20T07:12:39Z"
     },
     {
       "date": "2026-10-17",
@@ -18,32 +29,33 @@
       "by_region": {
         "North America": 2
       },
-      "generated": "2026-10-19T07:11:59Z"
+      "generated": "2026-10-20T07:12:41Z"
     },
     {
       "date": "2026-10-16",
       "url": "daily/2026-10-16.html",
-      "total": 21,
-      "tier1": 14,
+      "total": 22,
+      "tier1": 15,
       "outbreak": 0,
       "by_region": {
         "Asia": 1,
-        "Europe": 20
+        "Europe": 20,
+        "North America": 1
       },
-      "generated": "2026-10-19T07:12:00Z"
+      "generated": "2026-10-20T07:12:43Z"
     },
     {
       "date": "2026-10-15",
       "url": "daily/2026-10-15.html",
-      "total": 18,
-      "tier1": 12,
+      "total": 17,
+      "tier1": 11,
       "outbreak": 0,
       "by_region": {
-        "Europe": 13,
+        "Europe": 12,
         "North America": 2,
         "Asia": 3
       },
-      "generated": "2026-10-19T07:12:01Z"
+      "generated": "2026-10-20T07:12:44Z"
     },
     {
       "date": "2026-10-14",
@@ -56,7 +68,7 @@
         "Asia": 1,
         "North America": 1
       },
-      "generated": "2026-10-19T07:12:03Z"
+      "generated": "2026-10-20T07:12:46Z"
     },
     {
       "date": "2026-10-13",
@@ -68,21 +80,7 @@
         "Europe": 15,
         "Asia": 1
       },
-      "generated": "2026-10-19T07:12:04Z"
-    },
-    {
-      "date": "2026-10-12",
-      "url": "daily/2026-10-12.html",
-      "total": 14,
-      "tier1": 11,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 10,
-        "Oceania": 1,
-        "Asia": 2,
-        "North America": 1
-      },
-      "generated": "2026-10-19T07:12:05Z"
+      "generated": "2026-10-20T07:12:47Z"
     }
   ]
 }
