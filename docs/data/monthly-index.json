@@ -122,11 +122,11 @@
     "month_name": "January 2026",
     "month_start": "2026-01-01",
     "month_end": "2026-01-31",
-    "total": 37,
-    "tier1": 36,
+    "total": 36,
+    "tier1": 35,
     "outbreaks": 4,
     "top_pathogen": "Bacillus cereus / Cereulide",
-    "summary": "January 2026: 37 recalls, 36 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide.",
+    "summary": "January 2026: 36 recalls, 35 Tier-1, 4 outbreak(s). Leading pathogen: Bacillus cereus / Cereulide.",
     "pdf_url": "https://fsis.advfood.tech/marketing/2026-M01-marketing.pdf"
   }
 ]
