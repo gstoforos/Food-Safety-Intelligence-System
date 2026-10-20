@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-10-20T03:27:09+00:00",
+  "generated_utc": "2026-10-20T15:26:55+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -2883,8 +2883,8 @@
      "channel": "proportion",
      "observed": 10,
      "baseline_mean": 1.57,
-     "effect": 2.33,
-     "p_value": 0.00535,
+     "effect": 2.29,
+     "p_value": 0.006071,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "RappelConso (FR)"
@@ -2893,9 +2893,9 @@
      "label": "Tier 1 · Europe",
      "channel": "count-only",
      "observed": 14,
-     "baseline_mean": 3.71,
-     "effect": 3.77,
-     "p_value": 0.079306,
+     "baseline_mean": 3.57,
+     "effect": 3.92,
+     "p_value": 0.06622,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RappelConso (FR)"
@@ -3938,7 +3938,7 @@
    },
    {
     "week": "2026-01-19/2026-01-25",
-    "total": 16
+    "total": 15
    },
    {
     "week": "2026-01-26/2026-02-01",
