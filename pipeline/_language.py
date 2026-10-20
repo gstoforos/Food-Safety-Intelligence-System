@@ -263,13 +263,32 @@ _ENGLISH_PRODUCT_WORDS = frozenset("""
 # Food nouns and adjectives that appear in French product designations and
 # never in English ones. Words shared with English (sauce, filet, crème
 # in "crème brûlée"…) are left out on purpose.
+#
+# THE PLURALS WERE MISSING (audit 2026-10-20). "haché" and "hachée" were
+# here from the start; "hachés" and "hachées" were not, and "steaks hachés"
+# is the single commonest meat designation RappelConso publishes. Three rows
+# went out untranslated on 2026-10-19 — fiches 23864, 23865, 23866, every one
+# of them a Tier-1 E. coli O157:H7 ground-beef recall — because the string
+# "steaks hachés 12% 2x125g charolais" carries no French FUNCTION word at all
+# (it is a name, two numbers and a breed), so the two-hit detector never
+# fired and the gates never stamped it. A singular in a word list is half a
+# word list.
+#
+# MEASURED BEFORE ADDING, on all 2104 published rows: these ten words hit
+# exactly the three defective rows and nothing else. The wider set that was
+# tried first — saucisson, rillettes, boudin, merguez, chipolatas — hit FIVE
+# good rows whose English description legitimately keeps the French name
+# ("Antillean black pudding (boudin noir) BN 80g", "Superior goose rillettes
+# 1 kg Rustadou", "Saucisson Sec 200 g — Tesco-exclusive"), which is the
+# false-positive mode this module's header warns about. They are left out.
 _FRENCH_FOOD_WORDS = frozenset("""
     saucisse saucisses poulet crevette crevettes bouchée bouchées fermier
-    fermière haché hachée façon facon boeuf bœuf porc jambon fromage
-    fromages lait viande poisson saumon légumes pâtes salade oeufs œufs
-    référence canard dinde agneau veau fumé fumée persil épinards miel
+    fermière haché hachée hachés hachées façon facon boeuf bœuf porc jambon
+    fromage fromages lait viande poisson saumon légumes pâtes salade oeufs
+    œufs référence canard dinde agneau veau fumé fumée persil épinards miel
     farine chèvre brebis tarte gâteau beurre huile concombre moules
-    huîtres crustacés
+    huîtres crustacés volaille volailles cervelas caissette tranché
+    tranchée persillé persillée
 """.split())
 
 

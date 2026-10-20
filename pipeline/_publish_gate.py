@@ -1195,6 +1195,77 @@ def _name_field_blockers_2026_10_19(row: Dict[str, Any]) -> List[str]:
                     f"authority's own name ({name!r}) — the page <title> or "
                     "its site-name suffix was parsed as the product")
                 break
+    out.extend(_product_is_an_identifier_blockers_2026_10_20(row))
+    return out
+
+
+#: A word: three or more consecutive letters, in any script. Three and not
+#: two, because a reference code is letters-and-digits in short runs
+#: ("MR10AE", "CR31AD", "PR06") while every food name on the register has at
+#: least one three-letter word in it — "x6", "2kg" and "s/ATM" do not.
+#:
+#: The second alternative is there because three is the wrong floor for a
+#: logographic script: Japanese and Chinese write whole foods in two
+#: characters (豆腐 tofu, 牛乳 milk, 김치 kimchi) and a two-character product
+#: name is a word, not a code. No row in the register needs it today — every
+#: CAA (JP), SAMR and MFDS product name on the corpus is longer — so it is a
+#: floor for the next one, not a workaround for an existing row.
+_A_WORD = re.compile(
+    r"[^\W\d_]{3,}"
+    r"|[぀-ヿ㐀-䶿一-鿿가-힯]{2,}",
+    re.UNICODE)
+
+
+def _product_is_an_identifier_blockers_2026_10_20(
+        row: Dict[str, Any]) -> List[str]:
+    """Product must name the food, not identify the carton.
+
+    THE HALF-BUILT RULE. _has_no_letter() above was written on 2026-10-19 for
+    Company and Brand — "a firm name is not a number" — and was not applied
+    to Product. The very next morning the register published, Tier 1:
+
+        Date     2026-10-19          Source   RappelConso (FR)
+        Company  'Filet de Poulet'   Product  '484565'
+        URL      rappel.conso.gouv.fr/fiche-rappel/23842/interne
+
+    '484565' is the fiche's "Modèles ou références" value. Rule 6g already
+    asks whether Product holds a letter OR a digit, so a bare reference
+    number satisfies it; nothing asked for a letter. A subscriber reading
+    "484565" cannot tell that the recall is marinated chicken.
+
+    THE SECOND SHAPE is the same field holding several codes, which defeats
+    both the no-letter test and the bare-code regex in
+    tests/test_product_is_not_a_bare_code.py (its pattern anchors on ONE
+    code and a comma is not in its tail class):
+
+        Product 'mr10ae, mr41ck'         fiche 23850 (PUBLISHED, Tier 1)
+        Product 'cr31ad, cr30ac, ...'    fiche 23849 (Pending, 22 codes)
+        Product 'x6 330g'                fiche 22635 (PUBLISHED 2026-06-26)
+
+    So the test is "does Product contain a word", not "does it contain a
+    letter" — the letter test alone still admits 'mr10ae, mr41ck'.
+
+    MEASURED BEFORE WIRING IT IN, over the whole workbook: the word test
+    refuses 3 of 2104 published rows (the three above, all repaired in the
+    same upload), 1 of 27 Pending rows (fiche 23849, already refused on
+    'Company is empty'), and 6 rows that are already in the archives. Zero
+    good rows. Non-Latin scripts pass: ``[^\\W\\d_]`` is Unicode-aware, so a
+    Japanese, Greek or Cyrillic product name has words like any other.
+    """
+    out: List[str] = []
+    product = str(row.get("Product") or "").strip()
+    if not product or product.lower() in _NAME_SENTINELS:
+        return out
+    if _has_no_letter(product):
+        out.append(
+            f"Product {product[:60]!r} contains no letter — a product name "
+            "is not a reference number; the scraper wrote the notice's "
+            "model/reference field into Product instead of the food")
+    elif not _A_WORD.search(product):
+        out.append(
+            f"Product {product[:60]!r} is identifier codes only — it has no "
+            "word in it, so it cannot tell a reader which food to avoid; "
+            "read the food name off the notice's own heading")
     return out
 
 
