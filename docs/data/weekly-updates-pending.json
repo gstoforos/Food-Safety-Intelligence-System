@@ -1,24 +1,8 @@
 {
-  "generated_utc": "2026-10-18T07:03:31.059661+00:00",
+  "generated_utc": "2026-10-21T06:26:12.759069+00:00",
   "checked_back_weeks": 4,
-  "anchor_week_end": "2026-10-11",
-  "anchor_friday": "2026-10-11",
-  "updated_weeks": [
-    {
-      "year": 2026,
-      "week_num": 41,
-      "filename": "2026-W41.html",
-      "report_url": "https://fsis.advfood.tech/2026-W41.html",
-      "week_start": "2026-10-05",
-      "week_end": "2026-10-11",
-      "old_total": 86,
-      "new_total": 89,
-      "delta": 3,
-      "note": "old_total kept at 86 from the unsent 2026-10-16/17 manifests, so the update email covers every change since the week-41 email: +3 recalls (FSIS Grace, RappelConso 23741, SZPI sildenafil). The published page read 90 on 2026-10-18 only because a removed CFS (HK) duplicate had been resurrected; removed again."
-    }
-  ],
-  "primary_cta": {
-    "label": "VIEW REFRESHED REPORT",
-    "url": "https://fsis.advfood.tech/2026-W41.html"
-  }
+  "anchor_week_end": "2026-10-18",
+  "anchor_friday": "2026-10-18",
+  "updated_weeks": [],
+  "primary_cta": null
 }

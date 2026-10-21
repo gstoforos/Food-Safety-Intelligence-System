@@ -2,66 +2,66 @@
  {
   "Date": "2026-10-20",
   "Source": "RappelConso (FR)",
-  "Company": "Moules de Bouchot STG",
+  "Company": "EARL Batard-Denoual",
   "Brand": "Moules de Bouchot STG",
-  "Product": "sacs de 10 kgs trad, 5 kg trad,15 kg trad",
+  "Product": "Bouchot mussels, STG (moules de bouchot STG, Mytilus edulis) — trad sacks of 5 kg, 10 kg and 15 kg; lot 14102026",
   "Pathogen": "Escherichia coli (generic)",
-  "Reason": "Resultat analyse non conforme",
+  "Reason": "Non-compliant analysis result. Consumer risk: Escherichia coli.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23874/interne",
-  "Notes": "les viviers d'armor cancale, mytilimer ,togie distribution, [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2]"
+  "Notes": "les viviers d'armor cancale, mytilimer ,togie distribution, [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [tier-guard: Escherichia coli (generic) is always Tier 1; forced from Tier 2] [original product: sacs de 10 kgs trad, 5 kg trad,15 kg trad] [original company: Moules de Bouchot STG] [original Reason (fr): \"RESULTAT ANALYSE NON CONFORME\"] [morning fix 2026-10-21] Fiche 23874 read on the fiche 2026-10-21: Nom du produit 'MOULES DE BOUCHOT STG mytilus edulis', Marque 'MOULES DE BOUCHOT STG', Origine de la fiche 'EARL BATARD-DENOUAL EARL BATARD DENOUAL', Risques encourus 'Escherichia coli', Motif du rappel 'RESULTAT ANALYSE NON CONFORME', lot '14102026' (no GTIN on the fiche), zone de distribution 'France entière'. Company held the fiche's Marque; the fiche names a firm under Origine, so Company takes it and the Marque stays in Brand. Published Product held the pack formats, which name no product. The 5/10/15 kg 'trad' formats are the published row's own values and are kept."
  },
  {
   "Date": "2026-10-20",
   "Source": "RappelConso (FR)",
-  "Company": "Maison de la Bottarga",
+  "Company": "Poiscaille",
   "Brand": "Maison de la Bottarga",
-  "Product": "charcuterie de mer - saucisse de thon",
+  "Product": "Seafood charcuterie — tuna sausage (charcuterie de mer - saucisse de thon), Maison de la Bottarga — lot 250, use-by 22/10/2026, GTIN 2274371000008",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Contamination à l'histamine",
+  "Reason": "Histamine contamination. Consumer risk: other chemical contaminants.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23873/interne",
-  "Notes": "poiscaille [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "poiscaille [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [original product: charcuterie de mer - saucisse de thon] [original company: Maison de la Bottarga] [original Reason (fr): \"Contamination à l'histamine\"] [morning fix 2026-10-21] Fiche 23873 read on the fiche 2026-10-21: Nom du produit 'CHARCUTERIE DE MER - SAUCISSE DE THON', Marque 'Maison de la bottarga', Origine de la fiche 'POISCAILLE Poiscaille', Risques encourus 'Autres contaminants chimiques', Motif du rappel 'Contamination à l'histamine', lot '250', DLC '22/10/2026', GTIN '2274371000008', zone de distribution 'France entière'. A SEPARATE fiche from 23872, which recalls the same product on lot 215 — two fiches, two lots, not a duplicate."
  },
  {
   "Date": "2026-10-20",
   "Source": "RappelConso (FR)",
-  "Company": "Maison de la Bottarga",
+  "Company": "Poiscaille",
   "Brand": "Maison de la Bottarga",
-  "Product": "charcuterie de mer - saucisse de thon",
+  "Product": "Seafood charcuterie — tuna sausage (charcuterie de mer - saucisse de thon), Maison de la Bottarga — lot 215, use-by 06/10/2026",
   "Pathogen": "Histamine / scombrotoxin",
-  "Reason": "Contamination du produit à l'histamine",
+  "Reason": "Histamine contamination of the product. Consumer risk: other chemical contaminants; the notice describes a risk of histamine poisoning.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23872/interne",
-  "Notes": "poiscaille [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [needs cleanup: Product not in English]"
+  "Notes": "poiscaille [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [original product: charcuterie de mer - saucisse de thon] [original company: Maison de la Bottarga] [original Reason (fr): \"Contamination du produit à l'histamine\"] [morning fix 2026-10-21] Fiche 23872 read on the fiche 2026-10-21: Nom du produit 'CHARCUTERIE DE MER - SAUCISSE DE THON', Marque 'Maison de la bottarga', Origine de la fiche 'Poiscaille', Risques encourus 'Autres contaminants chimiques' with the page describing \"Risque d'intoxication à l'histamine\", Motif du rappel 'contamination du produit à l'histamine', lot '215', DLC '06/10/2026' (no GTIN on the fiche), zone de distribution 'France entière'. A SEPARATE fiche from 23873 (lot 250)."
  },
  {
   "Date": "2026-10-20",
   "Source": "RappelConso (FR)",
   "Company": "E.Leclerc Arès",
   "Brand": "Unbranded",
-  "Product": "boudin à la viande",
+  "Product": "Black pudding, meat (boudin viande), unbranded — lot 627814, GTIN 3505870000343",
   "Pathogen": "Listeria monocytogenes",
-  "Reason": "Detection of Listeria monocytogènes suite à une analyse produit",
+  "Reason": "Listeria monocytogenes detected in a product analysis. Consumer risk: Listeria monocytogenes, the agent of listeriosis.",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23876/interne",
-  "Notes": "e.leclerc arès"
+  "Notes": "e.leclerc arès [original product: boudin à la viande] [original Reason (fr): \"Detection of Listeria monocytogènes suite à une analyse produit\"] [morning fix 2026-10-21] Fiche 23876 read on the fiche 2026-10-21: Nom du produit 'Boudin Viande', Marque 'Sans Marque', Origine de la fiche 'ARES DISTRIBUTION LECLERC' distributed by 'E.Leclerc Arès', Risques encourus 'Listeria monocytogenes (agent responsable de la listériose)', Motif du rappel 'Détection de Listeria monocytogènes suite à une analyse produit', lot '627814', GTIN '3505870000343', zone de distribution 'GIRONDE (33)'. Company left as published: 'E.Leclerc Arès' is the distributor the fiche prints. Brand stays 'Unbranded' — the fiche's Marque is 'Sans Marque'."
  },
  {
   "Date": "2026-10-20",
@@ -1198,22 +1198,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-centra-inspired-by-supervalu-smoked-salm",
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [enriched 2026-10-17 from the authority page: FSAI food alert 2026.66 read this pass — \"Wednesday, 14 October 2026\", \"Category 1: requiring action\", \"due to the presence of Listeria monocytogenes\", country of origin Ireland, five products with the use-by dates above, no batch codes listed and no manufacturer named. The row had sat in Pending at 'pending_enrichment' with Date, Pathogen and Reason empty and the alert title copied into Company, Product and Reason alike. Verified by URL against all five sheets before enriching: this is a DIFFERENT alert from the SuperValu Smoked Salmon 40 g/150 g recall published at 2026-10-11 and from Skellig Bay at 2026-10-12. Tier is recomputed by the pipeline, never hand-set.] [promote 2026-10-17: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Date is empty; Company is empty (Brand set) — the publish gate requires the recal'; that defect is repaired and the row now passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
- },
- {
-  "Date": "2026-10-14",
-  "Source": "CFIA",
-  "Company": "Health and safety",
-  "Brand": "Health and safety",
-  "Product": "and alerts",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Canada",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://recalls-rappels.canada.ca/en/feed/cfia-alerts-recalls",
-  "Notes": "Title: Health and safety recalls and alerts\nHealth and safety recalls and alerts https://recalls-rappels.canada.ca/en Canadian Food Inspection Agency en  Various brands of organic cheeses recalled due to Listeria monocytogenes https://recalls-rappels.canada.ca/en/alert-recall/various-brands-organic-  [via Tavily gap-finder, deterministic extract] [confirm-agent 2026-10-21: pending_gap → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
  },
  {
   "Date": "2026-10-13",
@@ -33902,5 +33886,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-19",
+  "Source": "RappelConso (FR)",
+  "Company": "Coopérative U Enseigne",
+  "Brand": "U",
+  "Product": "Spanish lomo, 20 slices, U, 100 g (LOMO ESPAGNOL 20 tranches U 100g) — lot 78103, GTIN 3256228656957",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Microbiological non-compliance. Consumer risk: Listeria monocytogenes, the agent of listeriosis.",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23846/Interne",
+  "Notes": "[morning fix 2026-10-21] Fiche 23846 read on the fiche 2026-10-21, published 19/10/2026 and in no sheet of the register before this pass (searched by fiche number and by GTIN across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected). Nom du produit 'LOMO ESPAGNOL 20 tranches U 100g', Marque 'U', Risques encourus 'Listeria monocytogenes (agent responsable de la listériose)', Motif du rappel 'NON CONFORMITE MICROBIOLOGIQUE', lot '78103', GTIN '3256228656957', zone de distribution 'France entière', distributors 'Magasins U'. The fiche shows NO 'nom de la société' field; Company is the firm named under Origine de la fiche, 'COOPERATIVE U ENSEIGNE U ENSEIGNE'. [original product: LOMO ESPAGNOL 20 tranches U 100g] [original company: COOPERATIVE U ENSEIGNE] [original Reason (fr): \"NON CONFORMITE MICROBIOLOGIQUE\"] [promote 2026-10-21: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
