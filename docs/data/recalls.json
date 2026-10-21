@@ -80,6 +80,22 @@
   "Notes": "Discovered via news: produktwarnung.eu [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [confirm-agent 2026-10-21: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
  },
  {
+  "Date": "2026-10-20",
+  "Source": "SZPI (CZ)",
+  "Company": "Makro Cash & Carry ČR s.r.o.",
+  "Brand": "",
+  "Product": "Chicken thigh 180 g 5 kg",
+  "Pathogen": "Salmonella",
+  "Reason": "Detected Salmonella spp. bacteria",
+  "Class": "Recall",
+  "Country": "Czechia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.szpi.gov.cz/clanek/prodejce-makro-informuje-o-stazeni-potraviny.aspx",
+  "Notes": "Discovered via news: szpi.gov.cz"
+ },
+ {
   "Date": "2026-10-19",
   "Source": "RappelConso (FR)",
   "Company": "Un Groin de Paradis",
