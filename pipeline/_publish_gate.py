@@ -159,6 +159,68 @@ _LANDING_PATHS = frozenset({
 # and the gate did not refuse it, so the brake was not there. It is now.
 _INDEX_PATH_PREFIX = re.compile(r"^/(?:category|tag|author|archive)(?:/|$)")
 
+# A REGULATOR'S OWN FEED IS NOT A PER-RECALL NOTICE (2026-10-21).
+#
+# THE ROW THAT FOUND THIS. Recalls, DateAdded 2026-10-21, Source "CFIA",
+# Date 2026-10-14, Tier 1, Listeria monocytogenes:
+#
+#   Company  "Health and safety"
+#   Brand    "Health and safety"
+#   Product  "and alerts"
+#   URL      https://recalls-rappels.canada.ca/en/feed/cfia-alerts-recalls
+#
+# The three field values are the CFIA feed's own <channel><title>, "Health
+# and safety recalls and alerts", cut at the word "recalls" — the Tavily
+# gap-finder's deterministic extractor read the feed document as if it were
+# one notice. The recall the feed was carrying is real and was ALREADY in
+# the register on its own URL (/en/alert-recall/various-brands-organic-
+# cheeses-recalled-due-listeria-monocytogenes, Fromagerie L'Ancêtre Inc.),
+# so this row published a second, nameless copy of a recall the dashboard
+# already had, pointing subscribers at an XML document.
+#
+# Nothing refused it. The feed path is not in _LANDING_PATHS, it is not a
+# CMS index prefix, the host IS the regulator's own host (rule 6b), the
+# path is long and slug-shaped, and the confirm agent's own note records
+# "deterministic checks passed; reviewer 2 did NOT review this row".
+#
+# WHY THIS IS SCOPED TO REGULATOR HOSTS. R3 is "the regulator's OWN
+# per-recall URL". A feed on the regulator's own host is the one shape that
+# satisfies every host rule and still names no recall. News-mirror feed
+# URLs are a DIFFERENT rule's business (pipeline/_news_mirror_blocklist.py,
+# and rule 6b's host check), and one published row cites a news feed under
+# a deliberate operator exception — NFSA (EG), 2026-10-11, Notes
+# "News-authority source: see.news (no official NFSA per-recall portal)".
+# Widening this rule to every host would refuse that row as a side effect
+# of fixing a CFIA extraction bug, which is not a decision this gate gets
+# to make. So: regulator host + feed path.
+#
+# DELIBERATELY ANCHORED. "feed" and "rss" appear inside perfectly good
+# slugs ("...-animal-feed-recalled-due-to-salmonella"), so the path is only
+# a feed when the FIRST segment — after an optional two-letter language
+# segment, since CFIA serves /en/feed/... and /fr/fil-de-nouvelles/... — is
+# a feed segment, or when the path ends in a feed FILE name. Measured over
+# all five sheets of the register on 2026-10-21: 208 feed-shaped URLs, of
+# which exactly one is on a regulator host — the row above, and its twin in
+# the Sunday review slice.
+_FEED_LANG_SEGMENT = re.compile(r"^/(?:[a-z]{2}|[a-z]{2}-[a-z]{2})(?=/)")
+_FEED_PATH = re.compile(
+    r"^/(?:feed|feeds|rss|rss-feeds|rssfeeds|atom|fil-de-nouvelles)(?:/|$)")
+_FEED_FILE = re.compile(
+    r"(?:^|/)(?:rss|atom|feed|index)\.(?:xml|rss)$|\.rss$")
+
+
+def url_path_is_a_feed(path: str) -> bool:
+    """True when a URL path is a syndication feed, not a notice.
+
+    ``path`` is the lower-cased path with its trailing slash removed, as
+    ``publish_blockers`` computes it.
+    """
+    if not path:
+        return False
+    bare = _FEED_LANG_SEGMENT.sub("", path) or path
+    return bool(_FEED_PATH.match(path) or _FEED_PATH.match(bare)
+                or _FEED_FILE.search(path))
+
 # Audit 2026-08-02: '0' added. RappelConso fiche 23067 reached Recalls with
 # Company and Brand both holding the literal string "0" — an extractor writing
 # a falsy sentinel into a text field, not a company called zero. Every field
@@ -1357,6 +1419,22 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
                 problems.append(
                     f"URL is a regulator landing page, not a recall notice "
                     f"({url[:80]!r})")
+
+            # 6a-bis. A REGULATOR'S OWN FEED IS NOT A NOTICE. See
+            # url_path_is_a_feed above for the row that found this.
+            if url_path_is_a_feed(path):
+                try:
+                    from pipeline.regulatory_domains import is_regulator_url
+                    _on_regulator = is_regulator_url(url)
+                except Exception:                            # noqa: BLE001
+                    _on_regulator = False
+                if _on_regulator:
+                    problems.append(
+                        f"URL is the regulator's syndication feed, not a "
+                        f"per-recall notice ({url[:80]!r}) — a feed is a "
+                        f"document listing many recalls, so a row citing it "
+                        f"names no recall and its fields are the feed's own "
+                        f"channel title")
 
             # 6b. THE URL MUST BE ON THE REGULATOR'S OWN HOST.
             #

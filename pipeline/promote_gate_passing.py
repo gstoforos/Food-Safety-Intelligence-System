@@ -333,12 +333,34 @@ def main() -> int:
         # here, so stamp for the Morning Fix translation pass — never block.
         try:
             from pipeline._language import (has_non_latin_script,
+                                            looks_non_english,
                                             product_needs_english)
             if product_needs_english(r.get("Product", "")):
                 r["Notes"] += " [needs cleanup: Product not in English]"
             if any(has_non_latin_script(r.get(f, ""))
                    for f in ("Company", "Brand")):
                 r["Notes"] += " [needs cleanup: Company/Brand not in English]"
+            # REASON WAS MISSING FROM THIS LIST (2026-10-21).
+            #
+            # pipeline/recall_confirm_agent.py has stamped a non-English
+            # Reason since it was written; this function, which promotes
+            # the rows the confirm agent never sees, stamped only Product
+            # and the firm fields. Three of the four French rows published
+            # on 2026-10-20/21 were promoted HERE —
+            #   fiche 23874  "RESULTAT ANALYSE NON CONFORME"
+            #   fiche 23873  "Contamination à l'histamine"
+            #   fiche 23872  "Contamination du produit à l'histamine"
+            # — and the first and third hold tests/test_language_policy.py
+            # RED on main. Two of the three got the Product stamp, so the
+            # morning pass saw the row but was told nothing about Reason.
+            #
+            # Same contract as the siblings: stamp, never block, never
+            # machine-translate. merge_master._write_sheet now stamps the
+            # same thing at the choke point, which covers the paths that
+            # bypass this function; both are idempotent, so a row promoted
+            # here and rewritten there carries one stamp, not two.
+            if looks_non_english(str(r.get("Reason") or "")):
+                r["Notes"] += " [needs cleanup: Reason not in English]"
         except Exception:                                    # noqa: BLE001
             pass
         stamped.append(r)

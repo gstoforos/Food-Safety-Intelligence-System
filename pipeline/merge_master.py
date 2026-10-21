@@ -3421,6 +3421,90 @@ def _write_sheet(wb: Workbook,
                     _row[_col] = _en
                 elif _col == "Reason" and _looks_non_english(_v):
                     _still_foreign += 1
+                    # ── A LOG LINE IS NOT A HAND-OFF (2026-10-21) ────────
+                    #
+                    # This branch has counted non-English Reasons since
+                    # 2026-08-02 and done nothing else with them. The
+                    # warning below goes to a GitHub Actions log that
+                    # nobody reads, so the row reaches Recalls, the
+                    # dashboard and the subscriber mail with NOTHING on it
+                    # to say it needs translating.
+                    #
+                    # The morning fix pass reads what is STAMPED
+                    # ("[needs cleanup: …]", operator 2026-10-01). Two
+                    # writers stamp: pipeline/recall_confirm_agent.py and
+                    # pipeline/promote_gate_passing.py, and between them
+                    # they cover Product and Company/Brand plus (the
+                    # confirm agent only) Reason. This writer — the choke
+                    # point every path goes through — stamped nothing.
+                    #
+                    # MEASURED, main at 0ae22b9c on 2026-10-21. Four
+                    # RappelConso rows published 2026-10-20/21 with French
+                    # text, three of them with a French Reason:
+                    #   fiche 23874  "RESULTAT ANALYSE NON CONFORME"
+                    #   fiche 23872  "Contamination du produit à l'histamine"
+                    #   fiche 23876  "Détection de Listeria monocytogènes
+                    #                 suite à une analyse produit"
+                    # NOT ONE carried a Reason stamp, and fiche 23876 came
+                    # through the hourly Pending->Recalls merge with no
+                    # provenance note of any kind. All three hold
+                    # tests/test_language_policy.py,
+                    # tests/test_reason_is_not_wholly_foreign.py and
+                    # tests/test_product_and_firm_names_are_english.py RED
+                    # on main — CI finds them AFTER publication, which is
+                    # the wrong end of the pipeline.
+                    #
+                    # This STAMPS, it does not block and it does not
+                    # translate: there is no model here, the verified
+                    # table in _language.py is a deliberate human act, and
+                    # a gate that held the hourly merge for a French motif
+                    # would stop the register. The stamp is idempotent.
+                    if "Notes" in schema:
+                        _stamp = "[needs cleanup: Reason not in English]"
+                        _notes = str(_row.get("Notes") or "")
+                        if _stamp not in _notes:
+                            _row["Notes"] = (_notes.strip() + " "
+                                             + _stamp).strip()
+
+        # Product carries the same exposure and the same two-writer gap:
+        # product_needs_english() is called in promote_gate_passing and in
+        # the confirm agent, never here, so a Product that arrives by any
+        # other path is unstamped. Fiche 23876's "boudin à la viande" is
+        # that case — product_needs_english() returns True for it and no
+        # stamp was ever applied, because the row did not pass either
+        # stamping writer. Scoped to Product only; Company and Brand keep
+        # the narrower non-Latin-script test the other two writers use,
+        # since a Latin-script firm name is exempt by the operator rule.
+        if "Product" in schema and "Notes" in schema:
+            try:
+                from pipeline._language import (  # noqa: WPS433
+                    product_needs_english as _product_needs_english,
+                    has_non_latin_script as _has_non_latin_script,
+                )
+                for _row in rows:
+                    for _field, _stamp in (
+                            ("Product",
+                             "[needs cleanup: Product not in English]"),
+                            ("__firm__",
+                             "[needs cleanup: Company/Brand not in English]")):
+                        if _field == "Product":
+                            _hit = _product_needs_english(
+                                str(_row.get("Product") or ""))
+                        else:
+                            _hit = any(
+                                _has_non_latin_script(str(_row.get(_f) or ""))
+                                for _f in ("Company", "Brand")
+                                if _f in schema)
+                        if not _hit:
+                            continue
+                        _notes = str(_row.get("Notes") or "")
+                        if _stamp in _notes:
+                            continue
+                        _row["Notes"] = (_notes.strip() + " " + _stamp).strip()
+            except Exception as exc:                         # noqa: BLE001
+                log.warning("language stamp skipped at writer [%s]: %s: %s",
+                            sheet_name, type(exc).__name__, str(exc)[:80])
+
         if _still_foreign:
             log.warning(
                 "%d row(s) still carry a non-English Reason after the writer "
