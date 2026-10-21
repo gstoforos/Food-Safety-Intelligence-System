@@ -464,6 +464,22 @@
   "Notes": "[morning fix 2026-10-21] Fiche 23846 read on the fiche 2026-10-21, published 19/10/2026 and in no sheet of the register before this pass (searched by fiche number and by GTIN across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected). Nom du produit 'LOMO ESPAGNOL 20 tranches U 100g', Marque 'U', Risques encourus 'Listeria monocytogenes (agent responsable de la listériose)', Motif du rappel 'NON CONFORMITE MICROBIOLOGIQUE', lot '78103', GTIN '3256228656957', zone de distribution 'France entière', distributors 'Magasins U'. The fiche shows NO 'nom de la société' field; Company is the firm named under Origine de la fiche, 'COOPERATIVE U ENSEIGNE U ENSEIGNE'. [original product: LOMO ESPAGNOL 20 tranches U 100g] [original company: COOPERATIVE U ENSEIGNE] [original Reason (fr): \"NON CONFORMITE MICROBIOLOGIQUE\"] [promote 2026-10-21: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-19",
+  "Source": "GIS (PL)",
+  "Company": "Bell Polska Sp. z o.o.",
+  "Brand": "",
+  "Product": "Salami",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii salami",
+  "Class": "Recall",
+  "Country": "Poland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-salami",
+  "Notes": "GIS listing (deterministic parse); producer, lot and best-before are on the detail page [safety-hold: reviewed but not approved this run; not promoted] [confirm-agent hold: 2026-10-21: no recalling firm on the row (Brand '—'); not published and not rejected — reviewer 2 to read the firm from the notice] [review-agent 2026-10-21: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [confirm-agent 2026-10-21: pending_gap_v3 → pending; deterministic checks passed]"
+ },
+ {
   "Date": "2026-10-17",
   "Source": "FDA",
   "Company": "Lidl US",
