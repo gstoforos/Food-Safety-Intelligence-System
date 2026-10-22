@@ -130,6 +130,43 @@ def in_pathogen_scope(rec: Dict[str, Any]) -> bool:
     return any(kw in blob for kw in PATHOGEN_KEYWORDS)
 
 
+#: Product candidates in the order the production scraper tries them. This
+#: module read `noms_des_modeles_ou_references` and fell back to the
+#: subcategory, never to the fiche title.
+_PRODUCT_FIELDS = (
+    "noms_des_modeles_ou_references",
+    "modeles_ou_references",
+    "identification_produits",
+    "libelle",
+    "denomination_du_produit",
+    "sous_categorie_de_produit",
+)
+
+
+def _product_from(rec: Dict[str, Any]) -> str:
+    """The first candidate that names a FOOD, not just a carton.
+
+    SWEPT 2026-10-22, same defect as scrapers/europe_eu/rappelconso.py.
+    `modeles_ou_references` often holds the packaging/lot line instead of a
+    name — fiche 23905 put "Sachet 1Kg: C120261010A106 - …" there while the
+    fiche's own heading said "SUCRE ROUX PURE CANNE" — and this function
+    accepted it because it is not empty. A lot line is a worse product name
+    than the title, so an identifier-only candidate is passed over and only
+    taken as a last resort, never replaced by something invented.
+    """
+    from scrapers._product_text import is_identifier_only
+
+    fallback = ""
+    for field in _PRODUCT_FIELDS:
+        value = str(rec.get(field) or "").strip()
+        if not value:
+            continue
+        if not is_identifier_only(value):
+            return value
+        fallback = fallback or value
+    return fallback
+
+
 def to_recall(rec: Dict[str, Any]) -> Recall:
     """Convert a RappelConso API row to a Recall — same shape the regular
     scraper produces, so downstream code can't tell the difference."""
@@ -156,10 +193,7 @@ def to_recall(rec: Dict[str, Any]) -> Recall:
         Source="RappelConso (FR)",
         Company=rec.get("nom_de_la_societe_responsable_de_la_commercialisation", "") or "",
         Brand=rec.get("nom_de_la_marque_du_produit", "—") or "—",
-        Product=(
-            rec.get("noms_des_modeles_ou_references", "")
-            or rec.get("sous_categorie_de_produit", "")
-        )[:300],
+        Product=_product_from(rec)[:300],
         Pathogen=pathogen,
         Reason=motif,
         Class=rec.get("nature_juridique_du_rappel") or "Volontaire",
