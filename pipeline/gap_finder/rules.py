@@ -550,6 +550,30 @@ ALLERGENS = {
 
 # REJECT — synthetic / environmental chemicals & additives
 SYNTHETIC_CHEMICALS = {
+    # ── INORGANIC BROMINE: BROMIDE AND BROMATE (added 2026-10-22) ───────
+    #
+    # THE ROW THAT FOUND THIS. BLV (CH) 2026-10-20, sitting in Pending with
+    # the regulator's own headline in its Notes — "Asia Store ruft das
+    # Produkt «Sator geschält» aufgrund eines zu hohen Bromidgehalts
+    # zurück" — and reviewer 1's refusal "No specific hazard or pathogen
+    # found on the official recall page". `classify()` returned
+    # category='unknown' for every spelling of the hazard, and so did
+    # pipeline/_publish_gate.classify_hazard, so no gate in the pipeline
+    # could name it. Excess bromide in dried Asian vegetables comes from
+    # methyl-bromide fumigation and is a recurring EU/CH finding.
+    #
+    # Bromide belongs exactly where chlorate and perchlorate already sit in
+    # the publish gate's chemical class: an inorganic anion residue capped
+    # by a reference value. Bromate (potassium bromate, a flour treatment
+    # agent banned in the EU) is the same family and was also missing.
+    #
+    # NOT A BARE STEM: "bromid" alone also matches "hydrobromide", the salt
+    # form of several drugs, so these are whole words and the compound forms
+    # the German and Romance regulators print.
+    "bromide", "bromidgehalt", "bromidion", "bromide ion",
+    "bromuro", "bromure", "bromek",
+    "methyl bromide", "methylbromid", "brommethan", "bromure de methyle",
+    "bromate", "bromato", "bromian", "potassium bromate",
     # 2026-10-01: bisphenol A migration and delta-9-THC over the acute
     # reference dose (RappelConso 23655, 23592, 23594) matched nothing.
     "bisphenol", "bisphénol", "bisfenol", "bisfenolo",
@@ -849,11 +873,24 @@ OUTBREAK_CASE_PATTERN = re.compile(
 # NORMALIZATION
 # ─────────────────────────────────────────────────────────────────────────────
 
+#: FALSE FRIEND created by adding "bromide" to SYNTHETIC_CHEMICALS
+#: (2026-10-22). "hydrobromide" is the salt form of a long list of drugs —
+#: dextromethorphan hydrobromide, scopolamine hydrobromide — and it CONTAINS
+#: "bromide", so a pharmaceutical recall would classify as an in-scope
+#: synthetic chemical and be queued to Pending, where
+#: _publish_gate._non_food_drug_blockers has to throw it out again. Stripped
+#: before matching, the same treatment pipeline/_publish_gate.py gives it.
+#: A genuine bromide finding never spells it that way: the regulators print
+#: "Bromidgehalt", "bromide ion", "bromuro".
+_HYDROBROMIDE_RE = re.compile(r"\bhydro-?bromid(?:e|es|um)?\b")
+
+
 def _normalize(text: str) -> str:
     """Lowercase, strip accents, collapse whitespace. Bilingual-safe."""
     if not text:
         return ""
-    text = text.lower().strip()
+    text = _HYDROBROMIDE_RE.sub(" ", text.lower())
+    text = text.strip()
     # Strip Greek + Latin diacritics, keep base letters
     text = unicodedata.normalize("NFD", text)
     text = "".join(c for c in text if unicodedata.category(c) != "Mn")
