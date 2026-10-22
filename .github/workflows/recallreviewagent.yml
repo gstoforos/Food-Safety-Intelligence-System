@@ -778,6 +778,11 @@ jobs:
           # of record. (City Foods 015-2026 was approved on a usatoday.com link.)
           _SOURCE_DOMAINS = {
               "usda fsis": ("fsis.usda.gov",),
+              # ORDER IS LOAD-BEARING: the loop takes the FIRST key that matches, and
+              # "thai fda (th)" matches the word "fda" too. Measured 2026-10-22 — with
+              # "thai fda" listed after "fda", a Thai FDA notice on fda.moph.go.th was
+              # still refused as "expected fda.gov". It goes above.
+              "thai fda": ("fda.moph.go.th",),
               "fda": ("fda.gov", "accessdata.fda.gov"),
               "cdc": ("cdc.gov",),
               "cfia": ("recalls-rappels.canada.ca", "inspection.canada.ca"),
@@ -801,6 +806,43 @@ jobs:
               "ncc": ("thencc.org.za",),
               "livsmedelsverket": ("livsmedelsverket.se",),
               "salute": ("salute.gov.it",),
+              # ── FOUR REGULATORS THIS TABLE SENT TO THE WRONG HOST (2026-10-22) ──
+              #
+              # The loop below matched a key as a bare SUBSTRING of the Source, and
+              # "NAFDAC (NG)" contains "fda". So every NAFDAC row was asked to be on
+              # fda.gov and refused — the archive records it verbatim, Weekly_Rejected
+              # idx540, the Jawa International amoxicillin alert of 2026-10-21:
+              #
+              #     "URL domain does not match Source 'NAFDAC (NG)' (expected fda.gov)"
+              #
+              # nafdac.gov.ng IS NAFDAC's own domain. MEASURED over every Source
+              # string in the live workbook, four regulators are refused on their own
+              # URLs for the same reason, permanently:
+              #
+              #     NAFDAC (NG)    "fda" in "nafdac (ng)"   -> demanded fda.gov
+              #     SFDA (SA)      "fda" in "sfda (sa)"     -> demanded fda.gov
+              #     Thai FDA (TH)  "fda" in "thai fda (th)" -> demanded fda.gov
+              #     ECDC           "cdc" in "ecdc"          -> demanded cdc.gov
+              #
+              # TFDA (TW) escaped only by luck: "fda.gov" is a substring of
+              # "fda.gov.tw", so its URLs happened to satisfy the wrong rule.
+              #
+              # Corroborated by the register itself: Recalls holds no NAFDAC, SFDA or
+              # Thai FDA row at all, and ECDC's newest is 2026-06-25.
+              #
+              # Two halves to the fix: the loop now matches a key on word boundaries
+              # (see _source_host_mismatch), and these four get their own hosts, taken
+              # from the operator's pre-authorised source list. "thai fda" must come
+              # BEFORE "fda" would be reached — dicts keep insertion order and the
+              # loop takes the first match — and it does, because "fda" is above.
+              # With the boundary fix "fda" no longer matches "nafdac (ng)" or
+              # "sfda (sa)" at all, and "cdc" no longer matches "ecdc". "Thai FDA" is
+              # the one that still does — "fda" is a whole word in it — so its entry
+              # sits ABOVE "fda" near the top of this table, not here.
+              "nafdac": ("nafdac.gov.ng",),
+              "sfda": ("sfda.gov.sa",),
+              "tfda": ("fda.gov.tw",),
+              "ecdc": ("ecdc.europa.eu",),
           }
           # Aggregators / news sites that must never be a row's URL.
           _NON_OFFICIAL_DOMAINS = (
@@ -856,7 +898,12 @@ jobs:
                       return (f"URL is a news/aggregator site ({bad}), not the "
                               f"regulator's own notice")
               for key, domains in _SOURCE_DOMAINS.items():
-                  if key in src:
+                  # WORD-BOUNDARY, NOT SUBSTRING (2026-10-22). `if key in src` read
+                  # "fda" out of "nafdac (ng)" and "sfda (sa)", and "cdc" out of
+                  # "ecdc", then demanded the US FDA's or the US CDC's host of a
+                  # Nigerian, Saudi, Thai or EU notice. See the note in
+                  # _SOURCE_DOMAINS for the measurement.
+                  if re.search(r"(?<![a-z])" + re.escape(key) + r"(?![a-z])", src):
                       if not any(d in url for d in domains):
                           return (f"URL domain does not match Source {merged.get('Source')!r} "
                                   f"(expected {domains[0]})")
