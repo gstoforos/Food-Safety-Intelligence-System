@@ -397,6 +397,34 @@ HAZARD_CLASS_KEYWORDS = {
         "plomb",
         "dioxin", "pcb", "acrylamide", "perchlorate", "melamine",
         "ethylene oxide", "chlorate",
+        # ── INORGANIC BROMINE: BROMIDE AND BROMATE (audit 2026-10-22) ────
+        # "chlorate" and "perchlorate" have been here since this class was
+        # written; bromide, the third anion of the same kind and capped by
+        # the same sort of EU reference value, was never added — and neither
+        # was bromate, a flour treatment agent banned in the EU.
+        #
+        # THE ROW THAT FOUND IT. BLV (CH), 2026-10-20, Pending row 6:
+        #   Product  'Sator geschält'
+        #   Notes    FSVO title: "Asia Store ruft das Produkt «Sator
+        #            geschält» aufgrund eines zu hohen Bromidgehalts zurück"
+        #   REJECTED by reviewer 1: "No specific hazard or pathogen found on
+        #            the official recall page"
+        # The hazard is in the row's own Notes, in the regulator's own
+        # headline. classify_hazard() returned the empty set for every
+        # spelling of it, and pipeline/gap_finder/rules.classify() returned
+        # category='unknown' -> reject, so no gate in the pipeline could
+        # name it. Excess bromide in dried Asian vegetables comes from
+        # methyl-bromide fumigation and is a recurring EU/CH finding, not a
+        # one-off.
+        #
+        # NOT A BARE STEM. "bromid" alone would also match "hydrobromide",
+        # the salt form of several drugs (dextromethorphan hydrobromide), so
+        # the needles are whole words plus the compound forms the German and
+        # Romance regulators actually print.
+        "bromide", "bromide ion", "bromidgehalt", "bromidion",
+        "bromuro", "bromure", "bromid ",
+        "methyl bromide", "methylbromid", "brommethan", "bromure de methyle",
+        "bromate", "bromat", "bromato", "potassium bromate",
         # ── MINERAL OIL HYDROCARBONS (audit 2026-09-30) ──────────────────
         # The fourth instance of the pattern the 2026-09-09 audit named:
         # a hazard the whole pipeline treats as in scope, that this one
@@ -653,12 +681,23 @@ HAZARD_CLASS_KEYWORDS = {
 # fungal hazard class.
 _SHAPED_MOULD_RE = re.compile(r"\b(?:de)?mou?ld(?:ed|ing)\b")
 
+# SECOND FALSE FRIEND, 2026-10-22, created by adding "bromide" above.
+# "hydrobromide" is the salt form of a long list of drugs — dextromethorphan
+# hydrobromide, scopolamine hydrobromide — and it CONTAINS "bromide", so a
+# pharmaceutical recall would acquire a chemical-contaminant hazard class and
+# reach the contradiction rule and the curator's scope test with it. Stripped
+# first, the same way and for the same reason as the shaped-mould words above.
+# A genuine bromide finding never spells it that way: the regulators print
+# "Bromidgehalt", "bromide ion", "bromuro".
+_HYDROBROMIDE_RE = re.compile(r"\bhydro-?bromid(?:e|es|um)?\b")
+
 
 def classify_hazard(text: str) -> Set[str]:
     """Return the set of hazard classes whose keywords appear in `text`."""
     if not text:
         return set()
-    s = " " + _SHAPED_MOULD_RE.sub(" ", text.lower()) + " "
+    s = _HYDROBROMIDE_RE.sub(" ", text.lower())
+    s = " " + _SHAPED_MOULD_RE.sub(" ", s) + " "
     classes = set()
     for cls, kws in HAZARD_CLASS_KEYWORDS.items():
         for kw in kws:

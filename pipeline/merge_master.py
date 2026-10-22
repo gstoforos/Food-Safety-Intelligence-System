@@ -1286,6 +1286,75 @@ def _latest_operator_verdict(desc: str):
     return verdict.upper(), code.lower()
 
 
+#: The RejectedBy label of a HUMAN rejection, as the archives actually spell
+#: it. load_rejected_urls() builds its description as
+#: ``f"{RejectedBy}: {reason} | {Notes} | {Reason}"``, so the label is the text
+#: before the first colon; _is_terminal_rejection is also handed bare Notes
+#: elsewhere, so the stamp is matched anywhere in the string, not anchored.
+#:
+#: Spellings present in the live archives (2026-10-22): "operator review
+#: 2026-10-21", "operator-review-2026-08-28", "operator-review,unknown",
+#: "operator-review", "morning fix 2026-10-12", "morning fix pass 2026-10-17".
+_HUMAN_REJECTION_LABEL_RE = re.compile(
+    r"\boperator[\s_-]*review\b|\bmorning[\s_-]*fix\b", re.IGNORECASE)
+
+
+def _is_human_rejection(desc: str) -> bool:
+    """True when this archived rejection was written by a person.
+
+    AUDIT 2026-10-22 — MEASURED: 70 of the 123 archive rows whose RejectedBy
+    names an operator review or a morning-fix pass were classified RETRYABLE
+    by _is_terminal_rejection, because the function only ever recognised a
+    human decision through _latest_operator_verdict(), whose regex demands a
+    machine-shaped stamp:
+
+        operator review <date>: REJECTED — <code> — <prose>
+
+    An operator writing plain English never produces that shape. Both of
+    2026-10-21's operator rejections are in the 70:
+
+        Rejected idx2204  operator review 2026-10-21
+          "url cites a different recall: this row is about CARREFOUR COD FISH
+           FILLET ... and its own URL is the Ministero della Salute recall
+           form for TAHINA ARKAN — tahini."
+        Rejected idx2205  operator review 2026-10-21
+          "url cites a different recall: ... PEDIAVIT COMPLESSO B SCIROPPO,
+           lot 26040043 — a vitamin-B syrup."
+
+    Neither sentence contains a word from _TERMINAL_REJECTION_MARKERS, so
+    both verdicts were filed as transient. The cost is not theoretical: in
+    load_rejected_urls the precedence rule is "a TERMINAL verdict outranks a
+    transient one", so idx2204's human verdict LOST precedence to
+    Weekly_Rejected idx304's classifier line ("allergen: Undeclared
+    allergen — out of scope"). The row survived only because the line that
+    replaced it happens to be terminal too. Had the other archive row named a
+    repairable defect instead — "Pathogen is empty", "No matching hazard
+    category" — the first re-promotion exception in promote_approved() would
+    have tested THAT string, found a repairable defect, confirmed the row
+    passes the full publish gate (it does: promote_gate_passing reports it
+    gate-passing on this workbook) and republished a row a human had read
+    the authority page for and refused the day before.
+
+    This is the same shape this file has now found five times: a guard reads
+    a fixed vocabulary and the writers put the verdict somewhere else — Notes
+    (2026-09-01), the Reason column (2026-10-05), past a 160-character slice
+    (2026-10-04). Here the verdict is in the right column, in prose.
+
+    The function's own docstring already states the intended order of
+    authority: "a human decision outranks any keyword heuristic". It had no
+    way to see one.
+
+    DELIBERATELY NOT a blanket override:
+      * SUPERSEDED and a reversed policy are tested BEFORE this and still
+        win, so a human verdict a later pass retired stays retired;
+      * an operator APPROVED stamp still wins, via _latest_operator_verdict;
+      * a transient marker in the reason still vetoes, so an operator who
+        archived a row for a dead link ("http_error", "did not resolve")
+        does not make it permanent.
+    """
+    return bool(_HUMAN_REJECTION_LABEL_RE.search(desc or ""))
+
+
 def _is_terminal_rejection(desc: str) -> bool:
     """True when a recorded rejection is a permanent property of the item.
 
@@ -1379,6 +1448,17 @@ def _is_terminal_rejection(desc: str) -> bool:
     dl_reason = re.sub(r"(^|\|\|)\s*unknown\s*:\s*", r"\1 ", dl)
     if any(m in dl_reason for m in _NON_TERMINAL_MARKERS):
         return False
+    # ── A HUMAN REJECTION IN PROSE IS STILL A HUMAN REJECTION (2026-10-22) ──
+    # See _is_human_rejection() for the measurement (70 of 123) and the two
+    # live rows. Placed HERE, after the transient veto and before the
+    # keyword vocabulary, so every escape hatch above still wins: a
+    # SUPERSEDED or policy-reversed verdict already returned False, an
+    # operator APPROVED stamp already returned False, and an operator who
+    # archived a row for a dead link ("http_error", "did not resolve",
+    # "unreachable") is vetoed one line above. What is left is a person who
+    # read the notice, refused the row and wrote why in a sentence.
+    if _is_human_rejection(d):
+        return True
     return any(m in dl for m in _TERMINAL_REJECTION_MARKERS)
 
 

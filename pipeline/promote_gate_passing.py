@@ -275,6 +275,68 @@ def supersede_every_published_url(xlsx_path) -> int:
     return supersede_archived_copies(xlsx_path, published)
 
 
+# ── LANGUAGE CLEANUP STAMPS ───────────────────────────────────────────────
+#
+# Lifted out of main() on 2026-10-22 so that the idempotence this file
+# CLAIMS can be tested. It was a comment, not a property:
+#
+#     "both are idempotent, so a row promoted here and rewritten there
+#      carries one stamp, not two"            — the note in main(), 2026-10-21
+#
+# merge_master._write_sheet is idempotent (`if _stamp not in _notes`). The
+# three stamping lines here were bare `r["Notes"] += " [needs cleanup: …]"`,
+# so a row that passes through this function more than once — promoted,
+# rewritten by the hourly Pending->Recalls merge, promoted again after an
+# offline enrichment — collected a stamp on each pass.
+#
+# MEASURED on the 2026-10-22 workbook: Recalls row 7 (RappelConso fiche
+# 23905, Gardel SA brown sugar, promoted that morning) ends
+#
+#   "… [needs cleanup: Reason not in English] [offline-enrich 2026-10-22: …]
+#    [promote 2026-10-22: …] [needs cleanup: Reason not in English]"
+#
+# The cost is not only noise. The morning pass reads what is stamped and
+# discharges a stamp by removing it, so a second copy left behind makes a
+# translated row look untranslated the next morning; and several writers cap
+# Notes at 300 characters, so a duplicate stamp evicts the provenance the
+# row exists to carry.
+#
+# Duplicates already in the workbook are collapsed by
+# tools/repair_2026_10_22.py. tests/test_cleanup_stamps_are_idempotent.py
+# holds both halves, including a source-level check that no writer in
+# pipeline/ appends one of these stamps without looking first.
+def stamp_language_cleanup(row: dict) -> dict:
+    """Stamp Notes for each field of `row` that is not yet in English.
+
+    Mutates and returns `row`. Never blocks, never translates: there is no
+    model here, and the verified table in pipeline/_language.py is a
+    deliberate human act. Safe to call any number of times.
+    """
+    from pipeline._language import (has_non_latin_script,
+                                    looks_non_english,
+                                    product_needs_english)
+
+    def _stamp_once(stamp: str) -> None:
+        notes = str(row.get("Notes") or "")
+        if stamp not in notes:
+            row["Notes"] = (notes.strip() + " " + stamp).strip()
+
+    if product_needs_english(row.get("Product", "")):
+        _stamp_once("[needs cleanup: Product not in English]")
+    if any(has_non_latin_script(row.get(f, ""))
+           for f in ("Company", "Brand")):
+        _stamp_once("[needs cleanup: Company/Brand not in English]")
+    # REASON WAS MISSING FROM THIS LIST UNTIL 2026-10-21.
+    # pipeline/recall_confirm_agent.py has stamped a non-English Reason since
+    # it was written; this path, which promotes the rows the confirm agent
+    # never sees, stamped only Product and the firm fields. Three of the four
+    # French rows published on 2026-10-20/21 were promoted here — fiches
+    # 23874, 23873, 23872 — and held tests/test_language_policy.py RED.
+    if looks_non_english(str(row.get("Reason") or "")):
+        _stamp_once("[needs cleanup: Reason not in English]")
+    return row
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--xlsx", default=str(XLSX))
@@ -329,38 +391,13 @@ def main() -> int:
                       f" [promote {dt.date.today().isoformat()}: status "
                       f"{prev!r}->'pending' — passes every publish-gate rule]"
                       ).strip()
-        # Product and firm names are English (operator 2026-10-01). No model
-        # here, so stamp for the Morning Fix translation pass — never block.
+        # Product and firm names are English (operator 2026-10-01). No
+        # model here, so stamp for the Morning Fix translation pass —
+        # never block. The stamping itself lives in
+        # stamp_language_cleanup() so a test can call it; see the
+        # idempotence note there.
         try:
-            from pipeline._language import (has_non_latin_script,
-                                            looks_non_english,
-                                            product_needs_english)
-            if product_needs_english(r.get("Product", "")):
-                r["Notes"] += " [needs cleanup: Product not in English]"
-            if any(has_non_latin_script(r.get(f, ""))
-                   for f in ("Company", "Brand")):
-                r["Notes"] += " [needs cleanup: Company/Brand not in English]"
-            # REASON WAS MISSING FROM THIS LIST (2026-10-21).
-            #
-            # pipeline/recall_confirm_agent.py has stamped a non-English
-            # Reason since it was written; this function, which promotes
-            # the rows the confirm agent never sees, stamped only Product
-            # and the firm fields. Three of the four French rows published
-            # on 2026-10-20/21 were promoted HERE —
-            #   fiche 23874  "RESULTAT ANALYSE NON CONFORME"
-            #   fiche 23873  "Contamination à l'histamine"
-            #   fiche 23872  "Contamination du produit à l'histamine"
-            # — and the first and third hold tests/test_language_policy.py
-            # RED on main. Two of the three got the Product stamp, so the
-            # morning pass saw the row but was told nothing about Reason.
-            #
-            # Same contract as the siblings: stamp, never block, never
-            # machine-translate. merge_master._write_sheet now stamps the
-            # same thing at the choke point, which covers the paths that
-            # bypass this function; both are idempotent, so a row promoted
-            # here and rewritten there carries one stamp, not two.
-            if looks_non_english(str(r.get("Reason") or "")):
-                r["Notes"] += " [needs cleanup: Reason not in English]"
+            stamp_language_cleanup(r)
         except Exception:                                    # noqa: BLE001
             pass
         stamped.append(r)
