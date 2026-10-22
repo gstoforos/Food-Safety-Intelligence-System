@@ -1,0 +1,72 @@
+[
+  {
+    "Date": "2026-10-22",
+    "Source": "RappelConso (FR)",
+    "Company": "EARL Cucuillere Le Cochon du Madres",
+    "Brand": "LE COCHON DU MADRES",
+    "Product": "Pure pork rillettes 180 g (Rillette pur cochon 180g), minimum durability dates 12/05/2028 and 23/10/2028",
+    "Pathogen": "Clostridium botulinum",
+    "Reason": "Packaging anomaly; consumer risk: Clostridium botulinum, the agent of botulism.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23879/Interne",
+    "Notes": "Added by the morning fix pass 2026-10-22. Every field below was read on the fiche itself (https://rappel.conso.gouv.fr/fiche-rappel/23879/Interne), opened 2026-10-22. Company read from 'Origine de la fiche : EARL CUCUILLERE LE COCHON DU MADRES'; Brand from 'Nom de la marque du produit: LE COCHON DU MADRES'; Product from the page heading and 'Noms des modeles ou references'; dates from the fiche's Lot / 'Date de durabilite minimale' column. Distributors on the fiche (Occitanie): Au comptoir des producteurs (Lezignan), La ferme cote producteurs (Narbonne), Caval Limoux (Limoux), La boutique ephemere (Leucate). [original product: Rillette pur cochon 180g] [original Reason (fr): \"Anomalie de conditionnement\"] [original risk (fr): \"Clostridium botulinum (agent responsable du botulisme)\"] [scope: the motif names a packaging anomaly, which is out of scope on its own, but the fiche's 'Risques encourus par le consommateur' names Clostridium botulinum — a named pathogen, Tier 1. Same shape as the published Boucherie Courthieu canned-meat rows of 2026-06-04 (fiches 22451-22454).] [sibling fiches published the same day by the same producer, not added here because the near-duplicate rule keys on source+company+pathogen: 23881, 23882, 23883, 23884, 23885, 23886, 23887, 23891, 23896]"
+  },
+  {
+    "Date": "2026-10-21",
+    "Source": "RappelConso (FR)",
+    "Company": "KKHTC OUMATY",
+    "Brand": "OUMATY",
+    "Product": "Tenders strips, 800 g x 7 (5.6 kg), orange bag, lot 0809260102 (TENDERS STRIPS OUMATY (800GR x 7) 5,6KG)",
+    "Pathogen": "Veterinary drug residue",
+    "Reason": "Veterinary medicinal product residues: an antibiotic was detected in the chicken meat used to make the product.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23901/Interne",
+    "Notes": "Added by the morning fix pass 2026-10-22. Every field read on the fiche itself (https://rappel.conso.gouv.fr/fiche-rappel/23901/Interne), opened 2026-10-22. Company from 'Origine de la fiche : KKHTC OUMATY'; Brand from 'Nom de la marque du produit: OUMATY'; lot from 'Numeros de lot: 0809260102'; packaging from 'Noms des modeles ou references: Sachet 800gr , orange'. [original product: TENDERS STRIPS OUMATY (800GR x 7) 5,6KG] [original Reason (fr): \"antibiotique detecte dans dans de la viande de poulet utilisee pour la fabrication du produit\"] [original risk (fr): \"Residus de medicaments veterinaires\"] [relationship: this is a DIFFERENT lot (0809260102) of the same OUMATY veterinary-antibiotic event already published at 2026-10-12 from fiche 23745 (lots 1009260101/1009260103/1009260105). If the near-duplicate rule refuses this row, that refusal is correct and this note is the record of the extension.]"
+  },
+  {
+    "Date": "2026-10-21",
+    "Source": "RappelConso (FR)",
+    "Company": "Bien Etre Chamonix",
+    "Brand": "boomz",
+    "Product": "Delta-9 gummies 7.5 mg — apple (gummies delta 9 7.5mg - apple), all lots",
+    "Pathogen": "Delta-9-THC (above acute reference dose)",
+    "Reason": "Non-compliant product: the delta-9-THC exposure dose exceeds the reference dose.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23837/Interne",
+    "Notes": "Added by the morning fix pass 2026-10-22. Every field read on the fiche itself (https://rappel.conso.gouv.fr/fiche-rappel/23837/Interne), opened 2026-10-22. Company from 'Origine de la fiche : BIEN ETRE CHAMONIX bien etre chx'; Brand from 'Nom de la marque du produit: boomz'; 'Numeros de lot: Tous les lots'; distributor on the fiche: high society. [original product: gummies delta 9 7.5mg - apple] [original Reason (fr): \"dose d'exposition delta9-THC depasse la dose de reference\"] [scope: delta-9-THC over the acute reference dose, in scope since 2026-10-01; the register already publishes this hazard at 2026-10-06 from fiches 23709 and 23710 with Pathogen 'Delta-9-THC (above acute reference dose)'.] [sibling fiches of the same event and the same responsible company, published 2026-10-21 and not added separately because the near-duplicate rule keys on source+company+pathogen: 23832 and 23833 (boomz 'cookies born to be high'), 23834 (cookies 'delta 9 gummies infused 10mg'), 23836 (boomz 'gummies delta 9 7.5mg')]"
+  },
+  {
+    "Date": "2026-10-21",
+    "Source": "RappelConso (FR)",
+    "Company": "Bien Etre Chamonix",
+    "Brand": "cookies",
+    "Product": "Delta-9 infused gummies 10 mg — Tahitian lime (delta 9 gummies infused 10mg - tahitian lime), all lots",
+    "Pathogen": "Delta-9-THC (above acute reference dose)",
+    "Reason": "Non-compliant product: the delta-9-THC exposure dose exceeds the reference dose.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23835/Interne",
+    "Notes": "Added by the morning fix pass 2026-10-22. Every field read on the fiche itself (https://rappel.conso.gouv.fr/fiche-rappel/23835/Interne), opened 2026-10-22. Company from 'Origine de la fiche : BIEN ETRE CHAMONIX bien etre chx'; Brand from 'Nom de la marque du produit: cookies'; 'Numeros de lot: Tous les lots'; distributor on the fiche: high society. [original product: delta 9 gummies infused 10mg - tahitian lime] [original Reason (fr): \"dose d'exposition delta9-THC depasse la dose de reference\"] [relationship: same responsible company and same hazard as fiche 23837, a different brand and product. If the near-duplicate rule refuses this row, that refusal is correct and this note is the record.]"
+  },
+  {
+    "Date": "2026-10-20",
+    "Source": "NVWA (NL)",
+    "Company": "Winters - the chocolate company",
+    "Brand": "Jamin",
+    "Product": "Lava cake chocolate letter (Lavacake Chocoladeletter), best before 10-01-2027, EAN 08716739197561",
+    "Pathogen": "Mould",
+    "Reason": "Mould was found in a number of the products, which may pose a health risk; consumers are told not to eat the product.",
+    "Class": "Recall",
+    "Country": "Netherlands",
+    "Outbreak": 0,
+    "URL": "https://www.nvwa.nl/actueel/nieuws/2026/10/20/veiligheidswaarschuwing-lavacake-chocoladeletter-van-jamin",
+    "Notes": "Added by the morning fix pass 2026-10-22. Every field read on NVWA's own warning page (https://www.nvwa.nl/actueel/nieuws/2026/10/20/veiligheidswaarschuwing-lavacake-chocoladeletter-van-jamin), opened 2026-10-22, published 20-10-2026 15:12. Company read from the page's own correction: 'De juiste producent is: Winters - the chocolate company'; Brand from the title 'Lavacake Chocoladeletter van Jamin'; best-before and EAN from the page's batch block; sold 5 October to 19 October 2026 in Jamin shops and online. [original product: Lavacake Chocoladeletter] [original Reason (nl): \"In een aantal producten is schimmel aangetroffen. Dit kan een risico vormen voor de gezondheid.\"] [scope: visible mould, in scope since 2026-09-07.] [found by the morning pass, not the sweep window: the notice is two days old and NVWA's newest row in Recalls was 2026-10-13, so the scraper and the Daily Global Recall Search both missed it.]"
+  }
+]
