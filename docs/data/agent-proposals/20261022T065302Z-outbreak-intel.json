@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261022T065302Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/raw-oysters-salmonella-outbreak-sickens-55-people"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype telelkebir; food terms oysters. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/raw-oysters-salmonella-outbreak-sickens-55-people",
+          "quote": "Raw Oysters Salmonella Outbreak Sickens 55 People",
+          "retrieved_utc": "2026-10-22T06:43:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia",
+          "quote": "2026-10-19 FDA Whole (shellstock) oysters harvested in the Little Wicomico River, Virginia, 18 Sep – 8 Oc",
+          "retrieved_utc": "2026-10-22T06:43:31+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "e7ea114db82a0b0f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/raw-oysters-salmonella-outbreak-sickens-55-people"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms oysters. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/raw-oysters-salmonella-outbreak-sickens-55-people",
+          "quote": "Raw Oysters Salmonella Outbreak Sickens 55 People",
+          "retrieved_utc": "2026-10-22T06:43:31+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/certain-five-star-shellfish-inc-brand-oysters-recalled-due-salmonella",
+          "quote": "2026-06-30 CFIA Certain Five Star Shellfish Inc. brand oysters recalled due to Salmonella",
+          "retrieved_utc": "2026-10-22T06:43:31+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1602ac3d08fcdb8a"
+    }
+  ]
+}
