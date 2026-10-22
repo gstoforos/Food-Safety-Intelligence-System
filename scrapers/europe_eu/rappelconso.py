@@ -78,6 +78,8 @@ from scrapers._base import BaseScraper, fetch
 from scrapers._models import Recall
 from scrapers._pathogen_vocab import for_languages
 from scrapers._company_normalise import normalise_company_brand
+from scrapers._product_text import (
+    is_identifier_only as _is_identifier_only)
 
 log = logging.getLogger(__name__)
 
@@ -959,6 +961,51 @@ class RappelConsoScraper(BaseScraper):
                 # stamp Notes so claude-check knows to enrich.
                 product_for_emit = product_raw
                 product_is_subcat_fallback = False
+                product_was_identifier = False
+                # ── A LOT-CODE LIST IS NOT A PRODUCT NAME (2026-10-22) ────
+                #
+                # The fallback below fires only when the product field is
+                # EMPTY. `modeles_ou_references` is tried first and often
+                # holds the packaging/lot line instead of a name, and a
+                # non-empty code list satisfied the `if not` test, so the
+                # real name in `libelle` was never reached.
+                #
+                # THE ROW THAT FOUND THIS. Fiche 23905, published
+                # 2026-10-21, promoted to Recalls on 2026-10-22:
+                #   modeles_ou_references
+                #     "Sachet 1Kg: C120261010A106 - Sachet 1Kg:
+                #      C120261010A107 - Sachet 2Kg: C120261010B306 -
+                #      Sachet 2Kg: C120261010B307"
+                #   libelle (the page heading, read on the fiche itself)
+                #     "SUCRE ROUX PURE CANNE"
+                # The register published the four lot codes as the product.
+                # A reader of the dashboard cannot tell what was recalled,
+                # the alert vocabulary has nothing to match, and
+                # _publish_gate's own
+                # _product_is_an_identifier_blockers_2026_10_20 exists
+                # precisely to refuse this shape — it did not fire because
+                # the unit words ("Sachet") supply the letters it counts.
+                #
+                # Fix the SOURCE rather than the gate: walk on to the next
+                # PRODUCT_FIELDS candidate whenever the one we picked is a
+                # bare identifier. `libelle` is in that tuple already, so
+                # no new field and no new request. Stamped, because a
+                # heading is a weaker source than a denomination.
+                if product_for_emit and _is_identifier_only(product_for_emit):
+                    better, better_field = self._first(
+                        rec,
+                        tuple(f for f in self.PRODUCT_FIELDS
+                              if f != product_field),
+                        which="product-not-an-identifier",
+                    )
+                    if better and not _is_identifier_only(better):
+                        log.info(
+                            "RappelConso fid=%s — product field %r held only "
+                            "identifiers (%r); using %r instead",
+                            fid, product_field, product_for_emit[:60],
+                            better_field)
+                        product_for_emit = better
+                        product_was_identifier = True
                 if not product_for_emit:
                     subcat, _ = self._first(rec, self.SUBCATEGORY_FIELDS)
                     product_for_emit = subcat
@@ -984,6 +1031,11 @@ class RappelConsoScraper(BaseScraper):
                 if product_is_subcat_fallback:
                     notes_parts.append(
                         "[scraper-flag: Product is subcategory fallback]"
+                    )
+                if product_was_identifier:
+                    notes_parts.append(
+                        "[scraper-flag: Product taken from the fiche title; "
+                        "the model/reference field held only lot codes]"
                     )
                 if synthesized:
                     notes_parts.append(
