@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-23",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Gastronomia da Jack",
+  "Brand": "Gastronomia da Jack",
+  "Product": "Tiramisù",
+  "Pathogen": "Possible foreign body (Steel sphere)",
+  "Reason": "Possible presence of a foreign body (Steel sphere) in the product",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/richiamo_1792687675.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Emilia-Romagna (Provincia di Parma)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-10-22",
   "Source": "RappelConso (FR)",
   "Company": "EARL Cucuillere Le Cochon du Madres",
@@ -46,6 +62,22 @@
   "Outbreak": 0,
   "URL": "https://aesan.gob.es/alertas/2026_72",
   "Notes": "[operator review 2026-10-23] AESAN alert 2026_72 read on its own page, published \"22/10/2026\", ref \"ES2026/637\": brand \"Marvalmar\", lot \"387/21096 1809\", \"Peso de unidad: 200 g\". Company: AESAN names no operator (same convention as AESAN alert 22/2026). [original product: Mejillón de Chile cocido] [promote 2026-10-23: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-22",
+  "Source": "EFET (GR)",
+  "Company": "Μπιφτέκι",
+  "Brand": "ΜΑΓΓΙ",
+  "Product": "Chicken mince",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella spp (Recall ID EFET-2026-12345)",
+  "Class": "Recall",
+  "Country": "Greece",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5390-deltio-typou-anaklisi-biftekioy-kotopoulou-logo-parousias-salmonella-spp",
+  "Notes": "Discovered via news: kathimerini.gr [locality: Athens] [needs cleanup: Company/Brand not in English]"
  },
  {
   "Date": "2026-10-21",
