@@ -77,6 +77,66 @@ def _field(it: dict, key: str) -> str:
     return str(v)
 
 
+#: Per-recall notices live under this path with a slug after the slash. The
+#: same path with a QUERY instead is the search board — see the audit note in
+#: _record_from_api and pipeline/gap_finder/countries/us.py.
+_ITEM_PATH_RE = re.compile(r"^/recalls-alerts/[a-z0-9][a-z0-9\-]", re.I)
+_HREF_RE = re.compile(r"""href\s*=\s*["']([^"']+)["']""", re.I)
+
+
+def _press_release_url(press: str) -> str:
+    """FSIS's own per-recall URL out of field_en_press_release, or "".
+
+    The old code was `if press.startswith("http")`, which threw the field
+    away in the two shapes FSIS actually sends it in besides a bare absolute
+    URL (audit 2026-10-23):
+
+      * wrapped in markup — `<a href="/recalls-alerts/kayem-foods-inc--...">`
+        — because `_field()` returns the raw value and `_strip_html` was
+        never applied to this one field; and
+      * site-relative — `/recalls-alerts/kayem-foods-inc--...`.
+
+    Both are the regulator's own notice. Recovering them is not guessing a
+    slug: the slug is FSIS's, taken from FSIS's own API response. What this
+    will NOT do is accept something that is not a per-recall notice, so a
+    listing or search URL in that field still yields "" and the caller
+    routes the row to a reviewer rather than to the publish gate.
+    """
+    press = (press or "").strip()
+    if not press:
+        return ""
+
+    m = _HREF_RE.search(press)
+    if m:
+        press = m.group(1).strip()
+    else:
+        press = _strip_html(press)
+
+    press = press.replace("&amp;", "&").strip()
+    if not press:
+        return ""
+
+    if press.startswith("/"):
+        candidate = SCRAPE_BASE + press
+        path = press
+    elif press.lower().startswith("http"):
+        candidate = press
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(press)
+            if not parsed.netloc.lower().endswith("fsis.usda.gov"):
+                return ""
+            path = parsed.path
+            if parsed.query:
+                return ""        # a query is a search board, never a notice
+        except Exception:                                    # noqa: BLE001
+            return ""
+    else:
+        return ""
+
+    return candidate if _ITEM_PATH_RE.match(path) else ""
+
+
 def _record_from_api(it: dict) -> Record:
     rn = _field(it, "field_recall_number")
     title = _strip_html(_field(it, "field_title"))
@@ -93,12 +153,40 @@ def _record_from_api(it: dict) -> Record:
         if m:
             company = m.group(1).strip()
 
-    press = _field(it, "field_en_press_release")
-    url = ""
-    if press.startswith("http"):
-        url = press
-    elif rn:
-        url = f"https://www.fsis.usda.gov/recalls-alerts?search={rn}"
+    url = _press_release_url(_field(it, "field_en_press_release"))
+
+    # NO SEARCH-URL FALLBACK (audit 2026-10-23). This used to be
+    #
+    #     elif rn:
+    #         url = f"https://www.fsis.usda.gov/recalls-alerts?search={rn}"
+    #
+    # and every row it produced was dead on arrival. pipeline/_publish_gate.py
+    # refuses exactly that string — "A SEARCH RESULTS PAGE IS NOT A RECALL
+    # NOTICE", _SEARCH_QUERY_URL — and pipeline/gap_finder/countries/us.py
+    # labels the same shape LISTING and requires a slug after the slash. So
+    # the row could never be promoted, and because main.py dedups on the URL
+    # string, its key never matched the per-recall URL the core FSIS platform
+    # had already published the same recall under.
+    #
+    # The result was a permanent Pending zombie. FSIS recall 026-2026 (Kayem
+    # Foods Inc., temperature abuse) is PUBLISHED at Recalls 2026-10-17 on
+    # FSIS's own per-recall URL. Operators archived the search-URL copy on
+    # 2026-10-20 and the morning fix pass removed it again on 2026-10-22; this
+    # collector re-queued it both times — the second time three hours after
+    # the removal was uploaded — and each time it held
+    # tests/test_register_urls_pass_their_own_gate.py[us] RED, which blocks
+    # every upload through tools/rebase_and_verify.py.
+    #
+    # A recall number is not a citation and this collector has no per-recall
+    # URL to offer when the API omits the press release. Guessing the slug is
+    # forbidden (rule 3). So the row goes out with NO URL and the recall
+    # number in raw, and main.py stamps it pending_no_auth_url — the status
+    # that already exists for "the recall is real, the regulator link is
+    # not resolved" and that puts it in front of a reviewer instead of in
+    # front of a gate that will refuse it forever.
+    if not url and rn:
+        it["_pending_no_auth_url"] = True
+        it["_fsis_recall_number"] = rn
 
     alert = "action" if "alert" in cls.lower() else "recall"
 
