@@ -398,6 +398,92 @@ jobs:
               return any(p.startswith(f) for f in _FIRM_PROBLEMS)
 
 
+          # ─────────────────────────────────────────────────────────────────────────────
+          # SELF-REPAIR BEFORE REVIEW (audit 2026-10-23)
+          # ─────────────────────────────────────────────────────────────────────────────
+          # This agent threw away a real, in-scope recall over a cell that the row's
+          # own Reason filled.
+          #
+          #   Weekly_Rejected 2026-10-22, FDA
+          #   Vitamin Cottage Natural Food Markets, Inc. / Natural Grocers
+          #   "2 pound Mung Beans"
+          #   Reason : "Possible foreign material contamination with glass"
+          #   URL    : fda.gov/safety/recalls-market-withdrawals-safety-alerts/
+          #            natural-grocers-recalls-natural-grocers-brand-organic-
+          #            2-pound-mung-beans-due-potential-presence
+          #   RejectionReason: "Confirmer: reviewer 2 approved but Pathogen is empty"
+          #
+          # Foreign material is in scope and the register already carries eight rows
+          # whose Pathogen is "Foreign material (glass)" — one of them, 2026-08-18,
+          # off the IDENTICAL Reason string. Reviewer 1 had confirmed the URL, reviewer
+          # 2 had approved it, the review agent had verified it. The row had FDA's own
+          # per-recall URL, a real firm, a real product and a date inside the window.
+          # The one empty cell was the hazard name, and the hazard was written out in
+          # the row's own Reason.
+          #
+          # pipeline/enrich_pending_offline.py already derives it, deterministically
+          # and with no model and no network:
+          #
+          #   >>> infer_pathogen({"Reason": "Possible foreign material contamination
+          #   ...                  with glass"})
+          #   ('Foreign material (glass)', "matched 'glass'")
+          #
+          # but that module only ever sees rows that are still IN Pending. This agent
+          # archives first, so the enricher never got a look. The repair is therefore
+          # here, at the last gate, in the same character as the englishify_reason
+          # call further down: a deterministic table that never invents, applied
+          # before the verdict instead of after the row is gone.
+          #
+          # STRICTLY NON-INVENTING. The value comes from the row's own Reason, Product,
+          # Notes and URL — the same text a human reviewer would read — and only when
+          # the table matches a term in it. A row with no hazard word anywhere in its
+          # own text is left exactly as it was and blocked as before: "no hazard term
+          # in the row's own text" is the enricher's own answer, and it is the right
+          # one. Nothing else on the row is touched.
+          _REPAIR_MARK = "[confirm-agent self-repair"
+
+
+          def _repair_from_own_text(rows: List[Dict[str, Any]]) -> Dict[str, str]:
+              """Fill an empty Pathogen from the row's own text. Returns {url: note}.
+
+              Mutates `rows` in place. Deterministic: the same rows in, the same
+              fills out, which is what lets it run twice (once on the review lane,
+              once on the list that is saved) without drifting.
+              """
+              try:
+                  from pipeline.enrich_pending_offline import infer_pathogen
+              except Exception:                                        # noqa: BLE001
+                  # The enricher is offline-only and has no hard deps, so this should
+                  # not happen — but a reviewer must never fail to run because a
+                  # repair helper could not be imported.
+                  return {}
+
+              out: Dict[str, str] = {}
+              for row in rows:
+                  current = str(row.get("Pathogen") or "").strip()
+                  if current and current not in ("—", "-", "nan", "None", "?"):
+                      continue
+                  try:
+                      got = infer_pathogen(row)
+                  except Exception:                                    # noqa: BLE001
+                      continue
+                  if not got:
+                      continue
+                  value, why = got
+                  if not value:
+                      continue
+                  row["Pathogen"] = value
+                  note = (f" {_REPAIR_MARK}: Pathogen was empty and the hazard is "
+                          f"named in the row's own text — filled {value!r} ({why}). "
+                          f"No other field touched; nothing read from outside the "
+                          f"row.]")
+                  row["Notes"] = (str(row.get("Notes") or "").strip() + note).strip()[:1000]
+                  url = str(row.get("URL", "")).strip()
+                  if url:
+                      out[url] = value
+              return out
+
+
           def confirm(row: Dict[str, Any],
                       published: Optional[List[Dict[str, Any]]] = None) -> List[str]:
               """Return the reasons this row must NOT be published. Empty list = publish.
@@ -487,6 +573,10 @@ jobs:
               commit = args.commit.lower() in ("1", "true", "yes", "on")
 
               pending = _load_sheet(args.xlsx, "Pending")
+              repaired = _repair_from_own_text(pending)
+              if repaired:
+                  print(f"self-repair: filled Pathogen on {len(repaired)} row(s) from "
+                        f"the row's own text before reviewing")
               # ── FAST PATH (2026-08-28) ───────────────────────────────────────────
               # Reviewer 3 was gated to pending_gap_v3 only, so a row that ALREADY
               # satisfies every deterministic guard still had to wait for reviewer 1 and
@@ -620,6 +710,11 @@ jobs:
               xlsx = Path(args.xlsx)
               approved_existing = _load_sheet(xlsx, "Recalls")
               full_pending = _load_sheet(xlsx, "Pending")
+              # full_pending is a SECOND read of the same sheet, so the repair applied
+              # to `pending` above is not in it. _repair_from_own_text is deterministic
+              # on the row's own text, so running it again yields the same fills — and
+              # this is the list that gets saved.
+              _repair_from_own_text(full_pending)
               today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
 
               by_url = {}
