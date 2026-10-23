@@ -16,10 +16,16 @@ Flow per source:
 from __future__ import annotations
 
 import argparse
+import re
 from datetime import datetime, timezone
 
 from .base import get, all_codes
 from .classify import classify_record
+
+#: _row_for() writes the regulator's own identifier into Notes as
+#: `source_id=<id>`. Read back here as the second dedup key — see the audit
+#: note in write_pending().
+_SOURCE_ID_RE = re.compile(r"\bsource_id=(\S+)")
 
 
 def run_source(code: str, max_age_days: int = 14, dry_run: bool = False,
@@ -361,13 +367,53 @@ def _append_xlsx(records, xlsx_path):
             if v:
                 existing_urls.add(str(v).strip())
 
+    # SECOND DEDUP KEY: (Source, source_id) — audit 2026-10-23.
+    #
+    # The URL set above is the only key this writer had, so a record with no
+    # URL could never match anything and was re-appended on every run. That
+    # was harmless while every record carried a URL; it stopped being
+    # harmless when us_fsis.py was fixed to emit NO url rather than a search
+    # query the publish gate is guaranteed to refuse (see the audit note in
+    # pipeline/official_feeds/sources/us_fsis.py). Those rows carry a real
+    # regulator identifier — the FSIS recall number — in Notes as
+    # `source_id=<id>`, and that identifier is what makes two copies the
+    # same recall when neither has a URL to compare.
+    #
+    # Scoped to (Source, source_id) because recall numbers are only unique
+    # within an authority: FSIS's "026-2026" and another regulator's
+    # "026-2026" are different recalls.
+    existing_src_ids = set()
+    for sheet_name in ("Pending", "Recalls"):
+        if sheet_name not in wb.sheetnames:
+            continue
+        sh = wb[sheet_name]
+        sh_header = [c.value for c in sh[1]]
+        try:
+            n_idx = sh_header.index("Notes")
+            s_idx = sh_header.index("Source")
+        except ValueError:
+            continue
+        for row in sh.iter_rows(min_row=2):
+            m = _SOURCE_ID_RE.search(str(row[n_idx].value or ""))
+            if m:
+                existing_src_ids.add(
+                    (str(row[s_idx].value or "").strip().lower(),
+                     m.group(1).strip().lower()))
+
     appended = skipped = 0
     for rec in records:
         if rec.url and rec.url.strip() in existing_urls:
             skipped += 1
             continue
+        src_key = ((rec.authority or "").strip().lower(),
+                   (rec.source_id or "").strip().lower())
+        if not rec.url and src_key[1] and src_key in existing_src_ids:
+            skipped += 1
+            continue
         ws.append(_row_for(rec, header))
         existing_urls.add(rec.url.strip() if rec.url else "")
+        if src_key[1]:
+            existing_src_ids.add(src_key)
         appended += 1
     if appended:
         wb.save(xlsx_path)
