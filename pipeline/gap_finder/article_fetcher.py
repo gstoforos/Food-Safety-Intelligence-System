@@ -103,6 +103,13 @@ except ImportError:
     from gap_finder.countries import get as get_country           # type: ignore
     from gap_finder.countries.base import CountryConfig           # type: ignore
 
+# PDF detection + text extraction for authority pages that are PDFs
+# (2026-10-23 — see pdf_text.py for the incident).
+try:
+    from . import pdf_text
+except ImportError:                                               # pragma: no cover
+    from gap_finder import pdf_text                               # type: ignore
+
 # Google News URL resolver — converts news.google.com/rss/articles/<token>
 # links into the real publisher URL BEFORE we fetch the body. Without this,
 # every Google-News-sourced candidate fetches the GN JS-redirect shell
@@ -298,6 +305,54 @@ def _log_first_host(host: str) -> None:
                  host, _IMPERSONATE_PROFILE)
 
 
+# ── PDF screen (2026-10-23) ──────────────────────────────────────────────────
+# Both fetch paths used to return resp.text unconditionally. When the
+# authority page is a PDF — which is how Italy's Ministero della Salute
+# publishes nearly every recall — resp.text is the compressed bytes lossily
+# decoded to a str, BeautifulSoup extracts several hundred characters of
+# mojibake from it, and len >= 200 makes enrich_candidate accept that as
+# "the authority press release". rules.classify() then returns a confident
+# verdict about a document nothing ever read: on 2026-10-23 the Italian run
+# rejected a published histamine recall as "allergen, Pathogen 'ei'", the
+# German/Dutch word for egg, matched inside the binary noise. See
+# pipeline/gap_finder/pdf_text.py for the full incident and the 11 affected
+# rows across 5 countries.
+#
+# This runs where the BYTES still exist. resp.text has already destroyed the
+# streams, so the extraction has to happen here and not downstream.
+def _body_from_response(resp) -> tuple[str, str]:
+    """Return (html, status) for a 200 response.
+
+    A PDF is converted to its real text and wrapped as HTML so every
+    caller's `extract_body(html)` contract is unchanged. A PDF whose text
+    cannot be extracted (scanned image, encrypted form) returns an EMPTY
+    body with status 'pdf_unreadable' — never the raw bytes. Empty makes
+    the candidate classify 'unknown — defer to manual review', which is
+    true; handing the noise onward is how a hazard gets invented.
+    """
+    try:
+        headers = getattr(resp, "headers", {}) or {}
+        ctype = str(headers.get("content-type")
+                    or headers.get("Content-Type") or "")
+    except Exception:                                        # noqa: BLE001
+        ctype = ""
+
+    raw = b""
+    try:
+        raw = getattr(resp, "content", b"") or b""
+    except Exception:                                        # noqa: BLE001
+        raw = b""
+    text = getattr(resp, "text", "") or ""
+
+    if not pdf_text.looks_like_pdf(raw or text, ctype):
+        return text, "ok"
+
+    extracted = pdf_text.extract_text(raw)
+    if not extracted:
+        return "", "pdf_unreadable"
+    return pdf_text.as_html_document(extracted), "ok_pdf"
+
+
 def _fetch_via_curl_cffi(
     url: str, cfg: CountryConfig, timeout: int | None = None
 ) -> tuple[str, str, str]:
@@ -330,9 +385,8 @@ def _fetch_via_curl_cffi(
     if status_code != 200:
         return url, "", f"http_{status_code}"
 
-    return (getattr(resp, "url", url) or url,
-            getattr(resp, "text", "") or "",
-            "ok")
+    body, status = _body_from_response(resp)
+    return (getattr(resp, "url", url) or url, body, status)
 
 
 def _fetch_via_requests(
@@ -349,7 +403,8 @@ def _fetch_via_requests(
             allow_redirects=True,
         )
         resp.raise_for_status()
-        return resp.url, resp.text, "ok"
+        body, status = _body_from_response(resp)
+        return resp.url, body, status
     except requests.HTTPError as e:
         code = e.response.status_code if e.response is not None else "?"
         return url, "", f"http_{code}"
@@ -538,9 +593,23 @@ def _unescape_ws(t: str) -> str:
 
 
 def extract_body(html: str) -> str:
-    """Extract main article text body from HTML."""
+    """Extract main article text body from HTML.
+
+    Second line of defence for the PDF screen in _body_from_response
+    (2026-10-23). That one covers both fetch paths, which is every fetch
+    this module makes — but extract_body is a public function and
+    main.py / the extractor call it on bodies that arrive from elsewhere
+    (cached verified.jsonl, probe runs). Raw PDF bytes reaching the
+    classifier is the one outcome that invents hazards, so it is refused
+    at the reader too, not only at the writer.
+    """
     if not html:
         return ""
+    if pdf_text.looks_like_pdf(html):
+        # Try the real text; a PDF we cannot read yields "" rather than
+        # the noise that produced the 'ei' allergen verdict.
+        return _normalize_text(
+            pdf_text.extract_text(html.encode("utf-8", "surrogateescape")))
     try:
         soup = BeautifulSoup(html, "lxml")
     except Exception:
