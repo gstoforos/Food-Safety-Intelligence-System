@@ -1,17 +1,28 @@
 {
   "entries": [
     {
-      "date": "2026-10-22",
-      "url": "daily/2026-10-22.html",
-      "total": 5,
-      "tier1": 3,
+      "date": "2026-10-23",
+      "url": "daily/2026-10-23.html",
+      "total": 7,
+      "tier1": 6,
       "outbreak": 0,
       "by_region": {
-        "Europe": 3,
-        "Asia": 1,
+        "Europe": 7
+      },
+      "generated": "2026-10-24T07:12:45Z"
+    },
+    {
+      "date": "2026-10-22",
+      "url": "daily/2026-10-22.html",
+      "total": 8,
+      "tier1": 4,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 5,
+        "Asia": 2,
         "North America": 1
       },
-      "generated": "2026-10-23T15:04:53Z"
+      "generated": "2026-10-24T07:12:47Z"
     },
     {
       "date": "2026-10-21",
@@ -22,7 +33,7 @@
       "by_region": {
         "Europe": 14
       },
-      "generated": "2026-10-23T07:13:23Z"
+      "generated": "2026-10-24T07:12:48Z"
     },
     {
       "date": "2026-10-20",
@@ -34,7 +45,7 @@
         "Europe": 13,
         "Asia": 1
       },
-      "generated": "2026-10-23T07:13:24Z"
+      "generated": "2026-10-24T07:12:50Z"
     },
     {
       "date": "2026-10-19",
@@ -47,7 +58,7 @@
         "North America": 1,
         "Latin America": 3
       },
-      "generated": "2026-10-23T07:13:25Z"
+      "generated": "2026-10-24T07:12:51Z"
     },
     {
       "date": "2026-10-18",
@@ -56,7 +67,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-10-23T07:13:26Z"
+      "generated": "2026-10-24T07:12:53Z"
     },
     {
       "date": "2026-10-17",
@@ -67,20 +78,7 @@
       "by_region": {
         "North America": 2
       },
-      "generated": "2026-10-23T07:13:27Z"
-    },
-    {
-      "date": "2026-10-16",
-      "url": "daily/2026-10-16.html",
-      "total": 22,
-      "tier1": 15,
-      "outbreak": 0,
-      "by_region": {
-        "Asia": 1,
-        "Europe": 20,
-        "North America": 1
-      },
-      "generated": "2026-10-23T07:13:28Z"
+      "generated": "2026-10-24T07:12:54Z"
     }
   ]
 }
