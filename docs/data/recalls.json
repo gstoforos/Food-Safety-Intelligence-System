@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-24",
+  "Source": "MAPAQ QC",
+  "Company": "Boucherie Viau inc.",
+  "Brand": "",
+  "Product": "Ham and bacon bread (Pain au jambon et bacon)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-pain-au-jambon-et-bacon-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72791",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-10-23",
   "Source": "Ministero della Salute (IT)",
   "Company": "Gastronomia da Jack",
@@ -110,6 +126,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23914/interne",
   "Notes": "leclerc; u; intermarche; carrefour; [scraper-flag: Product taken from the fiche title; the model/reference field held only lot codes] [offline-enrich 2026-10-24: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-10-24: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+ },
+ {
+  "Date": "2026-10-23",
+  "Source": "RappelConso (FR)",
+  "Company": "Ferme de Larcher",
+  "Brand": "Ferme de Larcher",
+  "Product": "ferme de larcher",
+  "Pathogen": "ASR",
+  "Reason": "Risque de toxi- infections alimentaires causées par la présence d’asr se traduisent par des crampes et douleurs abdominales, et une diarrhée.",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/static/fiches/d71d11bb-67a0-40c6-914d-894deea2471f.html",
+  "Notes": "leclerc cahors, intermarche 46300 gourdon, proxi 46310 concores, vival 46310 st germain du bel air, le meilleur de nos f [needs cleanup: Reason not in English] [url-guard 2026-10-24: reviewer 1 tried to reject this row as 'No official regulator page found for the given product and hazard'; refused — the official URL is on the row. Left in Pending for a later run.] [url-agent 2026-10-24: pending_enrichment→pending_gap_v2 URL confirmed] [confirm-agent 2026-10-24: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file]"
  },
  {
   "Date": "2026-10-22",
@@ -462,6 +494,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/881286",
   "Notes": "[RASFF #2026.9393; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=881286] [promote 2026-10-22: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-21",
+  "Source": "CFS (HK)",
+  "Company": "Etak International Limited",
+  "Brand": "Mckenzie",
+  "Product": "Ready-to-eat turkey meat product",
+  "Pathogen": "Temperature abuse",
+  "Reason": "Possible temperature abuse during storage",
+  "Class": "Alert",
+  "Country": "Hong Kong",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.cfs.gov.hk/english/whatsnew/whatsnew_fa/2026_634.html",
+  "Notes": "Discovered via news: info.gov.hk [locality: Hong Kong] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-10-20",
