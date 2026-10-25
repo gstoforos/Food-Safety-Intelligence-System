@@ -646,6 +646,26 @@ class RappelConsoScraper(BaseScraper):
                 return str(v).strip(), c
         return "", ""
 
+    def _first_named_product(self, rec: Dict[str, Any],
+                             candidates: tuple) -> Tuple[str, str]:
+        """Return (value, field) — the first candidate that NAMES a food.
+
+        Like ``_first``, but keeps walking past a candidate that holds only
+        packaging words, units and codes. ``_first`` stops at the first
+        non-empty value, which on a fiche with two code-shaped fields in a
+        row never reaches ``libelle`` (the heading). Returns ('', '') when
+        every candidate is empty or an identifier list.
+        """
+        for c in candidates:
+            v = rec.get(c)
+            if v in (None, "", "—", "-"):
+                continue
+            s = str(v).strip()
+            if not s or _is_identifier_only(s):
+                continue
+            return s, c
+        return "", ""
+
     def _diagnostic(self, rec: Dict[str, Any], candidates: tuple) -> str:
         """Return a compact 'field=value | field=' summary for logs."""
         parts = []
@@ -991,14 +1011,43 @@ class RappelConsoScraper(BaseScraper):
                 # bare identifier. `libelle` is in that tuple already, so
                 # no new field and no new request. Stamped, because a
                 # heading is a weaker source than a denomination.
+                # IT STOPPED AT THE FIRST REPLACEMENT (2026-10-24).
+                #
+                # `self._first` returns the first NON-EMPTY candidate, and
+                # the code below accepted it only if it was not itself an
+                # identifier — but then gave up. PRODUCT_FIELDS is ordered
+                # `modeles_ou_references, identification_produits, libelle`,
+                # and `identification_produits` is where the GTIN/DLC block
+                # lives, so on a fiche whose references field is also a code
+                # list the walk landed on the GTIN block and stopped one
+                # field short of `libelle`, the heading.
+                #
+                # BOTH ROWS THAT FOUND IT were published Tier 1 on
+                # 2026-10-23 carrying the GTIN block as their Product, with
+                # this function's own "taken from the fiche title" stamp in
+                # Notes saying the heading had been used when it had not:
+                #   fiche 23922  references '..'  -> GTIN block published
+                #                heading "Blanquette St Jacques"
+                #   fiche 23914  references 'Barquette de 200g, …'
+                #                -> GTIN block published
+                #                heading "Noix de Saint Jacques de la Baie
+                #                de Saint Brieuc Label Rouge"
+                # (The GTIN block also escaped _is_identifier_only itself,
+                # because "date limite de consommation" supplied the letters
+                # it counts — fixed in scrapers/_product_text.)
+                #
+                # Walk ON instead of stopping: take the first candidate that
+                # is neither empty nor an identifier. If every candidate is
+                # one, leave the value EMPTY so the subcategory fallback
+                # fires and the publish gate sees a row it can refuse —
+                # publishing a code list is the one outcome never wanted.
                 if product_for_emit and _is_identifier_only(product_for_emit):
-                    better, better_field = self._first(
+                    better, better_field = self._first_named_product(
                         rec,
                         tuple(f for f in self.PRODUCT_FIELDS
                               if f != product_field),
-                        which="product-not-an-identifier",
                     )
-                    if better and not _is_identifier_only(better):
+                    if better:
                         log.info(
                             "RappelConso fid=%s — product field %r held only "
                             "identifiers (%r); using %r instead",
@@ -1006,6 +1055,15 @@ class RappelConsoScraper(BaseScraper):
                             better_field)
                         product_for_emit = better
                         product_was_identifier = True
+                    else:
+                        log.warning(
+                            "RappelConso fid=%s — EVERY product field is "
+                            "identifiers only (%s); emitting an empty "
+                            "Product so the gate refuses the row rather "
+                            "than publishing a code list",
+                            fid,
+                            self._diagnostic(rec, self.PRODUCT_FIELDS)[:200])
+                        product_for_emit = ""
                 if not product_for_emit:
                     subcat, _ = self._first(rec, self.SUBCATEGORY_FIELDS)
                     product_for_emit = subcat
