@@ -53,6 +53,26 @@ THIS VERSION
   "23. September 2026" above their heading). German/French/Italian month
   names are parsed here, locally — the shared table is English-only on
   purpose.
+
+  AUDIT 2026-10-25 — the date inside the link text was read with
+  ``parse_date``, which takes the FIRST date in the string. The FSVO prints
+  the publication date at the END of the link text and the product's
+  best-before date in the MIDDLE of it:
+
+      "DANFOREL A/S ruft das Produkt «Forellenfilets geräuchert - Nature»
+       mit dem Mindesthaltbarkeitsdatum 01.11.2026» wegen Listerien
+       zurück — 23.10.2026"
+
+  so the Danforel Listeria recall (Tier 1) was stored with Date
+  2026-11-01, stamped report_week W44, and was absent from the week it
+  happened in. FSVO's own public listing gives 23.10.2026.
+
+  Two changes, both narrow: shelf-life-labelled dates are stripped from the
+  link text first (``_listing.strip_shelf_life_dates`` — the label must be
+  present, nothing is guessed), and what is left is read with
+  ``_last_date_in``, which is the convention this listing actually uses.
+  ``pipeline.merge_master`` now also refuses any Date in the future, as the
+  net under every other source.
 - Company, Product and hazard are read from the FSVO's own sentence
   ("<Firma> ruft das Produkt «…» wegen <Gefahr> zurück"). Nothing is
   inferred beyond that sentence; an unrecognised hazard is left empty for
@@ -71,6 +91,7 @@ from datetime import date
 from typing import Dict, List, Optional
 
 from scrapers._base import GenericLLMScraper
+from scrapers._listing import strip_shelf_life_dates
 
 log = logging.getLogger(__name__)
 
@@ -257,7 +278,15 @@ def parse_listing(html: str) -> List[Dict[str, str]]:
         anchor_text = _clean(html[open_end + 1:close]) if 0 <= open_end < close else ""
         # Date inside the link text first (recalls); otherwise behind the
         # link, but never further back than the previous matched link.
-        when = parse_date(anchor_text) or _last_date_in(_clean(html[prev_end:start])) or ""
+        #
+        # The publication date is the LAST date in the link text ("… zurück
+        # — 23.10.2026"); any date earlier in it belongs to the product, not
+        # to the notice. Shelf-life-labelled dates go first (audit
+        # 2026-10-25, Danforel — see the module docstring), then the
+        # trailing date is taken rather than the leading one.
+        when = (_last_date_in(strip_shelf_life_dates(anchor_text))
+                or _last_date_in(strip_shelf_life_dates(_clean(html[prev_end:start])))
+                or "")
         prev_end = close if close > 0 else end
         key = href.rstrip("/").lower()
         if key in seen:
