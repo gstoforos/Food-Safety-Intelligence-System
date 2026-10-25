@@ -63,6 +63,42 @@ NO_STABLE_ID_HOSTS = (
     "fsai.ie",
 )
 
+# Same idea, but PER PATH. A host can serve its alerts at two addresses: one
+# that carries the alert id and one that does not. Only the second needs
+# content dedup, so registering the whole host would be wrong — it would
+# throw away a perfectly good identifier on every other URL.
+#
+# WHY THIS EXISTS (audit 2026-10-25)
+# ----------------------------------
+# RappelConso serves every fiche twice:
+#
+#   https://rappel.conso.gouv.fr/fiche-rappel/23918/interne          (id)
+#   https://rappel.conso.gouv.fr/static/fiches/<uuid>.html           (no id)
+#
+# The second is the static print mirror of the first. The uuid is not the
+# fiche number and cannot be mapped to it, so _normalize_url_for_dedup can
+# never collapse the pair — the two URLs share no path, no parameter and no
+# digit.
+#
+# THE ROWS THAT FOUND THIS. One recall, published twice in Recalls:
+#
+#   Date 2026-10-23  Ferme de Larcher  "TETE DE VEAU EN GELEE"  ASR  Tier 3
+#     .../static/fiches/d71d11bb-67a0-40c6-914d-894deea2471f.html  (DateAdded 10-24)
+#     .../fiche-rappel/23918/interne                               (DateAdded 10-25)
+#
+# Byte-identical Reason, identical distributor list, identical brand and
+# date. The static form also appears on five rows in Rejected /
+# Weekly_Rejected, so this is the shape of the source, not a one-off.
+#
+# Registering the path makes _dedup_key key the static row on CONTENT; the
+# promote gate in merge_master then compares that content key against the
+# approved rows OF THE SAME HOST, which is what closes the pair.
+NO_STABLE_ID_PATHS: Dict[str, tuple] = {
+    "rappel.conso.gouv.fr": (
+        re.compile(r"^/static/fiches/[0-9a-f-]{8,}\.html?$", re.IGNORECASE),
+    ),
+}
+
 # Paths that are LISTING / INDEX pages, per host. If a request for a
 # detail-shaped URL ends up (after redirects) at one of these paths, the
 # original URL did not address a real alert page: it is a soft 404.
@@ -139,8 +175,19 @@ def _registered_host(url: str, registry) -> Optional[str]:
 
 
 def has_stable_id(url: str) -> bool:
-    """False when the host encodes no stable alert id in its URLs."""
-    return _registered_host(url, NO_STABLE_ID_HOSTS) is None
+    """False when this URL carries no stable alert id.
+
+    Two registries, host-level and path-level — see NO_STABLE_ID_PATHS for
+    why a host can need the second without needing the first.
+    """
+    if _registered_host(url, NO_STABLE_ID_HOSTS) is not None:
+        return False
+    key = _registered_host(url, NO_STABLE_ID_PATHS)
+    if key is not None:
+        p = _path(url)
+        if any(rx.match(p) for rx in NO_STABLE_ID_PATHS[key]):
+            return False
+    return True
 
 
 # ─────────────────────────────────────────────────────────────────────────

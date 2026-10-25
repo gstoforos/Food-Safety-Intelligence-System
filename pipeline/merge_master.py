@@ -23,7 +23,7 @@ import json
 import logging
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 from urllib.parse import urlparse
@@ -696,6 +696,50 @@ _GARBAGE_COMPANIES = {
 # Hard cutoff: nothing dated before this enters Pending.
 _MIN_VALID_DATE = "2026-01-01"
 
+# ── AND NOTHING DATED AFTER TOMORROW (audit 2026-10-25) ────────────────────
+#
+# The floor above has been here since 2026-04-30. There was no ceiling, and a
+# Date field is a PUBLICATION date: a recall cannot be published in the
+# future. Everything downstream treats Date as the event's position in time —
+# report_week, the daily brief, the weekly page, the monthly roll-up — so a
+# future Date does not look like a defect, it looks like a recall that has
+# not happened yet, filed into a report that has not been built yet.
+#
+# THE ROW THAT FOUND THIS. Recalls, DateAdded 2026-10-24, Source "BLV (CH)",
+# Danforel A/S, "Forellenfilets geräuchert - Nature", Listeria monocytogenes,
+# Tier 1:
+#
+#     Date         2026-11-01
+#     report_week  W44
+#     Notes        FSVO title: "DANFOREL A/S ruft das Produkt «Forellen-
+#                  filets geräuchert - Nature» mit dem Mindesthaltbarkeits-
+#                  datum 01.11.2026» wegen Listerien zurück"
+#     Notes        [promote 2026-10-24: ... passes every publish-gate rule]
+#
+# 01.11.2026 is the product's BEST-BEFORE date, printed inside the listing's
+# own link text. The FSVO published the recall on 23.10.2026 (confirmed on
+# blv.admin.ch's own public listing). So a Tier-1 Listeria recall was absent
+# from the week it happened in and filed into a November week nobody has
+# built — and it "passes every publish-gate rule" is quoted from its own
+# Notes, which is the measure of the gap.
+#
+# scrapers/europe_non_eu/blv_ch.py is fixed at its source for that listing.
+# This is the net under every other source: the shelf-life date on a notice
+# is always in the future, so a future Date is the signature of exactly this
+# class of mis-parse, whatever regulator it comes from.
+#
+# ONE DAY OF TOLERANCE, not zero. Regulators in UTC+9..+13 (CAA JP, MFDS KR,
+# MPI NZ, FSANZ) publish on a calendar date that is still "tomorrow" in UTC,
+# and this gate runs in UTC. A day of slack admits that and still rejects the
+# seven-day miss above.
+_MAX_FUTURE_DAYS = 1
+
+
+def _max_valid_date(today: Optional[date] = None) -> str:
+    """Latest Date a row may carry: tomorrow, in UTC."""
+    base = today or datetime.now(timezone.utc).date()
+    return (base + timedelta(days=_MAX_FUTURE_DAYS)).isoformat()
+
 
 # News-outlet hosts. Any URL whose host (or parent domain) matches lands in
 # the NEWS sheet via scrapers/news.py — never in Recalls. Gap-finders
@@ -948,6 +992,26 @@ def validate_pending_row(
         if ym_reason:
             return False, f"url_year_mismatch: {ym_reason}"
 
+    # ── THE ALERT NUMBER'S OWN YEAR (2026-10-24) ───────────────────────
+    # is_year_mismatch above reads a year out of the URL PATH and returns
+    # None for a regulator slug like
+    # "nafdac.gov.ng/public-alert-no-027-2022-adulterated-lots-of-japata-…".
+    # The publish gate has refused that shape since 2026-10-17 and this
+    # gate had nothing for it, so the Nigeria gap finder re-queued that
+    # one May-2022 alert into Pending again and again — already archived
+    # three times — where it sat with Date 2026-10-23 holding
+    # tests/test_alert_number_year_matches_date[Pending] red. Imported
+    # rather than copied so the two gates cannot drift, exactly as
+    # is_year_mismatch is above.
+    try:
+        from pipeline._publish_gate import alert_number_year_mismatch
+    except ImportError:                                 # pragma: no cover
+        alert_number_year_mismatch = None
+    if alert_number_year_mismatch is not None:
+        _an_reason = alert_number_year_mismatch(row)
+        if _an_reason:
+            return False, f"alert_number_year_mismatch: {_an_reason}"
+
     # Extraction garbage
     company_lc = company.lower()
     brand_lc = str(row.get("Brand", "") or "").strip().lower()
@@ -1019,6 +1083,16 @@ def validate_pending_row(
     # ── REJECT: date is before 2026-01-01 ───────────────────────────────
     if date_str and date_str < _MIN_VALID_DATE:
         return False, f"Date before {_MIN_VALID_DATE}: {date_str}"
+
+    # ── REJECT: date is in the future (audit 2026-10-25) ────────────────
+    # See _MAX_FUTURE_DAYS for the incident. A publication date cannot be
+    # in the future; a shelf-life date read out of a notice always is.
+    _ceiling = _max_valid_date()
+    if date_str and date_str > _ceiling:
+        return False, (f"Date in the future: {date_str} (latest allowed "
+                       f"{_ceiling}) — a publication date cannot be ahead of "
+                       f"today; this is usually a best-before/use-by date "
+                       f"read from the notice")
 
     # All other gates passed. If pathogen was empty, signal to caller
     # that this row should land in Pending with Status=pending_enrichment
@@ -2215,6 +2289,75 @@ def promote_approved(
                     for r in approved_existing) if u
     }
 
+    # ── THIRD AXIS: content, keyed per HOST (audit 2026-10-25) ───────────
+    #
+    # The same gap as 2026-07-26, one axis further along. Each approved row
+    # contributes exactly ONE key to `approved_keys`: a URL key when its URL
+    # carries an alert id, a CONTENT key when it does not. A candidate whose
+    # URL has no id is therefore compared against the content keys of the
+    # no-id rows only — it can never find a twin that was published under an
+    # id-bearing URL.
+    #
+    # That is the Ferme de Larcher pair (see _url_identity.NO_STABLE_ID_PATHS):
+    #
+    #   approved   .../fiche-rappel/23918/interne   -> key = the URL
+    #   candidate  .../static/fiches/<uuid>.html    -> key = the content
+    #
+    # Two keys in two different spaces, one recall, promoted twice.
+    #
+    # So every approved row contributes its content key here as well, in two
+    # per-host indexes, and the axis fires whenever EITHER side of the pair
+    # is the no-id address:
+    #
+    #   candidate has NO id  -> compare against EVERY approved row's content
+    #                           key for that host (the mirror arriving after
+    #                           the canonical row)
+    #   candidate HAS an id  -> compare only against the content keys of
+    #                           approved rows that THEMSELVES have no id
+    #                           (the canonical row arriving after the
+    #                           mirror — which is the order that actually
+    #                           happened on 2026-10-24)
+    #
+    # Two id-bearing rows are never compared on content, which is what keeps
+    # RappelConso's one-fiche-per-SKU rows safe: merge_master's own comment
+    # on _near_dup_key explains why a same-source/company/pathogen rule
+    # must not be applied to them.
+    #
+    # Scoped by host on purpose: content_key is date + company + pathogen,
+    # and two regulators announcing one event on one day is a cross-source
+    # question pipeline/daily_review_agent.py already owns.
+    def _host_of(url: str) -> str:
+        h = (urlparse(url).netloc or "").lower()
+        return h[4:] if h.startswith("www.") else h
+
+    approved_content_by_host: Dict[str, set] = {}
+    approved_noid_content_by_host: Dict[str, set] = {}
+    for _r in approved_existing:
+        _u = str(_r.get("URL", "") or "").strip()
+        if not _u:
+            continue
+        _h = _host_of(_u)
+        _ck = _identity_content_key(_r)
+        if not (_h and _ck):
+            continue
+        approved_content_by_host.setdefault(_h, set()).add(_ck)
+        if not _identity_has_stable_id(_u):
+            approved_noid_content_by_host.setdefault(_h, set()).add(_ck)
+
+    def _is_same_host_content_dup(url: str, row: Dict[str, Any]) -> bool:
+        """True when this URL repeats a recall the host already published at
+        its other address. Only ever consulted where one of the two
+        addresses carries no alert id."""
+        if not url:
+            return False
+        ck = _identity_content_key(row)
+        if not ck:
+            return False
+        index = (approved_noid_content_by_host
+                 if _identity_has_stable_id(url)
+                 else approved_content_by_host)
+        return ck in index.get(_host_of(url), set())
+
     new_approved: List[Dict[str, Any]] = []
     kept_in_pending: List[Dict[str, Any]] = []
     archived_rejected: List[Dict[str, Any]] = []
@@ -2591,12 +2734,22 @@ def promote_approved(
         # for why one axis alone is not enough (FSAI, audit 2026-07-26).
         k = _dedup_key(clean)
         u = _normalize_url_for_dedup(str(clean.get("URL", "") or ""))
-        if k in approved_keys or (u and u in approved_url_norms):
+        raw_u = str(clean.get("URL", "") or "").strip()
+        if (k in approved_keys or (u and u in approved_url_norms)
+                or _is_same_host_content_dup(raw_u, clean)):
             # Already published — drop silently from Pending
             continue
         approved_keys.add(k)
         if u:
             approved_url_norms.add(u)
+        if raw_u:
+            _ck_new = _identity_content_key(clean)
+            if _ck_new:
+                approved_content_by_host.setdefault(
+                    _host_of(raw_u), set()).add(_ck_new)
+                if not _identity_has_stable_id(raw_u):
+                    approved_noid_content_by_host.setdefault(
+                        _host_of(raw_u), set()).add(_ck_new)
 
         # Strip pending-only tracking columns before inserting into Recalls.
         # Fill RECALLS_SCHEMA, including the internal tracking columns:

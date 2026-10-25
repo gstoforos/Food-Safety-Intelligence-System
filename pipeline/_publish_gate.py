@@ -100,7 +100,7 @@ so the classifier cannot drift between the two callers.
 """
 from __future__ import annotations
 import re
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 from urllib.parse import urlparse
 
 # Controlled vocabularies. A value outside these is an extraction artifact,
@@ -316,6 +316,51 @@ HAZARD_CLASS_KEYWORDS = {
         # container that may swell, is a biological hazard.
         "microbiological risk", "risque microbiologique",
         "suspected microbiological",
+        # ── SULPHITE-REDUCING ANAEROBES / ASR (audit 2026-10-25) ────────
+        # RappelConso fiche 23918, published 23.10.2026: Ferme de Larcher,
+        # "TETE DE VEAU EN GELEE", risques encourus "Autres contaminants
+        # biologiques", motif "Risque de toxi-infections alimentaires
+        # causées par la présence d'ASR … crampes et douleurs abdominales,
+        # et une diarrhée."
+        #
+        # ASR is anaérobies sulfito-réducteurs — the sulphite-reducing
+        # anaerobe count, a Clostridium-class group that includes
+        # C. perfringens. Published, Tier 3, and classified as NOTHING: the
+        # curator refused its hazard (tests/test_curator_scope_2026_09_09)
+        # and no subscriber alert could reach it
+        # (tests/test_alert_vocab.py), both RED on main at 9e2626da.
+        #
+        # Filed biological, not "fermentation" or a quality term, on the
+        # same ground as "unspecified microbiological" above: the regulator
+        # named a group of organisms AND an illness — foodborne toxi-
+        # infection with cramps and diarrhoea. That is a microbiological
+        # hazard whether or not the notice names a species. It is a closer
+        # call than Listeria and further from a bare "Coliform / total
+        # bacterial count" (still a KNOWN_OPEN policy case, with no stated
+        # illness risk); if the operator disagrees, delete these needles and
+        # the row joins KNOWN_OPEN instead.
+        #
+        # NO BARE "asr" NEEDLE, not even space-padded. Three reasons, and
+        # the third is the one that decided it:
+        #   1. "asr" as a substring matches inside words.
+        #   2. A space-padded " asr " cannot be mirrored in
+        #      pipeline/gap_finder/rules.py — that file matches with
+        #      `needle in haystack` through a normaliser that strips the
+        #      padding, which is why its own " hav " needle has sat in the
+        #      drift ledger of
+        #      tests/test_import_eligibility_is_in_gap_finder_scope.py
+        #      since it was written. A needle live at one gate and dead at
+        #      the other IS the drift that ledger exists to stop.
+        #   3. It is not needed. scrapers/_models.PATHOGEN_RULES now
+        #      normalises "ASR" to the full label, so what reaches this
+        #      gate is "Sulphite-reducing anaerobes (ASR)" and the needles
+        #      below match it twice over.
+        # Accent-free for the same mirroring reason: rules.py strips
+        # diacritics, and Pathogen and Reason must be English here anyway
+        # (tests/test_language_policy.py).
+        "sulphite-reducing anaerob", "sulfite-reducing anaerob",
+        "sulphite reducing anaerob", "sulfite reducing anaerob",
+        "anaerobies sulfito", "(asr)",
     ),
     "physical": (
         "foreign matter", "foreign material", "foreign body",
@@ -1119,15 +1164,45 @@ _SECTION_HEADING_FIRMS = (
 )
 
 
-def _shape_blockers_2026_10_17(row: Dict[str, Any]) -> List[str]:
-    out: List[str] = []
+def alert_number_year_mismatch(row: Dict[str, Any]) -> Optional[str]:
+    """The URL's own alert number names a year the Date contradicts.
+
+    Return the reason, or None. Split out of ``_shape_blockers_2026_10_17``
+    on 2026-10-24 so the PENDING gate can IMPORT it rather than copy the
+    regex — ``pipeline.merge_master.validate_pending_row`` already imports
+    ``_url_year.is_year_mismatch`` the same way, and that one returns None
+    here: ``url_year()`` reads no year out of a NAFDAC slug.
+
+    THE LOOP THIS CLOSES. The rule has lived in the publish gate since
+    2026-10-17 and nowhere else, so NAFDAC's "public-alert-no-027-2022"
+    (a May-2022 alert on adulterated Japata bitters) has been re-ingested
+    into Pending by the Nigeria gap finder over and over — archived in
+    Rejected on 2026-09-24, 2026-10-13 and in Weekly_Rejected on
+    2026-10-23, and back in Pending with Date 2026-10-23 on the morning of
+    2026-10-24, where it held
+    tests/test_alert_number_year_matches_date[Pending] red. Refusing it one
+    gate earlier means it never reaches Pending at all.
+
+    Measured over the whole 2026-10-24 workbook before wiring it in: the
+    shape appears in 0 published Recalls rows, 1 Pending row (the one
+    above) and 37 rows that are already archived.
+    """
     url = str(row.get("URL") or "")
     m = _ALERT_NO_YEAR.search(url)
     date = str(row.get("Date") or "")[:4]
     if m and date.isdigit() and m.group(2) != date:
-        out.append(f"the URL's own alert number ({m.group(0)!r}) is from "
-                   f"{m.group(2)}, the Date from {date} — the Date is the "
-                   "discovery day, or the row re-publishes an old alert")
+        return (f"the URL's own alert number ({m.group(0)!r}) is from "
+                f"{m.group(2)}, the Date from {date} — the Date is the "
+                "discovery day, or the row re-publishes an old alert")
+    return None
+
+
+def _shape_blockers_2026_10_17(row: Dict[str, Any]) -> List[str]:
+    out: List[str] = []
+    url = str(row.get("URL") or "")
+    _ay = alert_number_year_mismatch(row)
+    if _ay:
+        out.append(_ay)
     blob = " ".join(str(row.get(k) or "") for k in ("Product", "Reason")).lower() \
         + " " + url.lower().replace("-", " ")
     for t in _NON_FOOD_PRODUCT_MARKERS:
