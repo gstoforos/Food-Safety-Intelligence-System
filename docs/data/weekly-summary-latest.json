@@ -10,20 +10,20 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-25T04:26:50.169033+00:00",
+  "generated_utc": "2026-10-25T08:39:36.944530+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 81,
-    "tier1": 57,
+    "total": 84,
+    "tier1": 60,
     "outbreaks": 1,
-    "delta": 3,
-    "delta_pct": 4
+    "delta": 6,
+    "delta_pct": 8
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 21,
+    "cases": 22,
     "pct": 26
   },
   "ai_lead_paragraph": "",
@@ -44,6 +44,20 @@
     },
     {
       "rank": 2,
+      "date": "2026-10-23",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
+      "company": "D&M Smoked Fish Inc. (dba Haifa Smoked Fish, Inc.)",
+      "brand": "—",
+      "product": "Cold smoked sprats, labelled \"C/Smoked Holland Sprats\", item 302M, LOT# 261, sold in bulk cardboard boxes",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc"
+    },
+    {
+      "rank": 3,
       "date": "2026-10-22",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -57,7 +71,21 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23879/Interne"
     },
     {
-      "rank": 3,
+      "rank": 4,
+      "date": "2026-10-22",
+      "pathogen": "Botulinum toxin",
+      "pathogen_raw": "Botulinum toxin",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Brezzi Oliviero Tartufi",
+      "brand": "Brezzi Oliviero Tartufi",
+      "product": "Truffle sauce (salsa tartufata), lot 596",
+      "country": "Italy",
+      "source": "Ministero della Salute (IT)",
+      "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20LOTTO%20596_1792593268.pdf"
+    },
+    {
+      "rank": 5,
       "date": "2026-10-24",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -69,35 +97,7 @@
       "country": "Canada",
       "source": "MAPAQ QC",
       "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-pain-au-jambon-et-bacon-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72791"
-    },
-    {
-      "rank": 4,
-      "date": "2026-10-23",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Sk",
-      "brand": "Sk",
-      "product": "0207684000000; date limite de consommation; 2026-10-24",
-      "country": "France",
-      "source": "RappelConso (FR)",
-      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23922/interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-10-23",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Origin: Italy | Notifying: Italy",
-      "brand": "—",
-      "product": "Presenza di Listeria monocytogenes in veal with tuna sauce (Vitello tonnato)",
-      "country": "Italy",
-      "source": "RASFF (EU)",
-      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878696"
     }
   ],
-  "country_count": 22
+  "country_count": 24
 }
