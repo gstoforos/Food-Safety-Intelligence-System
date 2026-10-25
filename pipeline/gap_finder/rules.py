@@ -50,11 +50,51 @@ PATHOGENS_TIER_1 = {
     "bacillus cereus", "cereulide", "cereulida",    # ES/PT
     "κερευλίδη", "κερευλιδη",
     # Botulism — high severity
+    # ── "botulin" IS THE NEEDLE (2026-10-24) ──────────────────────────
+    # The four longer forms below could not see the two words Italy's
+    # regulator and press actually use — "botulino" and "tossina
+    # botulinica" — and neither contains "botulism". So on 2026-10-22 the
+    # Italian gap finder read a Ministero della Salute roundup covering
+    # four recalls (suspected botulinum toxin in salsa tartufata;
+    # Salmonella in organic eggs; a microbiological non-conformity in
+    # clams; undeclared sulphites in vegetables in oil), took Pathogen
+    # "uova" (eggs) from the headline and REJECTED the botulinum row as
+    #     "allergen: Undeclared allergen — out of scope (Rule B reject)"
+    # — the sulphite recall's verdict, applied to a Tier-1 toxin. The
+    # correct row then sat in Pending, blocked by the re-promotion guard
+    # because "the URL is already in Weekly_Rejected".
+    # pipeline/_pathogen_scope.ALWAYS_TIER1_KEYWORDS has used the bare
+    # "botulin" needle since it was written, for exactly this reason; the
+    # two lexicons are matched the same way (plain substring) and this one
+    # had drifted. "botulin" covers botulinum, botulinumtoxin, botulino,
+    # botulinica, botulínica, botulinică. No word in any language the
+    # register reads contains "botulin" without meaning this organism.
+    "botulin",
     "clostridium botulinum", "botulinum toxin", "botulism",
     "botulismus",                                   # German / Polish / Hungarian
     "botulisme",                                    # French / Dutch
     "botulinumtoxin",                               # German compound
     "αλλαντίαση", "αλλαντιαση",
+    # ── THE REST OF THE SAME DRIFT, swept 2026-10-24 ──────────────────
+    # tests/test_one_scope_at_every_gate now walks every term in
+    # ALWAYS_TIER1_KEYWORDS through classify(). Three more were REJECTED
+    # as "unknown: No matching hazard category", i.e. a notice naming
+    # only that hazard could never reach the register through a gap
+    # finder while the scraper path published it:
+    #   "shiga toxin"  — only "shiga-toxin" and "shiga toxin-producing"
+    #                    were listed; FSA/FSAI also write it unhyphenated
+    #   "vulnificus"   — the publish gate forces Vibrio vulnificus to
+    #                    Tier 1 on a ~20% case-fatality rate; this
+    #                    lexicon knew only cholerae and alginolyticus
+    #   "sakazakii"    — "cronobacter sakazakii" was listed, but infant-
+    #                    formula notices still write the former name
+    #                    "Enterobacter sakazakii", which contains neither
+    # Deliberately still absent: the bare serogroup tokens ("o157",
+    # "o26", "o45" …). They never appear alone — the real shape is
+    # "E. coli O157", already listed, and bare "escherichia coli" is
+    # accepted at Tier 2 and escalated by _pathogen_scope.enforce_tier1 —
+    # while a three-character needle like "o26" matches inside lot codes.
+    "shiga toxin", "vulnificus", "sakazakii",
     # Other high-severity
     "cronobacter sakazakii", "cronobacter",
     # ── Asian-language fleet (2026-09-30: JP, KR, CN, TH, ID) ───────────────
@@ -128,6 +168,29 @@ PATHOGENS_TIER_2 = {
     # Rotavirus
     "rotavirus",                                                 # same in all our languages
     "clostridium perfringens",
+    # 2026-10-25. SULPHITE-REDUCING ANAEROBES (ASR, anaérobies sulfito-
+    # réducteurs) — the Clostridium-class indicator group that includes
+    # C. perfringens, named above. RappelConso fiche 2026-10-0245 (Ferme de
+    # Larcher, tête de veau en gelée, 23.10.2026) states its hazard as ASR
+    # and its risk as foodborne toxi-infection with abdominal cramps and
+    # diarrhoea; the row was published, Tier 3, and classified as no hazard
+    # at all by every gate. Added here in the same commit as the publish
+    # gate's needles, and in exactly the same spelling, so the two cannot
+    # drift — which is what the uninspected/mould/foreign-matter gaps each
+    # cost weeks on.
+    #
+    # NOT a bare "asr", and not a space-padded " asr " either: this set is
+    # matched with `needle in haystack` through a normaliser that collapses
+    # the padding away, which is exactly why the " hav " needle written up
+    # below has never been reachable here. The bracketed form and the
+    # spelled-out wording are enough, because
+    # scrapers/_models.PATHOGEN_RULES normalises a bare "ASR" to
+    # "Sulphite-reducing anaerobes (ASR)" before any gate sees it. No
+    # accented spelling either — _normalize() strips diacritics, so
+    # "anaérobies" could never match.
+    "sulphite-reducing anaerob", "sulfite-reducing anaerob",
+    "sulphite reducing anaerob", "sulfite reducing anaerob",
+    "anaerobies sulfito", "(asr)",
     "vibrio", "δονακιοειδή", "δονακιοειδη",
     # Generic E. coli without O157 specification → Tier 2 by default
     "e. coli", "e.coli", "escherichia coli", "κολοβακτηρίδιο", "κολοβακτηριδιο",
