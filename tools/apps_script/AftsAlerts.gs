@@ -713,6 +713,7 @@ var PATHOGEN_VOCAB = {
   "Vibrio": ["vibrio", "vulnificus", "parahaemolyticus", "cholerae", "cholera", "alginolyticus"],
   "Cronobacter": ["cronobacter", "sakazakii"],
   "Staphylococcus aureus / enterotoxin": ["staphylococcus", "staph. aureus", "s. aureus", "staphylococcal", "entérotoxine"],
+  "Sulphite-reducing anaerobes (ASR)": ["sulphite-reducing anaerobe", "sulfite-reducing anaerobe", "sulphite reducing anaerobe", "sulfite reducing anaerobe", "anaérobies sulfito-réducteurs", "anaerobies sulfito-reducteurs", "asr"],
   "Yersinia": ["yersinia", "enterocolitica"],
   "Shigella": ["shigella"],
   "Brucella": ["brucella", "brucellosis"],
