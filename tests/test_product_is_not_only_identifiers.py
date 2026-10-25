@@ -67,6 +67,25 @@ IDENTIFIER_ONLY = [
     "boite 500g lot 11061",
     "batch 11061, best before 03.01.2027",
     "ref. 3225164",
+    # ── THE DATE LABEL SPELLED OUT (2026-10-24) ──────────────────────────
+    # Both of these were PUBLISHED Tier 1 on 2026-10-23, verbatim, as the
+    # Product of a RappelConso scallop recall. "limite" and "consommation"
+    # were the content words that satisfied the sweep — the same escape
+    # "Sachet" made through the publish gate's word test, one layer up.
+    # fiche 23922 (heading "Blanquette St Jacques"):
+    "0207684000000; date limite de consommation; 2026-10-24",
+    # fiche 23914 (heading "Noix de Saint Jacques de la Baie de Saint
+    # Brieuc Label Rouge"):
+    "3563243012829; 22/10/2026; date limite de consommation; 2026-10-22; "
+    "|3563243012621; |3563243014625",
+    # The same shape in the other languages the register's scrapers read.
+    # None of these has been seen in the register; they are here so the
+    # next one cannot be the first.
+    "Packung 125 g, mindestens haltbar bis 03.11.2026",
+    "MHD 03.11.2026 — Beutel 500 g",
+    "lotto 596, da consumarsi preferibilmente entro 31/12/2028",
+    "lote 387/21096 1809, consumir antes de 20/11/2026",
+    "te gebruiken tot 23-10-2026, zak 250 g",
 ]
 
 A_REAL_NAME = [
@@ -95,6 +114,23 @@ A_REAL_NAME = [
     # A single bag of something named is a name, not a lot line.
     "sachet de sucre roux",
     "pot de rillettes 180g",
+    # The two 2026-10-23 rows as they read after repair_2026_10_24.
+    "Scallop blanquette (Blanquette St Jacques); GTIN 0207684000000; "
+    "use-by 24/10/2026",
+    "King scallops from the Bay of Saint-Brieuc, Label Rouge (Noix de "
+    "Saint Jacques de la Baie de Saint Brieuc Label Rouge); 200 g, 400 g "
+    "and 1 kg trays; GTINs 3563243012829, 3563243012621, 3563243014625; "
+    "use-by 22/10/2026",
+    # The other direction for the 2026-10-24 vocabulary: real product
+    # names in the languages whose date-label words were added. Each one
+    # must survive, label words and all.
+    "Nautica Regenbogen Forellenfilets Natur 125 g, mindestens haltbar "
+    "bis 03.11.2026",
+    "Milbona High Protein Pudding Schokolade, 200 g, MHD 12.11.2026",
+    "Salsa tartufata in vaso di vetro, da consumarsi entro 31/12/2028",
+    "Mejillón de Chile cocido, consumir antes de 20/11/2026",
+    "Plakjes ossenworst, te gebruiken tot 23-10-2026",
+    "Minste houdbaarheid: Goudse jong belegen kaas 500 g",
 ]
 
 
