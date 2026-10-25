@@ -89,6 +89,23 @@ PATHOGEN: dict[str, list[str]] = {
                                             "staph. aureus", "s. aureus",
                                             "staphylococcal",
                                             "entérotoxine"],        # 7
+    # 2026-10-25. RappelConso fiche 23918 (Ferme de Larcher, tête de veau
+    # en gelée, published 23.10.2026) states its hazard as ASR —
+    # anaérobies sulfito-réducteurs, the Clostridium-class sulphite-
+    # reducing anaerobe count — and its risk as foodborne toxi-infection
+    # with abdominal cramps and diarrhoea. Published, Tier 3, and reachable
+    # by no offered word: test_every_row_matches_at_least_one_pathogen_term
+    # was RED on main at 9e2626da with exactly ['ASR', 'asr'].
+    #
+    # Its own term rather than a line under "Mold / spoilage" (where
+    # "coliform" and "total bacterial count" live): those are counts with no
+    # stated illness, this is a notice naming an illness. A subscriber
+    # filtering for bacterial hazards should see it.
+    "Sulphite-reducing anaerobes (ASR)": [
+        "sulphite-reducing anaerobe", "sulfite-reducing anaerobe",
+        "sulphite reducing anaerobe", "sulfite reducing anaerobe",
+        "anaérobies sulfito-réducteurs", "anaerobies sulfito-reducteurs",
+        "asr"],                                                     # 1
     "Yersinia": ["yersinia", "enterocolitica"],                     # 0  (rules)
     "Shigella": ["shigella"],                                       # 0  (rules)
     "Brucella": ["brucella", "brucellosis"],                        # 0  (rules)
