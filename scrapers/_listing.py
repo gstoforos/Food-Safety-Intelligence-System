@@ -60,6 +60,7 @@ __all__ = [
     "looks_like_listing",
     "nearest_date",
     "parse_any_date",
+    "strip_shelf_life_dates",
 ]
 
 #: Date shapes that regulator listings actually render, with the parse each
@@ -131,6 +132,83 @@ def _clean(text: str) -> str:
     return _WS.sub(" ", _TAGS.sub(" ", text)).strip()
 
 
+# ── SHELF-LIFE DATES ARE NOT PUBLICATION DATES (audit 2026-10-25) ─────────
+#
+# A regulator's own headline often carries the product's best-before or
+# use-by date: the FSVO writes "DANFOREL A/S ruft das Produkt «Forellen-
+# filets geräuchert - Nature» mit dem Mindesthaltbarkeitsdatum 01.11.2026»
+# wegen Listerien zurück". Any date-finder pointed at that text picks up
+# 01.11.2026, and a shelf-life date is always in the FUTURE — so the row is
+# filed into a report week that has not happened yet. That is what the
+# Danforel Listeria recall did: published 23.10.2026, stored as 2026-11-01,
+# stamped report_week W44, and absent from the week it belongs to.
+#
+# This removes ONLY a date that the text itself labels as a shelf-life or
+# lot date. The label has to be there; nothing is guessed. A publication
+# date is never introduced by one of these words, so no caller loses one.
+_SHELF_LIFE_LABELS = (
+    # German (BVL, BLV/FSVO, AGES)
+    "mindesthaltbarkeitsdatum", "haltbarkeitsdatum", "verbrauchsdatum",
+    "mhd", "zu verbrauchen bis", "verbrauchen bis", "haltbar bis",
+    # French (RappelConso, FAVV, Luxembourg)
+    "date limite de consommation", "date de durabilite minimale",
+    "date de durabilité minimale", "a consommer jusqu",
+    "à consommer jusqu", "a consommer de preference avant",
+    "à consommer de préférence avant", "dlc", "dduo",
+    # English (FSA, FSAI, FSANZ, MPI, FDA, FSIS)
+    "best before", "best-before", "best by", "use by", "use-by",
+    "sell by", "sell-by", "expiration date", "expiry date", "exp date",
+    # Italian / Spanish / Portuguese
+    "termine minimo di conservazione", "da consumarsi entro",
+    "da consumarsi preferibilmente entro", "tmc",
+    "fecha de caducidad", "consumo preferente", "fecha de consumo",
+    "data de validade",
+    # Dutch / Nordic
+    "tenminste houdbaar tot", "ten minste houdbaar tot",
+    "te gebruiken tot", "tht", "tgt",
+    "siste forbruksdag", "best for", "sista forbrukningsdag",
+    "sista förbrukningsdag", "parasta ennen",
+    # lot / batch markings that carry a date
+    "lot number", "batch code", "lot code", "chargennummer",
+)
+
+#: A label, then up to this many characters of slack, then a date. The slack
+#: covers "best before dates between", "à consommer jusqu'au" and "MHD /
+#: Charge" style wording while staying short enough that the next sentence's
+#: date is out of reach. NON-DIGIT characters only, so the slack can never
+#: skip OVER a date to reach a later one.
+_SHELF_LIFE_SLACK = 40
+
+_ANY_DATE = "|".join(p.pattern for p, _ in DATE_PATTERNS)
+
+#: A label, slack, a date — then any further dates joined to it by "and" /
+#: "to" / a comma or slash, because a notice naming two batches prints two
+#: shelf-life dates ("best before 28/04/2027 and 09/05/2027").
+_SHELF_LIFE_RE = re.compile(
+    r"(?P<label>%s)(?:[^\d]{0,%d}?(?:%s))"
+    r"(?:\s*(?:and|und|et|e|y|o|to|bis|or|ou|&|,|/|;)\s*(?:%s))*" % (
+        "|".join(re.escape(lbl) for lbl in _SHELF_LIFE_LABELS),
+        _SHELF_LIFE_SLACK,
+        _ANY_DATE,
+        _ANY_DATE,
+    ),
+    re.IGNORECASE,
+)
+
+
+def strip_shelf_life_dates(text: str) -> str:
+    """`text` with every date that it labels as a shelf-life/lot date removed.
+
+    Only a date introduced by one of `_SHELF_LIFE_LABELS` is touched, and the
+    label survives verbatim — just the date after it goes, replaced by a
+    space so word boundaries hold. Text with no such label comes back
+    unchanged, character for character.
+    """
+    if not text:
+        return text or ""
+    return _SHELF_LIFE_RE.sub(lambda m: m.group("label") + " ", text)
+
+
 def parse_any_date(text: str) -> Optional[str]:
     """First date in `text` as ISO, or None. Rejects impossible dates.
 
@@ -180,7 +258,11 @@ def nearest_date(html: str, pos: int, window: int = DATE_WINDOW) -> Optional[str
         got = parse_any_date(best[1])
         if got:
             return got
-    return parse_any_date(html[pos:pos + window])
+    # The forward fallback reads the card's own title, which is where a
+    # regulator prints the product's best-before date (audit 2026-10-25 —
+    # see strip_shelf_life_dates). The BEHIND path above is untouched: it
+    # reads the listing's own date column, which carries no shelf-life text.
+    return parse_any_date(strip_shelf_life_dates(html[pos:pos + window]))
 
 
 def extract_links(

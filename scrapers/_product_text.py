@@ -48,6 +48,34 @@ _A_REAL_WORD: Final = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
 #:
 #: Kept SHORT on purpose — every entry here is a word this module becomes
 #: blind to, so it holds only terms that cannot be a food on their own.
+#:
+#: THE LABEL PHRASE SPELLED OUT (2026-10-24). Only "date" was listed, so a
+#: lot block that writes the date label in full kept a content word and the
+#: whole value read as a name. Measured on the 2026-10-23 register: two
+#: Tier-1 RappelConso rows were PUBLISHED with a GTIN/DLC block as Product —
+#:   fiche 23922  '0207684000000; date limite de consommation; 2026-10-24'
+#:   fiche 23914  '3563243012829; 22/10/2026; date limite de consommation;
+#:                 2026-10-22; |3563243012621; |3563243014625'
+#: because "limite" and "consommation" survived the sweep, exactly as
+#: "Sachet" survived the publish gate's word test in the note at the top of
+#: this file. The fiche headings say "Blanquette St Jacques" and "Noix de
+#: Saint Jacques de la Baie de Saint Brieuc Label Rouge".
+#: Added: the regulators' own date-label vocabulary and nothing wider. None
+#: of those words can be a food on its own, and the longer forms ("date
+#: limite de consommation", "à consommer jusqu'au", "mindestens haltbar
+#: bis", "da consumarsi entro", "consumir antes de") are built from them
+#: plus words already listed. The German, Dutch, Italian and Iberian label
+#: words go in with the French ones because the shape is a SHAPE, not a
+#: French one: the same lot block defeats the same sweep in any language
+#: whose regulator spells the date label out, and no measured row should
+#: have to be published in each of them first. Deliberately NOT added:
+#: anything that can stand for a food, and the generic prepositions of
+#: those languages beyond the ones the phrase needs. The other direction is
+#: measured in tests/test_product_is_not_only_identifiers.A_REAL_NAME,
+#: which carries real German, Italian, Spanish and Dutch product names.
+#: NOTE: this block is a frozenset built from
+#: .split(), so a '#' comment INSIDE the string would be split into tokens
+#: and silently add "the", "label", "only"… — keep the prose up here.
 _PACKAGING_WORDS: Final = frozenset("""
 sachet sachets sac sacs paquet paquets boite boites boîte boîtes barquette
 barquettes bocal bocaux bouteille bouteilles carton cartons caisse caisses
@@ -60,11 +88,17 @@ bottle bottles tub tubs tin tins pouch pouches carton_box sleeve wrapper
 unit units piece pieces portion portions
 ref ref. reference references référence références art art. articolo
 code codes codigo código barcode gtin ean upc sku plu
-batch batches charge chargen partia partie partii partita
+batch batches charge chargen partia partie partii partita lote lotes
 bbd bbe exp expiry expiration
 dlc dluo ddm peremption péremption
 best before use by sell by
 date dates dated jour jours
+limite limites consommation consommer conditionne conditionné
+durabilite durabilité minimale jusqu à au aux
+mindestens haltbar bis mhd verbrauchen
+houdbaar houdbaarheid gebruiken minste thm tgt te tot
+consumarsi scadenza preferibilmente entro da
+caducidad consumir consumo preferente validade antes
 no num nr no. num. nro
 kg kgs g gr gram grams grammes gramm ml cl l lt litre litres liter liters
 oz lb lbs pcs pce stk st szt

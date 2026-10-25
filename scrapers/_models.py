@@ -311,6 +311,30 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     ("Staphylococcus enterotoxin",
         r"\bstaphylococcus\b|\bstaph\s*aureus\b|\bstaphylococcal\s*enterotoxin\b"),
     ("Shigella", r"\bshigella\b"),
+    # Sulphite-reducing anaerobes — ASR, anaérobies sulfito-réducteurs, the
+    # Clostridium-class group that includes C. perfringens (2026-10-25).
+    #
+    # WHY IT IS HERE AND NOT ONLY IN THE GATES. RappelConso fiche
+    # 2026-10-0245 (Ferme de Larcher, tête de veau en gelée, published
+    # 23.10.2026) arrived with Pathogen "ASR" — then "asr" on the second
+    # copy — and nothing normalised it, so pipeline/_publish_gate
+    # classified it as no hazard at all, the curator refused the row, and
+    # no subscriber alert could reach it. Teaching the gates a bare " asr "
+    # needle is not the fix: pipeline/gap_finder/rules.py matches with
+    # `needle in haystack` and cannot carry a space-padded needle (see the
+    # " hav " / "have" note in that file), so the two gates would drift.
+    #
+    # Normalising the LABEL at source is the fix. Every gate then sees
+    # "Sulphite-reducing anaerobes (ASR)", which both of them match on
+    # "sulphite-reducing anaerob" and "(asr)", and nothing anywhere needs a
+    # three-letter needle.
+    #
+    # Tier 3: the regulator files it under "Autres contaminants
+    # biologiques" and states cramps and diarrhoea — a real illness risk,
+    # and a milder one than the Tier-1 organisms.
+    ("Sulphite-reducing anaerobes (ASR)",
+        r"\basr\b|\bsulph?ite[\s-]?reducing\s+anaerob\w*\b"
+        r"|\banaerobies\s+sulfito"),
     ("Histamine / scombrotoxin", r"\bhistamine\b|\bscombro(toxin|id)?\b"),
     # Visible mould / fungal growth — in scope from 2026-09-07 (see the
     # block in pipeline/_pathogen_scope.py). LAST in the list on purpose:
@@ -401,6 +425,7 @@ _TIERS: Dict[str, int] = {
     "Cronobacter sakazakii": 3,
     "Staphylococcus enterotoxin": 3,
     "Shigella": 3,
+    "Sulphite-reducing anaerobes (ASR)": 3,
     "Histamine / scombrotoxin": 3,
     # Tier 2 by default, and only by default. The hybrid framework prefers
     # the regulator's own Class field, which FSIS supplies on most of these,
@@ -675,6 +700,12 @@ def _fda_framework_tier(pathogen_canonical: str, product: Any) -> int:
         "Yersinia enterocolitica", "Cronobacter sakazakii",
         "Bacillus cereus", "Clostridium perfringens",
         "Brucella", "Shigella",
+        # 2026-10-25 — listed here as well as in _TIERS, for the reason the
+        # uninspected-product comment below gives: this set is what the
+        # function reads, and a canonical absent from it falls through to
+        # the Tier-3 default. ASR is Tier 3, so the default happens to be
+        # right today; it is listed anyway so a later tier change lands.
+        "Sulphite-reducing anaerobes (ASR)",
         "Staphylococcus enterotoxin", "Histamine / scombrotoxin",
         "Escherichia coli (generic)",
         "Aflatoxin", "Ochratoxin", "Mycotoxin", "Alternaria toxins",
