@@ -151,20 +151,27 @@ def _product_from(rec: Dict[str, Any]) -> str:
     name — fiche 23905 put "Sachet 1Kg: C120261010A106 - …" there while the
     fiche's own heading said "SUCRE ROUX PURE CANNE" — and this function
     accepted it because it is not empty. A lot line is a worse product name
-    than the title, so an identifier-only candidate is passed over and only
-    taken as a last resort, never replaced by something invented.
+    than the title, so an identifier-only candidate is passed over.
+
+    NO LOT-LINE LAST RESORT (2026-10-24). This used to keep the first
+    identifier-only candidate as a fallback when every field was one. That
+    is the single outcome never wanted: a Product that is a code list reads
+    as reviewed, tells a subscriber nothing, and the publish gate's word
+    test does not refuse it (packaging words are words). Returning EMPTY
+    instead sends the row to "Product is empty", which a human resolves off
+    the fiche. scrapers/europe_eu/rappelconso.py now does the same, and
+    tests/test_rappelconso_product_falls_through_a_lot_line.py pins that the
+    two agree.
     """
     from scrapers._product_text import is_identifier_only
 
-    fallback = ""
     for field in _PRODUCT_FIELDS:
         value = str(rec.get(field) or "").strip()
         if not value:
             continue
         if not is_identifier_only(value):
             return value
-        fallback = fallback or value
-    return fallback
+    return ""
 
 
 def to_recall(rec: Dict[str, Any]) -> Recall:
