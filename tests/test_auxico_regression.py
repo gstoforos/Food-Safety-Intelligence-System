@@ -539,5 +539,9 @@ class TestUkropsFabricatedPathogen(unittest.TestCase):
         self.assertEqual(1, len(hits))
         row = hits[0]
         self.assertNotIn("hepatitis", str(row["Pathogen"]).lower())
-        self.assertEqual("2", str(row["Tier"]))
+        # Tier 3 since operator rule 2026-10-26: foreign material (here
+        # aluminium slivers) is Tier 3 for every source. It was Tier 2.
+        # What this test pins is unchanged: never Tier 1 on the invented
+        # Hepatitis A pathogen.
+        self.assertEqual("3", str(row["Tier"]))
         self.assertNotIn("[tier-guard: Hepatitis A virus", str(row["Notes"]))
