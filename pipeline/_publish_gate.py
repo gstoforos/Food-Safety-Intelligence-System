@@ -1575,9 +1575,16 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             #
             # Sources absent from the map are not checked: better silent than
             # wrong, same rule as in verify_urls.
+            # 2026-10-26: resolved through allowed_hosts_for_source() rather
+            # than the raw-label dict. Two labels in that dict matched no live
+            # row any more ('FAVV (BE)', 'Ministero della Salute'), so this
+            # gate was not host-checking Belgium or Italy at all, and 26 other
+            # labels — 126 published rows — were never in the dict to begin
+            # with. The resolver keys on the canonical regulator identity, so
+            # a label rename cannot switch the check off again.
             try:
-                from pipeline.verify_urls import HOST_FOR_SOURCE, _host
-                _allowed = HOST_FOR_SOURCE.get(str(row.get("Source") or "").strip())
+                from pipeline.verify_urls import allowed_hosts_for_source, _host
+                _allowed = allowed_hosts_for_source(row.get("Source"))
                 if _allowed:
                     _h = _host(url)
                     if not any(host_matches_domain(_h, a) for a in _allowed):

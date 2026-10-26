@@ -146,6 +146,35 @@ CANONICAL: Dict[str, str] = {
     "FDA (GH)": "GH-FDA",
     "FDA Ghana": "GH-FDA",
     "FDA (PH)": "PH-FDA",
+    # ── 2026-10-26. SIX MORE REGISTRY LABELS, THE ITALY SHAPE AGAIN. ─────
+    # Measured on Recalls this morning: six labels that the registry
+    # (tools/monitored_sources.SOURCES) names, that the writer publishes,
+    # and that this table had never heard of — so canonical_source()
+    # returned kind='unknown' for 30 published rows and the coverage and
+    # independence checks counted four national authorities as "their own
+    # unknown source":
+    #
+    #     'CAA (JP)'            15 rows      'Mattilsynet'        10 rows
+    #     'MAST (IS)'            1 row       'NFSA (EG)'           1 row
+    #     'Ruokavirasto (FI)'    1 row       'VFA (VN)'            1 row
+    #
+    # Vietnam is the exact defect the 2026-10-07 note above describes:
+    # the bare collector name "VFA" was in this table, the registry's own
+    # label "VFA (VN)" — the one that reaches Recalls — was not.
+    #
+    # These ids are also the keys verify_urls.HOST_FOR_CANONICAL_SOURCE
+    # uses, so a label absent here is a host check that does not run.
+    "CAA (JP)": "JP-CAA",
+    "CAA": "JP-CAA",
+    "Mattilsynet": "NO-MATTILSYNET",
+    "Mattilsynet (NO)": "NO-MATTILSYNET",
+    "MAST (IS)": "IS-MAST",
+    "MAST": "IS-MAST",
+    "NFSA (EG)": "EG-NFSA",
+    "NFSA": "EG-NFSA",
+    "Ruokavirasto (FI)": "FI-RUOKAVIRASTO",
+    "Ruokavirasto": "FI-RUOKAVIRASTO",
+    "VFA (VN)": "VN-VFA",
 }
 
 # A re-report of another regulator's notice. Not an independent observation.

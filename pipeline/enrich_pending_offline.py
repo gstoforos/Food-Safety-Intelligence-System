@@ -84,6 +84,57 @@ RULES: Tuple[Tuple[str, str], ...] = (
     # fillet of 2026-08-20. The scombrotoxin spelling is matched too
     # because RappelConso and the FSA both use it.
     (r"histamin|scombrotox",                     "Histamine"),
+    # ── undeclared pharmacological ingredients: IN SCOPE ─────────────────
+    # GAP FOUND 2026-10-26. ALLERGEN_ONLY below opened with the bare word
+    # "undeclared", so EVERY row whose hazard text contains it was reported
+    # as "an undeclared allergen — out of AFTS scope". Undeclared DRUGS are
+    # not allergens and are explicitly in scope, and the register proves it:
+    # run this module's own infer_pathogen() over Recalls and THREE
+    # PUBLISHED ROWS come back refused as out-of-scope —
+    #
+    #   2026-09-15  FDA  X10 Natural Enhancement Supplement
+    #   2026-09-15  FDA  biQ-FEL 500 mL liquid dietary supplement
+    #   2026-09-03  FDA  Business Pill and Branch Manager for Men
+    #
+    # all three carrying Pathogen "Undeclared pharmacological ingredient",
+    # plus SZPI (CZ) 2026-10-06 (ELIXIRMAN, undeclared sildenafil) and a
+    # Rejected FDA row for Lipofit Extreme Fat Burner 2.0 (undeclared DNP).
+    # tools/alert_vocab.py has offered the subscriber term "Undeclared
+    # pharmacological ingredient" since 2026-10-10. The register, the gate
+    # and the alert vocabulary all treat these as publishable; only this
+    # module did not.
+    #
+    # The canonical spelling is the one those three published rows carry.
+    (r"sildenafil|tadalafil|vardenafil|dapoxetin|yohimb|sibutramin|"
+     r"phenolphthalein|dimethylamylamine|\bdmaa\b|\bdnp\b|"
+     r"dinitrophenol|undeclared (?:drug|pharmaceutical|pharmacolog)|"
+     r"unapproved (?:drug|pharmaceutical)|undeclared active pharmaceutical",
+                                                 "Undeclared pharmacological ingredient"),
+    # ── veterinary residues, and uninspected product ─────────────────────
+    # Both added 2026-10-26 with the allergen narrowing above, and for the
+    # same reason: each has a PUBLISHED row whose own hazard text mentions
+    # an allergen in passing, so the allergen fallback claimed the row was
+    # out of scope when the register had already published it.
+    #
+    #   FSA (UK) 2026-07-22, Graham's Family Dairy semi-skimmed milk:
+    #     "…a possible health risk for anyone with an allergy to
+    #      antibiotics (penicillin)" — the HAZARD is the residue; the
+    #      allergy is the consequence the FSA spells out.
+    #   USDA FSIS 2026-03-25, raw beef and pork, false "EST. 1996" mark:
+    #     "…may contain undeclared allergens, harmful bacteria or other
+    #      contaminants" — FSIS boilerplate listing what uninspected food
+    #      MIGHT contain. The hazard is that nothing was inspected.
+    #
+    # "Uninspected product (hazard not assessed)" is also the label the
+    # AFTS scope rule names for FSIS import-eligibility violations, and 14
+    # published rows already carry it verbatim.
+    (r"veterinary (?:medicin|drug|chemical)|residues? of (?:antibiotic|"
+     r"veterinary)|\bpenicillin\b|chloramphenicol|nitrofura",
+                                                 "Veterinary drug residue"),
+    (r"without (?:the benefit of )?(?:federal |official )?inspection|"
+     r"not (?:federally )?inspected|uninspected|false mark of inspection|"
+     r"ineligible for import|import eligibility",
+                                                 "Uninspected product (hazard not assessed)"),
     # ── bacteria and viruses ─────────────────────────────────────────────
     (r"listeria monocytogenes|list[ée]ria monocytogen",
                                                  "Listeria monocytogenes"),
@@ -155,9 +206,43 @@ RULES: Tuple[Tuple[str, str], ...] = (
 )
 
 #: Hazards that are out of AFTS scope — never enriched into publishability.
+#
+# NARROWED 2026-10-26. This pattern used to open with the bare word
+# "undeclared", which made it fire on every "undeclared <anything>" — and
+# the only thing it is allowed to exclude is an undeclared ALLERGEN. Two
+# hazard classes that are squarely in AFTS scope were being reported as
+# out of scope by that one word:
+#
+#   undeclared DRUGS       sildenafil, tadalafil, DMAA, DNP — five rows in
+#                          the register, three of them PUBLISHED with
+#                          Pathogen "Undeclared pharmacological ingredient"
+#   unapproved ADDITIVES   "undeclared colour", Sudan dyes, an additive
+#                          over its limit — in scope by the AFTS scope rule
+#
+# So "undeclared"/"non déclaré" now has to be followed by an allergen, and
+# the allergen list is the EU Annex II / FDA major list in the languages
+# the register actually carries. A standalone "allergen(e)" still matches,
+# which is how most notices word it. The RULES table above is consulted
+# BEFORE this pattern, so a row naming both a real hazard and an allergen
+# keeps its real hazard either way.
+_ALLERGEN_NOUN = (
+    r"allerg|peanut|arachide|erdnuss|cacahuete|gluten|wheat|bl[ée]\b|weizen|"
+    r"\bmilk\b|\blait\b|\bmilch\b|\bleche\b|\blatte\b|lactose|"
+    r"\begg\b|\boeuf|\bœuf|\bei\b|huevo|\buovo\b|"
+    r"\bsoy\b|soya|\bsoja\b|\bfish\b|poisson|\bfisch\b|pescado|"
+    r"crustace|crustáce|shellfish|mollus|\bnuts?\b|tree nut|noix|n[üu]sse|"
+    r"almond|amande|hazelnut|noisette|haselnuss|walnut|cashew|pecan|"
+    r"pistachio|pistache|macadamia|brazil nut|sesam|s[ée]same|"
+    r"\bcelery\b|c[ée]leri|sellerie|mustard|moutarde|senf|"
+    r"\blupin|sulphite|sulfite|sulphur dioxide|dioxyde de soufre")
+
 ALLERGEN_ONLY = re.compile(
-    r"undeclared|non[- ]d[ée]clar|allerg|peanut|arachide|gluten|sulphite|"
-    r"sulfite|milk not declared|soy not declared", re.I)
+    r"(?:undeclared|undisclosed|not\s+declared|non[- ]d[ée]clar|"
+    r"nicht\s+(?:deklariert|gekennzeichnet)|no\s+declarado)"
+    r"[^.;]{0,40}?(?:" + _ALLERGEN_NOUN + r")"
+    r"|(?:" + _ALLERGEN_NOUN + r")[^.;]{0,40}?"
+    r"(?:undeclared|undisclosed|not\s+declared|non[- ]d[ée]clar)"
+    r"|allerg|milk not declared|soy not declared", re.I)
 
 #: Rows whose Reason is the notice HEADLINE rather than a hazard sentence.
 #: For these the headline is the only hazard text the row has, so it is the

@@ -106,6 +106,142 @@ HOST_FOR_SOURCE: Dict[str, tuple] = {
     "MPI (NZ)":                 ("mpi.govt.nz",),
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# THE SAME MAP, KEYED BY CANONICAL SOURCE IDENTITY — audit 2026-10-26
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# HOST_FOR_SOURCE above is keyed on the RAW Source label, and the comment
+# on it says "Sources absent from this map are not checked". That rule is
+# right. What it does not survive is a label that drifts: the check does
+# not weaken, it switches OFF, silently, for every row of that regulator.
+#
+# The CFS (HK) note above records this happening once and being fixed by
+# hand. Measured on the live register this morning it had happened again,
+# and twice over:
+#
+#     44 distinct Source labels in Recalls
+#     16 matched a key above          2,049 rows checked
+#     28 matched nothing                126 rows NEVER host-checked
+#
+# and two keys above matched NO ROW AT ALL, because the label the writer
+# produces has moved on:
+#
+#     key 'FAVV (BE)'               live label 'AFSCA (BE)'          11 rows
+#     key 'Ministero della Salute'  live label 'Ministero della Salute (IT)'
+#                                                                    22 rows
+#
+# Belgium and Italy were deliberately covered by the author of this map
+# and were not being checked. Among the 126 unchecked rows, these cite a
+# NEWS host as the authority that published the recall — exactly what this
+# map exists to catch:
+#
+#     NFSA (EG)      news.google.com/rss/articles/...   (a Google News id)
+#     MFDS (KR)      en.sedaily.com                     2 rows
+#     Min. Salute    ilfattoalimentare.it
+#     COFEPRIS (MX)  unotv.com
+#     ANMAT (AR)     chequeado.com
+#     VFA (VN)       vietnam.vnanet.vn
+#     COMESA         capitalfm.co.ke
+#
+# pipeline/_source_canon.py already solves label drift — it is the module
+# whose whole purpose is "one regulator, one label", and it already knows
+# both live spellings above. So the map is now ALSO keyed by canonical id
+# and `allowed_hosts_for_source()` resolves through it, falling back to the
+# raw label. A future rename cannot turn the check off again without also
+# being invisible to _source_canon, which its own test pins.
+#
+# Every host below is the authority's own domain, taken from the operator's
+# authorised source list — nothing inferred from a row.
+HOST_FOR_CANONICAL_SOURCE: Dict[str, tuple] = {
+    # the sixteen already covered by label, restated by identity
+    "FR-RAPPELCONSO": ("rappel.conso.gouv.fr",),
+    "EU-RASFF":       ("webgate.ec.europa.eu",),
+    "AU-FSANZ":       ("foodstandards.gov.au",),
+    "ES-AESAN":       ("aesan.gob.es",),
+    "CH-BLV":         ("blv.admin.ch", "recallswiss.admin.ch"),
+    "DE-BVL":         ("bvl.bund.de", "lebensmittelwarnung.de"),
+    "IE-FSAI":        ("fsai.ie",),
+    "UK-FSA":         ("food.gov.uk", "data.food.gov.uk"),
+    "GR-EFET":        ("efet.gr",),
+    "ZA-NCC":         ("thencc.org.za",),
+    "US-FSIS":        ("fsis.usda.gov",),
+    "US-FDA":         ("fda.gov", "accessdata.fda.gov"),
+    "CA-CFIA":        ("recalls-rappels.canada.ca", "inspection.canada.ca"),
+    "US-CDC":         ("cdc.gov",),
+    "HK-CFS":         ("cfs.gov.hk", "info.gov.hk"),
+    "NZ-MPI":         ("mpi.govt.nz",),
+    # the two the raw-label keys could no longer reach
+    "BE-FAVV":        ("favv-afsca.be", "afsca.be", "favv.be"),
+    "IT-SALUTE":      ("salute.gov.it", "pnes.salute.gov.it"),
+    # regulators with published rows that were never checked at all
+    "JP-CAA":         ("recall.caa.go.jp", "caa.go.jp"),
+    "NL-NVWA":        ("nvwa.nl",),
+    "PL-GIS":         ("gov.pl",),
+    "NO-MATTILSYNET": ("mattilsynet.no",),
+    # MAPAQ's recall notices are served from the Québec government portal
+    # (quebec.ca/nouvelles/actualites/...), which is where all six published
+    # rows point; mapaq.gouv.qc.ca is the department's own older home.
+    "CA-MAPAQ":       ("quebec.ca", "mapaq.gouv.qc.ca"),
+    "AT-AGES":        ("ages.at",),
+    "CZ-SZPI":        ("szpi.gov.cz",),
+    "MX-COFEPRIS":    ("gob.mx",),
+    "HR-HAH":         ("hapih.hr",),
+    "HU-NKFH":        ("nkfh.gov.hu", "nebih.gov.hu"),
+    "SG-SFA":         ("sfa.gov.sg",),
+    "PH-FDA":         ("fda.gov.ph",),
+    "BR-ANVISA":      ("gov.br",),
+    "KR-MFDS":        ("mfds.go.kr",),
+    "IS-MAST":        ("mast.is",),
+    "EG-NFSA":        ("nfsa.gov.eg",),
+    "FI-RUOKAVIRASTO": ("ruokavirasto.fi",),
+    "EU-EFSA":        ("efsa.europa.eu",),
+    "EU-ECDC":        ("ecdc.europa.eu",),
+    "VN-VFA":         ("vfa.gov.vn",),
+    "UY-MSP":         ("gub.uy",),
+    "CO-INVIMA":      ("invima.gov.co",),
+    "AR-ANMAT":       ("argentina.gob.ar", "anmat.gob.ar"),
+    "COMESA":         ("comesa.int",),
+    "EE-VTA":         ("pta.agri.ee",),
+    "GH-FDA":         ("fdaghana.gov.gh",),
+}
+
+#: Source labels that name a NON-regulator and are therefore exempt from the
+#: host check rather than missing from it. "BeaconBio (TW)" is a laboratory
+#: and "Food Safety News (citing …)" is media; both say so in the label, and
+#: _source_canon classifies the latter as kind="news". A label here is a
+#: citation weakness recorded honestly, not a host mismatch.
+NOT_A_REGULATOR_SOURCE = frozenset({
+    "NEWS",
+    "TW-BEACONBIO",
+})
+
+
+def allowed_hosts_for_source(source) -> Optional[tuple]:
+    """The hosts a row carrying this Source label is allowed to cite.
+
+    Resolves the label to its canonical regulator identity first, so a
+    renamed label keeps its check, and falls back to the raw label for any
+    key that exists only in HOST_FOR_SOURCE. Returns None when this source
+    is not host-checked — either a non-regulator (NOT_A_REGULATOR_SOURCE)
+    or a label no table names, which stays silent on purpose.
+    """
+    label = str(source or "").strip()
+    if not label:
+        return None
+    try:
+        from pipeline._source_canon import canonical_source
+        canon_id, kind, _mirrors = canonical_source(label)
+    except Exception:                               # pragma: no cover
+        canon_id, kind = "", "unknown"
+    if canon_id in NOT_A_REGULATOR_SOURCE or kind == "news":
+        return None
+    hosts = HOST_FOR_CANONICAL_SOURCE.get(canon_id)
+    if hosts:
+        return hosts
+    # An aggregator label ("CFS (HK) - aggregator (RappelConso FR)") keeps
+    # the base regulator's identity, so it is already covered above.
+    return HOST_FOR_SOURCE.get(label)
+
 # A RASFF notification id is a plain integer. The 2026.NNNN form is the
 # notification REFERENCE, which is not addressable as a path segment.
 _RASFF_PATH = re.compile(r"/rasff-window/screen/notification/([^/?#]+)")
@@ -197,7 +333,7 @@ def structural_findings(row: Dict[str, Any]) -> List[str]:
         # FSA's linked-data IDs are genuinely http:// identifiers, not links.
         out.append("URL uses http:// where the regulator serves https://")
 
-    allowed = HOST_FOR_SOURCE.get(source)
+    allowed = allowed_hosts_for_source(source)
     if allowed:
         host = _host(url)
         # 2026-09-27: this test used to end in `or a in host` — a bare

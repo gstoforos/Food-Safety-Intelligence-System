@@ -3190,19 +3190,57 @@ def _is_placeholder_digits(digits: str) -> bool:
     return digits in (asc, desc)                    # 1234567890, 987654321
 
 
+# 2026-10-26 — TWO MORE SHAPES, both found PUBLISHED by the morning pass.
+#
+#   "(No Recall ID provided)"
+#                       NFSA (EG), 2026-10-11, Yasensvit Ltd shell eggs,
+#                       Salmonella Enteritidis. The alternation below is
+#                       anchored on "recall id" coming FIRST, so it reads
+#                       "(Recall ID not provided)" and misses the same
+#                       sentence with the negation moved to the front. One
+#                       word of word order and the placeholder published.
+#                       The leading "no/without" is now optional-matched
+#                       before the phrase.
+#
+#   "(Recall ID AGES-12345)"   AGES (AT), 2026-10-16, Lidl Milbona High
+#   "(Recall ID MAST-123456)"  Protein Pudding, Bacillus cereus; and
+#                              MAST (IS), 2026-10-13, Lifa ehf. Timur
+#                              berry, Salmonella.
+#                       Same class as the Ruokavirasto "1234567890" row of
+#                       2026-10-09 — an INVENTED reference, which is worse
+#                       than an admitted blank because it looks checkable
+#                       — except that the model prefixed it with the
+#                       agency's own short name, so the digits were no
+#                       longer the whole captured group and the digit-run
+#                       guard never saw them.
+#
+# The prefix is matched only as an optional group, and the placeholder test
+# still applies to the DIGITS ALONE, so the three KEEPERS pinned in
+# tests/test_empty_identifier_template_never_reaches_data.py are untouched:
+# "842632" is not a placeholder run, and "FSA-PRIN-47-2026" and
+# "H-0700-2026" are not <prefix><digit-run> at all.
 _EMPTY_ID_WORDS = re.compile(
-    r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*"
-    r"(?:n\s*/?\s*a|not\s+(?:provided|specified|available|printed|given)|"
+    r"\s*[(\[]\s*(?:no[\s_-]+|without[\s_-]+)?recall[\s_-]*id\s*[:\-]?\s*"
+    r"(?:n\s*/?\s*a|(?:not|none)\s+(?:provided|specified|available|"
+    r"printed|given|stated|listed)|"
+    # The bare participle, for the "(No Recall ID provided)" word order
+    # where the negation sits in front of the phrase instead of after it.
+    r"(?:provided|specified|available|printed|given|stated|listed)|"
     r"unknown|none|null|tbd|tba|t\.?b\.?[ad]\.?|pending|"
     r"to\s+be\s+(?:advised|announced|confirmed|determined)|"
-    r"-+|\?+)\s*[)\]]\s*",
+    r"-+|\?+)?\s*[)\]]\s*",
     re.IGNORECASE)
 
 #: The digit-run variant. Kept separate so the callable above decides, and
 #: combined into _EMPTY_ID_TEMPLATE below so every existing caller — and
 #: every existing test that imports the name — keeps working unchanged.
+#:
+#: The optional ``<AGENCY>-`` prefix was added 2026-10-26; see the block
+#: comment above. ``_is_placeholder_digits`` still judges group(1), the
+#: digits on their own.
 _EMPTY_ID_DIGITS = re.compile(
-    r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*(\d{4,})\s*[)\]]\s*",
+    r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*"
+    r"(?:[A-Za-z][A-Za-z0-9]{1,9}[\s_-])?(\d{4,})\s*[)\]]\s*",
     re.IGNORECASE)
 
 
