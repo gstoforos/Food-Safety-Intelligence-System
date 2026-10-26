@@ -735,7 +735,7 @@ var PATHOGEN_VOCAB = {
   "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane", "oleander", "cardiac glycoside"],
   "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury", "arsenic", "molybdenum"],
   "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue"],
-  "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol"],
+  "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol", "glycidyl", "glycidyle", "glycidylique"],
   "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine", "sildenafil", "tadalafil", "dimethylamylamine", "dmaa"],
   "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (", "tetrahydrocannabinol"],
   "Foreign material / physical hazard": ["foreign material", "foreign body", "physical/foreign", "physical hazard", "glass", "metal fragment", "shell fragment", "stones", "sand)", "plastic"],
