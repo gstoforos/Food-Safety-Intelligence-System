@@ -26,10 +26,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/arla-protein-salted-caramel-flavour-pudding-200g-arla-protein-chocolate",
-  "Notes": "Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g | Food Standards Australia New Zealand\n\n# Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g \n\n Arla Foods Mayer Australia \n\n Recall published 24 October 2026 \n\n  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-24: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-24: pending_gap_v1→pending_gap_v2 URL confirmed] [morning-fix 2026-10-25: Company and Product taken from this row's own Notes, which hold the FSANZ recall-alert page verbatim — heading \"Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g\", firm \"Arla Foods Mayer Australia\", \"Recall published 24 October 2026\". Product had held the company name and Company was empty, which is the only thing the publish gate was refusing. Reason \"Glass fragments — outbreak\" and Outbreak=1 corrected: foreign material in a pudding is not an outbreak-associated incident, and the flag feeds the outbreak count on every weekly and monthly report.] [promote 2026-10-25: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+  "Notes": "Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g | Food Standards Australia New Zealand\n\n# Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g \n\n Arla Foods Mayer Australia \n\n Recall published 24 October 2026 \n\n  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-24: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-24: pending_gap_v1→pending_gap_v2 URL confirmed] [morning-fix 2026-10-25: Company and Product taken from this row's own Notes, which hold the FSANZ recall-alert page verbatim — heading \"Arla Protein Salted Caramel Flavour Pudding 200g & Arla Protein Chocolate Flavour Pudding 200g\", firm \"Arla Foods Mayer Australia\", \"Recall published 24 October 2026\". Product had held the company name and Company was empty, which is the only thing the publish gate was refusing. Reason \"Glass fragments — outbreak\" and Outbreak=1 corrected: foreign material in a pudding is not an outbreak-associated incident, and the flag feeds the outbreak count on every weekly and monthly report.] [promote 2026-10-25: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-10-24",
@@ -90,10 +90,10 @@
   "Class": "Recall",
   "Country": "Italy",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/richiamo_1792687675.pdf",
-  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Emilia-Romagna (Provincia di Parma)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Emilia-Romagna (Provincia di Parma)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 1]"
  },
  {
   "Date": "2026-10-23",
@@ -4378,10 +4378,10 @@
   "Class": "Recall",
   "Country": "Italy",
   "Region": "Europe",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20SALAMELLA%20DOLCE%20INTERA_1790933640.pdf",
-  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Tuscany] [product-repair 2026-10-04: Product read 'Sweet prosciutto'. The food is salamella dolce — a fresh pork SAUSAGE, not a dry-cured ham. Read 2026-10-04 on the row's own authority URL, whose filename is 'cartello di richiamo modello ministero SALAMELLA DOLCE INTERA', and on ilfattoalimentare.it/richiamo-salamella-dolce.html, the discovery source this row already names, which links that same Ministero della Salute PDF and gives the producer as Franchi Salumi Srl, Follonica (GR) and the notice date as 2 October 2026 — the Date this row already carries. No lot, weight or use-by date is imported from the news page.] [original product: salamella dolce (intera, sottovuoto)] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/it/rules.py: [SUPERSEDED 2026-10-04 — the defect named below was a vocabulary gap in pipeline/gap_finder/rules.py, now repaired, and this recall is P'; that defect is repaired and the row now passes every publish-gate rule]"
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Tuscany] [product-repair 2026-10-04: Product read 'Sweet prosciutto'. The food is salamella dolce — a fresh pork SAUSAGE, not a dry-cured ham. Read 2026-10-04 on the row's own authority URL, whose filename is 'cartello di richiamo modello ministero SALAMELLA DOLCE INTERA', and on ilfattoalimentare.it/richiamo-salamella-dolce.html, the discovery source this row already names, which links that same Ministero della Salute PDF and gives the producer as Franchi Salumi Srl, Follonica (GR) and the notice date as 2 October 2026 — the Date this row already carries. No lot, weight or use-by date is imported from the news page.] [original product: salamella dolce (intera, sottovuoto)] [reason-cleanup 2026-10-04: the extractor's own empty-identifier template text was stripped from Reason ('(Recall ID N/A)') — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-10-04: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/it/rules.py: [SUPERSEDED 2026-10-04 — the defect named below was a vocabulary gap in pipeline/gap_finder/rules.py, now repaired, and this recall is P'; that defect is repaired and the row now passes every publish-gate rule] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 1]"
  },
  {
   "Date": "2026-10-02",
@@ -5066,10 +5066,10 @@
   "Class": "Recall",
   "Country": "Japan",
   "Region": "Asia",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000035888&screenkbn=01",
-  "Notes": "[manual 2026-09-30: CAA recall page and listing read; listing publication date (掲載日) 2026/09/29, company action start 2026-09-12. First CAA row in the register.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [original product: 輪島の地酒ぜりい (Wajima local-sake jelly)] [original company: 沖製あん] [English names 2026-10-01]"
+  "Notes": "[manual 2026-09-30: CAA recall page and listing read; listing publication date (掲載日) 2026/09/29, company action start 2026-09-12. First CAA row in the register.] [promote 2026-09-30: status 'pending'->'pending' — passes every publish-gate rule] [original product: 輪島の地酒ぜりい (Wajima local-sake jelly)] [original company: 沖製あん] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-09-29",
@@ -8074,10 +8074,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23482/interne",
-  "Notes": "[incident:fr:distri-mascareignes-2026-09-09] [operator review 2026-09-09: verified on fiche 23482 (ref. 2026-09-0108, published 09/09/2026). Same responsible company and defect as fiche 23481, published the same day; the two are one incident. This fiche covers the counter-sold range, 23481 the pre-packed trays.]"
+  "Notes": "[incident:fr:distri-mascareignes-2026-09-09] [operator review 2026-09-09: verified on fiche 23482 (ref. 2026-09-0108, published 09/09/2026). Same responsible company and defect as fiche 23481, published the same day; the two are one incident. This fiche covers the counter-sold range, 23481 the pre-packed trays.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-09-09",
@@ -8090,10 +8090,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23481/interne",
-  "Notes": "[incident:fr:distri-mascareignes-2026-09-09] [operator review 2026-09-09: verified on fiche 23481 (ref. 2026-09-0107, published 09/09/2026). Responsible company DISTRI MASCAREIGNES GIE; sold at E.Leclerc La Reserve on Reunion (department 974), which is why Country reads France. Product and Reason translated from the fiche. Grouped with fiche 23482 — same company, same day, same defect, same single day of sale, same store — so the weekly counts the two notices as one incident.]"
+  "Notes": "[incident:fr:distri-mascareignes-2026-09-09] [operator review 2026-09-09: verified on fiche 23481 (ref. 2026-09-0107, published 09/09/2026). Responsible company DISTRI MASCAREIGNES GIE; sold at E.Leclerc La Reserve on Reunion (department 974), which is why Country reads France. Product and Reason translated from the fiche. Grouped with fiche 23482 — same company, same day, same defect, same single day of sale, same store — so the weekly counts the two notices as one incident.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-09-09",
@@ -8186,10 +8186,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/greenstorm-foods-ta-austral-herbs-certified-organic-premium-peppermint",
-  "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the FSANZ recall alert of 9 September 2026, reason verbatim \"The presence of foreign matter (metal)\"; the notice mentions NO pathogen. The row had been archived because the confirm agent's contradiction guard fired - \"reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason\" - and the guard was RIGHT: the scraper had written a Listeria that appears nowhere on the page. The right answer was to delete the fabricated pathogen, not the recall. Foreign material is in scope (physical hazard) and Tier 2.]"
+  "Notes": "[operator review 2026-09-11: RECOVERED FROM THE ARCHIVE. Verified today on the FSANZ recall alert of 9 September 2026, reason verbatim \"The presence of foreign matter (metal)\"; the notice mentions NO pathogen. The row had been archived because the confirm agent's contradiction guard fired - \"reviewer 2 approved but Pathogen 'Listeria monocytogenes' contradicts Reason\" - and the guard was RIGHT: the scraper had written a Listeria that appears nowhere on the page. The right answer was to delete the fabricated pathogen, not the recall. Foreign material is in scope (physical hazard) and Tier 2.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-09-09",
@@ -8778,10 +8778,10 @@
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23443/interne",
-  "Notes": "scaso [operator review 2026-09-05: verified against fiche 23443 — Alimentation > Viandes, brand CASTEL ARTISAN CONSERVEUR, responsible company CASTEL FOIE GRAS, distributor SCASO, GTIN 3700028400925, published 04/09/2026. Tier 2 as the register tiers glass fragments (laceration risk).] [original product: Axoa de canard au piment d'Espelette, 800 g jar (lot 25014026, best before 14/01/2029)] [English names 2026-10-01]"
+  "Notes": "scaso [operator review 2026-09-05: verified against fiche 23443 — Alimentation > Viandes, brand CASTEL ARTISAN CONSERVEUR, responsible company CASTEL FOIE GRAS, distributor SCASO, GTIN 3700028400925, published 04/09/2026. Tier 2 as the register tiers glass fragments (laceration risk).] [original product: Axoa de canard au piment d'Espelette, 800 g jar (lot 25014026, best before 14/01/2029)] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-09-04",
@@ -11066,10 +11066,10 @@
   "Class": "Class 3",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/onetang-brand-walnut-soft-candy-black-sesame-recalled-due-presence-stones",
-  "Notes": "CFIA RA-82522 / CFIA ID 17507, Class 3, recall date 2026-08-20, distributed in Manitoba and Ontario, no illnesses reported. Hazard verbatim: stones, extraneous material, choking and dental injury risk. [added manually 2026-08-26: the CFIA collector's last row is dated 2026-08-14. Two other CFIA food recalls of 2026-08-21 were checked and are correctly absent — Kim Phat Seafood Medley (undeclared egg, fish, soy, wheat) and Cardinal Roadhouse Chicken Burgers (undeclared egg) are both allergen-only. Compliments/Selection Corn Dogs is already in the register as O Mets Chinois, RA-82519.]"
+  "Notes": "CFIA RA-82522 / CFIA ID 17507, Class 3, recall date 2026-08-20, distributed in Manitoba and Ontario, no illnesses reported. Hazard verbatim: stones, extraneous material, choking and dental injury risk. [added manually 2026-08-26: the CFIA collector's last row is dated 2026-08-14. Two other CFIA food recalls of 2026-08-21 were checked and are correctly absent — Kim Phat Seafood Medley (undeclared egg, fish, soy, wheat) and Cardinal Roadhouse Chicken Burgers (undeclared egg) are both allergen-only. Compliments/Selection Corn Dogs is already in the register as O Mets Chinois, RA-82519.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-08-19",
@@ -11322,10 +11322,10 @@
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/updated-dreyers-grand-ice-cream-inc-issues-voluntary-recall-select-outshine-fruit-bars-due-possible",
-  "Notes": "FDA listing HTML (Layer 1) [promoted 2026-08-20: FDA press release 18/08/2026, hazard verbatim 'Possible foreign material contamination with glass'; 'No illnesses or injuries have been reported to date.' Foreign material is in AFTS scope. Pathogen was empty (gate block) and the URL in the row 404s — its slug read '...recall-outshine-fruit-bars-due-possible-presence' where the real page is '...recall-select-outshine-fruit-bars-due-possible'. CHANGED — Pathogen: ''->'Foreign material (glass)'; Tier: '3'->'2'; Company: 'Dreyer’s Grand Ice Cream, In'->\"Dreyer's Grand Ice Cream, In\"; Product: 'Outshine Fruit Bars'->'Outshine Strawberry, Waterme'.]"
+  "Notes": "FDA listing HTML (Layer 1) [promoted 2026-08-20: FDA press release 18/08/2026, hazard verbatim 'Possible foreign material contamination with glass'; 'No illnesses or injuries have been reported to date.' Foreign material is in AFTS scope. Pathogen was empty (gate block) and the URL in the row 404s — its slug read '...recall-outshine-fruit-bars-due-possible-presence' where the real page is '...recall-select-outshine-fruit-bars-due-possible'. CHANGED — Pathogen: ''->'Foreign material (glass)'; Tier: '3'->'2'; Company: 'Dreyer’s Grand Ice Cream, In'->\"Dreyer's Grand Ice Cream, In\"; Product: 'Outshine Fruit Bars'->'Outshine Strawberry, Waterme'.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-08-17",
@@ -12506,10 +12506,10 @@
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/grand-central-bakery-recalls-potato-sourdough-bread-due-possible-foreign-object",
-  "Notes": "[promoted 2026-08-15: FDA notice verified on 2026-08-15 — 'a pallet nail was discovered in a loaf of Potato Sourdough Bread'. Foreign material is in AFTS scope. The Pending row had Pathogen empty and Reason repeating the page title.]"
+  "Notes": "[promoted 2026-08-15: FDA notice verified on 2026-08-15 — 'a pallet nail was discovered in a loaf of Potato Sourdough Bread'. Foreign material is in AFTS scope. The Pending row had Pathogen empty and Reason repeating the page title.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-08-11",
@@ -13626,10 +13626,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/key-sun-kids-honey-eucalyptus-acerola-lozenge-54-g-12-x-45-g-lozenges",
-  "Notes": "[safety-hold: not approved this run; not promoted] [approved 2026-08-13: FABRICATED PATHOGEN CORRECTED. The row carried 'Listeria monocytogenes'. The FSANZ notice states the hazard is 'There is a risk of the presence of foreign matter (metal).' No pathogen is involved. Publish-gate rule 7 held the row because Pathogen and Reason described different hazard classes — that rule did its job. Foreign material is in AFTS scope, so the row is repaired rather than rejected. Verified against the FSANZ alert (5 August 2026, Key-Sun Laboratories)]"
+  "Notes": "[safety-hold: not approved this run; not promoted] [approved 2026-08-13: FABRICATED PATHOGEN CORRECTED. The row carried 'Listeria monocytogenes'. The FSANZ notice states the hazard is 'There is a risk of the presence of foreign matter (metal).' No pathogen is involved. Publish-gate rule 7 held the row because Pathogen and Reason described different hazard classes — that rule did its job. Foreign material is in AFTS scope, so the row is repaired rather than rejected. Verified against the FSANZ alert (5 August 2026, Key-Sun Laboratories)] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-08-04",
@@ -13914,10 +13914,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23072/Interne",
-  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23072 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23072). motif_rappel: « risque potentiel de bris de verre de petite taille dans la confiture » ; risques_encourus: « inertes (verre, metal, plastique, papier, textile...) » ; distributeurs: voir tracabilite.] [original product: Confiture de fraises en pots verre de 30 g] [English names 2026-10-01]"
+  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23072 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23072). motif_rappel: « risque potentiel de bris de verre de petite taille dans la confiture » ; risques_encourus: « inertes (verre, metal, plastique, papier, textile...) » ; distributeurs: voir tracabilite.] [original product: Confiture de fraises en pots verre de 30 g] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-08-03",
@@ -13946,10 +13946,10 @@
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/ukrops-homestyle-foods-announces-voluntary-recall-due-possible-foreign-object",
-  "Notes": "FDA listing HTML (Layer 1) [audit 2026-08-04: Pathogen was 'Hepatitis A virus' — FABRICATED. Verified against the live FDA notice, whose permalink itself ends 'due-possible-foreign-object': the hazard is aluminium slivers from the baking pans and no pathogen is named anywhere on the page. The invented pathogen also caused the always-Tier-1 guard to escalate the row from Tier 2 to Tier 1. Pathogen corrected to the real hazard, Tier restored to 2, Product expanded from 2 to the 6 products the notice lists. Guards fixed in the same pass: the physical-hazard vocabulary now matches foreign-object wording, the bare 'hav' keyword that matched the word 'have' is spaced, and enforce_tier1 no longer escalates on a contradicted Pathogen.]"
+  "Notes": "FDA listing HTML (Layer 1) [audit 2026-08-04: Pathogen was 'Hepatitis A virus' — FABRICATED. Verified against the live FDA notice, whose permalink itself ends 'due-possible-foreign-object': the hazard is aluminium slivers from the baking pans and no pathogen is named anywhere on the page. The invented pathogen also caused the always-Tier-1 guard to escalate the row from Tier 2 to Tier 1. Pathogen corrected to the real hazard, Tier restored to 2, Product expanded from 2 to the 6 products the notice lists. Guards fixed in the same pass: the physical-hazard vocabulary now matches foreign-object wording, the bare 'hav' keyword that matched the word 'have' is spaced, and enforce_tier1 no longer escalates on a contradicted Pathogen.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-07-31",
@@ -14106,10 +14106,10 @@
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23057/Interne",
-  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23057 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23057). motif_rappel: « il n'est malheureusement pas possible d'exclure la presence d'un corps etranger (eclat de verre brun) dans certains emballages » ; risques_encourus: « inertes (verre, metal, plastique, papier, textile...) » ; distributeurs: magasins bio, magasins botanic et sites de ventes en ligne.] [original product: Chips de pommes de terre artisanales romarin sel marin 120 g] [English names 2026-10-01]"
+  "Notes": "[promoted 2026-08-06: every field read back from the DGCCRF open-data record for fiche 23057 (tabular-api.data.gouv.fr resource 5a4e7174-657c-4920-af1f-3440a996837c, id__exact=23057). motif_rappel: « il n'est malheureusement pas possible d'exclure la presence d'un corps etranger (eclat de verre brun) dans certains emballages » ; risques_encourus: « inertes (verre, metal, plastique, papier, textile...) » ; distributeurs: magasins bio, magasins botanic et sites de ventes en ligne.] [original product: Chips de pommes de terre artisanales romarin sel marin 120 g] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-07-31",
@@ -15946,10 +15946,10 @@
   "Class": "Recall",
   "Country": "United Kingdom",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-36-2026",
-  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-36-2026 (created 2026-07-21). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.]"
+  "Notes": "[promoted 2026-08-07: read back from the FSA Food Alerts API record FSA-PRIN-36-2026 (created 2026-07-21). The FSA scraper produced nothing between 2026-07-08 and 2026-08-07 — pipeline/official_feeds/sources/uk.py queried the endpoint with _sort=-created, which that API ignores silently, so it returned its oldest page (2018) on every run and reported success. This row was never rejected; it was never fetched.] [FSA alert covers England, Scotland and Wales.] [audit 2026-08-09: URL was the FSA linked-data record (data.food.gov.uk/food-alerts/id/...), which serves JSON/RDF/CSV/Turtle metadata, not a page a reader can open. Replaced with the alertURL field READ FROM THAT RECORD. Not derived by transform: the obvious rule (lowercase the notation onto www.food.gov.uk/news-alerts/alert/) is what a 2018 record suggests and 404s for 2026 alerts — the FSA moved its alert host to alerts.food.gov.uk while older alerts still answer on www, so a transform verified against an old record produces dead links that look checked. pipeline/official_feeds/sources/uk.py was reading a field named 'url' that this API does not publish, so every FSA row fell through to the @id; it now reads alertURL and refuses the @id as a fallback.] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-07-20",
@@ -19226,10 +19226,10 @@
   "Class": "Recall",
   "Country": "France",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/22642/Interne",
-  "Notes": "Promoted 2026-06-30. In scope: foreign material (glass). [retailer: (see fiche)] [original product: Henri et Jean pâté verrine aux cèpes bio 180g] [English names 2026-10-01]"
+  "Notes": "Promoted 2026-06-30. In scope: foreign material (glass). [retailer: (see fiche)] [original product: Henri et Jean pâté verrine aux cèpes bio 180g] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-06-26",
@@ -19594,10 +19594,10 @@
   "Class": "Recall",
   "Country": "Ireland",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-a-batch-of-ortiz-sardines-in-olive-oil",
-  "Notes": "Promoted 2026-06-30 (corrected — was wrongly rejected as \"thin\"; FSAI detail page confirms glass-pieces foreign-material hazard, batch 73175G)."
+  "Notes": "Promoted 2026-06-30 (corrected — was wrongly rejected as \"thin\"; FSAI detail page confirms glass-pieces foreign-material hazard, batch 73175G). [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-06-24",
@@ -19802,10 +19802,10 @@
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/morningstar-farms-voluntarily-recalling-two-varieties-due-possible-plastic-presence",
-  "Notes": "Promoted from Pending 2026-06-26. Physical hazard (foreign material) — in scope."
+  "Notes": "Promoted from Pending 2026-06-26. Physical hazard (foreign material) — in scope. [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-06-22",
@@ -21514,10 +21514,10 @@
   "Class": "Class 2",
   "Country": "Canada",
   "Region": "North America",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://recalls-rappels.canada.ca/en/alert-recall/allo-simonne-brand-milk-chocolate-spread-recalled-due-pieces-glass",
-  "Notes": "CFIA Notification type recall. Foreign material (physical hazard — pieces of glass) — in scope for AFTS surveillance per scope rules. Distribution: British Columbia, New Brunswick, Ontario, Quebec, AND online sales (multi-province + e-commerce). CFIA classified Class 2 (probable but not severe health hazard); Tier-1 assigned per AFTS convention for glass/foreign material with laceration/choking risk. Recall date 2026-06-03 (recall initiation); Original published date 2026-06-09 (used as Date per AFTS first-published convention for CFIA). Manual operator add 2026-06-10."
+  "Notes": "CFIA Notification type recall. Foreign material (physical hazard — pieces of glass) — in scope for AFTS surveillance per scope rules. Distribution: British Columbia, New Brunswick, Ontario, Quebec, AND online sales (multi-province + e-commerce). CFIA classified Class 2 (probable but not severe health hazard); Tier-1 assigned per AFTS convention for glass/foreign material with laceration/choking risk. Recall date 2026-06-03 (recall initiation); Original published date 2026-06-09 (used as Date per AFTS first-published convention for CFIA). Manual operator add 2026-06-10. [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 1]"
  },
  {
   "Date": "2026-06-09",
@@ -22490,10 +22490,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 1,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/nestle-australia-ltd-allens-inside-outs-130g",
-  "Notes": "[gemini-enrich 2026-06-02: Brand '—'→\"Allen's\"] [gemini-check 2026-06-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [r19-fix 2026-06-05: Pathogen \"Listeria monocytogenes\" → \"Foreign material (plastic)\" — audit caught Gemini/Claude misclassification; FSANZ source page explicitly states \"The recall is due to the presence of foreign matter (plastic)\". Foreign material is in scope for AFTS surveillance. Tier kept at 1 (FSANZ Recall Alert + injury risk). Reason text updated with verified product details (batch numbers, distribution channels).]"
+  "Notes": "[gemini-enrich 2026-06-02: Brand '—'→\"Allen's\"] [gemini-check 2026-06-02: pass; clean-row shortcut (gemini-enriched + all fields valid)] [r19-fix 2026-06-05: Pathogen \"Listeria monocytogenes\" → \"Foreign material (plastic)\" — audit caught Gemini/Claude misclassification; FSANZ source page explicitly states \"The recall is due to the presence of foreign matter (plastic)\". Foreign material is in scope for AFTS surveillance. Tier kept at 1 (FSANZ Recall Alert + injury risk). Reason text updated with verified product details (batch numbers, distribution channels).] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 1]"
  },
  {
   "Date": "2026-06-02",
@@ -24570,10 +24570,10 @@
   "Class": "Recall",
   "Country": "Australia",
   "Region": "Oceania",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/global-seafood-distributors-australia-pty-ltd-seafood-marinara-mix-500g",
-  "Notes": "[gemini-enrich 2026-05-19: Brand '—'→'Global Seafood Distributors (Australia) Pty Ltd'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Foreign material (shell fragments)' T2 (foreign matter mussel shell)]"
+  "Notes": "[gemini-enrich 2026-05-19: Brand '—'→'Global Seafood Distributors (Australia) Pty Ltd'] [claude-check 2026-05-19T17:10Z: PASS] [operator recovery v2 2026-05-19: re-applied after xlsx-staging bug + Tavily-run] [fix 2026-07-17: MIS-CLASSIFIED — was 'Listeria monocytogenes' T1; corrected to 'Foreign material (shell fragments)' T2 (foreign matter mussel shell)] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-05-19",
@@ -24922,10 +24922,10 @@
   "Class": "Voluntary recall",
   "Country": "United States",
   "Region": "North America",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/straus-family-creamery-voluntarily-recalls-select-flavors-organic-ice-cream-due-potential-presence",
-  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [fix 2026-07-17: MIS-CLASSIFIED — was 'Salmonella' T1; corrected to 'Foreign material (metal)' T2 (metal foreign material)]"
+  "Notes": "Company announcement date 2026-05-14 (Petaluma CA); FDA Publish Date 2026-05-16 (authoritative per AFTS date rule). Distribution: 17 states (AZ, CA, CO, CT, FL, GA, IA, IL, IN, MD, NJ, OR, PA, SC, TX, WA, WI). On shelves from May 4, 2026. No injuries reported. Foreign material → Tier 3 per AFTS scope (in-scope). Vouchers available via strausfamilycreamery.com/recall. [manual-promote 2026-05-21: URL-guardian had blanked URL on http_error] [tier-fix 2026-07-14: Salmonella is always Tier 1; was Tier 3] [fix 2026-07-17: MIS-CLASSIFIED — was 'Salmonella' T1; corrected to 'Foreign material (metal)' T2 (metal foreign material)] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-05-16",
@@ -30266,10 +30266,10 @@
   "Class": "Recall",
   "Country": "Germany",
   "Region": "Europe",
-  "Tier": 2,
+  "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/04_April/260410_12_HH_Suessware_Pistazie/260410_12_HH_Suessware_Pistazie_Meldung.html",
-  "Notes": "[Hamburg-led recall; foodloose brand also recalled at BLV (CH) Apr 17 by Phag GmbH and Rossmann (Batch 5) — different products under same brand; URL repaired to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday] [original product: Bio-Dattel-Kugeln White Delight Pistazie (best-before 2026-10-04, batch J49B0)] [English names 2026-10-01]"
+  "Notes": "[Hamburg-led recall; foodloose brand also recalled at BLV (CH) Apr 17 by Phag GmbH and Rossmann (Batch 5) — different products under same brand; URL repaired to regulator] [dateadded-stamp 2026-07-13: was blank; set = Date so back-filled historical rows are not treated as new by the alert matcher] [week-fix 2026-07-25: report_week W15->W16; Thursday-to-Thursday rule — week runs 2026-04-10 Fri -> 2026-04-16 Thu, labelled by ISO week of the closing Thursday] [original product: Bio-Dattel-Kugeln White Delight Pistazie (best-before 2026-10-04, batch J49B0)] [English names 2026-10-01] [tier-guard 2026-10-26: foreign material is Tier 3 for every source (operator rule); set from Tier 2]"
  },
  {
   "Date": "2026-04-10",

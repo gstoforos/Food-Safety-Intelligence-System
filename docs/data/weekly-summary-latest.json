@@ -10,13 +10,13 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-26T10:19:26.927155+00:00",
+  "generated_utc": "2026-10-26T13:06:42.527758+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
     "total": 87,
-    "tier1": 61,
+    "tier1": 60,
     "outbreaks": 1,
     "delta": 9,
     "delta_pct": 12
