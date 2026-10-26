@@ -20,19 +20,19 @@
         "Oceania": 1,
         "Europe": 1
       },
-      "generated": "2026-10-26T10:19:24Z"
+      "generated": "2026-10-26T13:05:59Z"
     },
     {
       "date": "2026-10-23",
       "url": "daily/2026-10-23.html",
       "total": 21,
-      "tier1": 14,
+      "tier1": 13,
       "outbreak": 0,
       "by_region": {
         "Europe": 19,
         "North America": 2
       },
-      "generated": "2026-10-26T10:19:22Z"
+      "generated": "2026-10-26T13:05:56Z"
     },
     {
       "date": "2026-10-22",
