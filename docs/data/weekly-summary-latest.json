@@ -10,16 +10,16 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-26T13:06:42.527758+00:00",
+  "generated_utc": "2026-10-26T16:27:05.557445+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 87,
+    "total": 89,
     "tier1": 60,
     "outbreaks": 1,
-    "delta": 9,
-    "delta_pct": 12
+    "delta": 11,
+    "delta_pct": 14
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
@@ -99,5 +99,5 @@
       "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-pain-au-jambon-et-bacon-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72791"
     }
   ],
-  "country_count": 24
+  "country_count": 25
 }
