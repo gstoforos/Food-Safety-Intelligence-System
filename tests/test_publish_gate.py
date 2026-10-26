@@ -597,6 +597,39 @@ class TestWorkbookStaysClean(unittest.TestCase):
         # scheduler slot, which is why a French row can sit mis-scraped.
         # RappelConso is the register's largest single source.
         "fiche-rappel/23602",   # Product "//" — run verify_rappelconso
+        # ── Added 2026-10-26, when rule 6b started running at all ────────
+        # Rule 6b ("the URL must be on the regulator's own host") resolved
+        # the Source label through verify_urls.HOST_FOR_SOURCE, a dict keyed
+        # on the RAW label. Two of its keys matched no live row any more —
+        # 'FAVV (BE)' (the writer says 'AFSCA (BE)') and 'Ministero della
+        # Salute' (the writer says 'Ministero della Salute (IT)') — and 26
+        # other labels had never been in it. Measured: 16 of 44 labels
+        # checked, 2,049 rows; 28 labels and 126 rows never host-checked.
+        #
+        # The lookup now resolves through pipeline/_source_canon, so a
+        # rename cannot switch the check off again (see
+        # tests/test_the_host_check_cannot_be_switched_off_by_a_rename.py).
+        # Turning it on made these EIGHT rows visible. None is new. Each
+        # cites a NEWS site as the authority that issued the recall, which
+        # is the 2026-08-09 USA Today / FSIS defect in eight more places.
+        #
+        # NOT repairable here, and listing beats hiding: every one of them
+        # needs the regulator's own notice found on the regulator's own
+        # site, which is a network job in a session that can reach it — and
+        # for several, the Notes already record that no per-recall portal
+        # was found (NFSA Egypt) or that the regulator publishes only press
+        # releases. The recalls themselves are real; the citations are not
+        # the authority's. Each stays published with its weak citation
+        # recorded, which is the register's rule for archives, and
+        # pipeline/verify_urls now names all of them every morning.
+        "news.google.com/rss/articles",          # NFSA (EG) 2026-10-11
+        "vietnam.vnanet.vn/english/tin-van",     # VFA (VN) 2026-04-20
+        "ilfattoalimentare.it/richiamo-salame-nostrano-2",   # IT 2026-04-14
+        "en.sedaily.com/society/2026/03/26",     # MFDS (KR) 2026-03-27
+        "en.sedaily.com/NewsView/2REI1NCM2Q",    # MFDS (KR) 2026-03-27
+        "capitalfm.co.ke/news/2026/03",          # COMESA 2026-03-26
+        "unotv.com/salud/cofepris-actualiza-alerta",   # MX 2026-02-19
+        "chequeado.com/el-explicador",           # ANMAT (AR) 2026-01-07
     })
 
     def test_no_NEW_row_violates_the_gate(self):

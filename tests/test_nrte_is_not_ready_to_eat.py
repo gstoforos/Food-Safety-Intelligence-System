@@ -155,9 +155,15 @@ class TestTheRegisterRows:
     def test_all_four_are_present(self):
         """The four produced-without-inspection rows this file was written
         for. Since the 2026-09-30 ruling the same Pathogen also carries the
-        import violations, counted separately below."""
+        import violations, counted separately below.
+
+        2026-10-25 (operator review): a fifth domestic row joined them — FSIS
+        Imperio Distribution LLC beef jerky, produced without the benefit of
+        federal inspection, 24 Oct 2026. The count is a floor on the rows
+        this file was written for, plus the ones published since; each must
+        still carry its provenance (test below)."""
         rows = [r for r in self._uninspected_rows() if not self._is_import(r)]
-        assert len(rows) == 4, [r.get("Date") for r in rows]
+        assert len(rows) == 5, [r.get("Date") for r in rows]
 
     def test_each_is_on_the_authority_host_with_a_per_recall_path(self):
         for r in self._uninspected_rows():

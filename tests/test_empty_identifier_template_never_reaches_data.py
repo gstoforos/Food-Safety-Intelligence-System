@@ -66,6 +66,24 @@ LEAKS = (
     # blank because it looks checkable.
     "(Recall ID 1234567890)", "(Recall ID: 0123456789)",
     "(Recall ID 000000)", "(Recall ID: 11111)", "(Recall ID 987654321)",
+    # ── 2026-10-26: two more, both found ALREADY PUBLISHED ──────────────
+    # The negation moved to the FRONT of the phrase. The alternation was
+    # anchored on "recall id" coming first, so it read
+    # "(Recall ID not provided)" and walked straight past the same
+    # sentence written the other way round. NFSA (EG) 2026-10-11 —
+    # Yasensvit Ltd shell eggs, Salmonella Enteritidis — published
+    # "(No Recall ID provided)" to subscribers.
+    "(No Recall ID provided)", "(No Recall ID given)",
+    "(no recall id specified)", "[No Recall ID available]",
+    "(Recall ID provided)", "(Recall ID)", "(Recall ID: )",
+    # And the model prefixes its invented digits with the agency's own
+    # short name, so the digits stop being the whole captured group and
+    # the digit-run guard never sees them. Same class as the Ruokavirasto
+    # "1234567890" row, found published twice over:
+    #   AGES (AT) 2026-10-16  Lidl Milbona High Protein Pudding, B. cereus
+    #   MAST (IS) 2026-10-13  Lifa ehf. Timur berry, Salmonella
+    "(Recall ID AGES-12345)", "(Recall ID MAST-123456)",
+    "(Recall ID: NFSA-987654321)", "(Recall ID GIS 11111)",
 )
 
 #: Digit runs that are NOT placeholders and must survive. A guard that eats
@@ -83,6 +101,21 @@ KEEPERS = (
     "Salmonella in sesame paste (Recall ID 842632)",
     "Listeria monocytogenes (Recall ID FSA-PRIN-47-2026)",
     "Lead above the limit (Recall ID H-0700-2026)",
+    # ── pinned 2026-10-26, when the guard learned the <AGENCY>-<digits>
+    # shape. These three are the near misses that must NOT be eaten.
+    #
+    # GIS-2026-08-19-001 is load-bearing: the whole of
+    # tests/test_a_dated_recall_id_agrees_with_date.py reads that
+    # identifier as the regulator's own, and the Date on that row was
+    # corrected from 2026-10-12 to 2026-08-19 because of it. Strip it and
+    # the correction loses its evidence.
+    "Presence of Listeria monocytogenes (Recall ID GIS-2026-08-19-001)",
+    # L260/26 is Eurospin's LOT code, which the ministry's own recall form
+    # spells "…Portamivia L260_26" in this row's URL. Mislabelled as a
+    # recall id by the extractor, but it is a real reference read off a
+    # real page, so the guard leaves it to an operator, not a regex.
+    "Presence of Listeria monocytogenes (Recall ID L260/26)",
+    "Public health alert (Recall ID PHA-10-2026)",
 )
 
 
