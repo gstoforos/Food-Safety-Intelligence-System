@@ -10,20 +10,20 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-26T04:26:49.645228+00:00",
+  "generated_utc": "2026-10-26T10:19:26.927155+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 84,
-    "tier1": 60,
+    "total": 87,
+    "tier1": 61,
     "outbreaks": 1,
-    "delta": 6,
-    "delta_pct": 8
+    "delta": 9,
+    "delta_pct": 12
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 22,
+    "cases": 23,
     "pct": 26
   },
   "ai_lead_paragraph": "",
