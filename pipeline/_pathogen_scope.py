@@ -526,6 +526,35 @@ def _is_mold(pathogen) -> bool:
     return bool(_MOLD_PATHOGEN_RE.match(str(pathogen or "")))
 
 
+PHYSICAL_TIER = 3
+
+
+def _is_physical_only(pathogen) -> bool:
+    """True when the Pathogen's only hazard class is physical (foreign
+    material, glass, metal, plastic, stones, ...). "Mold-like matter" filed
+    as foreign material counts; any biological, chemical, pest or allergen
+    class beside it does not."""
+    p = str(pathogen or "").strip()
+    if not p:
+        return False
+    try:
+        from pipeline._publish_gate import classify_hazard
+    except Exception:                                        # noqa: BLE001
+        return False
+    classes = classify_hazard(p)
+    return "physical" in classes and classes <= {"physical", "mould"}
+
+
+def _is_vulnerable_population(row) -> bool:
+    """H13 product test (infant / baby food), from the scraper framework."""
+    try:
+        from scrapers._models import _is_vulnerable_population_product
+    except Exception:                                        # noqa: BLE001
+        return False
+    return any(_is_vulnerable_population_product(row.get(f))
+               for f in ("Product", "Brand"))
+
+
 def enforce_tier1(row: dict) -> dict:
     """Force Tier=1 in-place when the row's Pathogen is always-Tier-1.
 
@@ -652,6 +681,36 @@ def enforce_tier1(row: dict) -> dict:
             stamp = ("[tier-guard 2026-10-03: mold is Tier %s for every "
                      "source (operator rule); set from Tier %s]"
                      % (MOLD_TIER, cur if cur else "unset"))
+            row["Notes"] = (note + " " + stamp).strip() if note else stamp
+        return row
+
+    # ── FOREIGN MATERIAL IS TIER 3, EVERYWHERE (operator rule 2026-10-26) ─
+    # "foreign material glass etc is Tier 3; not Tier 2 or Tier 1". The
+    # scraper framework already said so (scrapers/_models.py H14: foreign
+    # body in adult food = Tier 3), but like mold nothing ENFORCED it: on
+    # 2026-10-26 the register carried 24 published physical-hazard rows off
+    # Tier 3 — 20 at Tier 2 (FSANZ Arla pudding glass, FDA Outshine glass,
+    # RappelConso jam glass, ...) and 4 at Tier 1 (Ministero della Salute
+    # tiramisu "steel sphere", CFIA chocolate spread glass, ...). This SETS
+    # the tier — down from 1 or 2, up from unset — for a Pathogen whose only
+    # hazard class is physical (mold-like matter counts as foreign matter).
+    # A row that also names a pathogen or chemical is not physical-only and
+    # keeps its own tier. The one exception is H13, the existing rule: a
+    # foreign body in infant / baby food (vulnerable population) is Tier 1.
+    if _is_physical_only(pathogen) and not is_always_tier1(pathogen):
+        infant = _is_vulnerable_population(row)
+        target = 1 if infant else PHYSICAL_TIER
+        try:
+            cur = int(row.get("Tier") or 0)
+        except (ValueError, TypeError):
+            cur = 0
+        if cur != target:
+            row["Tier"] = target
+            note = str(row.get("Notes") or "")
+            stamp = ("[tier-guard 2026-10-26: foreign material is Tier %s "
+                     "for every source (operator rule)%s; set from Tier %s]"
+                     % (target, " — infant/baby food, H13 Tier 1" if infant
+                        else "", cur if cur else "unset"))
             row["Notes"] = (note + " " + stamp).strip() if note else stamp
         return row
 
