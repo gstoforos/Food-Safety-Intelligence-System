@@ -187,7 +187,21 @@ PATHOGEN: dict[str, list[str]] = {
                                         "melamine", "chemical hazard",
                                         # 2026-10-01: RappelConso 23655,
                                         # bisphenol A migrating from cans.
-                                        "bisphenol"],  # 4
+                                        "bisphenol",
+                                        # 2026-10-26: RappelConso fiche
+                                        # 23921 of 23/10/2026, GOLDEN
+                                        # TURTLE wasabi crackers, "teneur
+                                        # élevée en esters glycidyliques
+                                        # d'acides gras". A refining-process
+                                        # contaminant with its own limit in
+                                        # Reg. (EU) 2023/915, and the French
+                                        # fiche files it under "Autres
+                                        # contaminants chimiques" — the term
+                                        # this list already offers. No token
+                                        # here reached it, so the hazard
+                                        # would have published unalertable.
+                                        "glycidyl", "glycidyle",
+                                        "glycidylique"],  # 5
     "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine",
                                               "sildenafil", "tadalafil",
                                               # 2026-10-10: FDA Leader Formulas
