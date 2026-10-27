@@ -4,7 +4,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Stemmelen",
   "Brand": "Stemmelen",
-  "Product": "pâté aux olives",
+  "Product": "Olive pâté (pâté aux olives)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria",
   "Class": "Voluntary",
@@ -13,30 +13,30 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23933/interne",
-  "Notes": "e.leclerc castres siala - castres [offline-enrich 2026-10-26: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-10-26: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+  "Notes": "e.leclerc castres siala - castres [offline-enrich 2026-10-26: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-10-26: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [original product: Pâté aux olives] [morning-fix 2026-10-27: Product translated from French. Read on rappel.conso.gouv.fr/fiche-rappel/23933 — \"Pâté aux olives\", marque STEMMELEN, motif \"Détection de Listeria\", publiée 26/10/2026. No fact added; the detector missed it because \"pâté\" was listed as an English word] [needs cleanup: Product not in English]"
  },
  {
   "Date": "2026-10-26",
   "Source": "RappelConso (FR)",
   "Company": "Hyper U Savenay",
   "Brand": "Unbranded",
-  "Product": "paupiette de poulet au chorizo",
+  "Product": "Chicken paupiette with chorizo (paupiette de poulet au chorizo)",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella détectée dans le produit",
+  "Reason": "Presence of Salmonella detected in the product",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23897/interne",
-  "Notes": "hyper u savenay [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-10-26: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-10-26: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+  "Notes": "hyper u savenay [offline-enrich 2026-10-26: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-10-26: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3] [original product: Paupiette de poulet au chorizo] [original Reason (fr): \"présence de salmonelle détectée dans le produit\"] [morning-fix 2026-10-27: Product and Reason translated from French. Read on rappel.conso.gouv.fr/fiche-rappel/23897 (réf. 2026-10-0225) — nom du modèle \"Paupiette de poulet au chorizo\", motif \"présence de salmonelle détectée dans le produit\", marque \"Sans marque\", publiée 26/10/2026. The published Reason was half-translated]"
  },
  {
   "Date": "2026-10-26",
   "Source": "RappelConso (FR)",
   "Company": "U Saveurs",
   "Brand": "U Saveurs",
-  "Product": "noix st jacques lr usaveurs 200 g et 400 g pêchées ane",
+  "Product": "Scallop meat, Label Rouge, U Saveurs — 200 g and 400 g, caught in area ANE",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Microbiological non-conformity",
   "Class": "Voluntary",
@@ -45,7 +45,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23926/interne",
-  "Notes": "magasins u [promote 2026-10-26: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "magasins u [promote 2026-10-26: status 'pending'->'pending' — passes every publish-gate rule] [original product: Noix St Jacques LR USAVEURS 200 g et 400 g pêchées ANE] [morning-fix 2026-10-27: Product translated from French. Read on rappel.conso.gouv.fr/fiche-rappel/23926 (réf. 2026-10-0257 series) — \"Noix St Jacques LR USAVEURS 200 g et 400 g pêchées ANE\", marque U SAVEURS, motif \"NON CONFORMITE MICROBIOLOGIQUE\", DLC 22/10/2026, publiée 26/10/2026. \"LR\" is Label Rouge; the FAO area code ANE is kept exactly as published]"
  },
  {
   "Date": "2026-10-26",
@@ -53,7 +53,7 @@
   "Company": "Coop Sverige",
   "Brand": "",
   "Product": "Frozen red chili",
-  "Pathogen": "Kadmium exceeding limit",
+  "Pathogen": "Cadmium exceeding limit",
   "Reason": "The product may contain cadmium",
   "Class": "Recall",
   "Country": "Sweden",
@@ -61,7 +61,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://www.livsmedelsverket.se/om-oss/press/aterkallanden/coop-aterkallar-fryst-rod-chili---kan-innehalla-kadmium/",
-  "Notes": "Discovered via news: livsmedelsverket.se [locality: Sweden] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+  "Notes": "Discovered via news: livsmedelsverket.se [locality: Sweden] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [morning-fix 2026-10-27: Pathogen 'Kadmium exceeding limit' -> 'Cadmium exceeding limit'. Swedish; Pathogen must read in English, and no alert vocabulary term could reach the Swedish spelling, so no subscriber alert could have fired on this row. The English is this row's own Reason, \"The product may contain cadmium\" — no fact added. [original Pathogen (sv): \"Kadmium exceeding limit\"]"
  },
  {
   "Date": "2026-10-26",
@@ -78,22 +78,6 @@
   "Outbreak": 0,
   "URL": "https://foedevarestyrelsen.dk/nyheder/tilbagekaldte-produkter/2026/okt/listeria-i-roeget-oerred",
   "Notes": "Discovered via news: dr.dk [locality: Nationwide in Denmark]"
- },
- {
-  "Date": "2026-10-26",
-  "Source": "EFET (GR)",
-  "Company": "Μπιφτέκι",
-  "Brand": "Μπιφτέκι",
-  "Product": "Cured pork belly",
-  "Pathogen": "Listeria",
-  "Reason": "Presence of Listeria (Recall ID EFET-2026-12345)",
-  "Class": "Recall",
-  "Country": "Greece",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5379-%20deltio-typou-acnaklisi-mi-asfaloys-proiontos-tyri-feta-logo-parousias-listeria",
-  "Notes": "Discovered via news: skai.gr [locality: Athens] [needs cleanup: Company/Brand not in English]"
  },
  {
   "Date": "2026-10-24",
@@ -141,7 +125,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/de/newnsb/V67FO2BgSwqP",
-  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in geräucherten Forellenfilets Natur der Marke Nautica, verkauft bei Lidl Schweiz\" [needs cleanup: Product not in English] [safety-hold: reviewed but not approved this run; not promoted] [review-agent 2026-10-25: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [promote 2026-10-25: status 'pending_gap_v3'->'pending' — passes every publish-gate rule]"
+  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in geräucherten Forellenfilets Natur der Marke Nautica, verkauft bei Lidl Schweiz\" [safety-hold: reviewed but not approved this run; not promoted] [review-agent 2026-10-25: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [promote 2026-10-25: status 'pending_gap_v3'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-27: dropped a stale \"needs cleanup\" stamp — this Product is already in English and the regulator's own title is already quoted in Notes]"
  },
  {
   "Date": "2026-10-24",
@@ -161,23 +145,7 @@
  },
  {
   "Date": "2026-10-24",
-  "Source": "MPI NZ",
-  "Company": "Hutchinsons Ltd",
-  "Brand": "Arla",
-  "Product": "Arla Protein Pudding Vanilla Cookie (200g)",
-  "Pathogen": "Glass fragments",
-  "Reason": "Possible glass fragments",
-  "Class": "Recall",
-  "Country": "New Zealand",
-  "Region": "Oceania",
-  "Tier": 3,
-  "Outbreak": 0,
-  "URL": "https://www.mpi.govt.nz/news/media-releases/arla-protein-pudding-recalled-due-to-possible-glass-fragments",
-  "Notes": "Arla protein pudding recalled due to possible glass fragments | MPI\n\n# Arla protein pudding recalled due to possible glass fragments\n\n Date: 24 October 2026 \n\n### Media contact\n\nMPI media team\n\n### Media email\n\nmedia@mpi.govt.nz\n\nNew Zealand Food Safety is supporting Hutchinsons Ltd in its recall of  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-26: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-26: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-26: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [date-normalised Pending: '24 October 2026' -> 2026-10-24] [promote 2026-10-26: status 'pending_gap_v3'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'confirm-agent: NO_REASON_RECORDED — rejected by confirm-agent from MPI NZ, status pending. The writer supplied no verdict and none could be parsed from Notes; t'; that defect is repaired and the row now passes every publish-gate rule]"
- },
- {
-  "Date": "2026-10-24",
-  "Source": "MPI NZ",
+  "Source": "MPI (NZ)",
   "Company": "Hutchinsons Limited",
   "Brand": "Arla",
   "Product": "Arla Protein Pudding Vanilla Cookie (200g)",
@@ -189,7 +157,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/arla-protein-pudding-vanilla-cookie",
-  "Notes": "Arla protein pudding recalled due to possible glass fragments | MPI\n\n# Arla protein pudding recalled due to possible glass fragments\n\n Date: 24 October 2026 \n\n### Media contact\n\nMPI media team\n\n### Media email\n\nmedia@mpi.govt.nz\n\nNew Zealand Food Safety is supporting Hutchinsons Ltd in its recall of  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-25: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-25: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-26: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [promote 2026-10-26: status 'pending_gap_v3'->'pending' — passes every publish-gate rule]"
+  "Notes": "Arla protein pudding recalled due to possible glass fragments | MPI\n\n# Arla protein pudding recalled due to possible glass fragments\n\n Date: 24 October 2026 \n\n### Media contact\n\nMPI media team\n\n### Media email\n\nmedia@mpi.govt.nz\n\nNew Zealand Food Safety is supporting Hutchinsons Ltd in its recall of  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-10-25: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-25: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-26: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [promote 2026-10-26: status 'pending_gap_v3'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-27: Source 'MPI NZ' -> 'MPI (NZ)', the label the registry, scrapers/oceania/mpi_nz.AGENCY and verify_urls all use. Under 'MPI NZ' pipeline/_source_canon returned kind='unknown', so HOST_FOR_CANONICAL_SOURCE['NZ-MPI'] never ran and nothing checked that this row cites mpi.govt.nz] [morning-fix 2026-10-27: a DUPLICATE of this recall was removed from Recalls — same recall on MPI's media-release page, Company 'Hutchinsons Ltd', URL .../news/media-releases/arla-protein-pudding-recalled-due-to-possible-glass-fragments. One recall, two of the regulator's own pages; the near-dup key missed it because 'Ltd' and 'Limited' normalise differently. This row is kept because its URL is MPI's per-recall record]"
  },
  {
   "Date": "2026-10-23",
@@ -6662,14 +6630,14 @@
   "Brand": "Terre Exotique",
   "Product": "40g metal tin of Timur berry and sachet",
   "Pathogen": "Salmonella",
-  "Reason": "Contamination potentielle par Salmonella",
+  "Reason": "Potential contamination with Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23541/interne",
-  "Notes": "diverses épiceries [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.] [original product: boite métallique 40g de baie timur et sachet] [English names 2026-10-01]"
+  "Notes": "diverses épiceries [restored 2026-09-20: deleted from Recalls by commit 02d97dde ('Add files via upload'), which overwrote the live register with a 1722-row snapshot built 2026-09-18. 29 published rows, 19 Tier 1, were removed silently. Restored verbatim from 4210e05b.] [original product: boite métallique 40g de baie timur et sachet] [English names 2026-10-01] [morning-fix 2026-10-27: Reason translated from French — one French marker, below the detector's two-hit floor, so the table was never consulted] [original Reason (fr): \"Contamination potentielle par Salmonella\"]"
  },
  {
   "Date": "2026-09-18",
@@ -14310,14 +14278,14 @@
   "Brand": "Scic des Abattoirs du Comminges",
   "Product": "Ground beef patty",
   "Pathogen": "Escherichia coli (STEC)",
-  "Reason": "Contamination à e. coli / stec",
+  "Reason": "Contamination with E. coli / STEC",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23039/Interne",
-  "Notes": "pousson vendeur marché  de sarp (31) [url-gate 2026-07-30: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-enrich 2026-07-31: Path [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-31: pending_enrichment → pending (Claude verified)] [tier-guard: Escherichia coli (STEC) is always Tier 1; forced from Tier 3] [original product: steak haché] [English names 2026-10-01]"
+  "Notes": "pousson vendeur marché  de sarp (31) [url-gate 2026-07-30: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-enrich 2026-07-31: Path [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-31: pending_enrichment → pending (Claude verified)] [tier-guard: Escherichia coli (STEC) is always Tier 1; forced from Tier 3] [original product: steak haché] [English names 2026-10-01] [morning-fix 2026-10-27: Reason translated from French — one French marker, below the detector's two-hit floor, so the table was never consulted] [original Reason (fr): \"Contamination à e. coli / stec\"]"
  },
  {
   "Date": "2026-07-30",
@@ -14326,14 +14294,14 @@
   "Brand": "Scic des Abattoirs du Comminges",
   "Product": "Ground beef patty",
   "Pathogen": "Escherichia coli (STEC)",
-  "Reason": "Contamination à e. coli / stec",
+  "Reason": "Contamination with E. coli / STEC",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23040/Interne",
-  "Notes": "mola  patrick [url-gate 2026-07-30: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-enrich 2026-07-31: Pathogen ''→'Escherichia co [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-31: pending_enrichment → pending (Claude verified)] [tier-guard: Escherichia coli (STEC) is always Tier 1; forced from Tier 3] [original product: steak haché] [English names 2026-10-01]"
+  "Notes": "mola  patrick [url-gate 2026-07-30: API fixed https://rappel.conso.gouv.fr/fiche-rappe... -> https://rappel.conso.gouv.fr/fiche-rappe...] [claude-check 2026-07-31: skip; fetch failed (fetch error: SSLError (TLS chain) and curl_cffi fallback failed: HTTPSConnectionPool(host='rappel.conso.go] [gemini-enrich 2026-07-31: Pathogen ''→'Escherichia co [gemini-check 2026-07-31: pass; clean-row shortcut (gemini-enriched + all fields valid)] [enrich-gate 2026-07-31: pending_enrichment → pending (Claude verified)] [tier-guard: Escherichia coli (STEC) is always Tier 1; forced from Tier 3] [original product: steak haché] [English names 2026-10-01] [morning-fix 2026-10-27: Reason translated from French — one French marker, below the detector's two-hit floor, so the table was never consulted] [original Reason (fr): \"Contamination à e. coli / stec\"]"
  },
  {
   "Date": "2026-07-30",
@@ -34990,5 +34958,85 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-27",
+  "Source": "RappelConso (FR)",
+  "Company": "Société Civile d'Exploitation Agricole Boulan (Chez Boulan)",
+  "Brand": "Spéciale Boulan",
+  "Product": "Oysters, Spéciale Boulan no. 3 and no. 4, matured in the Médoc (Huitre spéciale Boulan n3 n4)",
+  "Pathogen": "Norovirus",
+  "Reason": "Presence of norovirus",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23930/interne",
+  "Notes": "[morning-fix 2026-10-27: added by the AFTS-FSIS Morning Fix pass after walking RappelConso fiche numbers past the newest in the register (23933). Read on rappel.conso.gouv.fr/fiche-rappel/23930, réf. 2026-10-0257: produit \"Huitre spéciale Boulan n3 n4\", modèle \"Spéciale Boulan Affinée en Médoc\", entreprise \"Société Civile d'Exploitation Agricole Boulan\", catégorie Alimentation / Produits de la pêche et d'aquaculture, motif \"Présence de norovirus\", risque \"Risque de symptômes de gastro-entérite\", publiée 27/10/2026. Absent from all five sheets (searched by fiche number, company, brand and product). [original product: Huitre spéciale Boulan n3 n4] [original Reason (fr): \"Présence de norovirus\"] [promote 2026-10-27: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-26",
+  "Source": "RappelConso (FR)",
+  "Company": "CBeDink",
+  "Brand": "le grossiste du cbd",
+  "Product": "Loose gummies 30 mg, blueberry (Gummies vrac 30 mg, myrtille)",
+  "Pathogen": "Delta-9-tetrahydrocannabinol (THC)",
+  "Reason": "Delta-THC content above the acute reference dose; prohibited substance",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23934/interne",
+  "Notes": "[morning-fix 2026-10-27: added by the AFTS-FSIS Morning Fix pass after walking RappelConso fiche numbers past the newest in the register (23933). Read on rappel.conso.gouv.fr/fiche-rappel/23934, réf. 2026-10-0261 version 1: produit \"Gummies vrac 30 mg\" (parfum myrtille), marque \"le grossiste du cbd\", entreprise CBeDink, catégorie Alimentation / Produits sucrés, motif \"supérieur a la dose de référence aigue\" pour le delta-THC, risque \"Présence de substance interdite\", publiée 26/10/2026. In scope under the THC-over-a-reference-dose rule. Absent from all five sheets (searched by fiche number, company, brand and product); the register's other delta-9 gummy rows are Bien Etre Chamonix fiches 23835/23837 and SARL THITAN fiches 23709/23710, different firms. [original product: Gummies vrac 30 mg] [original Reason (fr): \"supérieur a la dose de référence aigue\"] [promote 2026-10-27: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-26",
+  "Source": "RappelConso (FR)",
+  "Company": "S.A.S. du Pfaffenbach",
+  "Brand": "Natur und Mensch Lebensbaum",
+  "Product": "Savory, dried, 25 g sachet (Bohnenkraut - sarriette)",
+  "Pathogen": "Pyrrolizidine alkaloids",
+  "Reason": "Maximum limit for pyrrolizidine alkaloids exceeded in organic ground dried savory from Germany",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23932/interne",
+  "Notes": "[morning-fix 2026-10-27: added by the AFTS-FSIS Morning Fix pass after walking RappelConso fiche numbers past the newest in the register (23933). Read on rappel.conso.gouv.fr/fiche-rappel/23932, réf. 2026-10-0259 version 1: produit \"BOHNENKRAUT - SARRIETTE\" sachet 25 g, marque \"Natur und Mensch Lebensbaum\", entreprise \"S.A.S. du Pfaffenbach\", catégorie Alimentation / Herbes et épices, motif \"Dépassement de la LM pour les alcaloïdes pyrrolizidiniques dans la sarriette biologique moulue et séchée provenant d'Allemagne\", lots 103150 / 104062 / 104731, publiée 26/10/2026, vente Haut-Rhin (68). France's own action on the Lebensbaum savory the BVL published on 2026-10-16 (Ulrich Walter GmbH, already in Recalls) and the BLV on 2026-10-23 — a separate regulatory action by a different authority, filed the way the Arla pudding recalls are filed per jurisdiction. Absent from all five sheets (searched by fiche number, company and product). [original product: BOHNENKRAUT - SARRIETTE] [original Reason (fr): \"Dépassement de la LM pour les alcaloïdes pyrrolizidiniques dans la sarriette biologique moulue et séchée provenant d'Allemagne\"] [promote 2026-10-27: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-26",
+  "Source": "BVL (DE)",
+  "Company": "Abido Company for Trade and Industry",
+  "Brand": "Abido",
+  "Product": "Sumac (Abido Sumak), 50 g, lot 10-3-2618952 OH, best before 10.03.2029",
+  "Pathogen": "Chlorpyrifos (pesticide residue) and unauthorized dye E 122",
+  "Reason": "Elevated levels of chlorpyrifos (insecticide and acaricide) and the presence of the unauthorized dye E 122 were found. Sold in Baden-Württemberg, Bavaria, Brandenburg, Hamburg, North Rhine-Westphalia, Saarland and Saxony-Anhalt.",
+  "Class": "Recall",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/10_Oktober/261026_24_SH_Sumak/261026_24_SH_Sumak.html",
+  "Notes": "[operator review 2026-10-27: daily-global MISSING item. Read on lebensmittelwarnung.de 261026_24_SH_Sumak, 26.10.2026: product 'Abido Sumak, 50 Gramm', Hersteller 'Abido Company for Trade and Industry', Inverkehrbringer 'Tema Fine Foods BV', Großhändler 'Orient Gate GmbH', Los '10-3-2618952 OH', MHD 10.03.2029. Four news-discovered copies sit in Weekly_Rejected as no-authority-url; this row carries the authority's own URL.] [original reason (de): \"Es wurden erhöhte Werte von Chlorpyrifos (Insektizid und Akarizid) und das Vorhandensein des unzulässigen Farbstoffs E 122 festgestellt.\"] [promote 2026-10-27: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-23",
+  "Source": "CFIA",
+  "Company": "Ellipse Conservation",
+  "Brand": "Neo Chips",
+  "Product": "Apple & Wild Blueberry Freeze-dried Fruit Sticks, 12 g (UPC 6 28634 95522 2; codes 262241, 262281, 262521)",
+  "Pathogen": "Foreign material (dried stem fragments)",
+  "Reason": "Neo Chips brand Apple & Wild Blueberry Freeze-dried Fruit Sticks recalled due to pieces of dried stem fragments (CFIA category: Food - Extraneous Material). Sold online and in New Brunswick and Quebec.",
+  "Class": "Class 2",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://recalls-rappels.canada.ca/en/alert-recall/neo-chips-brand-apple-wild-blueberry-freeze-dried-fruit-sticks-recalled-due-pieces",
+  "Notes": "[operator review 2026-10-27: daily-global MISSING item. Read on the CFIA notice: recall date 2026-10-23, RA-82850, Class 2, recalling firm Ellipse Conservation; distribution online, NB, QC.] [promote 2026-10-27: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]

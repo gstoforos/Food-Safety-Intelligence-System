@@ -1,6 +1,6 @@
 {
- "count": 76,
- "countries": 66,
+ "count": 78,
+ "countries": 67,
  "sources": [
   {
    "label": "RASFF (EU)",
@@ -21,6 +21,11 @@
    "label": "RappelConso (FR)",
    "country": "France",
    "domain": "rappel.conso.gouv.fr"
+  },
+  {
+   "label": "DGAL (FR)",
+   "country": "France",
+   "domain": "agriculture.gouv.fr"
   },
   {
    "label": "BVL (DE)",
@@ -141,6 +146,11 @@
    "label": "HAH (HR)",
    "country": "Croatia",
    "domain": "hapih.hr"
+  },
+  {
+   "label": "ŠVPS (SK)",
+   "country": "Slovakia",
+   "domain": "svps.sk"
   },
   {
    "label": "UVHVVR (SI)",
