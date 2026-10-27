@@ -576,14 +576,81 @@ def _near_dup_key(row: Dict[str, Any]) -> str:
     return f"{src}|{co}|{pa}"
 
 
+# ── A SECOND, NARROWER KEY: THE SAME FIRM UNDER TWO LEGAL FORMS ────────────
+# Audit 2026-10-27. One MPI (NZ) recall published TWICE, on 2026-10-24:
+#
+#   Hutchinsons Ltd      .../news/media-releases/arla-protein-pudding-recalled-…
+#   Hutchinsons Limited  .../recalled-food-products/arla-protein-pudding-vanilla-cookie
+#
+# Same regulator, same date, same product string, same hazard, two of MPI's
+# own pages for one recall — exactly the "same recall, different URL" case
+# the key above exists to catch. It missed because the key strips
+# punctuation but not the CORPORATE FORM: "hutchinsonsltd" and
+# "hutchinsonslimited" are different strings.
+#
+# WHY THE COMPANY KEY ITSELF IS NOT LOOSENED. Stripping the legal form from
+# _near_dup_key was tried first and MEASURED on all 2184 published rows: it
+# would have caught this pair AND suppressed two real recalls — three
+# separate RappelConso fiches (23016, 23018, 23033) from one Chevenet STEC
+# incident, published as "CHEVENET SARL" and "Chevenet" for three DIFFERENT
+# products (Satonnay 140 g, Tonnelet, fresh goat cheese). That key omits
+# Product on purpose, so loosening the company half makes a blunt rule
+# blunter and costs real notices.
+#
+# So this is a SECOND rule, strictly additive, that pays for the looser
+# company match by requiring the PRODUCT to agree as well. MEASURED on the
+# same 2184 rows: it matches the Hutchinsons pair and nothing else — the
+# Chevenet fiches differ in Product and are untouched.
+_CORPORATE_FORMS = frozenset("""
+    limited ltd inc incorporated llc llp plc corp corporation company co
+    gmbh mbh ag sa sas sarl srl spa bv nv as ab oy oyj aps kft sro zoo
+    pty kg ohg eurl scea earl gaec snc sl slu lda doo dd
+""".split())
+
+
+def _company_base(company: Any) -> str:
+    """Company with trailing corporate-form tokens removed, for matching only.
+
+    "Hutchinsons Ltd" and "Hutchinsons Limited" -> "hutchinsons". Never
+    written to a row: the Source column and the Company column keep the
+    regulator's own wording.
+    """
+    s = unicodedata.normalize("NFD", str(company or "")).encode(
+        "ascii", "ignore").decode().lower()
+    toks = [t for t in re.split(r"[^a-z0-9]+", s) if t]
+    while toks and toks[-1] in _CORPORATE_FORMS:
+        toks.pop()
+    return "".join(toks)[:30]
+
+
+def _same_firm_same_product_key(row: Dict[str, Any]) -> str:
+    """(source, legal-form-insensitive company, pathogen, product) or ""."""
+    src = (row.get("Source") or "").strip().lower()
+    co = _company_base(row.get("Company"))
+    pa = (row.get("Pathogen") or "").strip().lower()[:50]
+    pr = unicodedata.normalize("NFD", str(row.get("Product") or "")).encode(
+        "ascii", "ignore").decode().lower()
+    pr = re.sub(r"[^a-z0-9]", "", pr)[:60]
+    if not (src and co and pa and pr):
+        return ""
+    return f"{src}|{co}|{pa}|{pr}"
+
+
 def _build_near_dup_index(rows: List[Dict[str, Any]]) -> Dict[str, List[str]]:
-    """Return {near_dup_key: [date_str, ...]} for all rows with valid keys."""
+    """Return {key: [date_str, ...]} for all rows, under BOTH near-dup keys.
+
+    Both keys go into one index. They cannot collide: _near_dup_key has
+    three fields and _same_firm_same_product_key has four, so a key of one
+    kind never equals a key of the other.
+    """
     idx: Dict[str, List[str]] = {}
     for r in rows:
-        k = _near_dup_key(r)
         d = str(r.get("Date") or "")[:10]
-        if k and d:
-            idx.setdefault(k, []).append(d)
+        if not d:
+            continue
+        for k in (_near_dup_key(r), _same_firm_same_product_key(r)):
+            if k:
+                idx.setdefault(k, []).append(d)
     return idx
 
 
@@ -591,21 +658,23 @@ def _is_near_duplicate(
     row: Dict[str, Any], near_dup_index: Dict[str, List[str]],
 ) -> Tuple[bool, str]:
     """Check if `row` is a near-dup of anything in the index. Returns (is_dup, match_date)."""
-    k = _near_dup_key(row)
     new_date_str = str(row.get("Date") or "")[:10]
-    if not (k and new_date_str and k in near_dup_index):
+    if not new_date_str:
         return False, ""
     try:
         new_date = datetime.strptime(new_date_str, "%Y-%m-%d").date()
     except ValueError:
         return False, ""
-    for old_date_str in near_dup_index[k]:
-        try:
-            old_date = datetime.strptime(old_date_str, "%Y-%m-%d").date()
-            if abs((new_date - old_date).days) <= NEAR_DUP_WINDOW_DAYS:
-                return True, old_date_str
-        except ValueError:
+    for k in (_near_dup_key(row), _same_firm_same_product_key(row)):
+        if not (k and k in near_dup_index):
             continue
+        for old_date_str in near_dup_index[k]:
+            try:
+                old_date = datetime.strptime(old_date_str, "%Y-%m-%d").date()
+                if abs((new_date - old_date).days) <= NEAR_DUP_WINDOW_DAYS:
+                    return True, old_date_str
+            except ValueError:
+                continue
     return False, ""
 
 
@@ -3052,6 +3121,22 @@ SOURCE_ALIASES = {
     # 2026-10-11: countries/ca.py writes "MAPAQ"; the registry label is
     # "MAPAQ QC" (no parentheses), so the generic "X (CC)" rule cannot reach it.
     "mapaq": "MAPAQ QC",
+    # ── 2026-10-27. NEW ZEALAND. THE FOURTH RECURRENCE. ─────────────────
+    # The three Tavily/domain tables wrote the label "MPI NZ" — a country
+    # token with no parentheses, which is neither the registry label
+    # "MPI (NZ)" nor a bare authority name. So BOTH repairs missed it:
+    # `registry_source_label` indexes the registry short name "mpi" and
+    # "MPI NZ" is not "MPI", and this map had no entry. Two rows reached
+    # Recalls on 2026-10-24 labelled "MPI NZ", and because the label was
+    # unknown to pipeline/_source_canon it was also unknown to
+    # verify_urls.HOST_FOR_CANONICAL_SOURCE — so nothing checked that
+    # either row cited mpi.govt.nz, which is the whole point of that map.
+    # The three collector tables now write "MPI (NZ)" directly; this entry
+    # catches anything already queued under the old label, and
+    # tests/test_every_collector_table_label_is_a_registry_label.py derives
+    # the claim from the tables themselves so table entry N+1 cannot
+    # reintroduce it.
+    "mpi nz": "MPI (NZ)",
 }
 
 
@@ -3238,9 +3323,16 @@ _EMPTY_ID_WORDS = re.compile(
 #: The optional ``<AGENCY>-`` prefix was added 2026-10-26; see the block
 #: comment above. ``_is_placeholder_digits`` still judges group(1), the
 #: digits on their own.
+#:
+#: The optional ``<YEAR>-`` segment after the prefix was added 2026-10-27:
+#: "(Recall ID EFET-2026-12345)" reached Recalls on an invented EFET row,
+#: the model having put the year between the agency and the dummy run.
+#: A real dated id ("GIS-2026-08-19-001") still survives — its digit runs
+#: are shorter than four and the pattern needs the bracket right after.
 _EMPTY_ID_DIGITS = re.compile(
     r"\s*[(\[]\s*recall[\s_-]*id\s*[:\-]?\s*"
-    r"(?:[A-Za-z][A-Za-z0-9]{1,9}[\s_-])?(\d{4,})\s*[)\]]\s*",
+    r"(?:[A-Za-z][A-Za-z0-9]{1,9}[\s_-])?(?:(?:19|20)\d{2}[\s_-])?"
+    r"(\d{4,})\s*[)\]]\s*",
     re.IGNORECASE)
 
 

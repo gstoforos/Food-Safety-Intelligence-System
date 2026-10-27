@@ -175,6 +175,93 @@ CANONICAL: Dict[str, str] = {
     "Ruokavirasto (FI)": "FI-RUOKAVIRASTO",
     "Ruokavirasto": "FI-RUOKAVIRASTO",
     "VFA (VN)": "VN-VFA",
+    # ── 2026-10-27. NEW ZEALAND, UNDER A LABEL NO REGISTRY USES. ─────────
+    # "MPI NZ" is what pipeline/regulatory_domains.py and the two
+    # gap_finder_tavily tables wrote (they now write "MPI (NZ)"). It
+    # reached Recalls on 2026-10-24, and canonical_source() derived
+    # "MPI-NZ" from it while "MPI (NZ)" maps to "NZ-MPI" — one regulator
+    # with two canonical ids, so the near-duplicate and coverage checks saw
+    # two independent observers, and
+    # verify_urls.HOST_FOR_CANONICAL_SOURCE["NZ-MPI"] never ran on those
+    # rows. Kept here permanently: the archive holds rows under the old
+    # label and this module does not rewrite the Source column.
+    "MPI NZ": "NZ-MPI",
+    "MPI": "NZ-MPI",
+    # ── 2026-10-27. THE SAME SWEEP, SEVEN MORE LABELS. ──────────────────
+    # Found by tests/test_every_collector_table_label_is_a_registry_label,
+    # which reads the three collector host->label tables instead of
+    # waiting for a published row. Those tables wrote a bare authority name
+    # that neither the registry nor this module knew — the Italy shape, for
+    # the seventh and eighth time. The tables now write the registry label;
+    # these are the identities those labels resolve to, plus the bare forms
+    # so a row already queued under one is not orphaned.
+    "FAVV": "BE-FAVV",
+    "FSS (Scotland)": "UK-FSS",
+    "FSS": "UK-FSS",
+    "Thai FDA (TH)": "TH-FDA",
+    "Thai FDA": "TH-FDA",
+    "ThaiFDA": "TH-FDA",
+    "SZPI": "CZ-SZPI",
+    "Min. Salute": "IT-SALUTE",
+    # Slovakia and the French ministry directorate were added to
+    # tools/monitored_sources.SOURCES the same morning — both were
+    # monitored (a scraper, a whitelisted host) and counted nowhere.
+    "ŠVPS (SK)": "SK-SVPS",
+    "ŠVPS": "SK-SVPS",
+    "SVPS": "SK-SVPS",
+    "DGAL (FR)": "FR-DGAL",
+    "DGAL": "FR-DGAL",
+    # ── 2026-10-27. THE REMAINING THIRTY REGISTRY LABELS. ───────────────
+    # Measured this morning against tools/monitored_sources.SOURCES: 30 of
+    # the 78 registry labels had NO canonical identity. Every one is a
+    # regulator the fleet monitors, and canonical_source() returned
+    # kind='unknown' for all of them — which means two things at once: the
+    # coverage denominator counted each as "its own unknown source", and
+    # verify_urls.HOST_FOR_CANONICAL_SOURCE could not be reached for it, so
+    # no row of theirs was ever host-checked.
+    #
+    # Two of the thirty stopped being hypothetical the same morning: the
+    # offline promoter published a Livsmedelsverket (SE) row and a
+    # Fodevarestyrelsen (DK) row, and
+    # test_the_host_check_cannot_be_switched_off_by_a_rename went red for
+    # both — found, as every previous recurrence of this defect was, by a
+    # row that had ALREADY PUBLISHED.
+    #
+    # So the whole remainder is filed at once rather than one regulator per
+    # incident. Every id below is DERIVED from the registry row itself (the
+    # label gives the country code and the short name) and
+    # tests/test_every_registry_label_has_an_identity.py re-derives the
+    # claim, so registry entry 79 cannot be added without one.
+    "ASAE (PT)": "PT-ASAE",
+    "SECLU (LU)": "LU-SECLU",
+    "Fødevarestyrelsen (DK)": "DK-FODEVARESTYRELSEN",
+    "Livsmedelsverket (SE)": "SE-LIVSMEDELSVERKET",
+    "ANSVSA (RO)": "RO-ANSVSA",
+    "BFSA (BG)": "BG-BFSA",
+    "UVHVVR (SI)": "SI-UVHVVR",
+    "PVD (LV)": "LV-PVD",
+    "VMVT (LT)": "LT-VMVT",
+    "FSA BiH (BA)": "BA-FSABIH",
+    "FVA (MK)": "MK-FVA",
+    "ANSA (MD)": "MD-ANSA",
+    "TGTHB (TR)": "TR-TGTHB",
+    "ACHIPIA (CL)": "CL-ACHIPIA",
+    "ISP (CL)": "CL-ISP",
+    "DIGESA (PE)": "PE-DIGESA",
+    "ARCSA (EC)": "EC-ARCSA",
+    "MHLW (JP)": "JP-MHLW",
+    "SAMR (CN)": "CN-SAMR",
+    "TFDA (TW)": "TW-TFDA",
+    "BPOM (ID)": "ID-BPOM",
+    "KKM (MY)": "MY-KKM",
+    "FSSAI (IN)": "IN-FSSAI",
+    "SFDA (SA)": "SA-SFDA",
+    "MoCCAE (AE)": "AE-MOCCAE",
+    "MoPH (QA)": "QA-MOPH",
+    "MoH (IL)": "IL-MOH",
+    "ONSSA (MA)": "MA-ONSSA",
+    "NAFDAC (NG)": "NG-NAFDAC",
+    "KEBS (KE)": "KE-KEBS",
 }
 
 # A re-report of another regulator's notice. Not an independent observation.

@@ -255,9 +255,25 @@ _ENGLISH_PRODUCT_WORDS = frozenset("""
     cake cakes pastry salad sauce soup juice juices tea coffee chocolate
     spread rice pasta noodles flour seeds nuts figs fruit fruits vegetables
     lettuce sprouts spices pepper oil honey jelly meal meals sandwich
-    sandwiches pie pâté tray jar pack packs bag bags bottle bottles box
+    sandwiches pie tray jar pack packs bag bags bottle bottles box
     sold counter approx lot lots batch best before use by all
 """.split())
+#
+# "pâté" WAS HERE AND IS A FRENCH WORD (audit 2026-10-27).
+#
+# _FRENCH_FOOD_WORDS below leaves out words shared with English on purpose,
+# so that a kept French proper name never trips the detector. The mirror of
+# that rule was never applied: a word shared with French must not be counted
+# as EVIDENCE OF ENGLISH. "pâté" — accents and all — is the French spelling,
+# and every clause below treats one English word as a veto on the whole
+# detector. So "pâté aux olives" (RappelConso fiche 23933, Listeria, Tier 1,
+# published 2026-10-26) scored as already-English on the strength of the one
+# word in it that is French, and no gate stamped it.
+#
+# MEASURED on all 2184 published rows before removing it: two rows carry
+# "pâté" in Product, and the other one — "Garlic pâté 180 g" — still passes,
+# because it has no French food word and no French structure word either.
+# Nothing else in the register changes.
 
 
 # Food nouns and adjectives that appear in French product designations and
@@ -292,13 +308,65 @@ _FRENCH_FOOD_WORDS = frozenset("""
 """.split())
 
 
+# French STRUCTURE words that never appear inside a French food name
+# (audit 2026-10-27).
+#
+# WHAT WAS WRONG
+# --------------
+# Two RappelConso rows published untranslated on 2026-10-26 and neither the
+# confirm agent nor the offline promoter stamped them, because both carry
+# exactly ONE French function word and the detector needs two:
+#
+#     'pâté aux olives'                                      fiche 23933
+#     'noix st jacques lr usaveurs 200 g et 400 g pêchées ane'   fiche 23926
+#
+# _FRENCH_FOOD_WORDS cannot reach either: the food words in them ("pâté",
+# "olives", "noix") are all shared with English, which is precisely the
+# ground on which that list excludes them.
+#
+# WHY THE OBVIOUS WIDENING IS WRONG
+# ---------------------------------
+# "one French function word + no English word" was tried first and MEASURED
+# on all 2184 published rows: it flags 24 rows that are correctly translated
+# already, every one of them a protected or proper food name that keeps its
+# French preposition —
+#
+#     'Reblochon de Savoie farmhouse AOP 450g'      (8 rows)
+#     'Camembert de Normandie AOP 250g'
+#     'Sainte Maure de Touraine AOP'
+#     'Tome des Ouchettes'
+#     'Gorgonzola D.O.P dolce 200 g'                (CFIA)
+#     'Market baguette (baguette du marché)'
+#
+# — which is the false-positive mode this module's header warns about. The
+# distinguishing fact is WHICH function word: a protected name carries an
+# article or "de"/"du"/"des"/"au", never a conjunction or a clause word. So
+# the articles and "de"-family are excluded, and the words left are ones no
+# appellation contains.
+#
+# Six English homographs are excluded too — "est" (the RASFF country code
+# and the USDA establishment number "EST. 21406"), "lot"/"lots",
+# "detection", "presence" and the British "analyse" — so an English string
+# cannot be read as French on a word it shares.
+#
+# MEASURED with those two exclusions, on all 2184 published rows: it flags
+# the two defective rows above and NOTHING else, and loses nothing the old
+# detector caught. Held by
+# tests/test_a_short_french_product_name_is_caught.py.
+_NAME_SAFE_FRENCH = frozenset("à a l au d de du des la le les un une".split())
+_ENGLISH_HOMOGRAPHS = frozenset("est lot lots detection presence analyse".split())
+_FRENCH_STRUCTURE_WORDS = frozenset(
+    w for w in _MARKERS["fr"]
+    if w not in _NAME_SAFE_FRENCH and w not in _ENGLISH_HOMOGRAPHS)
+
+
 def product_needs_english(text) -> bool:
     """Is this Product value not yet in English? Certain on any non-Latin
-    script. On Latin script it needs the function-word detector to fire AND
-    no English word to be present, so a kept proper name inside an English
-    description passes; a short untranslated French name ("foie de poulet")
-    is still below the detector's two-hit floor — the Morning Fix reads
-    those."""
+    script. On Latin script it fires on a French food word, on a single
+    French structure word with no English word anywhere, or on the
+    two-hit function-word detector — in each case only when no English word
+    is present, so a kept proper name inside an English description
+    passes."""
     if has_non_latin_script(text):
         return True
     w = _words(text)
@@ -309,6 +377,14 @@ def product_needs_english(text) -> bool:
     # "référence 3225164" — and neither the confirmer stamp nor the Morning
     # Fix (which reads what is stamped) ever saw them.
     if (w & _FRENCH_FOOD_WORDS) and not (w & _ENGLISH_PRODUCT_WORDS):
+        return True
+    # One French structure word, and no English word from EITHER English
+    # vocabulary. Two independent English word lists have to come up empty
+    # before a single French hit is believed (2026-10-27; see the note on
+    # _FRENCH_STRUCTURE_WORDS for the measurement).
+    if ((w & _FRENCH_STRUCTURE_WORDS)
+            and not (w & _ENGLISH_PRODUCT_WORDS)
+            and not (w & _ENGLISH_MARKERS)):
         return True
     if not looks_non_english(text):
         return False
@@ -723,6 +799,32 @@ _RAW_TRANSLATIONS = {
     # Note the source's own spelling: "salmonellle", three l's.
     "Contamination à la salmonellle": "Contamination with Salmonella",
     "Contamination à la salmonelle": "Contamination with Salmonella",
+    # ── 2026-10-27. THREE MORE ONE-MARKER MOTIFS. ─────────────────────────
+    # Same shape as the row above and found the same way: a single French
+    # marker, under the two-hit floor, so looks_non_english() scored them
+    # English and the table was never consulted. All three were PUBLISHED.
+    #
+    #   'Presence of Salmonella détectée dans le produit'   2026-10-26
+    #                                      RappelConso fiche 23897, Tier 1
+    #   'Contamination potentielle par Salmonella'          2026-09-18
+    #   'Contamination à e. coli / stec'                    2026-07-30 (x2)
+    #
+    # The first is the half-translated shape the module header names: the
+    # verb was put into English and the rest of the clause left in French.
+    # Both the regulator's own motif and the half-translated form that
+    # reached Recalls are keyed, because either can arrive next time.
+    "présence de salmonelle détectée dans le produit":
+        "Presence of Salmonella detected in the product",
+    "Presence of Salmonella détectée dans le produit":
+        "Presence of Salmonella detected in the product",
+    "Contamination potentielle par Salmonella":
+        "Potential contamination with Salmonella",
+    "Contamination potentielle par la salmonelle":
+        "Potential contamination with Salmonella",
+    "Contamination à e. coli / stec":
+        "Contamination with E. coli / STEC",
+    "Contamination à l'e. coli / stec":
+        "Contamination with E. coli / STEC",
     # Widening the detector to catch the row above surfaced five more that
     # had been invisible for the same reason — one marker each, under the
     # threshold. "inférieur à 10 ufc/g" is the French rendering of a result

@@ -183,7 +183,11 @@ HOST_FOR_CANONICAL_SOURCE: Dict[str, tuple] = {
     # rows point; mapaq.gouv.qc.ca is the department's own older home.
     "CA-MAPAQ":       ("quebec.ca", "mapaq.gouv.qc.ca"),
     "AT-AGES":        ("ages.at",),
-    "CZ-SZPI":        ("szpi.gov.cz",),
+    # potravinynapranyri.cz added 2026-10-27: pipeline/regulatory_domains
+    # has whitelisted it as SZPI's own host since that module was written
+    # (it is the authority's consumer-facing portal), so a row published
+    # from it would have failed a check that the whitelist already allows.
+    "CZ-SZPI":        ("szpi.gov.cz", "potravinynapranyri.cz"),
     "MX-COFEPRIS":    ("gob.mx",),
     "HR-HAH":         ("hapih.hr",),
     "HU-NKFH":        ("nkfh.gov.hu", "nebih.gov.hu"),
@@ -198,6 +202,55 @@ HOST_FOR_CANONICAL_SOURCE: Dict[str, tuple] = {
     "EU-ECDC":        ("ecdc.europa.eu",),
     "VN-VFA":         ("vfa.gov.vn",),
     "UY-MSP":         ("gub.uy",),
+    # ── 2026-10-27. FOUR IDENTITIES A COLLECTOR TABLE CAN PUBLISH UNDER ──
+    # No published row carries these yet, which is the point: the three
+    # collector host->label tables can emit them, and until this morning
+    # the labels they emitted were not registry labels at all, so these
+    # identities did not exist. Each host below is the authority's own
+    # domain, from the operator's authorised source list, and is already a
+    # regulator-of-record in pipeline/regulatory_domains.
+    # szpi.gov.cz's second host is the Czech authority's own consumer
+    # portal, which regulatory_domains has whitelisted from the start.
+    "UK-FSS":         ("foodstandards.gov.scot",),
+    "TH-FDA":         ("fda.moph.go.th",),
+    "SK-SVPS":        ("svps.sk",),
+    "FR-DGAL":        ("agriculture.gouv.fr",),
+    # ── 2026-10-27. THE THIRTY REGULATORS WHOSE CHECK NEVER RAN. ────────
+    # The companion to the _source_canon block of the same date: the
+    # registry's own domain for each of the 30 monitored regulators that
+    # had no canonical identity and therefore no entry here. Adding them
+    # only ever turns a check ON — a Source absent from these maps is not
+    # checked at all, which is the silence this file exists to end.
+    "PT-ASAE":            ("asae.gov.pt",),   # Portugal
+    "LU-SECLU":           ("securite-alimentaire.public.lu",),   # Luxembourg
+    "DK-FODEVARESTYRELSEN":("foedevarestyrelsen.dk",),   # Denmark
+    "SE-LIVSMEDELSVERKET":("livsmedelsverket.se",),   # Sweden
+    "RO-ANSVSA":          ("ansvsa.ro",),   # Romania
+    "BG-BFSA":            ("bfsa.bg",),   # Bulgaria
+    "SI-UVHVVR":          ("gov.si",),   # Slovenia
+    "LV-PVD":             ("pvd.gov.lv",),   # Latvia
+    "LT-VMVT":            ("vmvt.lt",),   # Lithuania
+    "BA-FSABIH":          ("fsa.gov.ba",),   # Bosnia and Herzegovina
+    "MK-FVA":             ("fva.gov.mk",),   # North Macedonia
+    "MD-ANSA":            ("ansa.gov.md",),   # Moldova
+    "TR-TGTHB":           ("tarimorman.gov.tr",),   # Türkiye
+    "CL-ACHIPIA":         ("achipia.gob.cl",),   # Chile
+    "CL-ISP":             ("ispch.cl",),   # Chile
+    "PE-DIGESA":          ("digesa.minsa.gob.pe",),   # Peru
+    "EC-ARCSA":           ("controlsanitario.gob.ec",),   # Ecuador
+    "JP-MHLW":            ("mhlw.go.jp",),   # Japan
+    "CN-SAMR":            ("samr.gov.cn",),   # China
+    "TW-TFDA":            ("fda.gov.tw",),   # Taiwan
+    "ID-BPOM":            ("pom.go.id",),   # Indonesia
+    "MY-KKM":             ("moh.gov.my",),   # Malaysia
+    "IN-FSSAI":           ("fssai.gov.in",),   # India
+    "SA-SFDA":            ("sfda.gov.sa",),   # Saudi Arabia
+    "AE-MOCCAE":          ("moccae.gov.ae",),   # United Arab Emirates
+    "QA-MOPH":            ("moph.gov.qa",),   # Qatar
+    "IL-MOH":             ("health.gov.il",),   # Israel
+    "MA-ONSSA":           ("onssa.gov.ma",),   # Morocco
+    "NG-NAFDAC":          ("nafdac.gov.ng",),   # Nigeria
+    "KE-KEBS":            ("kebs.org",),   # Kenya
     "CO-INVIMA":      ("invima.gov.co",),
     "AR-ANMAT":       ("argentina.gob.ar", "anmat.gob.ar"),
     "COMESA":         ("comesa.int",),
