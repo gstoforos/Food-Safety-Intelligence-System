@@ -1,0 +1,682 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261027T074930Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/produktwarnung-salmonellen-in-tomaten-aus-zwei-regionen-in-sizilien"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article; serotype salmonella strathcona; food terms tomatoes. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/produktwarnung-salmonellen-in-tomaten-aus-zwei-regionen-in-sizilien",
+          "quote": "2026-10-16 AGES (AT) Cocktail tomatoes",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4436f455d7ce8de4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22632/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22632/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Halal beef and poultry merguez",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5b9edfd459833916"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22675/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22675/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Bistrot dry liver sausage 200g vpf",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3bebd545f77155dd"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22656/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22656/Interne",
+          "quote": "2026-06-29 RappelConso (FR) Provençal pork araignée (spider cut)",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2b9be44de38ae8c8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-a-specific-batch-of-Butchers-Selection-I",
+          "quote": "2026-06-30 FSAI (IE) Butchers Selection Irish Turkey Burgers Mediterranean Style",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "895cf5ac8fbd3241"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22660/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22660/Interne",
+          "quote": "2026-06-30 RappelConso (FR) Marinated pork \"surprise\" with chorizo flavor (marinated pork preparation), sold at the In",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "afc0a6896458a98e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22725/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22725/Interne",
+          "quote": "2026-07-03 RappelConso (FR) Pollock fillet",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e9c707911b7fd79c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856117"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856117",
+          "quote": "2026-07-07 RASFF (EU) Salmonella found on turkey cutlets",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d7867662d86bf57d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22737/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22737/Interne",
+          "quote": "2026-07-07 RappelConso (FR) Pure pork dry-cured sausage",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "063e45ebce3d7147"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22761/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22761/Interne",
+          "quote": "2026-07-08 RappelConso (FR) Unbranded beef slice",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "de8250199c88167e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22806/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22806/Interne",
+          "quote": "2026-07-10 RappelConso (FR) Chicken breast fillet 5 kg under protective atmosphere",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1651c1cf7eef1e24"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22780/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22780/Interne",
+          "quote": "2026-07-10 RappelConso (FR) 10 frozen veal rissolettes 100g (1kg)",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "65fd4911ba2f6873"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/portale/news/p3_2_1_1_1.jsp?lingua=italiano&menu=richiami&p=daevidenza&id=6843",
+          "quote": "2026-07-14 Ministero della Salute (IT) Fresh eggs category A, 6 or 30 eggs",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cdc5bfd2fabef710"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22810/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22810/Interne",
+          "quote": "2026-07-15 RappelConso (FR) Indian pork belly",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "cc51c44c5399edd8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22852/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22852/Interne",
+          "quote": "2026-07-16 RappelConso (FR) Halal poultry chipolata with curry - 5kg",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "568714dbec226a29"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22885/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22885/Interne",
+          "quote": "2026-07-20 RappelConso (FR) Auvergnat charcuterie salad kg; Auvergnat charcuterie salad 300g; Auvergnat charcuterie sa",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "b93cdd7269e8c6c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x20",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c7e341480628c194"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x30",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4f3f096e7f2a2a7e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22891/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22891/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Ground beef patties",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "20e427de85be0ec2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22888/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22888/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Ground beef patties, loose ground beef",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "46530044c94e93ee"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22909/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22909/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Dry-cured charcuterie",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e4228bda39602586"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22931/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22931/Interne",
+          "quote": "2026-07-22 RappelConso (FR) Halal poultry merguez 50*100 gr - 5 kg",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ce1bf0410c3d1940"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22941/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22941/Interne",
+          "quote": "2026-07-23 RappelConso (FR) Curved dry sausage 250g",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f8ed03d34c0dfc04"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22993/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22993/Interne",
+          "quote": "2026-07-28 RappelConso (FR) Marinated pork belly, marinated chicken wing, marinated chicken fillet, marinated chicken ",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a19c0578668b13fd"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862321"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/10/tomato-use-suspended-as-italy-tackles-salmonella-outbreak",
+          "quote": "Since July 2026, more than 160 infections have been recorded in 10 European countries.",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/862321",
+          "quote": "2026-07-29 RASFF (EU) Salmonella in farmhouse cheese, from the Netherlands",
+          "retrieved_utc": "2026-10-27T07:47:41+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e2ee8166897ef0b2"
+    }
+  ]
+}
