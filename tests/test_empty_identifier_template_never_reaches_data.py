@@ -84,6 +84,9 @@ LEAKS = (
     #   MAST (IS) 2026-10-13  Lifa ehf. Timur berry, Salmonella
     "(Recall ID AGES-12345)", "(Recall ID MAST-123456)",
     "(Recall ID: NFSA-987654321)", "(Recall ID GIS 11111)",
+    # 2026-10-27: the year between agency and dummy run (EFET, invented
+    # row on EFET item 5379, which is a feta recall of April 2026).
+    "(Recall ID EFET-2026-12345)", "(Recall ID EFET 2026 123456)",
 )
 
 #: Digit runs that are NOT placeholders and must survive. A guard that eats
