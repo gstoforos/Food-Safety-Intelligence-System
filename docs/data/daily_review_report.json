@@ -1,17 +1,17 @@
 {
-  "generated": "2026-10-25T12:20:02+02:00",
-  "date": "2026-10-25",
+  "generated": "2026-10-27T13:12:56+02:00",
+  "date": "2026-10-27",
   "mode": "live",
-  "in_progress_week": "W43",
+  "in_progress_week": "W44",
   "counts": {
-    "recalls_rows": 2175,
+    "recalls_rows": 2184,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 20,
+    "proposed_deletions": 21,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -331,6 +331,32 @@
           "Country": "United Kingdom",
           "Tier": 1,
           "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026"
+        },
+        "duplicate_of": {
+          "Date": "2026-10-08",
+          "Source": "FSAI (IE)",
+          "Company": "Greencore",
+          "Product": "M&S Food Super Nutty Wholefood with a Soy & Ginger Dressing 200 g; M&S Food Nutrient Dense Nutty Super Wholefood 285 g; M&S Collection Pistachio and Parmigiano Reggiano Cheese Pesto 115 g",
+          "Pathogen": "Salmonella",
+          "Country": "Ireland",
+          "Tier": 1,
+          "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products"
+        }
+      },
+      {
+        "id": "856dabddef775f27",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (fsai (ie))",
+        "row": {
+          "Date": "2026-10-08",
+          "Source": "FSA (UK)",
+          "Company": "Greencore",
+          "Product": "several products",
+          "Pathogen": "Salmonella",
+          "Country": "United Kingdom",
+          "Tier": 1,
+          "URL": "https://alerts.food.gov.uk/article/6920/Greencore-recalls-several-products-due-to-the-presence-of-Salmonella"
         },
         "duplicate_of": {
           "Date": "2026-10-08",
