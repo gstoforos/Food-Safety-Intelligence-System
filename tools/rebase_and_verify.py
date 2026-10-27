@@ -77,7 +77,16 @@ REPORT_RE = re.compile(
 # Closed-month outputs: owned by the day-10 updates check.
 MONTHLY_RE = re.compile(
     r"^docs/(?:\d{4}-M\d{2}(?:-all)?\.html|data/monthly-[\w-]+\.json|marketing/.*)$")
-CODE_ROOTS = ("pipeline/", "tests/", "tools/", ".github/", "scrapers/")
+# "review/" added 2026-10-27. review/ holds a third copy of the Tavily
+# gap-finder's host->label table (and the Claude/Gemini review clients).
+# The Morning Fix of 2026-10-27 repaired that table in pipeline/ and had to
+# REVERT the identical repair in review/, because a review/ file in a code
+# zip classifies as "other" and is silently dropped — so the suite the gate
+# runs would have disagreed with the tree the gate builds. A directory the
+# repo ships but the upload path cannot carry is a directory that can only
+# ever drift.
+CODE_ROOTS = ("pipeline/", "tests/", "tools/", ".github/", "scrapers/",
+              "review/")
 SKIP_RE = re.compile(r"(?:^|/)(?:__pycache__/|\.pytest_cache/)|\.pyc$|^READ-ME-FIRST\.md$")
 REGIONS_RE = re.compile(r"(\d+) regions? scanned")
 REMOVAL_WORDS = ("remove-rows", "delete-rows", "reject-batch",
@@ -119,7 +128,8 @@ def strip_wrapper(names: Iterable[str]) -> Dict[str, str]:
     """Map zip member -> repo path. Accepts zips with or without one top folder."""
     files = [n for n in names if not n.endswith("/")]
     tops = {n.split("/", 1)[0] for n in files if "/" in n}
-    known = {"docs", "pipeline", "tests", "tools", ".github", "scrapers"}
+    known = {"docs", "pipeline", "tests", "tools", ".github", "scrapers",
+             "review"}
     out = {}
     for n in files:
         p = n

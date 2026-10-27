@@ -175,8 +175,19 @@ PATHOGEN: dict[str, list[str]] = {
                                 "oleander", "cardiac glycoside"],   # 4
 
     # --- chemical -------------------------------------------------------
-    "Heavy metals": ["heavy metal", "cadmium", "lead (", "mercury",
-                     "arsenic", "molybdenum"],                      # 9
+    # "kadmium" added 2026-10-27. Livsmedelsverket published "Kadmium
+    # exceeding limit" as the Pathogen of a Coop Sverige frozen-chili
+    # recall on 2026-10-26 (the row's own Reason says "may contain
+    # cadmium", so the English was in the row all along). No alert term
+    # could reach it — test_alert_vocab::
+    # test_every_row_matches_at_least_one_pathogen_term went red. The row
+    # is translated, and the Swedish spelling is kept here so the NEXT one
+    # is reachable before anybody translates it. No Nordic language is in
+    # pipeline/_language._MARKERS, so a Swedish or Danish description field
+    # is invisible to the language detector and this list is the only
+    # thing standing between such a row and an unreachable hazard.
+    "Heavy metals": ["heavy metal", "cadmium", "kadmium", "lead (",
+                     "mercury", "arsenic", "molybdenum"],           # 9
     "Pesticide / veterinary residues": ["pesticide", "veterinary medicine",
                                         "veterinary chemical", "penicillin",
                                         "nitrofurazone", "chloramphenicol",

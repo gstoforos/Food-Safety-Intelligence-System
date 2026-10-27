@@ -37,6 +37,14 @@ SOURCES = [
     ("ECDC", "European Union", "ecdc.europa.eu"),
     # ── Europe ──
     ("RappelConso (FR)", "France", "rappel.conso.gouv.fr"),
+    # 2026-10-27: agriculture.gouv.fr is on the regulator-of-record
+    # whitelist, so a gap-finder hit there publishes with this label — the
+    # Direction générale de l'alimentation is the competent authority
+    # behind France's retrait-rappel decisions and already appears in the
+    # Reason of a published row (the 2026-08-28 sesame-seed Salmonella
+    # cluster). It had no registry entry and no canonical identity, so the
+    # label it would have published under was host-unchecked and uncounted.
+    ("DGAL (FR)", "France", "agriculture.gouv.fr"),
     ("BVL (DE)", "Germany", "lebensmittelwarnung.de"),
     ("Ministero della Salute (IT)", "Italy", "salute.gov.it"),
     ("AESAN (ES)", "Spain", "aesan.gob.es"),
@@ -61,6 +69,15 @@ SOURCES = [
     ("ANSVSA (RO)", "Romania", "ansvsa.ro"),
     ("BFSA (BG)", "Bulgaria", "bfsa.bg"),
     ("HAH (HR)", "Croatia", "hapih.hr"),
+    # 2026-10-27: Slovakia was monitored and not counted — the same defect
+    # this list was created to fix, found by the new test over the
+    # collector host->label tables rather than by a published row.
+    # scrapers/europe_eu/svps.py has read svps.sk since it was written and
+    # its AGENCY is "ŠVPS (SK)"; pipeline/regulatory_domains lists the host
+    # as a regulator-of-record, so a row from it can publish. It had no
+    # registry entry, so it could not be counted and its canonical identity
+    # was unknown, which is a host check that never runs.
+    ("ŠVPS (SK)", "Slovakia", "svps.sk"),
     ("UVHVVR (SI)", "Slovenia", "gov.si"),
     ("VTA (EE)", "Estonia", "pta.agri.ee"),
     ("PVD (LV)", "Latvia", "pvd.gov.lv"),
