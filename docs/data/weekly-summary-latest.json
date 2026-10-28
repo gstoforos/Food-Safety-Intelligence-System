@@ -10,26 +10,40 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-27T16:27:12.234725+00:00",
+  "generated_utc": "2026-10-28T04:27:07.316566+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 89,
-    "tier1": 60,
-    "outbreaks": 1,
-    "delta": 11,
-    "delta_pct": 14
+    "total": 90,
+    "tier1": 61,
+    "outbreaks": 2,
+    "delta": 12,
+    "delta_pct": 15
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
-    "cases": 23,
-    "pct": 26
+    "cases": 24,
+    "pct": 27
   },
   "ai_lead_paragraph": "",
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-10-21",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": true,
+      "company": "SuperValu and Centra",
+      "brand": "SuperValu and Centra",
+      "product": "salmon and prawn cocktail products",
+      "country": "United Kingdom",
+      "source": "FSA (UK)",
+      "url": "https://alerts.food.gov.uk/article/6946/SuperValu-and-Centra-recall-salmon-and-prawn-cocktail-products-because-of-contamination-with-Listeria-monocytogenes"
+    },
+    {
+      "rank": 2,
       "date": "2026-10-19",
       "pathogen": "Salmonella",
       "pathogen_raw": "Salmonella",
@@ -43,7 +57,7 @@
       "url": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-10-23",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -57,7 +71,7 @@
       "url": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-10-22",
       "pathogen": "Clostridium botulinum",
       "pathogen_raw": "Clostridium botulinum",
@@ -71,7 +85,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23879/Interne"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-10-22",
       "pathogen": "Botulinum toxin",
       "pathogen_raw": "Botulinum toxin",
@@ -83,20 +97,6 @@
       "country": "Italy",
       "source": "Ministero della Salute (IT)",
       "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20LOTTO%20596_1792593268.pdf"
-    },
-    {
-      "rank": 5,
-      "date": "2026-10-24",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Boucherie Viau inc.",
-      "brand": "",
-      "product": "Ham and bacon bread (Pain au jambon et bacon)",
-      "country": "Canada",
-      "source": "MAPAQ QC",
-      "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-pain-au-jambon-et-bacon-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72791"
     }
   ],
   "country_count": 25
