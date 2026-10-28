@@ -362,6 +362,26 @@ def _normalize_url_for_dedup(url: str) -> str:
     m = re.match(r"^[a-z0-9.-]*admin\.ch/(?:[a-z]{2}/)?newnsb/([a-z0-9]+)", s)
     if m:
         s = "admin.ch/newnsb/" + m.group(1)
+    # ── AESAN (ES) language variants (audit 2026-10-28) ───────────────────
+    # The SAME admin.ch bug, on Spain's agency, and this one cost a
+    # Tier-1 row. AESAN serves one alert at
+    #     aesan.gob.es/alertas/<id>          (Spanish, no segment)
+    #     aesan.gob.es/{en,ca,eu,gl,va,fr}/alertas/<id>
+    # — up to seven addresses for one notice. Measured on the workbook of
+    # 2026-10-28: alert 2026_72 (Listeria in cooked mussels) was PUBLISHED
+    # at the bare address while two further language copies waited in
+    # Pending and three more sat in Rejected; alert 2026_75 (Salmonella in
+    # Arkan sesame tahini) had SIX copies, 2026_74 two, 2026_73 one. Each
+    # copy took its own independent trip through the reviewers and came
+    # back with a different verdict on the same recall.
+    #
+    # The language segment is presentation; the alert id is the identity.
+    # Host-scoped and limited to the language codes the site actually
+    # serves, so a real first path segment ("alertas", "actualidad",
+    # "aecosan") is never mistaken for one.
+    m = re.match(r"^aesan\.gob\.es/(?:en|ca|eu|gl|va|fr|es)/(.+)$", s)
+    if m:
+        s = "aesan.gob.es/" + m.group(1)
     if "?" in s:
         path, _, query = s.partition("?")
         keepers = []
@@ -1611,6 +1631,9 @@ def append_to_pending(
     new_recalls: List[Recall],
     scraped_at: str,
     gap_finder: bool = False,
+    *,
+    outcomes: Optional[List[Dict[str, Any]]] = None,
+    override_terminal: Optional[set] = None,
 ) -> List[Dict[str, Any]]:
     """
     Take new scraped+enriched Recall objects and append them to the pending list.
@@ -1624,6 +1647,23 @@ def append_to_pending(
         before the next run, and prevents rejected rows from being silently
         re-skipped forever.
       - Otherwise (brand new key) -> insert as Status='pending'.
+
+    ``outcomes``, if a list is passed, receives ONE record per input row:
+    ``{"key", "url", "outcome", "detail"}``, where ``outcome`` is one of
+    ``queued`` / ``queued-enrichment`` / ``requeued`` / ``already-approved``
+    / ``already-pending`` / ``gate-rejected`` / ``near-duplicate`` /
+    ``terminal-rejection``. The aggregate counters in the log line below
+    cannot name a row, so a caller that queued three rows and got two
+    could not tell WHICH one it lost (audit 2026-10-28 — see
+    tools/add_manual_row.py for the Tier-1 row this cost).
+
+    ``override_terminal``, if given, is a set of normalised URLs for which
+    the terminal-rejection guard is skipped. It exists for an operator who
+    has just read the authority page and is deliberately re-queueing a row
+    over an archived verdict; every override is logged at WARNING with the
+    verdict it overrode. Nothing else is relaxed: the validation gate, the
+    near-duplicate check and the already-approved/already-pending rules all
+    still apply.
     """
     keys_in_approved = {_dedup_key(r) for r in approved}
 
@@ -1691,6 +1731,19 @@ def append_to_pending(
     except Exception:                                   # pragma: no cover
         _terminal = {}
 
+    _overrides = {str(u) for u in (override_terminal or set())}
+
+    def _record(d: Dict[str, Any], outcome: str, detail: str = "") -> None:
+        """One verdict line per input row, for callers that need to name it."""
+        if outcomes is None:
+            return
+        outcomes.append({
+            "key": _dedup_key(d),
+            "url": str(d.get("URL", "") or ""),
+            "outcome": outcome,
+            "detail": detail,
+        })
+
     for r in new_recalls:
         d = r.to_dict() if isinstance(r, Recall) else dict(r)
         for col in SCHEMA:
@@ -1705,6 +1758,7 @@ def append_to_pending(
                 why, str(d.get("URL", ""))[:100], str(d.get("Company", ""))[:50],
             )
             rejected_by_gate += 1
+            _record(d, "gate-rejected", why)
             continue
 
         # Sentinel from validate_pending_row: row passed every other gate
@@ -1718,6 +1772,7 @@ def append_to_pending(
 
         if k in keys_in_approved:
             already_approved += 1
+            _record(d, "already-approved", "a Recalls row already has this key")
             continue
 
         # ── TERMINAL-REJECTION GUARD (audit 2026-08-31) ─────────────────
@@ -1726,11 +1781,18 @@ def append_to_pending(
         # indistinguishable from a scraper that stopped working.
         _u_term = _normalize_url_for_dedup(str(d.get("URL", "") or ""))
         if _u_term and _u_term in _terminal:
-            log.info("Re-ingestion blocked (terminal rejection on file): "
-                     "%s | %s", str(d.get("URL", ""))[:100],
-                     _terminal[_u_term][:120])
-            blocked_terminal += 1
-            continue
+            if _u_term in _overrides:
+                log.warning(
+                    "Terminal rejection OVERRIDDEN by caller: %s | overridden "
+                    "verdict: %s", str(d.get("URL", ""))[:100],
+                    _terminal[_u_term][:200])
+            else:
+                log.info("Re-ingestion blocked (terminal rejection on file): "
+                         "%s | %s", str(d.get("URL", ""))[:100],
+                         _terminal[_u_term][:120])
+                blocked_terminal += 1
+                _record(d, "terminal-rejection", _terminal[_u_term][:300])
+                continue
 
         # ── Near-duplicate check (audit 2026-04-29) ─────────────────────
         # Reject if a recall with the same (source, normalized_company,
@@ -1747,6 +1809,9 @@ def append_to_pending(
                 str(d.get("Company", ""))[:50],
             )
             rejected_by_gate += 1
+            _record(d, "near-duplicate",
+                    "same (source, company, pathogen) already present dated "
+                    "%s" % match_date)
             continue
 
         new_status = (STATUS_PENDING_ENRICHMENT
@@ -1763,9 +1828,14 @@ def append_to_pending(
                 d["Status"] = new_status
                 fresh_rows.append(d)
                 retried += 1
+                _record(d, "requeued",
+                        "replaced the rejected Pending row with this key")
             else:
                 # Still pending from a prior run — leave it alone
                 already_pending += 1
+                _record(d, "already-pending",
+                        "a Pending row with this key is Status=%s"
+                        % (existing_status or "pending"))
             continue
 
         # Brand new key
@@ -1774,8 +1844,11 @@ def append_to_pending(
         fresh_rows.append(d)
         if needs_enrichment:
             appended_enrichment += 1
+            _record(d, "queued-enrichment",
+                    "Pathogen empty — awaiting enrichment")
         else:
             appended += 1
+            _record(d, "queued", "")
 
     # Assemble output: existing pending minus dropped + new/retried
     kept = [r for i, r in enumerate(existing_pending) if i not in indices_to_drop]
