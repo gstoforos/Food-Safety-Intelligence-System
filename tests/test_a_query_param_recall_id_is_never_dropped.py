@@ -72,6 +72,13 @@ INTENTIONAL = (
     # docstring above were all identifiers. This one is listed because the
     # differing part is provably not one.
     re.compile(r"^data\.food\.gov\.uk/food-alerts/id\.html$"),
+    # 2026-10-28. AESAN serves one alert at aesan.gob.es/alertas/<id> and at
+    # /{en,ca,eu,gl,va,fr}/alertas/<id> — up to seven addresses for one
+    # notice, exactly the admin.ch shape. Collapsing them is the point of
+    # that fix: before it, alert 2026_72 was published at the bare address
+    # while two more copies waited in Pending and three sat in Rejected.
+    # The alert id is in the path either way, so no identifier is lost.
+    re.compile(r"^aesan\.gob\.es/"),
 )
 
 
