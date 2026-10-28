@@ -418,7 +418,15 @@ RETIRED_PRODUCT: dict[str, str] = {
 # a filter that silently never fires.
 
 COUNTRY: list[str] = [
-    "Afghanistan", "Argentina", "Australia", "Austria", "Azerbaijan",
+    "Afghanistan",
+    # Albania entered the register on 2026-10-26 — RASFF notification,
+    # aflatoxins (aflatoxin B1 and total) in dried figs of Albanian origin,
+    # published to Recalls on 2026-10-27. No offered word reached it, so a
+    # subscriber watching that origin would not have been alerted. Found by
+    # test_alert_vocab.py::test_every_register_country_is_offered — the same
+    # gap this test caught for Russia on 2026-10-02 and Iceland on 2026-10-14.
+    "Albania",
+    "Argentina", "Australia", "Austria", "Azerbaijan",
     "Belgium", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
     "Bulgaria", "Canada", "Chile", "China", "Colombia", "Croatia", "Cyprus",
     "Czechia", "Denmark", "Ecuador", "Egypt", "Estonia", "Ethiopia",

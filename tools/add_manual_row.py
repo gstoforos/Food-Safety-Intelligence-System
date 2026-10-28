@@ -20,6 +20,29 @@ that function apply its own rules: already approved is skipped, already
 pending is skipped, a previously rejected key is replaced for
 re-validation. Nothing here bypasses any of it.
 
+A ROW THAT DOES NOT LAND SAYS SO (audit 2026-10-28)
+---------------------------------------------------
+Until today this tool reported one number: ``len(updated) - len(pending)``.
+A net count cannot name a row, so when ``append_to_pending`` dropped one
+of several rows the tool printed a success line for the others and exited
+0, and the dropped row was gone without a word.
+
+That is not hypothetical. On 2026-10-27 the morning-fix pass queued three
+operator-verified rows. Two landed. The third — AESAN alert 2026_75,
+Salmonella spp. in Arkan Pure Sesame Tahini, Tier 1 — did not, because
+the same script had just archived six language copies of that alert to
+Rejected stamped ``operator review 2026-10-27``, and
+``_is_human_rejection`` reads any ``operator review`` stamp as a terminal
+verdict. The terminal-rejection guard then blocked the replacement row at
+the same normalised URL. The guard logged it at INFO, which this tool does
+not surface. The run printed "Queued 2 row(s)" and exited 0. Nothing in
+the register carried that recall the next morning.
+
+So every requested row now gets its own verdict line, keyed on its own
+dedup key, and the exit status is non-zero if ANY requested row did not
+land. ``--override-terminal`` is the deliberate way past an archived
+terminal verdict, and it names the verdict it overrides.
+
 A worked example lives at tests/fixtures/gis-pesto-2026-08-28.json.
 There is no conventional home for these files and they are not inputs the
 pipeline reads — write the JSON wherever you like and pass the path.
@@ -121,6 +144,12 @@ def main() -> int:
     ap.add_argument("--xlsx", default=str(DEFAULT_XLSX))
     ap.add_argument("--dry-run", action="store_true",
                     help="print what would be queued; write nothing")
+    ap.add_argument("--override-terminal", action="store_true",
+                    help="queue a row even if its URL carries a terminal "
+                         "rejection in the archives. Use it only when you "
+                         "have just read the authority page yourself, and "
+                         "say so in Notes — the overridden verdict is "
+                         "printed and logged.")
     args = ap.parse_args()
 
     spec = json.loads(Path(args.json_file).read_text(encoding="utf-8"))
@@ -144,21 +173,91 @@ def main() -> int:
             print("    %-9s %s" % (f, getattr(r, f, "")))
         print("    %-9s %s" % ("Product", str(r.Product)[:96]))
 
-    updated = mm.append_to_pending(pending, approved, recalls, scraped_at)
-    added = len(updated) - len(pending)
+    overrides = set()
+    if args.override_terminal:
+        overrides = {mm._normalize_url_for_dedup(r.URL) for r in recalls}
 
-    if added <= 0:
-        print("\nNothing queued — append_to_pending skipped every row "
-              "(already approved, or already waiting in Pending).")
-        return 0
+    outcomes: list = []
+    updated = mm.append_to_pending(pending, approved, recalls, scraped_at,
+                                   outcomes=outcomes,
+                                   override_terminal=overrides)
+
+    # One verdict line per requested row. A net row count cannot name the
+    # row it lost; see the module docstring for the Tier-1 row that cost.
+    #
+    # THREE OUTCOMES, NOT TWO. "The register already has this row" is a
+    # legitimate no-op — re-running the tool on a row that has since been
+    # published must stay a success, which is what
+    # tests/test_add_manual_row.py::test_running_twice_does_not_duplicate
+    # has always required. What must NOT stay a success is a row dropped
+    # because something refused it: a gate defect, a near-duplicate, a
+    # terminal rejection on file. Those are the ones that vanish.
+    LANDED = {"queued", "queued-enrichment", "requeued"}
+    BENIGN = {"already-approved", "already-pending"}
+    #: A gate reason that means "the register already holds this URL" rather
+    #: than "this row is defective".
+    DUP_REASONS = ("duplicate url", "already exists", "already in recalls")
+
+    def _bucket(o) -> str:
+        if o["outcome"] in LANDED:
+            return "landed"
+        if o["outcome"] in BENIGN:
+            return "benign"
+        if (o["outcome"] == "gate-rejected"
+                and any(m in str(o.get("detail") or "").lower()
+                        for m in DUP_REASONS)):
+            return "benign"
+        return "lost"
+
+    print("\nper-row result")
+    by_key = {o["key"]: o for o in outcomes}
+    lost: list = []
+    landed = 0
+    for r in recalls:
+        d = r.to_dict()
+        o = by_key.get(mm._dedup_key(d))
+        if o is None:                                    # pragma: no cover
+            o = {"outcome": "NOT REPORTED", "key": "",
+                 "detail": "append_to_pending returned no verdict for this row"}
+        bucket = _bucket(o)
+        mark = {"landed": "  OK  ", "benign": " SKIP ", "lost": " LOST "}[bucket]
+        print("  [%s] %-20s %s" % (mark, o["outcome"], str(r.Product)[:60]))
+        print("           %s" % r.URL)
+        if o.get("detail"):
+            print("           %s" % str(o["detail"])[:220])
+        if bucket == "landed":
+            landed += 1
+        elif bucket == "lost":
+            lost.append((r, o))
 
     if args.dry_run:
-        print("\nDRY RUN — %d row(s) would be queued. Nothing written." % added)
-        return 0
+        print("\nDRY RUN — %d of %d row(s) would be queued. Nothing written."
+              % (landed, len(recalls)))
+    elif landed:
+        mm.save_xlsx_with_pending(approved, updated, xlsx)
+        print("\nQueued %d of %d row(s) to Pending in %s"
+              % (landed, len(recalls), xlsx))
+        print("They are Status='pending' and go through review like any "
+              "other row.")
+    elif lost:
+        print("\nNothing queued — every requested row was dropped. "
+              "Workbook not written.")
+    else:
+        print("\nNothing queued — the register already holds every requested "
+              "row. Workbook not written.")
 
-    mm.save_xlsx_with_pending(approved, updated, xlsx)
-    print("\nQueued %d row(s) to Pending in %s" % (added, xlsx))
-    print("They are Status='pending' and go through review like any other row.")
+    if lost:
+        print("\n%d REQUESTED ROW(S) DID NOT LAND:" % len(lost))
+        for r, o in lost:
+            print("  - %s  (%s)" % (str(r.Product)[:70], o["outcome"]))
+        if any(o["outcome"] == "terminal-rejection" for _, o in lost):
+            print("\n  A terminal-rejection drop is deliberate: the archives "
+                  "carry a permanent verdict\n  on that URL. If you have read "
+                  "the authority page yourself and the verdict is wrong\n  or "
+                  "was only bookkeeping, re-run with --override-terminal and "
+                  "say so in Notes.")
+        return 1
+
     return 0
 
 
