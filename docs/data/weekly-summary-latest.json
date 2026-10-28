@@ -10,21 +10,21 @@
   "week_end_display": "25 Oct 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-10-28T04:27:07.316566+00:00",
+  "generated_utc": "2026-10-28T08:17:49.219853+00:00",
   "prev_total": 78,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 90,
-    "tier1": 61,
+    "total": 92,
+    "tier1": 62,
     "outbreaks": 2,
-    "delta": 12,
-    "delta_pct": 15
+    "delta": 14,
+    "delta_pct": 18
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
     "cases": 24,
-    "pct": 27
+    "pct": 26
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -99,5 +99,5 @@
       "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20LOTTO%20596_1792593268.pdf"
     }
   ],
-  "country_count": 25
+  "country_count": 26
 }
