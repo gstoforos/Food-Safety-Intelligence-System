@@ -15,6 +15,25 @@ VERIFIED 2026-09-23 — real item URLs, numeric ids on the news board:
          and Quality"
     sfda.gov.sa/en/news/17638      (the same story on the older site)
 
+THE WARNINGS BOARD (audit 2026-10-29)
+=====================================
+SFDA publishes food actions on TWO boards, not one. Alongside /news/ there
+is a numbered warnings board:
+
+    sfda.gov.sa/en/warnings/19788
+        "SFDA Issues Warning Against Certain Arla Protein Pudding Products
+         from Denmark" — 27/10/2026, potential glass fragments, eleven
+         batches, read on the page 2026-10-29
+
+That URL was already in the register (Pending) and this country's own item
+regex REFUSED it, which is the failure
+tests/test_register_urls_pass_their_own_gate.py exists to name: Saudi
+Arabia would run, find the candidate, accept none, and report success. The
+regex now takes both boards. Numeric ids only — SFDA also serves the same
+warning at a slug path (/en/warnings/due-their-potential-contamination-
+glass-fragments), and taking slugs would open the path to every warnings
+page including the drug and cosmetic ones.
+
 The drugs board is a SEPARATE path and is deliberately excluded:
 
     sfda.gov.sa/en/drugscircularsandwithdrawal/89167
@@ -45,9 +64,10 @@ SAUDI_ARABIA = CountryConfig(
     authority_short="SFDA",
     authority_full="الهيئة العامة للغذاء والدواء (Saudi Food and Drug Authority)",
     authority_domain="sfda.gov.sa",
-    # /news/ only — the drugs board has its own path and stays out. Both
-    # language prefixes are live.
-    authority_item_url_regex=r"^(?:https?://[^/]+)?/(?:en|ar)/news/\d+",
+    # /news/ and /warnings/ — the drugs board has its own path and stays
+    # out. Both language prefixes are live.
+    authority_item_url_regex=(
+        r"^(?:https?://[^/]+)?/(?:en|ar)/(?:news|warnings)/\d+"),
     authority_index_url="https://www.sfda.gov.sa/en/news",
 
     # ── News sources ────────────────────────────────────────────────────────
