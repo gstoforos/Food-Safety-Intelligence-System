@@ -173,6 +173,50 @@ _RECALL_VERBS = (
     "issues-public-health-alert",
 )
 
+#: The recall verb phrase that separates the firm from the product in an
+#: FDA press-release title. Built from the same verbs as _RECALL_VERBS
+#: above, which is what let the slug through in the first place.
+_FIRM_BOUNDARY = re.compile(
+    r"\s+(?:"
+    r"(?:Voluntarily\s+)?Recall(?:s|ing|ed)"
+    r"|(?:Issues|Announces|Expands|Initiates|Conducts|Begins|Updates|Amends)"
+    r"\s+(?:A\s+)?(?:Nationwide\s+)?(?:Voluntary\s+)?"
+    r"(?:Recall|Withdrawal|Public\s+Health\s+Alert)"
+    r"|Recall\s+Of"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
+def _firm_from_title(title: str) -> str:
+    """The firm named before the recall verb, or "" when there is none.
+
+    AUDIT 2026-10-29. This was ``title.split(" Recalls ")[0][:100]``. FDA
+    writes the firm first and the verb second, but it writes the verb many
+    ways, and only one of them is " Recalls ". When the title used any
+    other, the split found nothing and returned the WHOLE title as the
+    company:
+
+        Pending  "Wedgewood Pharmacy Issues Recall Certain Compounded
+                  Veterinary Medications Within Expiry Due"
+        Pending  "Tonight We Ride Llc Issues Voluntary Recall Ultimate
+                  Forza Male Supplement Due Presence Undeclared"
+
+    Both rows carried that whole string in Company AND in Product — a firm
+    name the register invented. They sat in Pending because the publish
+    gate happens to refuse them on an empty Pathogen, not because anything
+    looked at Company.
+
+    A guessed Company is the one thing the register must never carry, so
+    when no verb boundary is found this returns "" and the gate's "Company
+    is empty" rule parks the row for a reviewer to read the page.
+    Held by tests/test_company_is_never_the_product.py.
+    """
+    m = _FIRM_BOUNDARY.search(title or "")
+    if not m or m.start() < 2:
+        return ""
+    return (title[:m.start()]).strip()[:100]
+
 # Tokens that mark out-of-scope items (drugs, allergen-only, quality).
 # AFTS scope (per dashboard footer): pathogens + biotoxins + mycotoxins
 # + foreign material + pest + chemical hazards. Allergen-only and
@@ -576,7 +620,7 @@ class FDAPressReleaseScraper(BaseScraper):
                 # Date left EMPTY — claude-check enriches from the page.
                 # Stamping today was causing 3-month-old recalls to look fresh.
                 Date="",
-                Company=title.split(" Recalls ")[0][:100],
+                Company=_firm_from_title(title),
                 Brand="—",
                 Product=title,
                 Pathogen="",   # Will be filled by claude-check page review
