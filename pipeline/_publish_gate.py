@@ -296,6 +296,14 @@ HAZARD_CLASS_KEYWORDS = {
         "vulnificus", "parahaemolyticus", "cholerae", "cholera",
         "alginolyticus",
         "cronobacter", "enterobacter", "enterohaem",
+        # 2026-10-29: the first Pseudomonas row in the register — Ministero
+        # della Salute (IT), San Zaccaria mineral water, Fonti Terme di
+        # Brennero Srl, 2026-10-28, "Potential presence of Pseudomonas
+        # aeruginosa". The hazard reached no class at all, so the curator
+        # refused the hazard of a row the publish gate had just passed
+        # (tests/test_curator_scope_2026_09_09.py). Both the genus and the
+        # species name, because bottled-water notices write either.
+        "pseudomonas", "aeruginosa",
         # PARASITES (audit 2026-09-09). "Cyclospora" was published with no
         # hazard class at all, which made the curator refuse to correct the
         # row. Parasitic infection is a pathogen hazard by every definition

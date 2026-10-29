@@ -1292,6 +1292,71 @@ _TERMINAL_REJECTION_MARKERS = (
     "not a microbial pathogen", "no microbial hazard",
 )
 
+# ── "NOT MICROBIAL" IS NOT "NOT IN SCOPE" (audit 2026-10-29) ──────────────
+#
+# The two microbial markers just above entered the list on 2026-10-02 for
+# RappelConso 23644, a shelf-life extension with NO hazard at all. Reviewer
+# 1 writes the same phrase for a notice whose hazard IS real and IS in
+# scope but simply is not a bacterium:
+#
+#   GIS (PL) 2026-10-28, BRAIN WASH cannabis gummies, DR JOINT sp. z o.o.
+#   "URL agent: Hazard is not a microbial pathogen, but an undeclared
+#    psychoactive substance"
+#
+# That is THC over a reference dose — in AFTS scope since 2026-10-01, with
+# six Delta-9-THC rows already published out of RappelConso and three
+# "Undeclared pharmacological ingredient" rows out of the FDA. The marker
+# made reviewer 1's scope error PERMANENT: the row passed the full publish
+# gate after repair and the re-promotion guard still refused it. More than
+# half this register's hazard classes are non-microbial — mycotoxins, heavy
+# metals, pesticide residues, foreign material, mould, pest, uninspected
+# product — so the phrase can lock out any of them.
+#
+# The narrow repair: the microbial markers stop being terminal when the SAME
+# text also names an in-scope non-microbial hazard, AND no other terminal
+# marker is present. "out of scope", "allergen", "labelling", "pet food"
+# and every other marker keep their full force, so an operator who refuses
+# a chemical-hazard row on any of those grounds still blocks it. The
+# vocabulary below is read off the register's own published Pathogen column.
+# Held by tests/test_a_non_microbial_hazard_is_in_scope.py.
+_NON_MICROBIAL_IN_SCOPE_HAZARDS = (
+    # chemical / drug
+    "thc", "tetrahydrocannabinol", "cannabinoid", "psychoactive",
+    "pharmacological", "undeclared drug", "sildenafil", "tadalafil",
+    "yohimbine", "dimethylamylamine", "dmaa", "opium alkaloid",
+    # mycotoxins and other toxins
+    "aflatoxin", "ochratoxin", "mycotoxin", "toxin", "alkaloid",
+    "cereulide", "histamine", "scombrotoxin", "muscimol",
+    # metals and contaminants
+    "cadmium", "lead", "mercury", "arsenic", "heavy metal", "nickel",
+    "pesticide", "residue", "chlorate", "ethylene oxide", "dioxin",
+    "bisphenol", "moah", "mineral oil", "nitrate", "nitrite",
+    "glycidyl", "3-mcpd", "migration of",
+    # physical
+    "foreign material", "foreign body", "foreign matter",
+    "metal fragment", "glass fragment", "plastic fragment",
+    # biological-but-not-a-pathogen, and inspection
+    "mould", "mold", "rodent", "pest infestation", "insect",
+    "uninspected", "without the benefit of inspection",
+)
+
+
+def _microbial_only_refusal_excused(desc: str) -> bool:
+    """True when a "not microbial" refusal names an in-scope hazard anyway.
+
+    Fires only when a microbial-only marker is the ONLY terminal marker in
+    the text and an in-scope non-microbial hazard is named beside it. See
+    the block above for the row that found this.
+    """
+    dl = (desc or "").lower()
+    microbial = ("not a microbial pathogen", "no microbial hazard")
+    if not any(m in dl for m in microbial):
+        return False
+    if any(m in dl for m in _TERMINAL_REJECTION_MARKERS
+           if m not in microbial):
+        return False
+    return any(h in dl for h in _NON_MICROBIAL_IN_SCOPE_HAZARDS)
+
 # Rejection reasons that look terminal but must NOT block a re-ingestion any
 # more, because the policy that produced them has since changed (2026-09-07:
 # visible mould moved INTO scope). A reason matching one of these is treated
@@ -1566,6 +1631,13 @@ def _is_terminal_rejection(desc: str) -> bool:
     # UNRESOLVED is deliberately NOT listed. It marks a contradiction nobody
     # has decided yet; only SUPERSEDED is a decision.
     if "superseded" in d.lower():
+        return False
+    # A "not a microbial pathogen" refusal of a hazard that IS in scope is a
+    # scope error, not a permanent property of the item. Checked here, beside
+    # SUPERSEDED, because the phrase comes from reviewer 1 rather than from an
+    # operator verdict, and because returning False only sends the row back
+    # through review — it never publishes anything on its own.
+    if _microbial_only_refusal_excused(d):
         return False
     # Lower-cased once. The reversal check above used to compute this as
     # `dl_all` on its way past; when that check moved into
