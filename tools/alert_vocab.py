@@ -85,6 +85,15 @@ PATHOGEN: dict[str, list[str]] = {
     "Vibrio": ["vibrio", "vulnificus", "parahaemolyticus",
                "cholerae", "cholera", "alginolyticus"],             # 1
     "Cronobacter": ["cronobacter", "sakazakii"],                    # 2
+    # 2026-10-29. The first Pseudomonas row in the register — Ministero
+    # della Salute (IT), San Zaccaria mineral water, Fonti Terme di
+    # Brennero Srl, 2026-10-28, "Potential presence of Pseudomonas
+    # aeruginosa". No offered word reached it, so a subscriber watching
+    # bottled water would not have been alerted; the same morning the
+    # curator refused the hazard outright because
+    # _publish_gate.HAZARD_CLASS_KEYWORDS had no word for it either.
+    # Genus and species both, because bottled-water notices write either.
+    "Pseudomonas aeruginosa": ["pseudomonas", "aeruginosa"],        # 1
     "Staphylococcus aureus / enterotoxin": ["staphylococcus",
                                             "staph. aureus", "s. aureus",
                                             "staphylococcal",
@@ -225,6 +234,17 @@ PATHOGEN: dict[str, list[str]] = {
 
     # --- physical / other -----------------------------------------------
     "Foreign material / physical hazard": ["foreign material", "foreign body",
+                                           # 2026-10-29: FSANZ (AU) Bomberry
+                                           # (2026-10-28) published with
+                                           # Pathogen exactly "Foreign Matter".
+                                           # "foreign material" and "foreign
+                                           # body" were both present and
+                                           # neither reaches it — the row was
+                                           # invisible to every subscriber
+                                           # alert. The bare noun "matter" is
+                                           # too broad for a hazard label, so
+                                           # the needle is the two-word phrase.
+                                           "foreign matter",
                                            "physical/foreign", "physical hazard",
                                            "glass", "metal fragment",
                                            "shell fragment",
@@ -453,7 +473,16 @@ COUNTRY: list[str] = [
     # never have been alerted. Found by
     # test_alert_vocab.py::test_every_register_country_is_offered.
     "Russia",
-    "Rwanda", "Serbia",
+    "Rwanda",
+    # Saudi Arabia entered the register on 2026-10-29 — SFDA warning 19788,
+    # potential glass fragments in eleven batches of Arla Protein Pudding
+    # from Denmark, published 27/10/2026 and promoted to Recalls that
+    # morning once the warning page was read. No offered word reached it.
+    # Found by test_alert_vocab.py::test_every_register_country_is_offered,
+    # the same gap this test caught for Russia on 2026-10-02, Iceland on
+    # 2026-10-14 and Albania on 2026-10-26.
+    "Saudi Arabia",
+    "Serbia",
     "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sri Lanka",
     "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey",
     "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
