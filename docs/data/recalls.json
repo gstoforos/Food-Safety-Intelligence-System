@@ -32,6 +32,22 @@
   "Notes": "voir liste des magasins [needs cleanup: Reason not in English] [promote 2026-10-28: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-28",
+  "Source": "BLV (CH)",
+  "Company": "Bertschi Bäckerei AG",
+  "Brand": "",
+  "Product": "various sandwiches and baked goods",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1177",
+  "Notes": "listing (deterministic parse); FSVO title: \"Bertschi Bäckerei AG ruft diverse Sandwich-Artikel mit Weissschimmelkäse wegen Listerien zurück (verkauft bei migrolino AG, Denner AG, SV (Schweiz) AG und bei Bertschi Bäckerei AG)\" [review-agent 2026-10-28: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged]"
+ },
+ {
   "Date": "2026-10-27",
   "Source": "RappelConso (FR)",
   "Company": "Société Civile d'Exploitation Agricole Boulan (Chez Boulan)",
@@ -222,6 +238,22 @@
   "Outbreak": 0,
   "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1172",
   "Notes": "listing (deterministic parse); FSVO title: \"Migros ruft die Produkte «Minibrie-Knoblauch, Steinpilz und Chili» wegen Listerien zurück Bern\" [promote 2026-10-28: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-27",
+  "Source": "BLV (CH)",
+  "Company": "Eberle Spezialitäten AG",
+  "Brand": "",
+  "Product": "Minibrie Marroni, Knoblauch, Steinpilz und Chili",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Listeria monocytogenes - FSVO public warning",
+  "Class": "Recall",
+  "Country": "Switzerland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.blv.admin.ch/de/newnsb/CLZJKepd2Wwl",
+  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in Minibrie Marroni, Knoblauch, Steinpilz und Chili von Eberle Spezialitäten AG, verkauft bei Coop und Migros Ostschweiz\" [needs cleanup: Product not in English] [review-agent 2026-10-28: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged]"
  },
  {
   "Date": "2026-10-26",
@@ -35422,5 +35454,37 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-28",
+  "Source": "FSANZ (AU)",
+  "Company": "Bomberry Various Products",
+  "Brand": "Bomberry Various Products",
+  "Product": "Bomberry Various Products – 150g",
+  "Pathogen": "Foreign Matter",
+  "Reason": "Bomberry Various Products – 150g\npresence of foreign matter (metal) | hazard Food products containing metal may cause illness/injury if consumed",
+  "Class": "Recall",
+  "Country": "Australia",
+  "Region": "Oceania",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.foodstandards.gov.au/food-recalls/recall-alert/bomberry-various-products-150g",
+  "Notes": "source_id=FSANZ-bomberry-various-products-150g [via official-feed collector] [url-agent 2026-10-28: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-29: pending_gap_v1→pending_gap_v2 URL confirmed] [promote 2026-10-29: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-26",
+  "Source": "RASFF (EU)",
+  "Company": "Notification 2026.9510",
+  "Brand": "Notification 2026.9510",
+  "Product": "Salmonella spp - wycinki z szyjek ...",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "European Union",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/882030",
+  "Notes": "REJECTED: URL agent: Could not fetch official regulator URL | 3 days ago · Notification 2026.9510 Salmonella spp - wycinki z szyjek drobiowych produkt na rynku///Salmonella spp. – poultry products, country of origin: Poland Notified 26 OCT 2026 by Poland | Last update: 27 OCT 2026 EC validated  [via DDGS gap-finder, deterministic extract] [promote 2026-10-29: status 'rejected'->'pending' — passes every publish-gate rule]"
  }
 ]
