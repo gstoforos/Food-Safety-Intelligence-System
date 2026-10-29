@@ -183,10 +183,21 @@ KNOWN_URLS = {
     ),
     "sa": (
         ["https://www.sfda.gov.sa/en/news/2683516",
-         "https://sfda.gov.sa/ar/news/17638"],
+         "https://sfda.gov.sa/ar/news/17638",
+         # The warnings board, widened into the regex on 2026-10-29: this
+         # exact URL was already in the register and the regex refused it.
+         "https://www.sfda.gov.sa/en/warnings/19788"],
         # The drugs board has its own path and must stay out of a food register.
         ["https://www.sfda.gov.sa/en/drugscircularsandwithdrawal/89167",
-         "https://www.sfda.gov.sa/en/drugs-circulars-withdrawal"],
+         "https://www.sfda.gov.sa/en/drugs-circulars-withdrawal",
+         # Both boards' listing pages carry no item id.
+         "https://www.sfda.gov.sa/en/warnings",
+         "https://www.sfda.gov.sa/en/news",
+         # The same warning is also served at a slug path. Numeric ids only:
+         # the slug form has no id to key on and the warnings board also
+         # carries drug and cosmetic actions.
+         "https://www.sfda.gov.sa/en/warnings/"
+         "due-their-potential-contamination-glass-fragments"],
     ),
     "cl": (
         ["https://www.achipia.gob.cl/2024/10/25/ministerio-de-salud-comunica-"
