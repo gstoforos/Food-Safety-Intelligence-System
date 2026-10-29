@@ -365,9 +365,34 @@ class FSANZScraper(BaseScraper):
 
         reason = (problem_text or body_text)[:400].strip()
 
+        # ── Company is never the product (audit 2026-10-29) ───────────────
+        # Until today the Company fallback was `company or product[:120]`.
+        # FSANZ titles are "Company - Product" ALMOST universally, and the
+        # exception publishes a company that does not exist:
+        #
+        #   "Bomberry Various Products – 150g"   (2026-10-28)
+        #
+        # No " - " at all — the size is joined with an EN DASH and there is
+        # no company part — so `company` parsed empty and the fallback put
+        # the recall title into both Company and Brand. The register then
+        # named "Bomberry Various Products" as a firm. The page's own
+        # supplier is "Atomic Changes Pty Ltd t/a Bomberry", and it is in
+        # the body, not the title.
+        #
+        # Splitting on the en dash is NOT the fix: "Bomberry Various
+        # Products – 150g" would then yield company "Bomberry Various
+        # Products" and product "150g", which is wrong in both fields.
+        # The title simply does not carry a company here.
+        #
+        # So Company is left EMPTY. The publish gate refuses a row with an
+        # empty Company ("Company is empty"), which parks it in Pending for
+        # a reviewer to read the page and fill in — the behaviour the whole
+        # design assumes. A guessed Company is the one thing the register
+        # must never carry; an empty one costs a day's delay.
+        # Held by tests/test_company_is_never_the_product.py.
         return self._new_recall(
             Date=published.strftime("%Y-%m-%d"),
-            Company=company or product[:120],
+            Company=company,
             Brand="—",  # left for downstream enrichment / claude-check
             Product=product,
             Pathogen=pathogen,
