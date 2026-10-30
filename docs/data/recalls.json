@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-10-30",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Latteria Chiuro",
+  "Brand": "Latteria Chiuro",
+  "Product": "Eggs",
+  "Pathogen": "Salmonella enteritidis",
+  "Reason": "Presence of Salmonella enteritidis",
+  "Class": "Alert",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/MODELLO%20DI%20RICHIAMO_LATTERIA%20CHIURO_UOVA_1793288078.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-10-29",
   "Source": "Ministero della Salute (IT)",
   "Company": "Carni Celin Srl",
@@ -126,6 +142,22 @@
   "Outbreak": 0,
   "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/slr-food-distribution-inc-recalls-wise-wife-brand-ground-cinnamon-due-elevated-lead-levels",
   "Notes": "FDA listing HTML (Layer 1) [url-agent 2026-10-30: pending_enrichment→pending_gap_v2 URL confirmed] [offline-enrich 2026-10-30: Pathogen '' -> 'Lead (heavy metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-10-30: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-29",
+  "Source": "HAH (HR)",
+  "Company": "Naturala d.o.o.",
+  "Brand": "Kaufland",
+  "Product": "Kraut 6-9 670 g K Classic",
+  "Pathogen": "Pesticide residue exceeding limit (klorpirifos)",
+  "Reason": "The product exceeds the maximum residue limit of the pesticide chlorpyrifos as per Commission Regulation (EC) No. 396/2005 on maximum residue levels of pesticides in or on food and feed of plant and animal origin and amending Directive Council 91/414/EEC.",
+  "Class": "Recall",
+  "Country": "Croatia",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.hapih.hr/opoziv-proizvoda-krastavac-6-9-670-g-k-classic/",
+  "Notes": "Discovered via news: index.hr"
  },
  {
   "Date": "2026-10-28",
