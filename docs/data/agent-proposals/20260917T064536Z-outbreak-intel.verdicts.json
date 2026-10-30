@@ -108,22 +108,28 @@
     "proposal_id": "26c6dafc562962db",
     "action": "link_event",
     "applied": false,
-    "refusals": [],
-    "detail": "would apply (dry run)"
+    "refusals": [
+      "no row found for 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1144-2026' in Pending or Recalls"
+    ],
+    "detail": ""
   },
   {
     "proposal_id": "432102451ad84f3d",
     "action": "link_event",
     "applied": false,
-    "refusals": [],
-    "detail": "would apply (dry run)"
+    "refusals": [
+      "no row found for 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1149-2026' in Pending or Recalls"
+    ],
+    "detail": ""
   },
   {
     "proposal_id": "1f178444de3a114a",
     "action": "link_event",
     "applied": false,
-    "refusals": [],
-    "detail": "would apply (dry run)"
+    "refusals": [
+      "no row found for 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts?search_api_fulltext=H-1148-2026' in Pending or Recalls"
+    ],
+    "detail": ""
   },
   {
     "proposal_id": "c6a1adc1565ab700",
