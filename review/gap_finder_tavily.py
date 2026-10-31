@@ -137,7 +137,19 @@ HOST_TO_SOURCE: Dict[str, Tuple[str, str]] = {
     "fda.moph.go.th":               ("ThaiFDA",    "Thailand"),
     # LatAm
     "argentina.gob.ar":             ("ANMAT",      "Argentina"),
-    "gov.br":                       ("National Authority","Brazil"),
+    # 2026-10-31: was ("National Authority", "Brazil"). gov.br is the whole
+    # Brazilian government, so the entry said "host known, agency not" and
+    # left the label as a placeholder. pipeline/regulatory_domains.py has
+    # mapped the SAME host to "ANVISA" since it was written, and
+    # tests/test_every_collector_table_label_is_a_registry_label lists
+    # "National Authority" under NOT_A_REGULATOR — "a lead, never a Source
+    # on a Recalls row". It became one: the ANVISA KF Embutidos linguiça
+    # recall of 2026-10-28 published with Source "National Authority", which
+    # canonicalises to no regulator, so nothing host-checked it and the
+    # dashboard's "Sources monitored" tile did not count it. ANVISA is the
+    # federal food authority that publishes on gov.br/anvisa; the registry
+    # label is "ANVISA (BR)", and the row's URL is on that path.
+    "gov.br":                       ("ANVISA (BR)", "Brazil"),
     "anvisa.gov.br":                ("ANVISA",     "Brazil"),
     "gob.mx":                       ("COFEPRIS",   "Mexico"),
     "arcsa.gob.ec":                 ("ARCSA",      "Ecuador"),
