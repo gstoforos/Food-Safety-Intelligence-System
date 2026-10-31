@@ -20,9 +20,36 @@
 #
 #  The FIRST path MUST be docs/data/recalls.xlsx (the file that needs
 #  row-union merge on conflict). Extra paths (per-country jsonl dirs) are
-#  committed alongside but are not row-merged — on conflict they take the
-#  remote's version after rebase, which is correct (they're regenerated
-#  each run).
+#  committed alongside; on a push rejection they are carried over the
+#  rebase by preserve_our_non_xlsx_work / restore_our_non_xlsx_work below.
+#
+#  CORRECTION (morning fix 2026-10-30). These lines used to say the extra
+#  paths "take the remote's version after rebase, which is correct
+#  (they're regenerated each run)". BOTH HALVES WERE WRONG.
+#
+#  They did not take the remote's version by design — `git reset --hard
+#  HEAD~1` on the retry path reverted the working tree for every file in
+#  our commit, and only the xlsx had been copied aside. And run_log.jsonl
+#  is NOT regenerated each run: it is APPEND-ONLY, one record per country
+#  per exit, and it is what tests/test_no_country_goes_dark.py and
+#  tools/fleet_shard.catchup_codes read to decide whether a country has
+#  gone dark.
+#
+#  MEASURED on 2026-10-30: all 170 "(merge attempt N)" commits in the
+#  preceding 30 days carried docs/data/recalls.xlsx and NOTHING ELSE. Not
+#  one carried a single jsonl file. The Nordic and Central EU gap finders
+#  retry every single day, so their per-country run logs had effectively
+#  stopped being committed at all.
+#
+#  What that cost, concretely: the fleet ran 'us' on 2026-10-29 inside a
+#  shard of 9, the run wrote its record, the retry threw the record away,
+#  and tests/test_no_country_goes_dark.py went red with "'us' last ran
+#  2026-10-14, 15 days ago" for a country that was running fine. Worse,
+#  catchup_codes reads the same log, so 'us' was force-added to the
+#  catch-up every day from 2026-10-24 on, burning one of the three daily
+#  catch-up slots that genuinely stale countries needed.
+#
+#  The xlsx was never the only output worth keeping.
 #
 #  EXIT CODES:
 #    0  pushed successfully
@@ -122,6 +149,71 @@ assert_not_silently_dropping_work() {
 }
 
 
+# ── Carry the run's NON-xlsx work over the retry rebase ─────────────────
+#
+# See the CORRECTION in the header. `git reset --hard HEAD~1` below reverts
+# the working tree for every path in our commit. The xlsx survives because
+# it is copied aside and row-unioned; everything else used to be lost.
+#
+# preserve_* runs while our commit is still HEAD and squirrels away our
+# version of each non-xlsx path (plus the list of paths our commit
+# DELETED, so a deletion is not resurrected by the rebase).
+# restore_* puts them back on top of the freshly pulled tree.
+OURS_DIR=""
+
+preserve_our_non_xlsx_work() {
+  OURS_DIR="$(mktemp -d)"
+  : > "$OURS_DIR/keep.z"
+  : > "$OURS_DIR/gone.z"
+  local path status
+  while IFS= read -r -d '' status && IFS= read -r -d '' path; do
+    [ "$path" = "$XLSX" ] && continue
+    case "$status" in
+      D*)
+        printf '%s\0' "$path" >> "$OURS_DIR/gone.z"
+        ;;
+      *)
+        [ -e "$path" ] || continue
+        mkdir -p "$OURS_DIR/tree/$(dirname "$path")"
+        cp -p "$path" "$OURS_DIR/tree/$path"
+        printf '%s\0' "$path" >> "$OURS_DIR/keep.z"
+        ;;
+    esac
+  done < <(git diff -z --name-status --no-renames HEAD~1 HEAD)
+}
+
+# A run_log.jsonl is append-only, and on a retry BOTH sides may hold a
+# record the other does not: ours from this run, the remote's from a
+# concurrent writer that won the race. Taking either side whole loses a
+# country's record, which is exactly the thing the log exists to prove.
+# So union the lines — remote first, ours after, exact duplicates
+# collapsed, order preserved. Same spirit as the xlsx row-union.
+union_jsonl_lines() {
+  local remote="$1" ours="$2" out="$3"
+  awk '!seen[$0]++' "$remote" "$ours" > "$out"
+}
+
+restore_our_non_xlsx_work() {
+  [ -n "$OURS_DIR" ] || return 0
+  local path
+  while IFS= read -r -d '' path; do
+    mkdir -p "$(dirname "$path")"
+    if [ "$(basename "$path")" = "run_log.jsonl" ] && [ -f "$path" ]; then
+      union_jsonl_lines "$path" "$OURS_DIR/tree/$path" "$path.union"
+      mv "$path.union" "$path"
+      echo "safe_push:   run_log union: $path ($(wc -l < "$path") records)"
+    else
+      cp -p "$OURS_DIR/tree/$path" "$path"
+    fi
+  done < "$OURS_DIR/keep.z"
+  while IFS= read -r -d '' path; do
+    rm -f "$path"
+  done < "$OURS_DIR/gone.z"
+  rm -rf "$OURS_DIR"
+  OURS_DIR=""
+}
+
+
 stage_existing
 assert_not_silently_dropping_work
 git commit -m "$MSG"
@@ -135,11 +227,16 @@ for attempt in 1 2 3 4 5; do
   fi
   echo "push attempt $attempt rejected — syncing remote and row-merging"
 
-  # Preserve our xlsx, drop our commit, fast-forward to origin.
+  # Preserve our work, drop our commit, fast-forward to origin.
+  # BOTH calls matter: the xlsx is row-unioned below, and everything else
+  # the run produced is carried over by restore_our_non_xlsx_work. Dropping
+  # either one silently discards a run's output — see the header.
   cp "$XLSX" /tmp/ours_recalls.xlsx
+  preserve_our_non_xlsx_work
   git reset --hard HEAD~1
   git pull --rebase --autostash origin main \
     || git pull --no-rebase origin main
+  restore_our_non_xlsx_work
 
   # Row-union OUR rows back into the freshly-pulled xlsx.
   # CLI is positional: <remote> <ours> <out>.
