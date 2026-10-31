@@ -538,6 +538,44 @@ HAZARD_CLASS_KEYWORDS = {
         "bisphenol", "bisphénol", "bisfenol", "bisphenol a",
         "delta-9-thc", "delta-9 thc", "δ9-thc", "Δ9-thc",
         "tetrahydrocannabinol", "tétrahydrocannabinol", "tetraidrocannabinolo",
+        # AUDIT 2026-10-30 — food additives over a permitted limit.
+        #
+        # The printed AFTS scope includes "unapproved additives over a
+        # limit", and this class had 101 keywords and not one of them was
+        # an additive, a colour or a dye. The cost is the asymmetry the
+        # is_in_afts_scope docstring already describes: a recall arriving
+        # with its hazard NAMED was refused at the Pending gate, while the
+        # same recall arriving with an empty Pathogen was enriched later
+        # and published.
+        #
+        # MEASURED. CAA (JP) 00000036069, エスビーケー・トヤマ
+        # "パントテン酸300㎎", 事由 "パントテン酸カルシウムの食品添加物
+        # 使用基準違反" — a breach of the food-additive usage standard for
+        # calcium pantothenate — was refused by
+        # merge_master.validate_pending_row with "pathogen_out_of_scope"
+        # because classify_hazard() returned the empty set for both its
+        # Pathogen and its Reason.
+        #
+        # And a row ALREADY PUBLISHED shows the gap was not new:
+        # "Chlorpyrifos (pesticide residue) and unauthorized dye E 122"
+        # classifies as chemical only through its PESTICIDE half. Its
+        # unauthorised-dye half named a hazard this gate could not see.
+        #
+        # Kept to two-word forms plus specific substances. A bare
+        # "additive" would match ordinary ingredient prose, and a bare
+        # "colour"/"color" would match the colour of a product in half the
+        # register's Reason fields.
+        "food additive", "additive usage standard",
+        "unauthorised additive", "unauthorized additive",
+        "non-permitted additive", "prohibited additive",
+        "unauthorised dye", "unauthorized dye",
+        "unauthorised colour", "unauthorized color",
+        "unauthorised colorant", "unauthorized colorant",
+        "non-permitted colour", "non-permitted color",
+        "additif non autorisé", "colorant non autorisé",
+        "nicht zugelassener zusatzstoff",
+        "additivo non autorizzato", "colorante no autorizado",
+        "食品添加物使用基準",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",
@@ -1038,6 +1076,54 @@ _NON_FOOD_FIRM_MARKERS = (
     "compounded",
 )
 
+#: A MEDICINE IDENTIFIED BY THE REGULATOR'S OWN FALSIFICATION LANGUAGE.
+#: 2026-10-31. _NON_FOOD_DOSAGE_FORMS above tests HOW a product is taken,
+#: which is what caught the Greenwich Rx injection on 2026-10-04. It cannot
+#: see a drug that is swallowed. Recalls held, published 2026-10-30:
+#:
+#:     Date      2026-10-24        (the alert is dated 2026-08-19)
+#:     Source    NAFDAC (NG)
+#:     Company   South Africa Foods Company
+#:     Product   Artemether/Lumefantrine 80mg/480mg
+#:     Pathogen  Substandard and Falsified
+#:     Reason    Seizure of suspected substandard and falsified BPPL
+#:               Artemether/Lumefantrine 80mg/480mg
+#:
+#: Artemether-lumefantrine is an antimalarial. Read on the NAFDAC alert
+#: today: a falsified medical product with a fake NAFDAC registration
+#: number, made purportedly by Bandaram Pharma Packleh Ltd (BPPL), India,
+#: seized in Kano State during post-market surveillance. "South Africa
+#: Foods Company" appears nowhere on the page — the word "Foods" in a
+#: mis-parsed company name is the only thing about the row that was food.
+#:
+#: It passed EVERY rule: no dosage form in Product (a tablet is not in that
+#: list, and must not be — "capsules" and "tablets" are dietary-supplement
+#: pack forms and those are IN scope), no compounding marker, a genuine
+#: per-notice permalink on the regulator's own host, and a non-empty
+#: Pathogen. The Pathogen was the string "Substandard and Falsified", which
+#: no term in tools/alert_vocab.py can reach, and the schema sweep had
+#: already filed it as HazardGroup "pathogen-bacterial".
+#:
+#: "Substandard and falsified" is the WHO's term of art for medical
+#: products, used verbatim by NAFDAC and by every national medicines
+#: regulator. It never describes a food. Neither does an INN drug class.
+#: Measured on all 2261 published rows the morning this was written, these
+#: markers match exactly one row — the one above.
+#:
+#: WHAT THIS MAY NOT COST, same boundary as the dosage-form rule: a food
+#: supplement with an UNDECLARED drug in it is in scope (the 2026-05-12
+#: expansion), and the register publishes those as "Undeclared drug (...)".
+#: The markers are the falsification vocabulary and the drug CLASS, never
+#: the word "drug" and never a molecule name on its own.
+_FALSIFIED_MEDICINE_MARKERS = (
+    "substandard and falsified", "substandard or falsified",
+    "falsified medicine", "falsified medicines",
+    "falsified medical product", "falsified medical products",
+    "counterfeit medicine", "counterfeit medicines",
+    "counterfeit drug", "counterfeit drugs",
+    "antimalarial", "anti-malarial", "antiretroviral", "anti-retroviral",
+)
+
 #: A clinical or cosmetic event is not a food event, whatever the agent.
 #: 2026-10-10 (operator: "the syringe — remove it, it's not food"): CDC MMWR
 #: 75(39), "Investigation of Unapproved Botulinum Toxin Product Administered
@@ -1058,6 +1144,51 @@ _MIRROR_IN_SOURCE = re.compile(
 def _word_in(text: str, term: str) -> bool:
     return re.search(r"(?<![a-z0-9])" + re.escape(term) + r"(?![a-z0-9])",
                      text) is not None
+
+
+def _resolved_source_hosts(source: Any, country: Any = None):
+    """The hosts this Source label may cite, AFTER the writer's own aliasing.
+
+    Returns a tuple of hosts, () when the label is exempt from the host
+    check by name (news, aggregator, NOT_A_REGULATOR_SOURCE), or None when
+    nothing in the repo can resolve the label to a regulator at all —
+    which is the only case rule 12 refuses.
+
+    The two normalisation steps are the writer's, not this gate's:
+    merge_master.SOURCE_ALIASES (hand-written spellings) and
+    merge_master.registry_source_label (the generic "X" -> "X (CC)" rule
+    for the ~40 fleet configs). Asking before them refuses rows that
+    promote perfectly well; asking after them refuses only an invented
+    label. See rule 12 in publish_blockers.
+    """
+    from pipeline.verify_urls import (
+        allowed_hosts_for_source, NOT_A_REGULATOR_SOURCE)
+    from pipeline._source_canon import canonical_source
+
+    label = str(source or "").strip()
+    if not label:
+        return ()
+
+    candidates = [label]
+    try:
+        from pipeline.merge_master import SOURCE_ALIASES, registry_source_label
+        aliased = SOURCE_ALIASES.get(label.lower())
+        if aliased:
+            candidates.append(aliased)
+        derived = registry_source_label(label, str(country or "").strip())
+        if derived:
+            candidates.append(derived)
+    except Exception:                                   # pragma: no cover
+        pass
+
+    for cand in candidates:
+        canon, kind, _ = canonical_source(cand)
+        if canon in NOT_A_REGULATOR_SOURCE or kind in ("news", "aggregator"):
+            return ()
+        hosts = allowed_hosts_for_source(cand)
+        if hosts is not None:
+            return hosts
+    return None
 
 
 def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
@@ -1102,6 +1233,22 @@ def _non_food_drug_blockers(row: Dict[str, Any]) -> List[str]:
                 f"the row's own text describes a clinical or cosmetic exposure "
                 f"({marker!r}), not a food — an injected toxin is not a food "
                 "recall, whatever hazard word it shares with one")
+            break
+
+    # A swallowed medicine has no dosage form this rule can see, so the
+    # regulator's own falsification vocabulary is what names it. See
+    # _FALSIFIED_MEDICINE_MARKERS for the NAFDAC antimalarial that found it.
+    med_blob = " ".join((blob, str(row.get("Pathogen") or "").lower()))
+    for marker in _FALSIFIED_MEDICINE_MARKERS:
+        if marker in med_blob:
+            out.append(
+                f"the row's own text identifies a medicine, not a food "
+                f"({marker!r}) — \"substandard and falsified\" is the WHO's "
+                "term for medical products and a drug class is not a food "
+                "category; a falsified medicine recall belongs in neither "
+                "Recalls nor the subscriber reports. A food supplement with "
+                "an undeclared drug in it is a different row and stays in "
+                "scope")
             break
     return out
 
@@ -1963,6 +2110,73 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             f"({_mirror.group(1)!r}) and not just the regulator — the mirror "
             "belongs in Notes; Source is the authority that published the "
             "notice")
+
+    # 12. A SOURCE LABEL NOTHING CAN HOST-CHECK IS NOT A SOURCE.
+    #
+    #     THE NINTH RECURRENCE (2026-10-31). The ANVISA KF Embutidos
+    #     linguiça recall of 2026-10-28 published with Source "National
+    #     Authority" — pipeline/gap_finder_tavily's placeholder for
+    #     "host known, agency not", mapped to gov.br, which is the whole
+    #     Brazilian government. The consequences are the same three every
+    #     time: _source_canon returns kind='unknown', so the label reaches
+    #     no id in verify_urls.HOST_FOR_CANONICAL_SOURCE and NOTHING CHECKS
+    #     that the row cites the regulator it names; the coverage
+    #     denominator counts it as its own independent observer; and
+    #     tools/monitored_sources does not count it, so the dashboard's
+    #     "Sources monitored" tile is short by one.
+    #
+    #     The previous repairs are on the record in
+    #     pipeline/_source_canon.CANONICAL and merge_master.SOURCE_ALIASES:
+    #
+    #         2026-10-03  Czechia   "SZPI"                found in Recalls
+    #         2026-10-04  Italy     "Salute"              found in Recalls
+    #         2026-10-07  Hungary   "NÉBIH"               found in Recalls
+    #         2026-10-26  six registry labels             found in Recalls
+    #         2026-10-27  NZ        "MPI NZ"              found in Recalls
+    #         2026-10-27  thirty remaining registry labels
+    #         2026-10-31  Brazil    "National Authority"  found in Recalls
+    #
+    #     EVERY ONE WAS FOUND BY A ROW THAT HAD ALREADY PUBLISHED, and
+    #     every repair was a vocabulary addition: one more alias for
+    #     whichever authority bit that morning.
+    #     tests/test_every_collector_table_label_is_a_registry_label closed
+    #     the tables, and this label is in that test's own NOT_A_REGULATOR
+    #     set, described there as "a lead, never a Source on a Recalls row".
+    #     Nothing enforced the sentence. This rule is that enforcement: a
+    #     label with no host allow-list cannot publish at all, so the tenth
+    #     invented label is a blocked row instead of a silent gap.
+    #
+    #     Deliberately NOT blocked: news and aggregator labels, which carry
+    #     their own kind, and the ids exempted by name in
+    #     verify_urls.NOT_A_REGULATOR_SOURCE — that exemption stays a
+    #     decision on the record rather than an accident of spelling.
+    #
+    #     IT ASKS THE QUESTION AFTER THE WRITER'S OWN NORMALISATION, not
+    #     before. The ~40 fleet configs and the collector tables write a
+    #     BARE authority name on purpose — "FSANZ", "BLV", "FSAI" — and
+    #     merge_master turns those into the registry label at write time,
+    #     through SOURCE_ALIASES and the generic registry_source_label
+    #     rule. A first cut of this rule read the raw label and blocked
+    #     three such rows that would have promoted perfectly well (the
+    #     FSANZ Maria's Pasta row then in Pending, and the FSAI fixture in
+    #     tests/test_dedup). So the rule resolves the label the same two
+    #     ways the writer does, and fires only on a label that NOTHING can
+    #     resolve. That is also what keeps it narrow: it costs a correct
+    #     row nothing, and it refuses only an invented one.
+    if source:
+        try:
+            _hosts = _resolved_source_hosts(source, row.get("Country"))
+        except Exception:                               # pragma: no cover
+            _hosts = ()                     # a broken import stays silent
+        if _hosts is None:
+            problems.append(
+                f"Source {source[:60]!r} resolves to no known regulator, so "
+                "no host allow-list exists and nothing can check that this "
+                "row cites the authority it names. Use the registry's own "
+                "label from tools/monitored_sources.SOURCES, or give the "
+                "writer an alias in merge_master.SOURCE_ALIASES and the "
+                "identity in _source_canon.CANONICAL — a placeholder label "
+                "is not a source")
 
     # 9. Company must not carry the page's status banner. FSANZ prepends
     #    "UPDATED DD.MM.YY | " to the <h1> of an amended alert, and a

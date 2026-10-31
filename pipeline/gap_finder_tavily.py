@@ -143,8 +143,40 @@ HOST_TO_SOURCE: Dict[str, Tuple[str, str]] = {
     "fda.moph.go.th":               ("Thai FDA (TH)",    "Thailand"),
     # LatAm
     "argentina.gob.ar":             ("ANMAT",      "Argentina"),
-    "gov.br":                       ("National Authority","Brazil"),
-    "anvisa.gov.br":                ("ANVISA",     "Brazil"),
+    # 2026-10-31: was ("National Authority", "Brazil"). gov.br is the whole
+    # Brazilian government, so the entry said "host known, agency not" and
+    # left the label as a placeholder. pipeline/regulatory_domains.py has
+    # mapped the SAME host to "ANVISA" since it was written, and
+    # tests/test_every_collector_table_label_is_a_registry_label lists
+    # "National Authority" under NOT_A_REGULATOR — "a lead, never a Source
+    # on a Recalls row". It became one: the ANVISA KF Embutidos linguiça
+    # recall of 2026-10-28 published with Source "National Authority", which
+    # canonicalises to no regulator, so nothing host-checked it and the
+    # dashboard's "Sources monitored" tile did not count it. ANVISA is the
+    # federal food authority that publishes on gov.br/anvisa; the registry
+    # label is "ANVISA (BR)", and the row's URL is on that path.
+    # Both Brazil hosts carry the REGISTRY label, not a placeholder and not
+    # the bare acronym (morning fix 2026-10-30).
+    #
+    # "gov.br" used to map to ("National Authority", "Brazil"). It is the
+    # exact-match key for www.gov.br, which is where every Anvisa notice
+    # lives — https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/... —
+    # so the specific "anvisa.gov.br" key below never got a look in, and the
+    # Exa daily search published an Anvisa recall into Recalls under the
+    # Source label "National Authority". Nothing host-checks that label:
+    # tests/test_the_host_check_cannot_be_switched_off_by_a_rename.py and
+    # tests/test_monitored_sources.py both went red on it, because
+    # verify_urls.HOST_FOR_CANONICAL_SOURCE has no entry for a placeholder
+    # and tools/monitored_sources cannot count an agency that is not named.
+    # The row cited gov.br/anvisa and its own Notes quoted "Agência Nacional
+    # de Vigilância Sanitária (Anvisa)" — the agency was never in doubt, only
+    # unsaid.
+    #
+    # "ANVISA" alone was no better: merge_master.SOURCE_ALIASES does not map
+    # it to "ANVISA (BR)", so it reaches a sheet as its own third spelling —
+    # the Rejected sheet holds 4 rows of "ANVISA" beside 15 of "ANVISA (BR)".
+    "gov.br":                       ("ANVISA (BR)",  "Brazil"),
+    "anvisa.gov.br":                ("ANVISA (BR)",  "Brazil"),
     "gob.mx":                       ("COFEPRIS",   "Mexico"),
     "arcsa.gob.ec":                 ("ARCSA",      "Ecuador"),
     "digesa.gob.pe":                ("DIGESA",     "Peru"),

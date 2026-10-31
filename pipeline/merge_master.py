@@ -717,6 +717,22 @@ _GENERIC_URL_PATTERNS = (
     r"regulatory-transparency-and-openness",  # CFIA transparency pages
     r"food-safety-investigations/$",          # CFIA investigation index
     r"/categorie/[\d/]+/?$",                  # RappelConso category index
+    # RappelConso's static fiche ASSET, same class as the FDA share-link
+    # wrapper below: rappel.conso.gouv.fr/static/fiches/<uuid>.html is the
+    # downloadable copy of a fiche, keyed on a UUID. Every one of the 923
+    # published RappelConso rows cites the canonical per-notice page
+    # /fiche-rappel/<id>/interne instead, and no published row has ever
+    # carried the static shape.
+    #
+    # IT DEFEATS URL DEDUP (found 2026-10-31). URL is the primary dedup key
+    # and a UUID cannot be matched to a fiche number, so one notice enters
+    # Pending twice. Measured this morning, Pending held fiche 23937
+    # ("boulgour fin à la libanaise 230g", Listeria monocytogenes,
+    # 29/10/2026, brand Unbranded) under BOTH shapes, and the date +
+    # company + pathogen fallback key could not catch it either because
+    # Company was empty on both copies. Ten archived rows carry the static
+    # shape; this is the first time two copies of one live notice did.
+    r"rappel\.conso\.gouv\.fr/static/fiches/",
     r"/rubrik/[^/]+/?$",                      # produktwarnung.eu rubrik
     r"/news-and-alerts/food-alerts/?$",       # FSAI alerts root
     r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
