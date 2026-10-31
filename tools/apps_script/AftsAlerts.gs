@@ -739,6 +739,7 @@ var PATHOGEN_VOCAB = {
   "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol", "glycidyl", "glycidyle", "glycidylique"],
   "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine", "sildenafil", "tadalafil", "dimethylamylamine", "dmaa"],
   "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (", "tetrahydrocannabinol"],
+  "Unauthorised food additive": ["food additive", "additive usage standard", "unauthorised additive", "unauthorized additive", "unauthorised dye", "unauthorized dye", "unauthorised colour", "unauthorized color", "additive above"],
   "Foreign material / physical hazard": ["foreign material", "foreign body", "foreign matter", "physical/foreign", "physical hazard", "glass", "metal fragment", "shell fragment", "stones", "sand)", "plastic"],
   "Mold / spoilage": ["mold", "spoilage", "organoleptic", "coliform", "total bacterial count"],
   "Rodent / pest contamination": ["rodent", "mouse contamination", "rat poison", "insect", "pest infestation"],
