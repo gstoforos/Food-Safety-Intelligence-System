@@ -91,6 +91,14 @@ _NO_BRAND_TOKENS = (
     "sans marque", "sans", "no brand", "marque inconnue", "non commercialisé",
     "n/a", "na", "—", "-", "—", "vide", "non communiqué",
     "aucune marque", "aucune", "non concerné",
+    # 2026-10-31: the MODEL half of the placeholder pair. Fiche 23951
+    # published "sans marque/sans modèle" as a Tier-1 Listeria product
+    # name; the pair was already caught by the prefix rule below via
+    # "sans marque", but the model half on its own was not in any list,
+    # and the fields these tokens guard (Brand, Company and now Product)
+    # are populated from whichever RappelConso field is non-empty first.
+    "sans modèle", "sans modele", "modèle inconnu", "modele inconnu",
+    "aucun modèle", "aucun modele",
 )
 
 
@@ -122,6 +130,9 @@ def _is_no_brand(s: str) -> bool:
         "sans marque", "no brand", "marque inconnue",
         "aucune marque", "non commercialisé", "non communiqué",
         "non concerné",
+        # 2026-10-31, with the pair that found it: see _NO_BRAND_TOKENS.
+        "sans modèle", "sans modele", "modèle inconnu", "modele inconnu",
+        "aucun modèle", "aucun modele",
     )
     for tok in _PREFIX_TOKENS:
         if norm.startswith(tok):
@@ -655,13 +666,31 @@ class RappelConsoScraper(BaseScraper):
         non-empty value, which on a fiche with two code-shaped fields in a
         row never reaches ``libelle`` (the heading). Returns ('', '') when
         every candidate is empty or an identifier list.
+
+        A "NO BRAND / NO MODEL" PAIR IS NOT A PRODUCT NAME EITHER
+        (2026-10-31, the third instance of this class). Fiche 23951,
+        published 29/10/2026, promoted to Recalls and published Tier 1:
+
+            Product   "sans marque/sans modèle"
+            libelle   "Salade de riz composée"   (the real denomination)
+            risque    Listeria monocytogenes
+
+        The register told a dashboard reader that a Listeria recall was
+        about a thing with no brand and no model. The walk never reached
+        ``libelle`` because the value it picked is neither empty nor an
+        identifier list — ``_is_identifier_only`` counts letters, and
+        "sans marque/sans modèle" is all letters. It is, however, exactly
+        what ``_is_no_brand`` was written to recognise, prefix-plus-
+        separator rule included, so the test costs nothing new: the same
+        helper that already keeps this text out of Brand now keeps it out
+        of Product.
         """
         for c in candidates:
             v = rec.get(c)
             if v in (None, "", "—", "-"):
                 continue
             s = str(v).strip()
-            if not s or _is_identifier_only(s):
+            if not s or _is_identifier_only(s) or _is_no_brand(s):
                 continue
             return s, c
         return "", ""
@@ -1041,7 +1070,13 @@ class RappelConsoScraper(BaseScraper):
                 # one, leave the value EMPTY so the subcategory fallback
                 # fires and the publish gate sees a row it can refuse —
                 # publishing a code list is the one outcome never wanted.
-                if product_for_emit and _is_identifier_only(product_for_emit):
+                #
+                # 2026-10-31: the same walk now also fires on a "sans
+                # marque/sans modèle" placeholder pair — see
+                # _first_named_product for fiche 23951, which published
+                # that string as a Tier-1 Listeria product name.
+                if product_for_emit and (_is_identifier_only(product_for_emit)
+                                         or _is_no_brand(product_for_emit)):
                     better, better_field = self._first_named_product(
                         rec,
                         tuple(f for f in self.PRODUCT_FIELDS
