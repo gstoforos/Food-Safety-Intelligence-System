@@ -149,7 +149,7 @@ def _record_from_api(it: dict) -> Record:
 
     company = _strip_html(_field(it, "field_establishment"))
     if not company:
-        m = re.search(r"^([\w&.''\- ]{2,60}?)\s+Recalls\b", title)
+        m = re.search(r"^([\w&.'’‘\- ]{2,60}?)\s+Recalls\b", title)
         if m:
             company = m.group(1).strip()
 
@@ -278,7 +278,7 @@ def _scrape_fsis_recalls(limit: int = 50) -> list[Record]:
 
         # Company before "Recalls", reason after "Due to"
         company = ""
-        m = re.search(r"^([\w&.''\- ]{2,60}?)\s+Recalls\b", title)
+        m = re.search(r"^([\w&.'’‘\- ]{2,60}?)\s+Recalls\b", title)
         if m:
             company = m.group(1).strip()
         hazard = title

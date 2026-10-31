@@ -165,12 +165,12 @@ def _fetch_detail(url: str, debug: bool = False):
     # Company extraction — search body for "supporting <X>" or "<X> is recalling"
     company = ""
     m = re.search(
-        r"(?:supporting|supports)\s+([A-Z][\w &.''\-]*"
-        r"(?:\s+[A-Z0-9][\w &.''\-]*){0,5}?)\s+(?:in|with)\b",
+        r"(?:supporting|supports)\s+([A-Z][\w &.'’‘\-]*"
+        r"(?:\s+[A-Z0-9][\w &.'’‘\-]*){0,5}?)\s+(?:in|with)\b",
         body_text)
     if not m:
         m = re.search(
-            r"([A-Z][\w &.''\-]*(?:\s+[A-Z0-9][\w &.''\-]*){0,5})"
+            r"([A-Z][\w &.'’‘\-]*(?:\s+[A-Z0-9][\w &.'’‘\-]*){0,5})"
             r"\s+is\s+recalling",
             body_text)
     if m:
@@ -229,9 +229,9 @@ def fetch(limit: int = 45) -> list[Record]:
 
         company = d_company
         if not company:
-            m = re.match(r"^([A-Z][\w &.''\-]{1,40}?)\s+brand\b", list_title)
+            m = re.match(r"^([A-Z][\w &.'’‘\-]{1,40}?)\s+brand\b", list_title)
             if not m:
-                m = re.match(r"^([A-Z][\w &.''\-]{1,40})\s+", list_title)
+                m = re.match(r"^([A-Z][\w &.'’‘\-]{1,40})\s+", list_title)
             if m:
                 company = m.group(1).strip()
 

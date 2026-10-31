@@ -192,7 +192,7 @@ def _fetch_detail(url: str):
 
     company = ""
     m = re.search(
-        r"([A-Z][\w&.''\-]*(?:\s+[A-Z0-9][\w&.''\-]*){0,5})\s+is\s+(?:recalling|conducting)",
+        r"([A-Z][\w&.'’‘\-]*(?:\s+[A-Z0-9][\w&.'’‘\-]*){0,5})\s+is\s+(?:recalling|conducting)",
         body_text)
     if m:
         company = m.group(1).strip()[:80]
@@ -254,7 +254,7 @@ def fetch(limit: int = 25) -> list[Record]:
         # Company: prefer detail-page extraction, fall back to title prefix
         company = d_company
         if not company:
-            m = re.match(r"^([A-Z][\w &.''\-]{1,80}?)\s*[-–—]", list_title)
+            m = re.match(r"^([A-Z][\w &.'’‘\-]{1,80}?)\s*[-–—]", list_title)
             if m:
                 company = m.group(1).strip()
 

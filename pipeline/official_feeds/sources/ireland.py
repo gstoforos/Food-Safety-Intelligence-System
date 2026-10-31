@@ -104,10 +104,10 @@ def _fetch_detail(url: str):
     # (avoids grabbing breadcrumb text the way a greedy .+? would).
     company = ""
     m = re.search(
-        r"([A-Z][\w&.''\-]*(?:\s+[A-Z0-9][\w&.''\-]*){0,4})\s+is recalling",
+        r"([A-Z][\w&.'’‘\-]*(?:\s+[A-Z0-9][\w&.'’‘\-]*){0,4})\s+is recalling",
         text)
     if not m:
-        m = re.search(r"^([\w&.''\- ]{2,40}?)\s+recalls\b", title)
+        m = re.search(r"^([\w&.'’‘\- ]{2,40}?)\s+recalls\b", title)
     if m:
         company = m.group(1).strip()[:80]
         # Drop a leading date that sometimes sits before "is recalling"
