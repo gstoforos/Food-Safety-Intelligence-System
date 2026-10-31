@@ -144,6 +144,22 @@
   "Notes": "e.leclerc saint grégoire [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-10-30: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [promote 2026-10-30: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-30",
+  "Source": "FDA",
+  "Company": "Vitality Works Inc.",
+  "Brand": "365 Whole Foods Market",
+  "Product": "Standardized + Full Spectrum Blend Ashwagandha Capsules",
+  "Pathogen": "Salmonella",
+  "Reason": "Potential to be contaminated with Salmonella",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/vitality-works-inc-recalls-365-whole-foods-market-ashwagandha-capsules-sold-nationwide-due-potential",
+  "Notes": "FDA listing HTML (Layer 1)"
+ },
+ {
   "Date": "2026-10-29",
   "Source": "Ministero della Salute (IT)",
   "Company": "Carni Celin Srl",
@@ -398,6 +414,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/882154",
   "Notes": "[RASFF #2026.9647; classification: border rejection notification; category: fruits and vegetables; notifId=882154] [promote 2026-10-30: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-29",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Brazil | Notifying: Belgium",
+  "Brand": "—",
+  "Product": "Salmonella in poultry meat preparation from Brazil",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella in poultry meat preparation from Brazil; risk: serious; category: poultry meat and poultry meat products",
+  "Class": "Border Rejection",
+  "Country": "Brazil",
+  "Region": "Latin America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/883263",
+  "Notes": "[RASFF #2026.9652; classification: border rejection notification; category: poultry meat and poultry meat products; notifId=883263]"
  },
  {
   "Date": "2026-10-28",
