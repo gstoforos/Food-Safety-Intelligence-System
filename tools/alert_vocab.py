@@ -231,6 +231,28 @@ PATHOGEN: dict[str, list[str]] = {
     # reference dose for delta-9-THC — published and reachable by no term.
     "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (",
                                        "tetrahydrocannabinol"],     # 2
+    # 2026-10-30: CAA (JP) 00000036069, エスビーケー・トヤマ "パントテン酸300㎎",
+    # 事由 "パントテン酸カルシウムの食品添加物使用基準違反" — a breach of the
+    # food-additive usage standard for calcium pantothenate. Unapproved
+    # additives over a limit are explicitly in AFTS scope, and no term here
+    # reached the hazard: the gap was found before the row was published,
+    # not after.
+    #
+    # It also picks up a hazard that was ALREADY published and unreachable —
+    # "Chlorpyrifos (pesticide residue) and unauthorized dye E 122" matched
+    # only on its pesticide half, so a subscriber watching additives never
+    # heard about the dye.
+    #
+    # "additive" alone is not a token: it is a word that appears in the
+    # PRODUCT category ("Ingredients / raw materials") and in ordinary
+    # ingredient prose, and the pathogen haystack is the Pathogen field
+    # alone, so the two-word forms are what keep it a hazard rule.
+    "Unauthorised food additive": ["food additive", "additive usage standard",
+                                   "unauthorised additive",
+                                   "unauthorized additive",
+                                   "unauthorised dye", "unauthorized dye",
+                                   "unauthorised colour", "unauthorized color",
+                                   "additive above"],               # 1
 
     # --- physical / other -----------------------------------------------
     "Foreign material / physical hazard": ["foreign material", "foreign body",

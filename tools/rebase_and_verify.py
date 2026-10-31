@@ -85,8 +85,17 @@ MONTHLY_RE = re.compile(
 # runs would have disagreed with the tree the gate builds. A directory the
 # repo ships but the upload path cannot carry is a directory that can only
 # ever drift.
+# "scripts/" added 2026-10-30. scripts/safe_push.sh is the commit+push path
+# every data-writer workflow runs, and this morning's pass repaired a defect
+# in it that was discarding each retrying run's non-xlsx output. It reached
+# the upload only through the "other" fallback, which apply_zip happens to
+# accept for a code zip — but strip_wrapper's `known` set did not list it, so
+# a zip whose ONLY top-level folder was scripts/ would have had that folder
+# stripped off and every path in it silently rewritten. A directory the repo
+# ships and the upload path carries only by accident is the same class of
+# problem the review/ note above describes.
 CODE_ROOTS = ("pipeline/", "tests/", "tools/", ".github/", "scrapers/",
-              "review/")
+              "review/", "scripts/")
 SKIP_RE = re.compile(r"(?:^|/)(?:__pycache__/|\.pytest_cache/)|\.pyc$|^READ-ME-FIRST\.md$")
 REGIONS_RE = re.compile(r"(\d+) regions? scanned")
 REMOVAL_WORDS = ("remove-rows", "delete-rows", "reject-batch",
@@ -129,7 +138,7 @@ def strip_wrapper(names: Iterable[str]) -> Dict[str, str]:
     files = [n for n in names if not n.endswith("/")]
     tops = {n.split("/", 1)[0] for n in files if "/" in n}
     known = {"docs", "pipeline", "tests", "tools", ".github", "scrapers",
-             "review"}
+             "review", "scripts"}
     out = {}
     for n in files:
         p = n
