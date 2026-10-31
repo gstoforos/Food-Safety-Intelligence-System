@@ -74,7 +74,14 @@ REGISTRY_LABELS = {label for label, _country, _domains in SOURCES}
 # tools/monitored_sources says so in its own docstring.
 NOT_A_REGULATOR = {
     "Food Safety News", "Food Safety Magazine", "Outbreak News Today",
-    "National Authority",        # gap_finder_tavily's "host known, agency not"
+    # "National Authority" WAS exempted here, as gap_finder_tavily's
+    # "host known, agency not". Removed 2026-10-30: the exemption was never
+    # harmless. It is not the name of a media outlet, it is a PLACEHOLDER,
+    # and a placeholder that is allowed in a collector table is a Source
+    # label that can reach Recalls — which it did, on the Anvisa row of
+    # 2026-10-28, and nothing host-checked it. See
+    # test_no_table_maps_a_host_to_a_placeholder_agency below for the rule
+    # that replaces the exemption.
     "DG SANTE",                  # Commission directorate, not a recall issuer
     "Dubai Municipality", "MoEC", "ADAFSA", "ALVA", "BAG", "BfR", "ANSA",
     "MINSAL", "ACHIPIA",         # monitored by name elsewhere; no Recalls rows
@@ -205,3 +212,89 @@ def test_new_zealand_specifically():
     from pipeline.verify_urls import allowed_hosts_for_source
     for label in ("MPI NZ", "MPI (NZ)"):
         assert "mpi.govt.nz" in (allowed_hosts_for_source(label) or ()), label
+
+
+# ---------------------------------------------------------------------------
+# The placeholder rule (morning fix 2026-10-30)
+# ---------------------------------------------------------------------------
+#
+# "National Authority" sat in NOT_A_REGULATOR above, described as
+# gap_finder_tavily's "host known, agency not". That reading is wrong twice
+# over. NOT_A_REGULATOR is for tables that name a MEDIA OUTLET, which is a
+# real publisher that is simply never a Source on a Recalls row. A
+# placeholder is not a publisher at all: it is the collector declining to
+# say who issued the notice, and it travels into Recalls looking like an
+# agency name.
+#
+# MEASURED, on main, 2026-10-30. One published row:
+#
+#     Source  'National Authority'
+#     URL     https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/...
+#     Notes   "...Agência Nacional de Vigilância Sanitária (Anvisa)..."
+#
+# and two red tests — test_monitored_sources.py (the agency cannot be
+# counted, so the dashboard's "Sources monitored" tile is short by one
+# country) and test_the_host_check_cannot_be_switched_off_by_a_rename.py
+# ("1 Source label(s) reach Recalls with no host allow-list, so nothing
+# checks that their rows cite the regulator they name").
+#
+# The agency was never unknown. "gov.br" is the exact-match key for
+# www.gov.br, where every Anvisa notice lives, so it shadowed the specific
+# "anvisa.gov.br" key three lines below it.
+#
+# A collector that cannot name the agency behind a host must not guess and
+# must not publish a stand-in — it should have no entry for that host, so
+# _lookup_source returns None and the candidate is dropped.
+
+PLACEHOLDER_WORDS = (
+    "national authority", "competent authority", "food authority",
+    "unknown", "unknown authority", "n/a", "na", "none", "other",
+    "government", "regulator", "authority", "tbd", "various",
+)
+
+
+@pytest.mark.parametrize("name", [n for n, _ in _tables()])
+def test_no_table_maps_a_host_to_a_placeholder_agency(name):
+    table = dict(_tables())[name]
+    bad = sorted((host, label) for host, (label, _c) in table.items()
+                 if str(label).strip().lower() in PLACEHOLDER_WORDS)
+    assert not bad, (
+        f"{name}: {len(bad)} host(s) map to a placeholder instead of an "
+        f"agency: {bad}\n"
+        f"A placeholder is not an exemption, it is a Source label that "
+        f"reaches Recalls with no host allow-list behind it. Name the "
+        f"agency with its registry label (tools/monitored_sources.SOURCES), "
+        f"or delete the entry so _lookup_source returns None and the "
+        f"candidate is dropped rather than mislabelled.")
+
+
+def test_brazil_specifically():
+    """The row that found this. Pinned so the repair cannot be undone."""
+    import pipeline.gap_finder_tavily as pgt
+
+    # www.gov.br is where Anvisa publishes, and the bare host is the key
+    # that actually matches, so it is the one that has to be right.
+    assert pgt.HOST_TO_SOURCE["gov.br"] == ("ANVISA (BR)", "Brazil")
+    assert pgt.HOST_TO_SOURCE["anvisa.gov.br"] == ("ANVISA (BR)", "Brazil")
+
+    assert "ANVISA (BR)" in REGISTRY_LABELS
+    assert canonical_source("ANVISA (BR)")[1] == "regulator"
+
+    from pipeline.verify_urls import allowed_hosts_for_source
+    assert "gov.br" in (allowed_hosts_for_source("ANVISA (BR)") or ())
+
+    # The shadowing is the mechanism, so assert the lookup itself, not just
+    # the table: a future "anvisa.gov.br"-only repair would not fix the row.
+    assert pgt._lookup_source(
+        "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/x"
+    ) == ("ANVISA (BR)", "Brazil")
+
+
+def test_a_placeholder_is_not_quietly_re_exempted():
+    """Belt and braces: the word must not come back via NOT_A_REGULATOR."""
+    smuggled = sorted(l for l in NOT_A_REGULATOR
+                      if l.strip().lower() in PLACEHOLDER_WORDS)
+    assert not smuggled, (
+        f"placeholder label(s) exempted as media outlets: {smuggled} — "
+        f"NOT_A_REGULATOR is for real publishers that are never a Source "
+        f"on a Recalls row, not for a collector's stand-in")

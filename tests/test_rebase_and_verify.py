@@ -103,3 +103,49 @@ def test_a_deleted_file_is_not_mistaken_for_a_dropped_one():
     from tools.rebase_and_verify import deleted_in_porcelain_z
     out = " D docs/old.html\0 M docs/new.html\0D  tools/x.py\0"
     assert deleted_in_porcelain_z(out) == {"docs/old.html", "tools/x.py"}
+
+
+# ---------------------------------------------------------------------------
+# scripts/ (morning fix 2026-10-30)
+# ---------------------------------------------------------------------------
+#
+# scripts/safe_push.sh is the commit+push path every data-writer workflow
+# runs. The morning pass of 2026-10-30 repaired a defect in it that was
+# discarding each retrying run's non-xlsx output — 170 of 170 "(merge attempt
+# N)" commits in the preceding 30 days carried recalls.xlsx and nothing else.
+#
+# That repair had to travel to main through the upload path, and before
+# today scripts/ reached it only by accident: classify() returned "other",
+# which apply_zip happens to accept for a code zip, while strip_wrapper's
+# `known` set did not list scripts/ at all. A zip whose only top-level
+# folder was scripts/ would therefore have had that folder treated as a
+# wrapper and stripped, rewriting every path in it to a bare filename that
+# lands nowhere.
+#
+# Both halves are asserted, because fixing one without the other leaves the
+# directory carried but mis-pathed, or pathed but not carried.
+
+def test_a_scripts_file_is_code_not_other():
+    assert classify("scripts/safe_push.sh") == "code"
+    assert classify("scripts/anything_else.py") == "code"
+
+
+def test_scripts_is_not_mistaken_for_a_wrapper_folder():
+    m = strip_wrapper(["scripts/safe_push.sh"])
+    assert set(m.values()) == {"scripts/safe_push.sh"}, (
+        "scripts/ was stripped as a wrapper folder, so the repair to "
+        "safe_push.sh would have been written to a bare filename")
+    m = strip_wrapper(["scripts/safe_push.sh", "tests/t.py"])
+    assert set(m.values()) == {"scripts/safe_push.sh", "tests/t.py"}
+    # A real wrapper around scripts/ must still be stripped.
+    m = strip_wrapper(["fix/scripts/safe_push.sh", "fix/tests/t.py"])
+    assert set(m.values()) == {"scripts/safe_push.sh", "tests/t.py"}
+
+
+def test_the_code_zip_would_carry_a_scripts_file():
+    """The two ends the apply step joins: accepted kind, non-docs path."""
+    from tools.rebase_and_verify import CODE_ROOTS
+    assert "scripts/" in CODE_ROOTS
+    # write_zips splits on the docs/ prefix, so a scripts/ path is code-zip
+    # bound by construction; this pins that it is not docs/-prefixed.
+    assert not "scripts/safe_push.sh".startswith("docs/")

@@ -220,12 +220,53 @@ class TestUrlRule(unittest.TestCase):
         self.assertEqual([], bad, f"{len(bad)} row(s) still cite the FSA "
                                   f"metadata endpoint: {bad[:3]}")
 
-    def test_an_unmapped_source_is_not_guessed_at(self):
-        """Sources absent from HOST_FOR_SOURCE are not checked — better
-        silent than wrong, same rule as verify_urls."""
-        self.assertEqual([], publish_blockers(_good(
+    def test_an_unmapped_source_is_refused_not_guessed_at(self):
+        """POLICY REVERSED 2026-10-31 — this test asserted the opposite.
+
+        It used to read: "Sources absent from HOST_FOR_SOURCE are not
+        checked — better silent than wrong, same rule as verify_urls", and
+        asserted no blockers. The third option it did not consider is
+        neither silent nor wrong: REFUSE the row. The host is still never
+        guessed at; the row simply does not publish until the label is one
+        the repo knows.
+
+        WHAT CHANGED THE ANSWER. Nine recurrences of one defect, every one
+        found by a row that had ALREADY PUBLISHED under a label nothing
+        could host-check — Czechia "SZPI" (2026-10-03), Italy "Salute"
+        (2026-10-04), Hungary "NÉBIH" (2026-10-07), six registry labels
+        (2026-10-26), NZ "MPI NZ" (2026-10-27), thirty more registry
+        labels (2026-10-27), Brazil "National Authority" (2026-10-31).
+        "Better silent than wrong" is precisely what let each of them
+        through: silence meant the row published with no host check, no
+        coverage identity and no entry in the dashboard's source count.
+
+        THE COST, STATED PLAINLY. A genuinely new regulator's first row is
+        now refused until it is added to tools/monitored_sources.SOURCES
+        and pipeline/_source_canon.CANONICAL. That is a loud, reversible,
+        self-documenting failure: the row waits in Pending and
+        promote_gate_passing prints the two files to extend. Reverting the
+        policy means deleting rule 12 in pipeline/_publish_gate.py and
+        tests/test_a_source_label_must_be_host_checkable.py.
+
+        The rule asks AFTER the writer's own aliasing, so a bare "FSAI" or
+        "FSANZ" from the fleet configs still resolves and still publishes —
+        see _resolved_source_hosts.
+        """
+        blockers = publish_blockers(_good(
             Source="Some Regulator We Have Not Mapped",
-            URL="https://example.invalid/notice/1")))
+            URL="https://example.invalid/notice/1"))
+        self.assertEqual(1, len(blockers), blockers)
+        self.assertIn("resolves to no known regulator", blockers[0])
+
+    def test_a_bare_fleet_label_still_publishes(self):
+        """The reversal above may not cost the ~40 fleet configs anything."""
+        for source, country in (("FSAI", "Ireland"), ("FSANZ", "Australia"),
+                                ("BLV", "Switzerland"), ("FDA", "United States")):
+            row = _good(Source=source, Country=country,
+                        URL="https://example.invalid/notice/1")
+            bad = [b for b in publish_blockers(row)
+                   if "resolves to no known regulator" in b]
+            self.assertEqual([], bad, (source, country))
 
     def test_relative_url_blocked(self):
         self.assertFalse(is_publishable(_good(URL="/fiche-rappel/22963/Interne")))

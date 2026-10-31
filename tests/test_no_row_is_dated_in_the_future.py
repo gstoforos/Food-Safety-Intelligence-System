@@ -43,6 +43,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
+from freezegun import freeze_time
 from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -77,11 +78,43 @@ def _row(**kw):
 
 # ── the gate ──────────────────────────────────────────────────────────────
 
+#: The day the Danforel row was promoted. The gate's ceiling is relative to
+#: the day it RUNS (today + _MAX_FUTURE_DAYS), so a test that pins the
+#: incident's absolute Date and reads the live clock measures the calendar,
+#: not the rule: 2026-11-01 was seven days out on 2026-10-24 and is one day
+#: out on 2026-10-31, inside the deliberate timezone tolerance. This test
+#: went red on 2026-10-31 for that reason and for no other — the gate was
+#: never broken. Found by the morning fix pass of 2026-10-31.
+#:
+#: The subject of this test is a historical row, so its clock is the
+#: incident's clock, frozen. Every other case in this file is written
+#: relative to date.today() and keeps reading the live one, which is what
+#: holds the rule itself.
+INCIDENT_DAY = date(2026, 10, 24)
+
+
 def test_the_live_shape_is_refused():
-    """The Danforel row, exactly as it was promoted."""
-    ok, why = mm.validate_pending_row(_row(Date="2026-11-01"), set())
-    assert not ok
+    """The Danforel row, exactly as it was promoted, on the day it was."""
+    with freeze_time(INCIDENT_DAY.isoformat()):
+        ok, why = mm.validate_pending_row(_row(Date="2026-11-01"), set())
+    assert not ok, (
+        "the Danforel row carried a Date seven days past the run date and "
+        "must stay refused whatever today is")
     assert "future" in why.lower(), why
+
+
+def test_the_incident_date_was_seven_days_out_when_it_published():
+    """Guards the frozen clock above against drifting into tolerance.
+
+    If INCIDENT_DAY is ever moved to within _MAX_FUTURE_DAYS of
+    2026-11-01, the test above passes vacuously for the same reason it
+    failed on 2026-10-31.
+    """
+    gap = (date(2026, 11, 1) - INCIDENT_DAY).days
+    assert gap > mm._MAX_FUTURE_DAYS, (
+        f"2026-11-01 is {gap} day(s) past {INCIDENT_DAY}, within the gate's "
+        f"{mm._MAX_FUTURE_DAYS}-day tolerance — the frozen clock no longer "
+        f"reproduces the incident")
 
 
 def test_a_date_years_out_is_refused():
