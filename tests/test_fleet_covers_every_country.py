@@ -33,6 +33,7 @@ as countries are added.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 from datetime import date, timedelta
@@ -167,9 +168,22 @@ def test_an_empty_shard_fails_loudly():
 
 def test_each_country_has_its_own_timeout():
     """A job-level cap alone lets one hung country skip every country
-    after it in the shard, with no record."""
-    assert "timeout 12m python -m pipeline.gap_finder.main" in \
-        WF.read_text(encoding="utf-8")
+    after it in the shard, with no record.
+
+    The literal was `timeout 12m python -m …` until 2026-11-01, when `-k`
+    was added so SIGTERM arrives first and
+    pipeline.gap_finder.main._install_termination_handlers can append a
+    status="timed_out" run_log record before SIGKILL. An exact-string
+    assertion made a cap that records its own expiry look like a cap that
+    had been removed, so the shape is matched instead — see
+    tests/test_a_timed_out_country_leaves_a_record.py, which holds the -k
+    itself.
+    """
+    src = WF.read_text(encoding="utf-8")
+    assert re.search(
+        r"timeout\s+(?:-k\s*\S+\s+)?12m\s+python\s+-m\s+"
+        r"pipeline\.gap_finder\.main", src), (
+        "the fleet no longer caps each country at 12m individually")
 
 
 def test_the_fleet_signs_its_own_commits_and_is_watched():
