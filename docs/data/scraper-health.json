@@ -1,10 +1,10 @@
 {
-  "generated_utc": "2026-11-01T01:15:24+00:00",
+  "generated_utc": "2026-11-01T02:45:13+00:00",
   "totals": {
     "scrapers": 55,
     "ok": 20,
-    "ok_returning_data": 7,
-    "ok_empty_window": 13,
+    "ok_returning_data": 6,
+    "ok_empty_window": 14,
     "silent_stale": 4,
     "never_produced": 19,
     "failed": 12,
@@ -12,67 +12,68 @@
   },
   "silent": 23,
   "by_state": {
-    "OK_EMPTY": 13,
+    "OK_EMPTY": 14,
     "SILENT_STALE": 4,
     "NEVER_PRODUCED": 19,
-    "FAIL_OTHER": 2,
+    "FAIL_OTHER": 1,
+    "OK": 6,
     "FAIL_DNS": 1,
-    "OK": 7,
-    "FAIL_403": 4,
-    "FAIL_404": 1,
+    "FAIL_403": 3,
+    "FAIL_SSL": 1,
+    "FAIL_404": 2,
     "FAIL_TIMEOUT": 4
   },
   "per_scraper": {
-    "FDA/USA": "OK_EMPTY",
     "CFIA/Canada": "OK_EMPTY",
+    "FDA/USA": "OK_EMPTY",
     "AFSCA (BE)/Belgium": "OK_EMPTY",
-    "AESAN (ES)/Spain": "OK_EMPTY",
     "ANMAT (AR)/Argentina": "SILENT_STALE",
+    "AESAN (ES)/Spain": "OK_EMPTY",
     "AGES (AT)/Austria": "OK_EMPTY",
     "DIGESA (PE)/Peru": "NEVER_PRODUCED",
-    "ASAE (PT)/Portugal": "FAIL_OTHER",
-    "BFSA (BG)/Bulgaria": "FAIL_DNS",
     "Fødevarestyrelsen (DK)/Denmark": "OK_EMPTY",
+    "ASAE (PT)/Portugal": "FAIL_OTHER",
     "FSAI (IE)/Ireland": "OK",
     "GIS (PL)/Poland": "OK",
-    "MAST (IS)/Iceland": "OK_EMPTY",
+    "BFSA (BG)/Bulgaria": "FAIL_DNS",
     "Livsmedelsverket (SE)/Sweden": "OK_EMPTY",
-    "Mattilsynet (NO)/Norway": "NEVER_PRODUCED",
+    "MAST (IS)/Iceland": "OK_EMPTY",
     "NVWA (NL)/Netherlands": "OK_EMPTY",
     "Nébih (HU)/Hungary": "NEVER_PRODUCED",
     "PVD (LV)/Latvia": "NEVER_PRODUCED",
+    "EFET (GR)/Greece": "OK_EMPTY",
     "ŠVPS (SK)/Slovakia": "NEVER_PRODUCED",
-    "VMVT (LT)/Lithuania": "FAIL_403",
+    "HAH (HR)/Croatia": "OK",
     "UVHVVR (SI)/Slovenia": "NEVER_PRODUCED",
+    "VMVT (LT)/Lithuania": "FAIL_403",
+    "RappelConso (FR)/France": "OK",
     "VTA (EE)/Estonia": "NEVER_PRODUCED",
     "BLV (CH)/Switzerland": "OK",
-    "EFET (GR)/Greece": "OK",
-    "HAH (HR)/Croatia": "OK",
+    "Mattilsynet (NO)/Norway": "NEVER_PRODUCED",
     "FDA (PH)/Philippines": "FAIL_403",
-    "RappelConso (FR)/France": "OK",
     "BPOM (ID)/Indonesia": "NEVER_PRODUCED",
-    "MHLW (JP)/Japan": "NEVER_PRODUCED",
-    "FSSAI (IN)/India": "NEVER_PRODUCED",
     "KKM (MY)/Malaysia": "NEVER_PRODUCED",
+    "FSSAI (IN)/India": "NEVER_PRODUCED",
+    "MHLW (JP)/Japan": "NEVER_PRODUCED",
     "BVL (DE)/Germany": "OK",
     "SFA (SG)/Singapore": "OK_EMPTY",
     "SAMR (CN)/China": "NEVER_PRODUCED",
     "TFDA (TW)/Taiwan": "NEVER_PRODUCED",
+    "FSANZ (AU)/Australia": "OK_EMPTY",
     "COMESA/Kenya": "SILENT_STALE",
     "FDA (GH)/Ghana": "NEVER_PRODUCED",
     "NAFDAC (NG)/Nigeria": "NEVER_PRODUCED",
-    "FSANZ (AU)/Australia": "OK_EMPTY",
-    "KEBS (KE)/Kenya": "FAIL_OTHER",
-    "COFEPRIS (MX)/Mexico": "FAIL_404",
+    "KEBS (KE)/Kenya": "FAIL_SSL",
     "ANVISA (BR)/Brazil": "OK_EMPTY",
     "ARCSA (EC)/Ecuador": "NEVER_PRODUCED",
-    "ISP (CL)/Chile": "FAIL_403",
+    "COFEPRIS (MX)/Mexico": "FAIL_404",
+    "ISP (CL)/Chile": "FAIL_404",
     "INVIMA (CO)/Colombia": "SILENT_STALE",
-    "MSP (UY)/Uruguay": "SILENT_STALE",
     "MoH (IL)/Israel": "FAIL_403",
+    "MSP (UY)/Uruguay": "SILENT_STALE",
     "MoPH (QA)/Qatar": "NEVER_PRODUCED",
-    "MoCCAE (AE)/UAE": "NEVER_PRODUCED",
     "TGTHB (TR)/Turkey": "NEVER_PRODUCED",
+    "MoCCAE (AE)/UAE": "NEVER_PRODUCED",
     "Ruokavirasto (FI)/Finland": "OK_EMPTY",
     "ANSVSA (RO)/Romania": "FAIL_TIMEOUT",
     "VFA (VN)/Vietnam": "FAIL_TIMEOUT",
@@ -80,16 +81,6 @@
     "ONSSA (MA)/Morocco": "FAIL_TIMEOUT"
   },
   "silence_evidence": {
-    "FDA/USA": {
-      "rows": 114,
-      "last_row": "2026-10-30",
-      "days_since_last_row": 2,
-      "p90_gap_days": 7,
-      "pooled_p99_gap_days": 108,
-      "source_key": "FDA",
-      "threshold_basis": "2x this source's own p90 gap",
-      "stale_threshold_days": 21
-    },
     "CFIA/Canada": {
       "rows": 68,
       "last_row": "2026-10-29",
@@ -99,6 +90,16 @@
       "source_key": "CFIA",
       "threshold_basis": "2x this source's own p90 gap",
       "stale_threshold_days": 26
+    },
+    "FDA/USA": {
+      "rows": 114,
+      "last_row": "2026-10-30",
+      "days_since_last_row": 2,
+      "p90_gap_days": 7,
+      "pooled_p99_gap_days": 108,
+      "source_key": "FDA",
+      "threshold_basis": "2x this source's own p90 gap",
+      "stale_threshold_days": 21
     },
     "AFSCA (BE)/Belgium": {
       "rows": 11,
@@ -110,16 +111,6 @@
       "threshold_basis": "2x this source's own p90 gap",
       "stale_threshold_days": 216
     },
-    "AESAN (ES)/Spain": {
-      "rows": 20,
-      "last_row": "2026-10-27",
-      "days_since_last_row": 5,
-      "p90_gap_days": 27,
-      "pooled_p99_gap_days": 108,
-      "source_key": "AESAN (ES)",
-      "threshold_basis": "2x this source's own p90 gap",
-      "stale_threshold_days": 54
-    },
     "ANMAT (AR)/Argentina": {
       "rows": 1,
       "last_row": "2026-01-07",
@@ -129,6 +120,16 @@
       "source_key": "ANMAT (AR)",
       "stale_threshold_days": 108,
       "threshold_basis": "pooled p99 (thin history)"
+    },
+    "AESAN (ES)/Spain": {
+      "rows": 20,
+      "last_row": "2026-10-27",
+      "days_since_last_row": 5,
+      "p90_gap_days": 27,
+      "pooled_p99_gap_days": 108,
+      "source_key": "AESAN (ES)",
+      "threshold_basis": "2x this source's own p90 gap",
+      "stale_threshold_days": 54
     },
     "AGES (AT)/Austria": {
       "rows": 7,
@@ -155,16 +156,6 @@
       "threshold_basis": "2x this source's own p90 gap",
       "stale_threshold_days": 21
     },
-    "MAST (IS)/Iceland": {
-      "rows": 1,
-      "last_row": "2026-10-13",
-      "days_since_last_row": 19,
-      "p90_gap_days": null,
-      "pooled_p99_gap_days": 108,
-      "source_key": "MAST (IS)",
-      "stale_threshold_days": 108,
-      "threshold_basis": "pooled p99 (thin history)"
-    },
     "Livsmedelsverket (SE)/Sweden": {
       "rows": 1,
       "last_row": "2026-10-26",
@@ -175,10 +166,15 @@
       "stale_threshold_days": 108,
       "threshold_basis": "pooled p99 (thin history)"
     },
-    "Mattilsynet (NO)/Norway": {
-      "source_key": "Mattilsynet (NO)",
-      "rows": 0,
-      "note": "no rows under this Source label"
+    "MAST (IS)/Iceland": {
+      "rows": 1,
+      "last_row": "2026-10-13",
+      "days_since_last_row": 19,
+      "p90_gap_days": null,
+      "pooled_p99_gap_days": 108,
+      "source_key": "MAST (IS)",
+      "stale_threshold_days": 108,
+      "threshold_basis": "pooled p99 (thin history)"
     },
     "NVWA (NL)/Netherlands": {
       "rows": 13,
@@ -200,6 +196,16 @@
       "rows": 0,
       "note": "no rows under this Source label"
     },
+    "EFET (GR)/Greece": {
+      "rows": 13,
+      "last_row": "2026-10-22",
+      "days_since_last_row": 10,
+      "p90_gap_days": 54,
+      "pooled_p99_gap_days": 108,
+      "source_key": "EFET (GR)",
+      "threshold_basis": "2x this source's own p90 gap",
+      "stale_threshold_days": 108
+    },
     "ŠVPS (SK)/Slovakia": {
       "source_key": "ŠVPS (SK)",
       "rows": 0,
@@ -215,13 +221,18 @@
       "rows": 0,
       "note": "no rows under this Source label"
     },
+    "Mattilsynet (NO)/Norway": {
+      "source_key": "Mattilsynet (NO)",
+      "rows": 0,
+      "note": "no rows under this Source label"
+    },
     "BPOM (ID)/Indonesia": {
       "source_key": "BPOM (ID)",
       "rows": 0,
       "note": "no rows under this Source label"
     },
-    "MHLW (JP)/Japan": {
-      "source_key": "MHLW (JP)",
+    "KKM (MY)/Malaysia": {
+      "source_key": "KKM (MY)",
       "rows": 0,
       "note": "no rows under this Source label"
     },
@@ -230,8 +241,8 @@
       "rows": 0,
       "note": "no rows under this Source label"
     },
-    "KKM (MY)/Malaysia": {
-      "source_key": "KKM (MY)",
+    "MHLW (JP)/Japan": {
+      "source_key": "MHLW (JP)",
       "rows": 0,
       "note": "no rows under this Source label"
     },
@@ -255,6 +266,16 @@
       "rows": 0,
       "note": "no rows under this Source label"
     },
+    "FSANZ (AU)/Australia": {
+      "rows": 20,
+      "last_row": "2026-10-30",
+      "days_since_last_row": 2,
+      "p90_gap_days": 30,
+      "pooled_p99_gap_days": 108,
+      "source_key": "FSANZ (AU)",
+      "threshold_basis": "2x this source's own p90 gap",
+      "stale_threshold_days": 60
+    },
     "COMESA/Kenya": {
       "rows": 1,
       "last_row": "2026-03-26",
@@ -274,16 +295,6 @@
       "source_key": "NAFDAC (NG)",
       "rows": 0,
       "note": "no rows under this Source label"
-    },
-    "FSANZ (AU)/Australia": {
-      "rows": 20,
-      "last_row": "2026-10-30",
-      "days_since_last_row": 2,
-      "p90_gap_days": 30,
-      "pooled_p99_gap_days": 108,
-      "source_key": "FSANZ (AU)",
-      "threshold_basis": "2x this source's own p90 gap",
-      "stale_threshold_days": 60
     },
     "ANVISA (BR)/Brazil": {
       "rows": 3,
@@ -325,13 +336,13 @@
       "rows": 0,
       "note": "no rows under this Source label"
     },
-    "MoCCAE (AE)/UAE": {
-      "source_key": "MoCCAE (AE)",
+    "TGTHB (TR)/Turkey": {
+      "source_key": "TGTHB (TR)",
       "rows": 0,
       "note": "no rows under this Source label"
     },
-    "TGTHB (TR)/Turkey": {
-      "source_key": "TGTHB (TR)",
+    "MoCCAE (AE)/UAE": {
+      "source_key": "MoCCAE (AE)",
       "rows": 0,
       "note": "no rows under this Source label"
     },
