@@ -208,6 +208,22 @@
   "Notes": "[RASFF #2026.9668; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=883509] [promote 2026-10-31: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-30",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Netherlands | Notifying: Germany",
+  "Brand": "—",
+  "Product": "Shiga toxin-producing Escherichia coli (STEC) in frozen goat meat from the Netherlands",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Shiga toxin-producing Escherichia coli (STEC) in frozen goat meat from the Netherlands; risk: serious; category: meat and meat products (other than poultry)",
+  "Class": "Alert",
+  "Country": "Netherlands",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/883928",
+  "Notes": "[RASFF #2026.9701; classification: alert notification; category: meat and meat products (other than poultry); notifId=883928]"
+ },
+ {
   "Date": "2026-10-29",
   "Source": "Ministero della Salute (IT)",
   "Company": "Carni Celin Srl",
