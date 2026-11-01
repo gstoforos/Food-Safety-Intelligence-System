@@ -260,7 +260,7 @@
   "Source": "RappelConso (FR)",
   "Company": "Produit à la Ferme - le Goût du Vrai",
   "Brand": "Produit à la Ferme - le Goût du Vrai",
-  "Product": "Farmhouse fromage blanc",
+  "Product": "Farmhouse fresh white cheese",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Detection of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -269,7 +269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23953/interne",
-  "Notes": "voir liste des points de vente [scraper-flag: Product taken from the fiche title; the model/reference field held only lot codes] [promote 2026-10-29: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-31: Product and Reason translated from the fiche's own French. The Reason carried no stamp.] [original product: fromage blanc fermier] [original Reason (fr): \"Detection of listéria monocytogene\"] [needs cleanup: Product not in English]"
+  "Notes": "voir liste des points de vente [scraper-flag: Product taken from the fiche title; the model/reference field held only lot codes] [promote 2026-10-29: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-10-31: Product and Reason translated from the fiche's own French. The Reason carried no stamp.] [original product: fromage blanc fermier] [original Reason (fr): \"Detection of listéria monocytogene\"] [morning fix pass 2026-11-01: the stamp was NOT stale and this pass first read it as such — corrected before upload. The pass of 2026-10-31 translated \"fermier\" to \"Farmhouse\" and left \"fromage blanc\" in French, so the published Product read \"Farmhouse fromage blanc\" and reviewer 3's stamp was still true: tests/test_product_and_firm_names_are_english.py and tests/test_a_short_french_product_name_is_caught.py both go red on it, which is how the half-translation was found. Fiche 23953 names the product \"fromage blanc fermier\"; fromage blanc is a fresh unripened white cheese, so the Product is now \"Farmhouse fresh white cheese\" and the stamp is dropped on a row that is actually in English. The French is already preserved in these Notes as [original product: fromage blanc fermier].]"
  },
  {
   "Date": "2026-10-29",
@@ -1757,7 +1757,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc",
-  "Notes": "Added by the AFTS morning fix pass 2026-10-24 (missed-recall sweep); absent from all five sheets. Every field read on the FDA alert page itself, \"FDA Advises Not to Eat, Sell, or Serve Cold Smoked Sprats Sold by Haifa Smoked Fish, Inc.\", dated October 23, 2026 (content current as of 10/23/2026): firm \"D&M Smoked Fish Inc. (DBA) Haifa Smoked Fish, Inc.\", 94-15 150 St., Jamaica, N.Y. 11435; product \"cold smoked sprats\", label \"C/Smoked Holland Sprats\", item 302M, \"LOT# 261\", bulk cardboard boxes; hazard \"Potential Clostridium botulinum contamination\"; distributed in Connecticut, New Jersey, New York and Pennsylvania and may have reached further states. No recall was issued — FDA states it recommended one and the firm declined, which is why Class is \"Alert\". No best-before is published. Discovered via efoodalert.com and foodsafetynews.com (discovery only; the authority URL on this row is FDA's own alert page). [promote 2026-10-25: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "Added by the AFTS morning fix pass 2026-10-24 (missed-recall sweep); absent from all five sheets. Every field read on the FDA alert page itself, \"FDA Advises Not to Eat, Sell, or Serve Cold Smoked Sprats Sold by Haifa Smoked Fish, Inc.\", dated October 23, 2026 (content current as of 10/23/2026): firm \"D&M Smoked Fish Inc. (DBA) Haifa Smoked Fish, Inc.\", 94-15 150 St., Jamaica, N.Y. 11435; product \"cold smoked sprats\", label \"C/Smoked Holland Sprats\", item 302M, \"LOT# 261\", bulk cardboard boxes; hazard \"Potential Clostridium botulinum contamination\"; distributed in Connecticut, New Jersey, New York and Pennsylvania and may have reached further states. No recall was issued — FDA states it recommended one and the firm declined, which is why Class is \"Alert\". No best-before is published. Discovered via efoodalert.com and foodsafetynews.com (discovery only; the authority URL on this row is FDA's own alert page). [promote 2026-10-25: status 'pending'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-01: cross-reference — the firm issued the recall FDA says it declined here. FDA press release of 27 October 2026, \"HAIFA SMOKED FISH Recalls Cold Smoked Sprats Due to Potential Health Risk\": all lots, approximately 560 lbs, New Jersey, New York and Pennsylvania, no illnesses reported. That notice is a separate dated regulatory action on its own authority URL (.../haifa-smoked-fish-recalls-cold-smoked-sprats-due-potential-health-risk) and is queued from Pending today; this row remains the 2026-10-23 ADVISORY and keeps Class \"Alert\".]"
  },
  {
   "Date": "2026-10-23",
@@ -36350,5 +36350,37 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-10-20",
+  "Source": "FSAI (IE)",
+  "Company": "SuperValu",
+  "Brand": "SuperValu; Inspired By Centra",
+  "Product": "Smoked Salmon, Mackerel, Prawn Cocktail",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Recall of specific Supervalu and Inspired By Centra Smoked Salmon, Mackerel and Prawn Cocktail products due to the presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Ireland",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-several-supervalu-and-inspired-by-centra",
+  "Notes": "source_id=FSAI-recall-of-several-supervalu-and-inspired-by-centra [via official-feed collector] [url-agent 2026-10-31: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-31: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-31: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [morning fix pass 2026-11-01: Company \"Supervalu\" -> \"SuperValu\" and Brand \"Supervalu, Inspired By Centra\" -> \"SuperValu; Inspired By Centra\", to the spelling and separator the register has used for this retailer since 2026-08-05 and for this brand pair on FSAI alert 2026.66 (2026-10-14). FSAI's own alert title for THIS recall writes it \"Supervalu and Inspired By Centra\"; no fact is changed, only the spelling, so one firm is not two rows in every count.] [promote 2026-11-01: status 'pending_gap_v3'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying 'morning fix pass 2026-11-01: [SUPERSEDED 2026-11-01 — this archive row records the removal of a duplicate COPY at this URL, not a verdict on the recall. The enr' is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-10-27",
+  "Source": "FDA",
+  "Company": "Haifa Smoked Fish",
+  "Brand": "—",
+  "Product": "Cold smoked sprat fish, packed loose in bulk cardboard boxes labelled \"Cold Smoked Sprats\", all lots (approximately 560 lbs)",
+  "Pathogen": "Clostridium botulinum",
+  "Reason": "Cold smoked sprat fish recalled because it may be contaminated with Clostridium botulinum. The firm recalled all lots after FDA advised on 23 October 2026 that the product should not be eaten, sold or served; no illnesses have been reported to date.",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/haifa-smoked-fish-recalls-cold-smoked-sprats-due-potential-health-risk",
+  "Notes": "FDA HTML fallback — claude-check needs to enrich Date+Pathogen [url-agent 2026-11-01: pending_enrichment→pending_gap_v2 URL confirmed] [morning fix pass 2026-11-01: Date and Pathogen were EMPTY and the row's own Notes said \"claude-check needs to enrich Date+Pathogen\" — claude_check.py is retired and never runs, so nothing was ever going to fill them. Both read on the FDA press release at this row's own URL this morning: press release date 27 October 2026 (content current as of 10/27/2026); recalling firm \"D&M Smoked Fish Inc. dba Haifa Smoked Fish Inc.\", Queens, NY, FDA inspection at D&M Smoked Fish Inc. \"of Jamaica, NY\"; product \"Cold Smoked Sprat Fish\" packed loose in bulk cardboard boxes labelled \"Cold Smoked Sprats\", shipped refrigerated, Brand Name \"No Brand\"; \"All Lots are included in the recall\", approximately 560 lbs; hazard \"potential contamination with Clostridium botulinum\"; distributed in New Jersey, New York and Pennsylvania through retail stores; \"No illnesses have been reported to date.\" Same figures in FDA's own recalls table (10/27/2026, Product Description \"Cold Smoked Sprat Fish\"). Product replaced because the field held the press-release HEADLINE, not a food. NOT a duplicate of the published 2026-10-23 row at .../fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc: that is the advisory FDA issued when the firm DECLINED to recall (Class \"Alert\", \"No recall was issued\"); this is the recall the firm then issued four days later. No best-before is published.] [promote 2026-11-01: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Date is empty [SUPERSEDED 2026-11-01 by the morning fix pass 2026-11-01: this ver' is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
  }
 ]

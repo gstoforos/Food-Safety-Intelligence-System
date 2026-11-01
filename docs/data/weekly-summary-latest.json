@@ -10,16 +10,16 @@
   "week_end_display": "1 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-01T04:27:02.499762+00:00",
-  "prev_total": 96,
+  "generated_utc": "2026-11-01T07:52:37.376351+00:00",
+  "prev_total": 97,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 82,
-    "tier1": 47,
+    "total": 83,
+    "tier1": 48,
     "outbreaks": 0,
     "delta": -14,
-    "delta_pct": -15
+    "delta_pct": -14
   },
   "leading_pathogen": {
     "name": "Listeria monocytogenes",
@@ -30,6 +30,20 @@
   "top_threats": [
     {
       "rank": 1,
+      "date": "2026-10-27",
+      "pathogen": "Clostridium botulinum",
+      "pathogen_raw": "Clostridium botulinum",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Haifa Smoked Fish",
+      "brand": "—",
+      "product": "Cold smoked sprat fish, packed loose in bulk cardboard boxes labelled \"Cold Smoked Sprats\", all lots (approximately 560 lbs)",
+      "country": "United States",
+      "source": "FDA",
+      "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/haifa-smoked-fish-recalls-cold-smoked-sprats-due-potential-health-risk"
+    },
+    {
+      "rank": 2,
       "date": "2026-10-30",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -43,7 +57,7 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23946/interne"
     },
     {
-      "rank": 2,
+      "rank": 3,
       "date": "2026-10-29",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -57,7 +71,7 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/883478"
     },
     {
-      "rank": 3,
+      "rank": 4,
       "date": "2026-10-29",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -71,7 +85,7 @@
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/883441"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-10-29",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -83,20 +97,6 @@
       "country": "France",
       "source": "RappelConso (FR)",
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23951/interne"
-    },
-    {
-      "rank": 5,
-      "date": "2026-10-29",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Eberle Spezialitäten AG, Strähl Käse AG",
-      "brand": "",
-      "product": "Various cheese products",
-      "country": "Switzerland",
-      "source": "BLV (CH)",
-      "url": "https://www.blv.admin.ch/de/newnsb/9ELyAwEjEEWJ"
     }
   ],
   "country_count": 26
