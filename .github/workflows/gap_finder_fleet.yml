@@ -289,7 +289,12 @@ jobs:
             # that hangs eats the budget and every country after it in the
             # shard is skipped with no record — which is indistinguishable,
             # a week later, from never having been scheduled.
-            if timeout 12m python -m pipeline.gap_finder.main \
+            # -k: SIGTERM first (pipeline.gap_finder.main catches it and
+            # appends a status="timed_out" run_log record — see
+            # _install_termination_handlers), then SIGKILL 20s later so a
+            # wedged process still cannot hold the shard. Without -k a
+            # handler that itself hangs would reintroduce the silent exit.
+            if timeout -k 20s 12m python -m pipeline.gap_finder.main \
                  --country "$cc" --verbose $ARGS; then
               echo "OK $cc"
               OK="$OK $cc"
