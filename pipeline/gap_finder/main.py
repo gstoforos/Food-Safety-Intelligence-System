@@ -23,6 +23,7 @@ import argparse
 import json
 import re
 import os
+import signal
 import sys
 import time
 import traceback
@@ -834,8 +835,66 @@ def _write_run_log(cfg, state, status: str, failed_stage: str = "",
         print(f"  WARN: could not write run log: {exc}", file=sys.stderr)
 
 
+class _Terminated(BaseException):
+    """The process was signalled from outside — almost always the fleet's
+    per-country ``timeout`` cap expiring.
+
+    A BaseException on purpose. Eighteen stages in main() catch
+    ``Exception``; a termination that any of them swallowed would leave
+    the run looking like a clean, empty pass, which is the opposite of
+    what happened.
+    """
+
+
+def _install_termination_handlers() -> None:
+    """Turn SIGTERM/SIGINT into ``_Terminated`` so the exit is recorded.
+
+    AUDIT 2026-11-01 — THE LAST SILENT EXIT PATH
+    --------------------------------------------
+    _write_run_log's own docstring says "every exit writes a record". That
+    was true of every exit Python controls. It was not true of the one the
+    fleet workflow uses most:
+
+        if timeout 12m python -m pipeline.gap_finder.main --country "$cc"
+
+    ``timeout`` sends SIGTERM. Python's default disposition for SIGTERM is
+    to die immediately — no exception, no unwinding, so ``_main_guarded``'s
+    ``except BaseException`` never runs and NOTHING IS APPENDED. The shell
+    prints "TIMEOUT $cc (12m cap) — continuing" into a job log that is gone
+    in 14 days, and the only durable record, run_log.jsonl, stays silent.
+
+    MEASURED. ``us`` last wrote a run_log record on 2026-10-14. It was on
+    tools/fleet_shard.py's catch-up list, and therefore dispatched, on every
+    one of the eight days from 2026-10-24 to 2026-10-31 — reconstructed from
+    the run_logs as they stood on each of those mornings, and consistent
+    with the shard sizes in the fleet's own commit messages (7, 8, 9, 9, 8,
+    9, 9, 7). Eight dispatches, eight terminations, zero records. On
+    2026-11-01 tests/test_no_country_goes_dark.py went red with::
+
+        'us' last ran 2026-10-14, 17 days ago
+
+    and the only reading available from the register was the one the test
+    forbids: "it has gone dark". Which stage it dies in, and whether it dies
+    at all or merely runs long, were both unknowable — exactly the state the
+    2026-09-16 audit set out to end.
+
+    So the handler raises. ``_main_guarded`` then records
+    status="timed_out", naming the stage it was in, and a country that is
+    being killed by the cap is visibly being killed by the cap.
+    """
+    def _raise(signum, _frame):           # pragma: no cover - signal path
+        raise _Terminated(signal.Signals(signum).name)
+
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        try:
+            signal.signal(sig, _raise)
+        except (ValueError, OSError):      # not the main thread, or no such signal
+            pass
+
+
 def _main_guarded() -> int:
     """main() with a run-log record guaranteed on every exit path."""
+    _install_termination_handlers()
     try:
         return main()
     except SystemExit:
@@ -852,6 +911,8 @@ def _main_guarded() -> int:
             cfg = lv.get("cfg", cfg)
             state = lv.get("state", state)
             tb = tb.tb_next
+        killed = isinstance(exc, _Terminated)
+        status = "timed_out" if killed else "crashed"
         if cfg is not None and state is not None:
             stage = ""
             tb2 = sys.exc_info()[2]
@@ -860,10 +921,10 @@ def _main_guarded() -> int:
                 if name.startswith("stage_"):
                     stage = name
                 tb2 = tb2.tb_next
-            _write_run_log(cfg, state, status="crashed",
+            _write_run_log(cfg, state, status=status,
                            failed_stage=stage or "unknown",
                            error=f"{type(exc).__name__}: {exc}")
-            print(f"  run log records a CRASH in "
+            print(f"  run log records a {'TERMINATION' if killed else 'CRASH'} in "
                   f"{stage or 'an unknown stage'}", file=sys.stderr)
         else:
             print("  crashed before a country config existed — nothing to "
