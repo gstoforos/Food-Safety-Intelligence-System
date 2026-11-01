@@ -59,6 +59,12 @@ Pillow>=10.2.0
 # monthly workflow crashed on M05 with ModuleNotFoundError because
 # build_monthly_marketing.py was added post-2026-05-01 but its dep was missed.
 reportlab>=4.0.0
+# pypdfium2 — rasterises the monthly social cards (docs/social/<tag>-{linkedin,
+# instagram,x}.png) in pipeline.build_monthly_social.rasterise_png. Instagram
+# and X take images only. Added 2026-11-01: without it the day-1 workflow
+# wrote the three PDFs and silently skipped every PNG (October 2026 shipped
+# with no PNGs). Self-contained wheel, no apt step.
+pypdfium2>=4.30.0
 
 # --- Config + env ---
 PyYAML>=6.0.1
