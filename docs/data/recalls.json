@@ -2224,22 +2224,6 @@
   "Notes": "Discovered via news: info.gov.hk [locality: Hong Kong] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
-  "Date": "2026-10-21",
-  "Source": "FSA (UK)",
-  "Company": "SuperValu and Centra",
-  "Brand": "SuperValu and Centra",
-  "Product": "salmon and prawn cocktail products",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes — outbreak",
-  "Class": "Recall",
-  "Country": "United Kingdom",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://alerts.food.gov.uk/article/6946/SuperValu-and-Centra-recall-salmon-and-prawn-cocktail-products-because-of-contamination-with-Listeria-monocytogenes",
-  "Notes": "REJECTED: URL agent: Unable to fetch official regulator URL | SuperValu and Centra recall salmon and prawn cocktail products because of contamination with Listeria monocytogenes - Alerts\n\n# SuperValu and Centra recall salmon and prawn cocktail products because of contamination with Listeria monocytogenes\n\n Food Alert , 21 October 2026 00:00 \n\n Northern Ireland  [via Exa gap-finder, deterministic extract] [promote 2026-10-28: status 'rejected'->'pending' — passes every publish-gate rule]"
- },
- {
   "Date": "2026-10-20",
   "Source": "RappelConso (FR)",
   "Company": "EARL Batard-Denoual",
@@ -4142,22 +4126,6 @@
   "Outbreak": 0,
   "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-specific-batches-of-various-supervalu-sm",
   "Notes": "FSAI HTML listing fallback — claude-check please enrich Pathogen+Date+Reason from detail page [morning fix 2026-10-12: filled Date, Company, Brand, Product, Pathogen, Reason, Tier — read in full on the FSAI alert page 2026-10-11 (fsai.ie/News-and-Alerts/Food-Alerts/Recall-of-specific-batches-of-various-SuperValu-Sm): published Sunday 11 October 2026; brand SuperValu; SuperValu Smoked Salmon 40 g and 150 g; approval number IE DN0012 EU; batches 1027992 1 0 and 1027989 6 0; use-by 17/10/26; hazard the presence of Listeria monocytogenes. Company and Product previously held the listing title 'SuperValu Smoked Salmon products' — a product read as a firm. The alert names no producer other than the brand, so Company is the brand and the approval number is recorded here rather than guessed into a firm name. FSAI publishes its own alert slugs truncated at 49 characters, so this 98-character URL is the canonical page] [promote 2026-10-12: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
- },
- {
-  "Date": "2026-10-11",
-  "Source": "NFSA (EG)",
-  "Company": "Yasensvit Ltd",
-  "Brand": "",
-  "Product": "Eggs",
-  "Pathogen": "Salmonella Enteritidis",
-  "Reason": "Contaminated with Salmonella Enteritidis",
-  "Class": "Alert",
-  "Country": "Egypt",
-  "Region": "Africa",
-  "Tier": 1,
-  "Outbreak": 1,
-  "URL": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBUWmtsaG4ySWVMZTFaQzBSVUIxSENpcnpYczNWOTFGRUFWdGw0YnpPSHB0RlV4WUJ1bzJXWkZjX252MnIyZ1BxTHA4OEpCdmMtel9MNGdIRTQxRFc2NEd1ZFJPbGRyS0pGLUVZOHBaeEdxNWVnWWhCSENJenEyZw?oc=5",
-  "Notes": "News-authority source: see.news (no official NFSA per-recall portal) [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-10-10",
