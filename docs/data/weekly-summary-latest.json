@@ -10,15 +10,15 @@
   "week_end_display": "1 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-01T07:52:37.376351+00:00",
-  "prev_total": 97,
+  "generated_utc": "2026-11-01T16:26:56.895941+00:00",
+  "prev_total": 96,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
     "total": 83,
     "tier1": 48,
     "outbreaks": 0,
-    "delta": -14,
+    "delta": -13,
     "delta_pct": -14
   },
   "leading_pathogen": {

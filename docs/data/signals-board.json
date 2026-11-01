@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-11-01T04:27:04+00:00",
+  "generated_utc": "2026-11-01T16:26:58+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -743,9 +743,9 @@
     21,
     32
    ],
-   "c1": -0.57,
+   "c1": -0.56,
    "c2": 0.07,
-   "c3": 0.73,
+   "c3": 0.53,
    "share_observed": 0.2188,
    "share_baseline": 0.3103,
    "p_share": 0.982403,
@@ -761,7 +761,7 @@
     22,
     21,
     32,
-    29,
+    28,
     21,
     21
    ],
@@ -1974,19 +1974,6 @@
    "parent_key": "region::Listeria monocytogenes::Europe"
   },
   {
-   "label": "Listeria monocytogenes · United Kingdom",
-   "stratum_key": "country::Listeria monocytogenes::Europe::United Kingdom",
-   "level": "country",
-   "pathogen": "Listeria monocytogenes",
-   "region": "Europe",
-   "country": "United Kingdom",
-   "tier": null,
-   "observed": 2,
-   "baseline_mean": 0.43,
-   "baseline_nonzero": 3,
-   "parent_key": "region::Listeria monocytogenes::Europe"
-  },
-  {
    "label": "Salmonella · Netherlands",
    "stratum_key": "country::Salmonella::Europe::Netherlands",
    "level": "country",
@@ -2481,6 +2468,19 @@
    "parent_key": "region::Listeria monocytogenes::Europe"
   },
   {
+   "label": "Listeria monocytogenes · Ireland",
+   "stratum_key": "country::Listeria monocytogenes::Europe::Ireland",
+   "level": "country",
+   "pathogen": "Listeria monocytogenes",
+   "region": "Europe",
+   "country": "Ireland",
+   "tier": null,
+   "observed": 1,
+   "baseline_mean": 0.71,
+   "baseline_nonzero": 4,
+   "parent_key": "region::Listeria monocytogenes::Europe"
+  },
+  {
    "label": "Listeria monocytogenes · Norway",
    "stratum_key": "country::Listeria monocytogenes::Europe::Norway",
    "level": "country",
@@ -2500,6 +2500,19 @@
    "pathogen": "Listeria monocytogenes",
    "region": "Europe",
    "country": "Poland",
+   "tier": null,
+   "observed": 1,
+   "baseline_mean": 0.43,
+   "baseline_nonzero": 3,
+   "parent_key": "region::Listeria monocytogenes::Europe"
+  },
+  {
+   "label": "Listeria monocytogenes · United Kingdom",
+   "stratum_key": "country::Listeria monocytogenes::Europe::United Kingdom",
+   "level": "country",
+   "pathogen": "Listeria monocytogenes",
+   "region": "Europe",
+   "country": "United Kingdom",
    "tier": null,
    "observed": 1,
    "baseline_mean": 0.43,
@@ -4068,7 +4081,7 @@
    "week": "2026-10-05/2026-10-11",
    "week_start": "2026-10-05",
    "week_end": "2026-10-11",
-   "corpus_total": 91,
+   "corpus_total": 90,
    "alarms": [
     {
      "label": "Salmonella · Europe",
@@ -4076,18 +4089,7 @@
      "observed": 23,
      "baseline_mean": 15.14,
      "effect": 1.52,
-     "p_value": 0.319874,
-     "fdr_pass": false,
-     "fdr_status": "not-applicable",
-     "dominant_source": "RASFF (EU)"
-    },
-    {
-     "label": "Salmonella · global",
-     "channel": "count-only",
-     "observed": 29,
-     "baseline_mean": 20.43,
-     "effect": 1.42,
-     "p_value": 0.442339,
+     "p_value": 0.299258,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "RASFF (EU)"
@@ -4319,7 +4321,7 @@
    },
    {
     "week": "2026-10-05/2026-10-11",
-    "total": 91
+    "total": 90
    },
    {
     "week": "2026-10-12/2026-10-18",
@@ -4397,14 +4399,14 @@
     "base_share": 0.0172
    },
    {
-    "source": "FSA (UK)",
-    "now": 3,
-    "now_share": 0.0312,
+    "source": "CAA (JP)",
+    "now": 2,
+    "now_share": 0.0208,
     "base_mean": 1.0,
     "base_share": 0.0151
    },
    {
-    "source": "CAA (JP)",
+    "source": "FSA (UK)",
     "now": 2,
     "now_share": 0.0208,
     "base_mean": 1.0,
