@@ -5,14 +5,14 @@ Every incident below links to the originating regulatory notice.
 
 1. 07 OCT · C. botulinum · Le Grand'Joie (Eddy Gaspoz) — Switzerland · BLV (CH)
    https://www.recallswiss.admin.ch/customer-access/#Recalls/1148
-2. 21 OCT · Listeria · SuperValu and Centra — United Kingdom · FSA (UK)
-   https://alerts.food.gov.uk/article/6946/SuperValu-and-Centra-recall-salmon-and-prawn-cocktail-products-because-of-contamination-with-Listeria-monocytogenes
-3. 09 OCT · E. coli O26:H11 · Sierra Nevada Graziers — United States · FDA
+2. 09 OCT · E. coli O26:H11 · Sierra Nevada Graziers — United States · FDA
    https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o26h11-raw-milk-cheese-september-2026
-4. 19 OCT · Salmonella · Little Wicomico Oyster Company — United States · FDA
+3. 19 OCT · Salmonella · Little Wicomico Oyster Company — United States · FDA
    https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia
-5. 10 OCT · Salmonella · Yasensvit Ltd — United Kingdom · FSA (UK)
+4. 10 OCT · Salmonella · Yasensvit Ltd — United Kingdom · FSA (UK)
    https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026
+5. 27 OCT · C. botulinum · Haifa Smoked Fish — United States · FDA
+   https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/haifa-smoked-fish-recalls-cold-smoked-sprats-due-potential-health-risk
 6. 23 OCT · C. botulinum · D&M Smoked Fish Inc. (dba Haifa Smoked Fish, Inc.) — United States · FDA
    https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc
 7. 22 OCT · C. botulinum · EARL Cucuillere Le Cochon du Madres — France · RappelConso (FR)
