@@ -1,0 +1,30 @@
+AFTS Food Safety Intelligence System — OCTOBER 2026
+Top 10 critical incidents · 01 OCT – 31 OCT 2026
+
+Every incident below links to the originating regulatory notice.
+
+1. 07 OCT · C. botulinum · Le Grand'Joie (Eddy Gaspoz) — Switzerland · BLV (CH)
+   https://www.recallswiss.admin.ch/customer-access/#Recalls/1148
+2. 21 OCT · Listeria · SuperValu and Centra — United Kingdom · FSA (UK)
+   https://alerts.food.gov.uk/article/6946/SuperValu-and-Centra-recall-salmon-and-prawn-cocktail-products-because-of-contamination-with-Listeria-monocytogenes
+3. 09 OCT · E. coli O26:H11 · Sierra Nevada Graziers — United States · FDA
+   https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-e-coli-o26h11-raw-milk-cheese-september-2026
+4. 19 OCT · Salmonella · Little Wicomico Oyster Company — United States · FDA
+   https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia
+5. 10 OCT · Salmonella · Yasensvit Ltd — United Kingdom · FSA (UK)
+   https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026
+6. 23 OCT · C. botulinum · D&M Smoked Fish Inc. (dba Haifa Smoked Fish, Inc.) — United States · FDA
+   https://www.fda.gov/food/alerts-advisories-safety-information/fda-advises-not-eat-sell-or-serve-cold-smoked-sprats-sold-haifa-smoked-fish-inc
+7. 22 OCT · C. botulinum · EARL Cucuillere Le Cochon du Madres — France · RappelConso (FR)
+   https://rappel.conso.gouv.fr/fiche-rappel/23879/Interne
+8. 22 OCT · B. toxin · Brezzi Oliviero Tartufi — Italy · Ministero della Salute (IT)
+   https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20di%20richiamo%20modello%20ministero%20LOTTO%20596_1792593268.pdf
+9. 16 OCT · C. botulinum · RASFF notification — Italy · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/880121
+10. 05 OCT · C. botulinum · RASFF notification — Spain · RASFF (EU)
+   https://webgate.ec.europa.eu/rasff-window/screen/notification/877437
+
+Full month, all records and methodology:
+https://fsis.advfood.tech
+
+#foodsafety #foodrecall #HACCP #foodmanufacturing #qualityassurance
