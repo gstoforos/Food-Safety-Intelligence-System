@@ -1,0 +1,682 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261102T074357Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856744",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in chicken thighs from Poland.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "046d576744af57a7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22921/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x20",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "05d878c67fd97538"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/22920/Interne",
+          "quote": "2026-07-21 RappelConso (FR) Fresh eggs x30",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "21556696b1f3ff08"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f6752708e868fcfe"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs, from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865552",
+          "quote": "2026-08-12 RASFF (EU) Salmonella Enteritidis in eggs from Belgium",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "2b8007620ea08825"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865136",
+          "quote": "2026-08-18 RASFF (EU) Stwierdzenie obecności Salmonella Enteritidis w filecie  z piersi kurczaka,  pochodzącego ",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "7c2a0afdfb684672"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/867387",
+          "quote": "2026-08-20 RASFF (EU) Salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "c910868ed7c70614"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23359/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Pumpkin seeds",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "0be76594554d7637"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23360/Interne",
+          "quote": "2026-08-28 RappelConso (FR) Mixes containing pumpkin seeds; mélange sportif; mélange babylone; mélange spécial salade ",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "072958d6ea2de867"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870022",
+          "quote": "2026-09-01 RASFF (EU) Presence of Salmonella enteritidis in pumpkin seeds from France",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "9b2ed0ea40ad0c28"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs, from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "bf459ba4242eab92"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872669",
+          "quote": "2026-09-14 RASFF (EU) Salmonella Enteritidis in frozen duck from Poland",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "09eb8724b4fc734c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872569",
+          "quote": "2026-09-15 RASFF (EU) riscontro salmonella typhimurium, enteritidis  e salmonella spp in carne di pollame origin",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "cff9e048c47da4a3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501",
+          "quote": "2026-09-30 RASFF (EU) Salmonella Enteritidis in fresh turkey meat from Poland",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "d27aed2c62438fad"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs, from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877497",
+          "quote": "2026-10-08 RASFF (EU) Salmonella enteritidis in eggs from Spain",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "4ee64522a8de98f8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs, from, ukraine. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-fafa-03-2026",
+          "quote": "2026-10-10 FSA (UK) Raw shell-on eggs from Ukraine (Yasensvit Ltd, Kyiv), product code 3UA1012066",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "21b22e590b1e312d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879047"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms from. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879047",
+          "quote": "2026-10-12 RASFF (EU) Salmonella Enteritidis in frozen chicken gyros from Greece",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "b6320979f3242194"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879407"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/879407",
+          "quote": "2026-10-13 RASFF (EU) Suspicion of salmonella Enteritidis in eggs",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "acd6da95fd2e9840"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/MODELLO%20DI%20RICHIAMO_LATTERIA%20CHIURO_UOVA_1793288078.pdf"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis; food terms eggs. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/MODELLO%20DI%20RICHIAMO_LATTERIA%20CHIURO_UOVA_1793288078.pdf",
+          "quote": "2026-10-30 Ministero della Salute (IT) Eggs",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "578745367860f177"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856904",
+          "quote": "2026-07-06 RASFF (EU) Salmonella enteritidis in frozen chicken pieces",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "46241875601148a0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856821",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Enteritidis detected (4 out of 5 samples) in sliced chicken breast fillets, Pol",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "f950d435144aa019"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/856928",
+          "quote": "2026-07-07 RASFF (EU) Salmonella Infantis (in 4 out of 5 units) and Salmonella Enteritidis (in 1 out of 5 units)",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "12eb09bfe2c62050"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859223",
+          "quote": "2026-07-16 RASFF (EU) Salmonella Enteritidis detected (1 out of 5 samples) in chicken drumsticks",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "94a01c95238d6866"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865997",
+          "quote": "2026-08-13 RASFF (EU) Salmonella Enteritidis detected (5 out of 5 samples) in boneless, skinless chicken thighs.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "27974bd67b843ca5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; serotype salmonella enteritidis. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/uk-links-illnesses-in-2025-and-2026-to-eggs-from-ukraine",
+          "quote": "There were 78 confirmed cases with sample dates between Dec. 17, 2024, and Sept. 26, 2026.",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-11-02T07:43:57+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "ddb940e2ffe04c4d"
+    }
+  ]
+}
