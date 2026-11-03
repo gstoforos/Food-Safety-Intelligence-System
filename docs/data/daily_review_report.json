@@ -1,10 +1,10 @@
 {
-  "generated": "2026-10-31T13:22:54+02:00",
-  "date": "2026-10-31",
+  "generated": "2026-11-03T15:11:13+02:00",
+  "date": "2026-11-03",
   "mode": "live",
-  "in_progress_week": "W44",
+  "in_progress_week": "W45",
   "counts": {
-    "recalls_rows": 2267,
+    "recalls_rows": 2276,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
@@ -459,11 +459,13 @@
       "W36",
       "W37",
       "W39",
-      "W40"
+      "W40",
+      "W44"
     ],
     "monthlies": [
       "M08",
-      "M09"
+      "M09",
+      "M10"
     ]
   },
   "rebuilt": {
@@ -474,7 +476,8 @@
       "W36",
       "W37",
       "W39",
-      "W40"
+      "W40",
+      "W44"
     ],
     "monthlies": []
   }
