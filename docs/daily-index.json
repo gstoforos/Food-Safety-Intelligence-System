@@ -1,13 +1,24 @@
 {
   "entries": [
     {
+      "date": "2026-11-02",
+      "url": "daily/2026-11-02.html",
+      "total": 3,
+      "tier1": 1,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 3
+      },
+      "generated": "2026-11-03T08:12:02Z"
+    },
+    {
       "date": "2026-11-01",
       "url": "daily/2026-11-01.html",
       "total": 0,
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-11-02T08:12:37Z"
+      "generated": "2026-11-03T08:12:04Z"
     },
     {
       "date": "2026-10-31",
@@ -16,7 +27,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-11-02T08:12:39Z"
+      "generated": "2026-11-03T08:12:06Z"
     },
     {
       "date": "2026-10-30",
@@ -29,21 +40,21 @@
         "North America": 1,
         "Oceania": 1
       },
-      "generated": "2026-11-02T08:12:41Z"
+      "generated": "2026-11-03T08:12:08Z"
     },
     {
       "date": "2026-10-29",
       "url": "daily/2026-10-29.html",
-      "total": 24,
-      "tier1": 15,
+      "total": 25,
+      "tier1": 16,
       "outbreak": 0,
       "by_region": {
-        "Europe": 19,
+        "Europe": 20,
         "North America": 2,
         "Latin America": 2,
         "Asia": 1
       },
-      "generated": "2026-11-02T08:12:43Z"
+      "generated": "2026-11-03T08:12:09Z"
     },
     {
       "date": "2026-10-28",
@@ -57,7 +68,7 @@
         "Asia": 1,
         "Latin America": 1
       },
-      "generated": "2026-11-02T08:12:44Z"
+      "generated": "2026-11-03T08:12:11Z"
     },
     {
       "date": "2026-10-27",
@@ -70,19 +81,7 @@
         "Middle East": 1,
         "North America": 1
       },
-      "generated": "2026-11-02T08:12:46Z"
-    },
-    {
-      "date": "2026-10-26",
-      "url": "daily/2026-10-26.html",
-      "total": 18,
-      "tier1": 7,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 14,
-        "Asia": 4
-      },
-      "generated": "2026-11-02T08:12:47Z"
+      "generated": "2026-11-03T08:12:13Z"
     }
   ]
 }
