@@ -1,6 +1,6 @@
 {
   "week_end": "2026-11-08",
-  "generated_utc": "2026-11-03T14:26:45+00:00",
+  "generated_utc": "2026-11-03T20:57:10+00:00",
   "row_count": 365,
   "tier1_count": 11,
   "outbreak_count": 2,
@@ -4702,8 +4702,8 @@
       "LastChecked": "",
       "Week_Added": "2026-11-08",
       "RejectedBy": "gap_finder/it/rules.py",
-      "RejectionReason": "unknown: No matching hazard category — defer to manual review.",
-      "Reviewed": "N"
+      "RejectionReason": "[SUPERSEDED 2026-11-03 — this archive row records NO reason for refusing the recall (its Notes say only where it was discovered), and the same URL is PUBLISHED in Recalls. Silence is not a verdict: the Recalls copy is what the register says. Kept as the audit trail of the original refusal.] unknown: No matching hazard category — defer to manual review.",
+      "Reviewed": "SUPERSEDED"
     },
     {
       "Date": "2026-10-28",
