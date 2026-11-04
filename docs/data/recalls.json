@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-11-03",
+  "Source": "RappelConso (FR)",
+  "Company": "Carrefour Hyper Chelles",
+  "Brand": "Unbranded",
+  "Product": "thon longe nature vendu au rayon traditionnel; thon longe mariné vendu en au rayon ls",
+  "Pathogen": "Histamine / scombrotoxin",
+  "Reason": "Presence of histamine",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23987/interne",
+  "Notes": "carrefour hyper chelles uniquement [needs cleanup: Product not in English] [confirm-agent 2026-11-04: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Product not in English]"
+ },
+ {
+  "Date": "2026-11-03",
+  "Source": "RappelConso (FR)",
+  "Company": "Salaison Premier Plateau",
+  "Brand": "Salaison Premier Plateau",
+  "Product": "5110026 - saucisse de morteau cuite igp france 300g*1 - ls pf; 5110028 - saucisse de morteau cuite igp france 300g*1 ls pv",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of listéria monocytogènes",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23988/interne",
+  "Notes": "scapalsace; itm epenotte dole [needs cleanup: Product not in English] [confirm-agent 2026-11-04: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Product not in English]"
+ },
+ {
   "Date": "2026-11-02",
   "Source": "RappelConso (FR)",
   "Company": "Intermarché Fos sur Mer",
