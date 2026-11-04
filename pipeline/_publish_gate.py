@@ -141,7 +141,48 @@ _LANDING_PATHS = frozenset({
     "/food-alerts", "/news-and-alerts", "/avisos", "/warnungen", "/rappels",
     "/index.php/el/enimerosi/deltia-typou",
     "/en/food-alerts", "/fr/rappels", "/nl/terugroepingen",
+    # BLV's own recall board. The Swiss country config has refused this URL
+    # as an item since 2026-09-23 and its comment says exactly why —
+    # "'rappel' matched /fr/mises-en-garde-et-rappels-aliments, the BLV
+    # LANDING PAGE — which is how a row reached Recalls with Company =
+    # Brand = the page title and Product = 'aliments'" — but the fix was
+    # made in the gap finder only. The publish gate never learned it, so on
+    # 2026-11-04 a Pending row still held that URL with Company "Mises en
+    # garde et rappels" and Product "aliments", and publish_blockers()
+    # passed it: the ONLY thing keeping it out of the register was an
+    # earlier copy of the same listing sitting in Rejected, which is a
+    # coincidence of the archive and not a gate. Listed without a language
+    # segment; _landing_path_variants() below supplies /de/, /fr/ and /it/.
+    "/mises-en-garde-et-rappels-aliments",
 })
+
+
+# THE SAME LANDING PAGE IN ANOTHER LANGUAGE IS STILL A LANDING PAGE
+# (2026-11-04).
+#
+# _LANDING_PATHS is a hand-kept list of exact paths, and three of its
+# entries are already language-prefixed forms of other entries
+# ("/en/food-alerts", "/fr/rappels", "/nl/terugroepingen") — written one at
+# a time, each after a row cited that one spelling. Every multilingual
+# regulator in this register serves its board under a two-letter language
+# segment (blv.admin.ch/de|fr|it/…, favv-afsca.be/fr|nl/…,
+# recalls-rappels.canada.ca/en|fr/…), so the list can only ever hold the
+# languages that have already cost a row.
+#
+# Stripping ONE leading two-letter segment before the membership test is
+# the general statement of that defect. It is deliberately narrow: it can
+# only match a path whose remainder is ALREADY an acknowledged landing
+# page, so it never widens the rule to a notice slug. Measured on the
+# 2026-11-04 register: it refuses nothing that is published.
+_LANG_SEGMENT = re.compile(r"^/[a-z]{2}(?=/)")
+
+
+def _is_landing_path(path: str) -> bool:
+    """True when `path` is a regulator board, in any of its languages."""
+    if path in _LANDING_PATHS or _INDEX_PATH_PREFIX.match(path):
+        return True
+    stripped = _LANG_SEGMENT.sub("", path, count=1)
+    return stripped != path and stripped in _LANDING_PATHS
 
 # A CMS INDEX PATH IS A LANDING PAGE WHATEVER IT INDEXES (2026-10-04).
 #
@@ -1684,7 +1725,7 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
             after_host = tail.split("://", 1)[-1]
             path = ("/" + after_host.split("/", 1)[1]) if "/" in after_host else ""
             path = path.rstrip("/").lower()
-            if path in _LANDING_PATHS or _INDEX_PATH_PREFIX.match(path):
+            if _is_landing_path(path):
                 problems.append(
                     f"URL is a regulator landing page, not a recall notice "
                     f"({url[:80]!r})")

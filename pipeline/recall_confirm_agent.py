@@ -174,6 +174,68 @@ def _norm_url(u: Any) -> str:
     return u
 
 
+#: The three "[needs cleanup: …]" stamps this agent writes, and the Reason
+#: variant it writes when no verified translation is on file.
+_PRODUCT_STAMP = "[needs cleanup: Product not in English]"
+_FIRM_STAMP = "[needs cleanup: Company/Brand not in English]"
+_REASON_STAMP = ("[needs cleanup: Reason not in English and no verified "
+                 "translation on file]")
+
+
+def language_cleanup_stamps(row: Dict[str, Any], existing: str,
+                            reason_untranslated: bool = False) -> str:
+    """The "[needs cleanup: …]" text to append to `row`'s Notes, or "".
+
+    IDEMPOTENT, WHICH IT WAS NOT (fix 2026-11-04). The three stamping lines
+    this replaces were bare `stamp += " [needs cleanup: …]"` inside main(),
+    appended to a fragment that is then glued onto the row's existing Notes
+    without either side looking at the other. So a row stamped once by
+    pipeline/merge_master._write_sheet or by
+    pipeline/promote_gate_passing.stamp_language_cleanup — both of which DO
+    guard (`if _stamp not in _notes`) — collected a second copy the moment
+    this agent touched it.
+
+    MEASURED on main at 8eefd23e, 2026-11-04. Both rows this agent
+    published that morning, RappelConso fiches 23987 and 23988:
+
+        "carrefour hyper chelles uniquement
+         [needs cleanup: Product not in English]
+         [confirm-agent 2026-11-04: pending → pending; deterministic checks
+          passed; reviewer 2 did NOT review this row]
+         [needs cleanup: Product not in English]"
+
+    and the same pair of copies on their Weekly_Review mirror — four rows,
+    holding tests/test_cleanup_stamps_are_idempotent.py RED on main for
+    both sheets. The cost is the one promote_gate_passing's own note names:
+    the morning pass discharges a stamp by REMOVING it, so a second copy
+    left behind makes a translated row look untranslated the next morning,
+    and several writers cap Notes at 300 characters, so the duplicate
+    evicts the provenance the row exists to carry.
+
+    `existing` is everything already destined for the row's Notes — the
+    stored Notes plus whatever this run has appended so far — so passing
+    `n + stamp` is what makes the guard complete.
+    """
+    from pipeline._language import (has_non_latin_script,
+                                    product_needs_english)
+
+    seen = str(existing or "")
+    out: List[str] = []
+
+    def _add(stamp: str) -> None:
+        if stamp not in seen and stamp not in out:
+            out.append(stamp)
+
+    if reason_untranslated:
+        _add(_REASON_STAMP)
+    if product_needs_english(row.get("Product", "")):
+        _add(_PRODUCT_STAMP)
+    if any(has_non_latin_script(row.get(f, ""))
+           for f in ("Company", "Brand")):
+        _add(_FIRM_STAMP)
+    return ("" if not out else " " + " ".join(out))
+
+
 def needs_strict_provenance(row: Dict[str, Any]) -> bool:
     """True when this row's URL has never been checked by anything but a model.
 
@@ -647,6 +709,7 @@ def main() -> int:
         # translated. pipeline._language.englishify_reason is a table of
         # verified translations that never invents: apply it here, and when
         # it has no entry, stamp the row so the weekly review sees it.
+        _reason_untranslated = False
         try:
             from pipeline._language import englishify_reason, looks_non_english
             before = str(full_pending[idx].get("Reason", "") or "")
@@ -655,22 +718,22 @@ def main() -> int:
                 full_pending[idx]["Reason"] = after
                 stamp += f" [reason translated: \"{before[:80]}\"]"
             elif looks_non_english(before):
-                stamp += " [needs cleanup: Reason not in English and no verified translation on file]"
+                _reason_untranslated = True
         except Exception:                                    # noqa: BLE001
             pass
         # Product and firm names are English too (operator 2026-10-01). This
         # gate uses no model, so it cannot translate: it stamps the row and
         # the daily Morning Fix pass translates it, keeping the original in
         # Notes. Never a rejection — see pipeline/_language.py.
+        #
+        # Stamped through language_cleanup_stamps(), which is given
+        # everything already headed for this row's Notes (`n + stamp`) and
+        # skips a stamp that is already there. The three lines that used to
+        # live here appended unconditionally; see that function's docstring
+        # for the four rows it duplicated on 2026-11-04.
         try:
-            from pipeline._language import (has_non_latin_script,
-                                            product_needs_english)
-            _r = full_pending[idx]
-            if product_needs_english(_r.get("Product", "")):
-                stamp += " [needs cleanup: Product not in English]"
-            if any(has_non_latin_script(_r.get(f, ""))
-                   for f in ("Company", "Brand")):
-                stamp += " [needs cleanup: Company/Brand not in English]"
+            stamp += language_cleanup_stamps(full_pending[idx], n + stamp,
+                                             _reason_untranslated)
         except Exception:                                    # noqa: BLE001
             pass
         full_pending[idx]["Notes"] = (n + stamp).strip()[:1000]
