@@ -182,10 +182,24 @@ def test_the_count_of_affected_live_rows_is_known(sheet):
     Product again and the source fix regressed. If it fails with a LOWER
     count, the six were repaired or removed — lower the number and say which
     in the commit message.
+
+    6 -> 5 on 2026-11-04. The morning fix pass repaired fiche 22320, whose
+    Product was "Lot g22014; barcode 6936489101348": the fiche served its
+    own page to that pass and names the food, "CENDAWAN ENOKI, ENOKI
+    MUSHROOM (champignons ENOKI)", brand "GREEN BOX Limited", Listeria
+    monocytogenes, published 20/05/2026. The lot and barcode are kept, now
+    after a food name, and the original is in that row's Notes.
+
+    THE FIVE THAT REMAIN ARE STILL NOT REPAIRABLE FROM HERE. Fiches 22886
+    and 22715 were tried the same morning and both served the site's
+    generic all-categories listing instead of the fiche, so their
+    Dénomination could not be read; 22705, 22680 and 22406 were not
+    re-tried. A Product written from anything but the fiche's own heading
+    would be invented, which is the one thing this register does not do.
     """
     if openpyxl is None or not XLSX.exists():               # pragma: no cover
         pytest.skip("no workbook")
-    expected = {"Recalls": 6, "Pending": 0, "Weekly_Review": 0}[sheet]
+    expected = {"Recalls": 5, "Pending": 0, "Weekly_Review": 0}[sheet]
     wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
     if sheet not in wb.sheetnames:                          # pragma: no cover
         wb.close()

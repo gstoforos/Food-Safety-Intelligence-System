@@ -144,25 +144,121 @@ def test_every_stamping_writer_checks_before_appending():
     writers did not have. A reader of either file should not have to take
     that on trust, and the next writer added should not be able to
     reintroduce it quietly.
+
+    WIDENED 2026-11-04 — THIS CHECK HAD A HOLE THE SIZE OF THE DEFECT.
+    It matched only an append to a `["Notes"]` subscript. The third writer,
+    pipeline/recall_confirm_agent.py, has never appended to `["Notes"]`: it
+    builds a `stamp` fragment with
+
+        stamp += " [needs cleanup: Product not in English]"
+
+    and glues `n + stamp` onto the row at the end, so neither side ever
+    looked at the other and the regex saw nothing. It duplicated the stamp
+    on both rows it published on 2026-11-04 (RappelConso fiches 23987 and
+    23988) and on their Weekly_Review mirrors, with this test green.
+
+    The accumulator is the shape to forbid, not the subscript: any `+=` of
+    a string literal containing a cleanup stamp is unguarded by
+    construction, because `+=` cannot consult what it is appending to.
+
+    Read with `ast`, not with a regex over lines. Both guarded writers
+    document the defect by QUOTING the line they removed, in a comment or a
+    docstring, and a line-based check cannot tell a quotation of the bug
+    from the bug — the first draft of this widened check flagged its own
+    fix's docstring. An AugAssign node is the defect itself.
     """
+    import ast
+
     root = Path(__file__).resolve().parents[1]
-    bare = re.compile(
-        r"""\[\s*"Notes"\s*\]\s*\+=\s*["'][^"']*needs cleanup""")
     offenders = []
-    for path in sorted((root / "pipeline").rglob("*.py")):
-        text = path.read_text(encoding="utf-8", errors="replace")
-        for n, line in enumerate(text.splitlines(), start=1):
-            # Comments describing the defect are not the defect. The note in
-            # promote_gate_passing.stamp_language_cleanup quotes the old
-            # line verbatim, which is exactly what it should do.
-            if line.lstrip().startswith("#"):
+    for folder in ("pipeline", "tools"):
+        for path in sorted((root / folder).rglob("*.py")):
+            # One-off repair scripts are a dated record of a hand fix, not a
+            # writer in the pipeline; they are never run twice.
+            if path.name.startswith(("repair_", "fix_")):
                 continue
-            if bare.search(line):
-                offenders.append(f"{path.relative_to(root)}:{n}: "
-                                 f"{line.strip()[:90]}")
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8",
+                                                errors="replace"))
+            except SyntaxError:                             # pragma: no cover
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.AugAssign):
+                    continue
+                if not isinstance(node.op, ast.Add):
+                    continue
+                for sub in ast.walk(node.value):
+                    if (isinstance(sub, ast.Constant)
+                            and isinstance(sub.value, str)
+                            and "needs cleanup" in sub.value):
+                        offenders.append(
+                            f"{path.relative_to(root)}:{node.lineno}: "
+                            f"+= {sub.value.strip()[:70]!r}")
+                        break
     assert not offenders, (
         "a cleanup stamp is appended without checking whether it is already "
         "there:\n  " + "\n  ".join(offenders)
-        + "\n\nUse a guarded helper, as promote_gate_passing._stamp_once "
-          "and merge_master._write_sheet do."
+        + "\n\nUse a guarded helper, as promote_gate_passing._stamp_once, "
+          "recall_confirm_agent.language_cleanup_stamps and "
+          "merge_master._write_sheet do."
     )
+
+
+# ---------------------------------------------------------------------------
+# Reviewer 3 — the writer the check above could not see (2026-11-04)
+# ---------------------------------------------------------------------------
+
+def test_reviewer_three_does_not_re_stamp_a_row_the_merge_already_stamped():
+    """The live case, exactly: fiche 23987 as it reached the confirmer.
+
+    merge_master._write_sheet stamps the row at the hourly Pending->Recalls
+    merge; the confirm agent then publishes it. Both stamps are the same
+    string, and the row must end with one.
+    """
+    from pipeline.recall_confirm_agent import language_cleanup_stamps
+
+    row = {
+        "Date": "2026-11-03", "Source": "RappelConso (FR)",
+        "Company": "Carrefour Hyper Chelles", "Brand": "Unbranded",
+        "Product": "thon longe nature vendu au rayon traditionnel; "
+                   "thon longe mariné vendu en au rayon ls",
+        "Pathogen": "Histamine / scombrotoxin",
+        "Reason": "Presence of histamine",
+        "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23987/interne",
+    }
+    already = ("carrefour hyper chelles uniquement "
+               "[needs cleanup: Product not in English]")
+    assert language_cleanup_stamps(row, already) == "", (
+        "the stamp is already on the row — appending a second copy is the "
+        "defect this function exists to stop")
+
+    # And on an unstamped row it must still stamp, once.
+    fresh = language_cleanup_stamps(row, "carrefour hyper chelles uniquement")
+    assert fresh.count("[needs cleanup: Product not in English]") == 1, fresh
+
+
+def test_reviewer_three_stamps_once_across_two_passes():
+    """Called twice with its own output folded in, as main() does."""
+    from pipeline.recall_confirm_agent import language_cleanup_stamps
+
+    row = {
+        "Product": "saucisse de morteau cuite igp france 300g",
+        "Company": "ヤマザキ製パン",
+        "Brand": "",
+        "Reason": "Présence de listéria monocytogènes",
+        "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23988/interne",
+    }
+    notes = "scapalsace; itm epenotte dole"
+    stamp = language_cleanup_stamps(row, notes, reason_untranslated=True)
+    stamp += language_cleanup_stamps(row, notes + stamp,
+                                     reason_untranslated=True)
+    for s in STAMPS + (
+            "[needs cleanup: Reason not in English and no verified "
+            "translation on file]",):
+        assert stamp.count(s) <= 1, (
+            f"{s} appears {stamp.count(s)} times after two passes through "
+            f"reviewer 3:\n  {stamp}")
+    # The row really does trip all three, so the test above is not vacuous.
+    assert "[needs cleanup: Product not in English]" in stamp
+    assert "[needs cleanup: Company/Brand not in English]" in stamp
+    assert "Reason not in English and no verified translation" in stamp
