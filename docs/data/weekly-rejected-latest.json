@@ -1,6 +1,6 @@
 {
   "week_end": "2026-11-08",
-  "generated_utc": "2026-11-04T04:26:55+00:00",
+  "generated_utc": "2026-11-04T14:26:53+00:00",
   "row_count": 365,
   "tier1_count": 11,
   "outbreak_count": 2,
@@ -188,13 +188,13 @@
       "Tier": 1,
       "Outbreak": 0,
       "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5390-deltio-typou-anaklisi-biftekioy-kotopoulou-logo-parousias-salmonella-spp",
-      "Notes": "REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and the cited page does not exist (http_404) — the regulator publishes no such notice at this URL | Discovered via news: kathimerini.gr [locality: Athens] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [safety-hold: reviewed but not approved this run; not promoted] [url-guard 2026-11-01: reviewer 2 tried to reject this row as 'field integrity: the cited page does not exist (http_404) — the regulator publishes no such notice at this URL'; refused — the row already carries an official regulator URL (https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5390-deltio-typou-anaklisi-bifte Left in Pending for a later run.]",
+      "Notes": "REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and the cited page does not exist (http_404) — the regulator publishes no such notice at this URL | Discovered via news: kathimerini.gr [locality: Athens] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [safety-hold: reviewed but not approved this run; not promoted] [url-guard 2026-11-01: reviewer 2 tried to reject this row as 'field integrity: the cited page does not exist (http_404) — the regulator publishes no such notice at this URL'; refused — the row already carries an official regulator URL (https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5390-deltio-typou-anaklisi-bifte Left in Pending for a later run.] [morning fix pass 2026-11-04: RejectionReason restated, from the confirmer's reachability wording to the content verdict that actually disqualifies this row. NOTHING IS LOST — the original wording is preserved verbatim in these Notes above (\"REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and the cited page does not exist (http_404) — the regulator publishes no such notice at this URL\"). WHY: pipeline/_url_guard.reject_refusal reads that wording as a statement about REACHABILITY, which it is, so this row counted as thrown away on a fetch failure while holding a URL on efet.gr and passing every publish-gate rule — tests/test_a_reachability_refusal_is_not_a_verdict was RED on it and its remedy is to publish. It must not be published as it stands: \"FarmakeioAthens.com\" is not a chicken processor, and that defect is readable from the row itself. THE RECALL IS REAL AND IS NOT IN THE REGISTER: Greek press of 22 October 2026 (iefimerida.gr, athensvoice.gr, libre.gr, alfavita.gr) reports EFET recalling \"ΜΠΙΦΤΕΚΙ ΚΟΤΟΠΟΥΛΟ HAMBURGER (κατεψυγμένο)\", 850 g, lot 15626, producer \"ΜΕΑΤΚΑ Α.Ε.\", after Salmonella spp. was found. That is NEWS — discovery only — so not one word of it is written into a published field; it is recorded here as a lead for the EFET scraper, which can read efet.gr. efet.gr returns a client error to this sandbox, so the per-recall URL could not be confirmed from here.]",
       "DateAdded": "",
       "LastUpdated": "",
       "LastChecked": "",
       "Week_Added": "2026-11-08",
       "RejectedBy": "unknown",
-      "RejectionReason": "Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and the cited page does not exist (http_404) — the regulator publishes no such notice at this URL",
+      "RejectionReason": "field integrity: Company \"FarmakeioAthens.com\" is a website domain, not the recalling firm — a news-page artefact of the kind pipeline/recall_review_agent._field_integrity_flags exists to refuse — and Product \"Chicken breast\" does not name what this EFET notice recalled. A verdict on the row's own CONTENT, which is the real reason this copy cannot publish.",
       "Reviewed": "N"
     },
     {
