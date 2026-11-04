@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-11-03 (Athens)
+# FSIS Daily Review — 2026-11-04 (Athens)
 
-Mode: **live** · generated 2026-11-03T15:11:13+02:00
-Recalls rows reviewed: **2276** · in-progress week (never published): **W45**
+Mode: **live** · generated 2026-11-04T15:25:59+02:00
+Recalls rows reviewed: **2279** · in-progress week (never published): **W45**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -85,7 +85,7 @@ Recalls rows reviewed: **2276** · in-progress week (never published): **W45**
   - id `29c0d765f326ca61` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W06, W26, W34, W36, W37, W39, W40, W44
+- Weeklies: W06, W26, W34, W36, W37, W39, W40
 - Monthlies: M08, M09, M10
 
 ## 5. Asset / deliverable integrity
