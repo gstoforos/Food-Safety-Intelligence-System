@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-11-04",
+  "Source": "RappelConso (FR)",
+  "Company": "Baymar",
+  "Brand": "Baymar",
+  "Product": "baymar",
+  "Pathogen": "Salmonella",
+  "Reason": "Detection of Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23996/interne",
+  "Notes": "boucherie baymar; 8 rue du travail 67000 strasbourg [confirm-agent 2026-11-05: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
+  "Date": "2026-11-04",
+  "Source": "RappelConso (FR)",
+  "Company": "Leclerc Langon",
+  "Brand": "Leclerc Langon",
+  "Product": "tranches de truite fumée",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Contamination à la Listeria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24008/interne",
+  "Notes": "leclerc langon [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [confirm-agent 2026-11-05: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file]"
+ },
+ {
   "Date": "2026-11-03",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour Hyper Chelles",
