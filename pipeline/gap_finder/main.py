@@ -305,6 +305,62 @@ def dedupe_by_recall_identity(rows: list[dict]) -> tuple[list[dict], int]:
     return deduped, len(rows) - len(deduped)
 
 
+def refuse_stale_alert_numbers(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    """(keep, refused) — a row whose alert number names another year.
+
+    THE GATE THE GAP FINDERS DO NOT USE (2026-11-06)
+    ------------------------------------------------
+    ``pipeline.merge_master.validate_pending_row`` has refused this shape
+    since 2026-10-24, and its own comment there says why it was added:
+
+        "the Nigeria gap finder re-queued that one May-2022 alert into
+         Pending again and again — already archived three times — where it
+         sat with Date 2026-10-23 holding
+         tests/test_alert_number_year_matches_date[Pending] red. Imported
+         rather than copied so the two gates cannot drift"
+
+    The rule was put in the wrong doorway. ``write_pending_rows`` below is
+    how every gap finder reaches Pending, and it calls neither
+    ``validate_pending_row`` nor anything else in merge_master — its only
+    test is "is this URL already in Pending or Recalls". So the fix of
+    2026-10-24 could never apply to the collector it was written for, and
+    on the morning of 2026-11-06 the SAME test was red again with THREE
+    NAFDAC rows, all three written to Pending by the Nigeria gap finder at
+    18:44-18:46 the evening before:
+
+        2026-11-03  public-alert-no-014-2020  Liqui Fruit Red Grape Juice
+        2026-11-01  public-alert-no-35-2025   Amoxicillin suspensions
+        2026-10-28  public-alert-no-003-2020  Hand Sanitizers
+
+    MEASURED ON THE 2026-11-06 REGISTER before wiring it in: the shape
+    appears in 0 of 2289 published Recalls rows, 0 of 15 Weekly_Review
+    rows, the 3 Pending rows above, and 38 rows that are ALREADY archived
+    (3 in Weekly_Rejected, 35 in Rejected). It therefore costs no row that
+    can be published — the publish gate refuses the shape anyway, one
+    stage later — and it ends a loop that has run since September.
+
+    Imported, not copied, for the same reason merge_master imports it.
+    """
+    try:
+        from pipeline._publish_gate import alert_number_year_mismatch
+    except ImportError:                                 # pragma: no cover
+        return list(rows), []
+    keep: list[dict] = []
+    refused: list[dict] = []
+    for r in rows:
+        why = alert_number_year_mismatch(r)
+        if why:
+            r = dict(r)
+            r["Notes"] = (str(r.get("Notes") or "").strip() +
+                          f" [gap-finder refusal "
+                          f"{datetime.now(timezone.utc).date().isoformat()}: "
+                          f"alert_number_year_mismatch — {why}]").strip()
+            refused.append(r)
+        else:
+            keep.append(r)
+    return keep, refused
+
+
 def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]:
     """Write to Pending sheet. Skip URLs already in Pending OR Recalls.
     Returns (appended, skipped_pending_dupe, skipped_recalls_dupe)."""
@@ -313,6 +369,22 @@ def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]
     if collapsed:
         print(f"  [dedup] collapsed {collapsed} duplicate-recall row(s) "
               f"→ {len(rows)} unique", file=sys.stderr)
+    # A stale alert number never reaches Pending — it is archived with the
+    # rule's own reason, so the terminal-rejection guard can see it and the
+    # loop stops. See refuse_stale_alert_numbers above.
+    rows, stale = refuse_stale_alert_numbers(rows)
+    if stale:
+        print(f"  [alert-year] refused {len(stale)} row(s) whose alert "
+              f"number names another year; archived to {REJECTED_SHEET}",
+              file=sys.stderr)
+        for r in stale:
+            print(f"    {str(r.get('Date'))[:10]} {str(r.get('URL'))[:90]}",
+                  file=sys.stderr)
+        try:
+            write_rejected_rows(stale, xlsx_path)
+        except Exception as exc:                        # pragma: no cover
+            print(f"    WARNING: could not archive them: {exc}",
+                  file=sys.stderr)
     pending_urls = _load_existing_urls(xlsx_path, PENDING_SHEET)
     recalls_urls = _load_existing_urls(xlsx_path, RECALLS_SHEET)
 
