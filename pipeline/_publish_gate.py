@@ -1393,6 +1393,112 @@ def alert_number_year_mismatch(row: Dict[str, Any]) -> Optional[str]:
     return None
 
 
+#: A NON-FOOD APPLIANCE, AND A HAZARD TO THE SOIL RATHER THAN TO THE
+#: EATER (2026-11-06).
+#:
+#: This morning the register carried, PUBLISHED, Recalls row 12:
+#:
+#:     Date      2026-11-03
+#:     Source    NKFH (HU)
+#:     Company   Adler Sp. z o. o. (Lengyelország)
+#:     Brand     Camry
+#:     Product   Electric shaver
+#:     Pathogen  Mercury (heavy metal)
+#:     Reason    Serious environmental hazard! The internal power sources
+#:               of the electric shavers contain an excessive amount of
+#:               mercury. Mercury is difficult to dissolve and can
+#:               permanently damage the soil and groundwater when the
+#:               discarded products reach the ground.
+#:     Tier      2
+#:     URL       nkfh.gov.hu/hirek/termekvisszahivas-vezetek-nelkueli-
+#:               elektromos-borotva-visszahivasa-sulyos-koernyezetvedelmi-
+#:               kockazat-miatt-1
+#:     Notes     Discovered via news: blikk.hu … [offline-enrich 2026-11-06:
+#:               Pathogen '' -> 'Mercury (heavy metal)' …] [promote
+#:               2026-11-06: … passes every publish-gate rule]
+#:
+#: A cordless electric shaver, recalled because the batteries inside it hold
+#: too much mercury to be thrown away. It is not food, the hazard is not a
+#: food hazard, and it was promoted into a food recall register this morning
+#: by pipeline.promote_gate_passing with the gate's own blessing.
+#:
+#: WHY EVERY EXISTING NON-FOOD RULE MISSED IT. There are three, and each is
+#: built for a different shape:
+#:   * rule 1 refuses an EMPTY Pathogen — which is what stopped the
+#:     passenger car and the bath toy in the 2026-08-01 audit. Here the
+#:     offline enricher FILLED Pathogen, correctly: "mercury" really is the
+#:     word on the page, and mercury in food is squarely in scope.
+#:   * _non_food_drug_blockers tests dosage forms and pharmacy firms. A
+#:     shaver is neither injected nor compounded.
+#:   * _NON_FOOD_PRODUCT_MARKERS is a hand-kept list of COSMETICS terms
+#:     ("deodorant", "shampoo", "lipstick", …), written one word at a time
+#:     after a cosmetic cost a row. No electrical appliance has ever cost a
+#:     row before, so no electrical word was on it.
+#:
+#: The general statement of the defect is that a correct hazard word does
+#: not make a food row. Two independent tests, both on the row's own text:
+#:
+#:   A. the PRODUCT is a durable consumer good. Narrow and multi-word on
+#:      purpose — bare "razor" would refuse razor CLAMS, bare "battery"
+#:      would refuse battery-farmed eggs, bare "mat" and "toy" are too
+#:      common. Every term here is either two words or unambiguous.
+#:   B. the HARM the notice names is to soil, groundwater or "the
+#:      environment" on DISPOSAL, not to the person who eats the product.
+#:      This is what separates this row from the register's genuine mercury
+#:      rows: "Mercury exceeding limit" in fish says nothing about
+#:      groundwater.
+#:
+#: MEASURED ON THE 2026-11-06 REGISTER, over all five sheets. Each list
+#: refuses exactly ONE published row — the shaver above — and nothing else
+#: in Recalls, Pending or Weekly_Review. In Rejected they also catch two
+#: rows a human had already refused by hand for being non-food: a BVL
+#: MagSafe POWERBANK (2026-09-18) and a Ministero della Salute article on
+#: end-of-life SMARTPHONES AND RAZORS (2026-10-15). So the shape recurs,
+#: and these rules agree with verdicts already on the record.
+_NON_FOOD_APPLIANCE_MARKERS = (
+    "electric shaver", "electric razor", "electric toothbrush",
+    "hair dryer", "hairdryer", "vacuum cleaner",
+    "power bank", "powerbank", "charger", "battery charger",
+    "washing machine", "dishwasher", "laptop",
+    "mobile phone", "smartphone", "e-scooter", "e-bike",
+    "bicycle helmet", "passenger car", "bath toy", "puzzle mat",
+    "plush toy", "soft toy",
+)
+_ENVIRONMENTAL_ONLY_HAZARD_MARKERS = (
+    "environmental hazard", "environmental risk", "environmental danger",
+    "groundwater", "ground water", "soil and groundwater",
+    "umweltgefahr", "umweltrisiko", "pollute the soil", "damage the soil",
+)
+
+
+def _non_food_appliance_blockers(row: Dict[str, Any]) -> List[str]:
+    """The product is a durable good, or the harm is to the environment.
+
+    Both tests read only Product, Reason and the URL slug. No network, no
+    model, no vocabulary that has to be kept in step with a regulator.
+    """
+    out: List[str] = []
+    blob = " ".join(str(row.get(k) or "") for k in ("Product", "Reason")).lower() \
+        + " " + str(row.get("URL") or "").lower().replace("-", " ")
+    for t in _NON_FOOD_APPLIANCE_MARKERS:
+        if _word_in(blob, t):
+            out.append(
+                f"the row's own text names a durable consumer good ({t!r}) "
+                f"— an appliance is not a food, however the regulator files "
+                f"it, and this is a food recall register")
+            break
+    for t in _ENVIRONMENTAL_ONLY_HAZARD_MARKERS:
+        if _word_in(blob, t):
+            out.append(
+                f"the harm this notice names is to the environment ({t!r}), "
+                f"not to the person who eats the product — a disposal "
+                f"hazard is not a food-safety hazard. AFTS scope covers a "
+                f"contaminant IN the food; mercury in a battery that will "
+                f"reach the soil is not one")
+            break
+    return out
+
+
 def _shape_blockers_2026_10_17(row: Dict[str, Any]) -> List[str]:
     out: List[str] = []
     url = str(row.get("URL") or "")
@@ -2127,6 +2233,18 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     #     "drug".
     _nonfood = _non_food_drug_blockers(row)
     problems.extend(_nonfood)
+
+    # 10b. A CORRECT HAZARD WORD DOES NOT MAKE A FOOD ROW (2026-11-06).
+    #
+    #      Rule 10 above catches the shape where the product is a medicine.
+    #      The NKFH electric shaver of 2026-11-03 is the other shape: an
+    #      appliance whose batteries hold too much mercury to throw away.
+    #      Pathogen was filled, and filled CORRECTLY — mercury is the word
+    #      on the page, and mercury in food is in scope — so rule 1's
+    #      empty-Pathogen test, the only non-food defence that stopped the
+    #      2026-08-01 passenger car and bath toy, was vacuous here. See the
+    #      measurement note above _NON_FOOD_APPLIANCE_MARKERS.
+    problems.extend(_non_food_appliance_blockers(row))
 
     # 11. SOURCE NAMES THE REGULATOR, NEVER THE MIRROR THAT SURFACED IT.
     #

@@ -66,6 +66,35 @@ RULES: Tuple[Tuple[str, str], ...] = (
     (r"ochratox|ochratoxine",                    "Ochratoxin A"),
     (r"aflatox",                                 "Aflatoxin"),
     (r"\bpatulin",                               "Patulin"),
+    # GAP FOUND 2026-11-06. RappelConso fiche 24011 (04/11/2026, CARREFOUR,
+    # "tout produit ficelé avec de la ficelle blanche vendu au rayon
+    # boucherie") sat in Pending with Pathogen empty and this enricher
+    # reported "no hazard term in the row's own text", so the publish gate
+    # held it on "Pathogen is empty" — for a recall whose Motif is "mise en
+    # évidence de bisphénol A dans certains lots de ficelle alimentaire de
+    # notre fournisseur Meyer-Sansboeuf". Bisphenol A is named in the AFTS
+    # scope rule by name, and FOUR other places in this repo already know
+    # the word: the publish gate's own chemical list, pipeline/gap_finder/
+    # rules.py, tools/alert_vocab.py (the subscriber term, since
+    # 2026-10-10) and scrapers/europe_non_eu/blv_ch.py, which maps it to
+    # the canonical spelling used here. One published row carries that
+    # spelling already — BLV (CH) 23.09.2026, Royal Orient bamboo shoots.
+    # Only this module could not read it.
+    (r"bisph[ée]nol|bisfenol|\bbpa\b",           "Bisphenol A (chemical contaminant)"),
+    # GAP FOUND 2026-11-06, the same morning and the same shape. Fiche
+    # 24026 (06/11/2026, Itafrut Tahiti limes from Brazil) states its
+    # hazard as "Dépassement des limites autorisées de pesticides" and
+    # nothing here spoke the word. Pesticide residues are in the AFTS
+    # scope rule by name and FIFTEEN published rows already carry a
+    # pesticide Pathogen, including RappelConso's own 2026-10-13 row whose
+    # spelling is the canonical one used on the right-hand side here
+    # ("Pesticide residues"); the specific-substance spellings
+    # ("Acetamiprid (pesticide residue)") are only available to a reader
+    # that knows which substance, which a generic rule cannot and must not
+    # guess. "MRL" is matched because the FSA, FSANZ and Mattilsynet word
+    # it that way.
+    (r"pesticid|\bmrl\b|maximum residue (?:limit|level)|"
+     r"plant protection product residu",         "Pesticide residues"),
     (r"\blead\b|\bplomb\b",                      "Lead (heavy metal)"),
     (r"\bcadmium\b",                             "Cadmium (heavy metal)"),
     (r"\bmercur|\bmercure\b",                    "Mercury (heavy metal)"),
