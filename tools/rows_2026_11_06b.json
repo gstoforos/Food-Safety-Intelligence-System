@@ -1,0 +1,44 @@
+[
+  {
+    "Date": "2026-11-05",
+    "Source": "BVL (DE)",
+    "Company": "Hohensteiner Hofkäserei, Firma Rauscher GbR",
+    "Brand": "Hohensteiner Hofkäserei",
+    "Product": "Raw-milk cheeses \"Vesperkaes\" and \"Bueffelkuh-Rendezvous\", batches 209 / 2009 and 259 / 2509, best before up to 17.11.2026",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes detected.",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261105_01_BW_Rohmilchkaese/261105_01_BW_Rohmilchkaese.html",
+    "Notes": "[daily-global pass 2026-11-06: missed-recall sweep. Read on the lebensmittelwarnung.de notice itself today — published 05.11.2026, Bundesland Baden-Württemberg, Hersteller \"Hohensteiner Hofkäserei, Firma Rauscher GbR, Heidäcker 1, 72531 Hohenstein\", products \"Vesperkaes\" and \"Bueffelkuh-Rendezvous\" (Rohmilchkäse), Charge 209 / 2009 and 259 / 2509, MHD bis 17.11.2026, hazard \"Listeria monocytogenes nachgewiesen\". No illnesses are stated, so Outbreak 0. The four 2026-11-05 Weekly_Rejected rows for this recall (BVL/AGES/AFSCA/NVWA, no-authority-url) came from a news article; this is the regulator's own page. Nothing added that the page does not state.] [original Reason (de): \"Listeria monocytogenes nachgewiesen\"]"
+  },
+  {
+    "Date": "2026-11-05",
+    "Source": "BVL (DE)",
+    "Company": "dennree GmbH",
+    "Brand": "dennree",
+    "Product": "dennree pine nuts, 60 g, best before 03.06.2027 (lot L CA09036) and 16.06.2027 (lot L CA09162)",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella contamination cannot be ruled out.",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261105_02_BY_Pinienkerne/261105_02_BY_Pinienkerne.html",
+    "Notes": "[daily-global pass 2026-11-06: missed-recall sweep. Read on the lebensmittelwarnung.de notice itself today — published 05.11.2026, dennree GmbH, Hofer Straße 11, 95183 Töpen, product \"dennree Pinienkerne, 60 Gramm\", MHD 03.06.2027 (L CA09036) and 16.06.2027 (L CA09162), hazard \"Belastung mit Salmonellen nicht ausgeschlossen\", all 16 Länder. No illnesses are stated, so Outbreak 0. Not the AGES (AT) Alnatura pine-nut row already published — different brand and firm. Nothing added that the page does not state.] [original Reason (de): \"Belastung mit Salmonellen nicht ausgeschlossen\"]"
+  },
+  {
+    "Date": "2026-11-05",
+    "Source": "HAH (HR)",
+    "Company": "dm-drogerie markt d.o.o. Hrvatska",
+    "Brand": "dmBio",
+    "Product": "dmBio pine nuts, 60 g, best before 31.05.2027 to 02.07.2027",
+    "Pathogen": "Salmonella",
+    "Reason": "Possible presence of Salmonella.",
+    "Class": "Recall",
+    "Country": "Croatia",
+    "Outbreak": 0,
+    "URL": "https://www.hapih.hr/opoziv-proizvoda-dmbio-pinjoli-60-g/",
+    "Notes": "[daily-global pass 2026-11-06: missed-recall sweep. Read on the HAPIH notice itself today — published 5 Nov 2026, \"dmBio pinjoli, 60 g\", supplier dm-drogerie markt d.o.o. Hrvatska, best-before 31.05.2027 to 02.07.2027, no batch number printed, hazard possible Salmonella. No illnesses are stated, so Outbreak 0. Nothing added that the page does not state.] [original product: dmBio pinjoli, 60 g]"
+  }
+]
