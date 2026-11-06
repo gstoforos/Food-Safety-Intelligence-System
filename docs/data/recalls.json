@@ -36590,5 +36590,37 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-11-05",
+  "Source": "AGES (AT)",
+  "Company": "Alnatura Produktions- und Handels GmbH",
+  "Brand": "Alnatura",
+  "Product": "Pine nuts 60g and Salad kernels mix 100g",
+  "Pathogen": "Salmonella",
+  "Reason": "Detected in a sample, can cause gastrointestinal illnesses",
+  "Class": "Recall",
+  "Country": "Austria",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": "",
+  "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/alnatura-pinienkerne-60g-und-alnatura-salatkerne-mix-100g",
+  "Notes": "Discovered via news: produktwarnung.eu [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-03",
+  "Source": "NKFH (HU)",
+  "Company": "Adler Sp. z o. o. (Lengyelország)",
+  "Brand": "Camry",
+  "Product": "Electric shaver",
+  "Pathogen": "Mercury (heavy metal)",
+  "Reason": "Serious environmental hazard! The internal power sources of the electric shavers contain an excessive amount of mercury. Mercury is difficult to dissolve and can permanently damage the soil and groundwater when the discarded products reach the ground.",
+  "Class": "Recall",
+  "Country": "Hungary",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": "",
+  "URL": "https://nkfh.gov.hu/hirek/termekvisszahivas-vezetek-nelkueli-elektromos-borotva-visszahivasa-sulyos-koernyezetvedelmi-kockazat-miatt-1",
+  "Notes": "Discovered via news: blikk.hu [locality: Hungary] [offline-enrich 2026-11-06: Pathogen '' -> 'Mercury (heavy metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
