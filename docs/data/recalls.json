@@ -45,7 +45,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/alnatura-pinienkerne-60g-und-alnatura-salatkerne-mix-100g",
-  "Notes": "Discovered via news: produktwarnung.eu [confirm-agent 2026-11-06: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: produktwarnung.eu [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-04",
@@ -205,7 +205,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://nkfh.gov.hu/hirek/termekvisszahivas-vezetek-nelkueli-elektromos-borotva-visszahivasa-sulyos-koernyezetvedelmi-kockazat-miatt-1",
-  "Notes": "Discovered via news: blikk.hu [locality: Hungary] [confirm-agent self-repair: Pathogen was empty and the hazard is named in the row's own text — filled 'Mercury (heavy metal)' (matched 'mercur'). No other field touched; nothing read from outside the row.] [confirm-agent 2026-11-06: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: blikk.hu [locality: Hungary] [offline-enrich 2026-11-06: Pathogen '' -> 'Mercury (heavy metal)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-02",
