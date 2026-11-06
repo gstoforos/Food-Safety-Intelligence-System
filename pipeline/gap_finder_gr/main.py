@@ -251,6 +251,21 @@ def _append_rows(
     return appended
 
 
+def refuse_stale_alert_numbers(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    """(keep, refused) — delegates to the one implementation.
+
+    Imported rather than copied: pipeline/gap_finder/main.py carries the
+    rule and the measurement that justifies it, and a third copy of a
+    vocabulary rule in this repo is how the collector tables drifted.
+    """
+    try:
+        from pipeline.gap_finder.main import (
+            refuse_stale_alert_numbers as _impl)
+    except ImportError:                                 # pragma: no cover
+        return list(rows), []
+    return _impl(rows)
+
+
 def write_pending_rows_to_xlsx(
     xlsx_path: str,
     rows: list[dict],
@@ -260,6 +275,30 @@ def write_pending_rows_to_xlsx(
     """Append accepted rows to Pending sheet, skipping URLs already present in
     either Pending or the master Recalls sheet (don't re-pending something
     already promoted)."""
+    if not rows:
+        return
+
+    # A STALE ALERT NUMBER NEVER REACHES PENDING (2026-11-06).
+    #
+    # The same hole as pipeline/gap_finder/main.py, in the second writer:
+    # this function is the Greek collector's own route into Pending and it
+    # calls nothing in merge_master, so merge_master.validate_pending_row's
+    # alert_number_year_mismatch refusal (wired 2026-10-24, to stop the
+    # Nigeria gap finder re-queueing a May-2022 NAFDAC alert) has never
+    # applied to a gap-finder row. Fixed in both writers in one pass so
+    # the shape cannot survive in the one nobody looked at; measured over
+    # the 2026-11-06 register, the rule refuses 0 of 2289 published rows.
+    rows, _stale = refuse_stale_alert_numbers(rows)
+    if _stale:
+        print(f"[pending] refused {len(_stale)} row(s) whose alert number "
+              f"names another year; archived to {REJECTED_SHEET}",
+              file=sys.stderr)
+        try:
+            write_rejected_rows_to_xlsx(xlsx_path, _stale, state,
+                                        verbose=verbose)
+        except Exception as exc:                        # pragma: no cover
+            print(f"[pending] WARNING: could not archive them: {exc}",
+                  file=sys.stderr)
     if not rows:
         return
 
