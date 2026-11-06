@@ -16,6 +16,22 @@
   "Notes": "[morning fix pass 2026-11-06: missed-recall sweep. Read on fiche 24026 (Fiche réf. 2026-11-0043) today — Titre \"LIME variété : TAHITI Origine: BRESIL Calibre 48\", Marque \"Itafrut\", Modèles ou références \"Vrac\" (loose), Lot \"J28\", Motif \"Dépassement des limites autorisées de pesticides\", Risques \"Dépassement des limites autorisées de pesticides\", Nature juridique du rappel \"Volontaire (sans arrêté préfectoral)\", Origine de la fiche \"HALLS FRANCE\", Distributeurs \"Leclerc, Auchan\", Zone \"Régions : Auvergne-Rhône-Alpes, Bourgogne-Franche-Comté, Grand-Est, Hauts-de-France, Île-de-France, Nouvelle-Aquitaine\", commercialisée du 29/10/2026 au 05/11/2026, publiée le 06/11/2026. Pesticide residues are in scope by name. Company is the Marque, which is how this register fills Company for a RappelConso row that has one; the fiche's own originator HALLS FRANCE and the two distributors are recorded here rather than guessed into a field. No substance is named by the fiche, so the Pathogen is the register's generic label and no substance is invented.] [original product: LIME variété : TAHITI Origine: BRESIL Calibre 48 — Vrac] [original Reason (fr): \"Dépassement des limites autorisées de pesticides\"] [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-06",
+  "Source": "HAH (HR)",
+  "Company": "Alnatura GmbH",
+  "Brand": "Alnatura",
+  "Product": "Mixed seeds for salad 100 g EKOPROIZVOD and ALNATURA PINJOLI EKOPROIZVOD 60 g",
+  "Pathogen": "Salmonella",
+  "Reason": "Not in compliance with Regulation (EC) No 178/2002 on the general principles and requirements of food law, establishment of the European Food Safety Authority and laying down of the principles for food safety.",
+  "Class": "Recall",
+  "Country": "Croatia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.hapih.hr/opoziv-proizvoda-alnatura-mjesavina-sjemenki-za-salatu-100-g-ekoproizvod-i-alnatura-pinjoli-ekoproizvod-60-g/",
+  "Notes": "Discovered via news: tportal.hr [confirm-agent 2026-11-06: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-11-05",
   "Source": "RappelConso (FR)",
   "Company": "Monbrun",
