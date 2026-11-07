@@ -480,6 +480,22 @@
   "Notes": "[RASFF #2026.9732; classification: alert notification; category: nuts, nut products and seeds; notifId=882337] [promote 2026-11-04: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-03",
+  "Source": "MAPAQ QC",
+  "Company": "Boucherie Viau inc.",
+  "Brand": "",
+  "Product": "Cured ham (Jambon cuit)",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Possible presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-jambon-cuit-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72888",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-11-02",
   "Source": "RappelConso (FR)",
   "Company": "Intermarché Fos sur Mer",
@@ -1342,6 +1358,22 @@
   "Outbreak": 0,
   "URL": "https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/anvisa-suspende-venda-de-linguica-suina-defumada-da-marca-kf-embutidos",
   "Notes": "Anvisa suspende venda de linguiça suína defumada da marca KF Embutidos\n\n# Anvisa suspende venda de linguiça suína defumada da marca KF Embutidos\n\nFabricante comunicou recolhimento voluntário de lote do produto\n\nPublicado em 28/10/2026 08:22\n\nA Agência Nacional de Vigilância Sanitária (Anvisa) suspen [url-agent 2026-10-29: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-10-29: pending_gap_v1→pending_gap_v2 URL confirmed] [review-agent 2026-10-29: pending_gap_v2 → pending_gap_v3 (Qwen verified; awaiting reviewer 3 confirmation)] [morning-fix 2026-10-31: Source was \"National Authority\", which resolves to no regulator, so nothing host-checked this row, the coverage denominator counted it as its own observer and tools/monitored_sources did not count it. The label is pipeline/gap_finder_tavily's placeholder for gov.br — the whole Brazilian government — while pipeline/regulatory_domains has mapped that same host to ANVISA since it was written. ANVISA is the authority that published this notice (gov.br/anvisa, 28/10/2026 08:22, \"Anvisa suspende venda de linguiça suína defumada da marca KF Embutidos\"), and \"ANVISA (BR)\" is the registry's label for it. Product translated from the notice's own Portuguese. The duplicated \"[via Exa daily search, deterministic extract]\" stamp is collapsed to one. The table is corrected in both copies and the publish gate now refuses any label with no host allow-list.] [original product: Linguiça suína defumada] [via Exa daily search, deterministic extract]"
+ },
+ {
+  "Date": "2026-10-28",
+  "Source": "MAPAQ QC",
+  "Company": "Les brasseurs de légumes S.E.N.C.",
+  "Brand": "",
+  "Product": "Dill pickles",
+  "Pathogen": "Glass fragments",
+  "Reason": "Presence of possible glass fragments",
+  "Class": "Recall",
+  "Country": "Canada",
+  "Region": "North America",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-morceaux-de-verre-dans-les-cornichons-a-laneth-prepares-et-vendus-par-lentreprise-les-brasseurs-de-legumes-senc-72827",
+  "Notes": "Discovered via news: quebec.ca [locality: Quebec] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-10-27",
