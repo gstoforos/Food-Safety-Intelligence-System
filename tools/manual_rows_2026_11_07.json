@@ -1,0 +1,44 @@
+[
+  {
+    "Date": "2026-11-06",
+    "Source": "RappelConso (FR)",
+    "Company": "Distillerie Barranco",
+    "Brand": "La Cabane à jus",
+    "Product": "Blackcurrant apple juice, 1 L bottle (Jus de pomme cassis 1L), GTIN 3770009509107, minimum durability date 29/05/2028",
+    "Pathogen": "Patulin",
+    "Reason": "Juice with a patulin level above the authorised limits",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24030/Interne",
+    "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24030/Interne, opened 2026-11-07: Dénomination \"Jus de pomme CASSIS 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme cassis 1L\"; GTIN 3770009509107; Conditionnements \"Bouteille de 1L\"; the lot column is blank and the Informations complémentaires say the number on the capsule must match \"29/05/28\"; \"Date de durabilité minimale 29/05/2028\"; Motif \"Jus présentant un taux de Patuline supérieur aux normes autorisées.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Match, Intermarché, Auchan, Carrefour\"; France entière; commercialisée du 02/06/2026 au 26/10/2026; publiée le 06/11/2026; Fiche réf. 2026-11-0040, version 2. Company is the fiche's own originator, the distillery; Brand is the fiche's Marque. [original product: Jus de pomme CASSIS 1L] [original Reason (fr): \"Jus présentant un taux de Patuline supérieur aux normes autorisées.\"] [scope: patuline is the French for the mycotoxin patulin, which this register already publishes as \"Patulin\" — fiche 23878 of 2026-10-09 and CFS (HK) 2026-03-26.] [near-duplicate note: the same firm's fiche 23980 is already published (2026-11-02, \"Apple juice, 1 L bottle\", Pathogen \"Mycotoxin\"). This is a different product with a different GTIN, but same source, firm and hazard; if the near-duplicate rule refuses this row that refusal is correct and this pass accepts it.]"
+  },
+  {
+    "Date": "2026-11-06",
+    "Source": "RappelConso (FR)",
+    "Company": "Distillerie Barranco",
+    "Brand": "La Cabane à jus",
+    "Product": "Apple and pear juice, 1 L bottle (Jus de pomme poire 1L), GTIN 3770009509015",
+    "Pathogen": "Patulin",
+    "Reason": "Fruit juice with a patulin level above the authorised limit",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24029/Interne",
+    "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24029/Interne, opened 2026-11-07: Dénomination \"Jus de pomme poire 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme poire 1L\"; GTIN 3770009509015; Conditionnements \"Bouteilles de 1L\"; the lot column is blank and the Informations complémentaires say the bottle carries \"01/06/28\" on the capsule; the fiche's own \"Date de durabilité minimale\" field reads 01/06/2026, which does not agree with the capsule date it names, so neither is written into Product; Motif \"Jus de fruit présentant un taux de Patuline supérieur à la norme autorisée.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Match, Carrefour, Auchan, Intermarché\"; France entière; commercialisée du 02/08/2026 au 18/09/2026; publiée le 06/11/2026; Fiche réf. 2026-11-0042, version 2. [original product: Jus de pomme poire 1L] [original Reason (fr): \"Jus de fruit présentant un taux de Patuline supérieur à la norme autorisée.\"] [scope: patuline is the French for the mycotoxin patulin, already published by this register as \"Patulin\".] [near-duplicate note: same firm and hazard as the published fiche 23980 of 2026-11-02; a near-duplicate refusal would be correct and is accepted.]"
+  },
+  {
+    "Date": "2026-11-05",
+    "Source": "RappelConso (FR)",
+    "Company": "Distillerie Barranco",
+    "Brand": "La Cabane à jus",
+    "Product": "Apple and raspberry juice, 1 L bottle (Jus de pomme framboise 1L), GTIN 3770009509152",
+    "Pathogen": "Patulin",
+    "Reason": "Juice with a patulin level above the authorised limits",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24024/Interne",
+    "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24024/Interne, opened 2026-11-07: Dénomination \"Jus de pomme framboise 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme Framboise 1L\"; GTIN 3770009509152; Conditionnements \"Bouteilles de 1L\"; the lot column is blank; \"Date de durabilité minimale 01/06/2026\"; Motif \"Jus présentant un taux de patuline supérieur aux normes autorisées.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Auchan, Match, Carrefour, Intermarché\"; \"Départements : MEURTHE-ET-MOSELLE (54), MOSELLE (57)\"; commercialisée du 02/06/2026 au 18/09/2026; publiée le 05/11/2026; Fiche réf. 2026-11-0041, version 1. This fiche is the only one of the three limited to two départements; the other two are France entière. [original product: Jus de pomme framboise 1L] [original Reason (fr): \"Jus présentant un taux de patuline supérieur aux normes autorisées.\"] [scope: patuline is the French for the mycotoxin patulin, already published by this register as \"Patulin\".] [near-duplicate note: same firm and hazard as the published fiche 23980 of 2026-11-02; a near-duplicate refusal would be correct and is accepted.]"
+  }
+]
