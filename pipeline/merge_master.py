@@ -1117,6 +1117,24 @@ def validate_pending_row(
         if _an_reason:
             return False, f"alert_number_year_mismatch: {_an_reason}"
 
+    # ── A NON-FOOD CONSUMER APPLIANCE (2026-11-07) ─────────────────────
+    # The publish gate has refused this shape since 2026-11-06, when a
+    # cordless electric shaver recalled for the mercury in its batteries
+    # was published with the line "passes every publish-gate rule". The
+    # row was back in Pending the next night, so the rule belongs in the
+    # intake doorways too. The gap finders use their own
+    # (pipeline.gap_finder.main.refuse_non_food_appliances); this is the
+    # one every scraper and manual inject passes through. Imported, not
+    # copied, so the three cannot drift.
+    try:
+        from pipeline._publish_gate import _non_food_appliance_blockers
+    except ImportError:                                 # pragma: no cover
+        _non_food_appliance_blockers = None
+    if _non_food_appliance_blockers is not None:
+        _nf = _non_food_appliance_blockers(row)
+        if _nf:
+            return False, f"non_food_appliance: {_nf[0]}"
+
     # Extraction garbage
     company_lc = company.lower()
     brand_lc = str(row.get("Brand", "") or "").strip().lower()

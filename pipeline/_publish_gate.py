@@ -1499,6 +1499,102 @@ def _non_food_appliance_blockers(row: Dict[str, Any]) -> List[str]:
     return out
 
 
+#: tools/alert_vocab.py, loaded once. `tools` is a namespace package with no
+#: __init__.py, so `from tools import alert_vocab` works only when the repo
+#: ROOT is on sys.path — true for pytest and for `python -m pipeline.…`, not
+#: guaranteed for a workflow that puts only pipeline/ there. The file path is
+#: the fallback, so the rule below is never vacuous in one doorway and live
+#: in another.
+_ALERT_VOCAB: List[Any] = []
+
+
+def _load_alert_vocab():
+    if _ALERT_VOCAB:
+        return _ALERT_VOCAB[0]
+    mod = None
+    try:
+        from tools import alert_vocab as mod       # type: ignore[no-redef]
+    except Exception:                                   # noqa: BLE001
+        try:
+            import importlib.util
+            import pathlib
+            path = (pathlib.Path(__file__).resolve().parents[1]
+                    / "tools" / "alert_vocab.py")
+            if path.exists():
+                spec = importlib.util.spec_from_file_location(
+                    "_afts_alert_vocab", path)
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)            # type: ignore[union-attr]
+        except Exception:                               # noqa: BLE001
+            mod = None
+    _ALERT_VOCAB.append(mod)
+    return mod
+
+
+def _unreachable_hazard_blockers(row: Dict[str, Any]) -> List[str]:
+    """The Pathogen must be a hazard a subscriber alert can match.
+
+    THE ROW NO ALERT COULD SEE (2026-11-07)
+    ---------------------------------------
+    docs/alerts.html offers a subscriber a fixed list of hazard words and
+    the Apps Script mailer matches a new register row against them with the
+    token lists in tools/alert_vocab.py. A published row whose Pathogen
+    matches none of them is in the register and in every report, and no
+    subscriber can ever be told about it.
+
+    tests/test_alert_vocab::test_every_row_matches_at_least_one_pathogen_term
+    has asserted that for months — but a test fires the morning AFTER the
+    row is live. On 2026-11-07 the register carried, published at 03:45 UTC
+    that night, a Tier-1 STEC salami recall (Norderstedter Fleisch- und
+    Wurstwaren, BVL (DE), 2026-11-06) whose Pathogen read
+
+        Bacillus
+
+    — a bare genus, no species, which the gap finder's extractor had
+    produced from the German news headline word "Bakterienfund" ("bacteria
+    found"). The firm's own press release, which the same gap finder had
+    already fetched into its verified.jsonl, says "Shigatoxin-bildende
+    Escherichia coli (STEC)". So the value was both invented and the only
+    hazard in 2306 published rows that no alert could reach.
+
+    This closes the gap at the gate instead of at the test. An unreachable
+    hazard is a real defect either way: either the value is wrong, as here,
+    or the vocabulary is missing a word — and the message says which fix to
+    make, because the second case is a one-line addition to
+    tools/alert_vocab.py plus `python3 tools/gen_alert_vocab.py --write`.
+
+    MEASURED on the 2026-11-07 register before wiring it in: 1 of 2306
+    published rows (this one), 1 of 31 Weekly_Review rows (the same one),
+    and in Pending the empty value plus 'Infection' and 'Substandard and
+    Falsified' — the two NAFDAC medicine rows that rule 10 already refuses.
+    So it costs no publishable row.
+
+    An empty Pathogen is NOT reported here: rule 1 already refuses it, and
+    two blockers for one defect reads as two defects.
+    """
+    pathogen = str(row.get("Pathogen") or "").strip()
+    if not pathogen:
+        return []
+    _vocab = _load_alert_vocab()
+    if _vocab is None:                                  # pragma: no cover
+        # No vocabulary available (a trimmed checkout): say nothing rather
+        # than refuse every row. "I could not read it" is not "it is gone".
+        return []
+    try:
+        if any(_vocab.matches(row, "pathogen", t) for t in _vocab.PATHOGEN):
+            return []
+    except Exception:                                   # pragma: no cover
+        return []
+    return [
+        f"Pathogen {pathogen!r} matches no word any subscriber alert offers "
+        f"— a published hazard no alert can reach is invisible to every "
+        f"subscriber. Either the value is wrong (check the regulator's own "
+        f"notice: a bare genus such as 'Bacillus' is usually a misread "
+        f"headline), or tools/alert_vocab.py needs the term and "
+        f"`python3 tools/gen_alert_vocab.py --write` re-run"
+    ]
+
+
 def _shape_blockers_2026_10_17(row: Dict[str, Any]) -> List[str]:
     out: List[str] = []
     url = str(row.get("URL") or "")
@@ -2245,6 +2341,9 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     #      2026-08-01 passenger car and bath toy, was vacuous here. See the
     #      measurement note above _NON_FOOD_APPLIANCE_MARKERS.
     problems.extend(_non_food_appliance_blockers(row))
+
+    # 10c. THE HAZARD MUST BE REACHABLE BY AN ALERT (2026-11-07).
+    problems.extend(_unreachable_hazard_blockers(row))
 
     # 11. SOURCE NAMES THE REGULATOR, NEVER THE MIRROR THAT SURFACED IT.
     #

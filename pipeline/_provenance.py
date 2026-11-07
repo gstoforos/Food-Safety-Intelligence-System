@@ -82,6 +82,76 @@ _NO_FETCH_HOSTS = ("webgate.ec.europa.eu",)
 #: "does not mention".
 _MIN_PAGE_CHARS = 300
 
+#: Content types this module cannot turn into readable text. A notice served
+#: as one of these is UNREAD, which is not the same fact as "the page does
+#: not describe this row".
+#:
+#: THE PDF HOLE (measured 2026-11-07)
+#: ----------------------------------
+#: fetch_text() strips HTML tags out of ``r.text`` and calls anything longer
+#: than _MIN_PAGE_CHARS readable. A PDF has no tags to strip: requests
+#: decodes its bytes (latin-1, when the server declares no charset) into a
+#: few thousand characters of binary noise, which sails past the length
+#: floor as status "ok". No anchor can occur in noise, so check() took the
+#: last branch and reported
+#:
+#:     "page does not mention any of [...] — the cited URL describes
+#:      something other than this row"
+#:
+#: for a document it had never read. That is the js_shell / bot_wall
+#: confusion the two guards above already fix for HTML, one content type
+#: later.
+#:
+#: MEASURED on the 2026-11-07 register: 31 rows carry that refusal and 6 of
+#: them cite a PDF — BVL (DE) 2026-11-06 and 2026-05-27, Hong Kong CFS
+#: 2026-08-31 / 09-14 / 09-16, MHLW (JP) — three regulators that publish
+#: recalls as PDF. The BVL one is the Norderstedter Fleisch- und Wurstwaren
+#: STEC salami recall of 2026-11-06: a real, current, Tier-1 recall that the
+#: confirm agent threw into Weekly_Rejected on the strength of unread bytes,
+#: while the offline promoter published the same row from Pending. The
+#: register then held it twice, once published and once refused.
+_UNREADABLE_CONTENT_TYPES = (
+    "application/pdf", "application/octet-stream", "application/zip",
+    "application/msword", "application/vnd.openxmlformats-officedocument",
+    "application/vnd.ms-excel", "application/vnd.ms-powerpoint",
+    "image/", "audio/", "video/",
+)
+
+#: Leading bytes that identify a binary document whatever the server says
+#: its content type is. lebensmittelwarnung.de serves its press-release PDFs
+#: through a ``?__blob=publicationFile`` handler, so the declared type is
+#: not something to rely on alone.
+_BINARY_MAGIC = ("%PDF-", "PK\x03\x04", "\xd0\xcf\x11\xe0", "\x89PNG",
+                 "GIF8", "\xff\xd8\xff")
+
+
+def _unreadable_document_status(response) -> str:
+    """'' when the body is text we can strip, else a non-dead status string.
+
+    Returns a status, not a boolean, so check() reports WHAT it could not
+    read. Every value returned here is deliberately absent from
+    _DEAD_STATUSES: an unread document says nothing about the row.
+    """
+    ctype = ""
+    try:
+        ctype = str(response.headers.get("Content-Type", "") or "").lower()
+    except Exception:                                        # noqa: BLE001
+        ctype = ""
+    for bad in _UNREADABLE_CONTENT_TYPES:
+        if bad in ctype:
+            kind = "pdf" if "pdf" in bad else bad.strip("/").split("/")[-1]
+            return f"binary_document:{kind}"
+    head = ""
+    try:
+        head = str(response.text or "")[:8]
+    except Exception:                                        # noqa: BLE001
+        head = ""
+    for magic in _BINARY_MAGIC:
+        if head.startswith(magic):
+            return "binary_document:pdf" if magic == "%PDF-" \
+                else "binary_document:binary"
+    return ""
+
 
 def is_dead_status(status: str) -> bool:
     """True only when the server said the page does not exist.
@@ -187,6 +257,13 @@ def fetch_text(url: str, timeout: int = 25) -> Tuple[str, str]:
             return "", "bot_wall"
     except Exception:                                        # noqa: BLE001
         pass
+    # A PDF or other binary document is UNREAD, not contradicted. See
+    # _UNREADABLE_CONTENT_TYPES for the six rows this cost. Checked before
+    # tag-stripping, because binary noise has no tags to strip and would
+    # otherwise clear the _MIN_PAGE_CHARS floor as "ok".
+    binary = _unreadable_document_status(r)
+    if binary:
+        return "", binary
     text = re.sub(r"<script.*?</script>", " ", r.text, flags=re.S | re.I)
     text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
     text = re.sub(r"<[^>]+>", " ", text)
