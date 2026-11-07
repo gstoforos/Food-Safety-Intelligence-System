@@ -36,23 +36,23 @@
   "Source": "RappelConso (FR)",
   "Company": "Pinton",
   "Brand": "Pinton",
-  "Product": "pâté de sardinelle pinton en 180 g",
+  "Product": "Sardinella pâté, Pinton, 180 g tin",
   "Pathogen": "Clostridium botulinum",
-  "Reason": "Gonflement de certaines boites lié à un problème au sertissage.; présence de flore anaérobie élevée.",
+  "Reason": "Swelling of some tins caused by a seaming fault; high anaerobic flora found",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24039/interne",
-  "Notes": "magasins spécialisés exotiques [needs cleanup: Reason not in English] [needs cleanup: Product not in English]"
+  "Notes": "magasins spécialisés exotiques [morning fix pass 2026-11-07: Product and Reason translated from this row's own French, cross-read on the rappel.conso listing https://rappel.conso.gouv.fr/categorie/1 opened today — Dénomination \"Pâté de Sardinelle PINTON en 180 g\", Marque \"PINTON\", Motif \"Gonflement de certaines boites lié à un problème au sertissage. Présence de flore anaérobie élevée.\", Risques beginning \"Clostridium botulinum (agent responsable du botulisme), Clostridium perfringens\", publiée le 06/11/2026. \"Sardinelle\" is the fish genus Sardinella and is given its English name; \"pâté\" is kept, as this register already does. \"Boites\" are tins, which the Motif itself names. Pathogen is left as published: Clostridium botulinum is the first risk the fiche names.] [original product: pâté de sardinelle pinton en 180 g] [original Reason (fr): \"Gonflement de certaines boites lié à un problème au sertissage.; présence de flore anaérobie élevée.\"]"
  },
  {
   "Date": "2026-11-06",
   "Source": "RappelConso (FR)",
   "Company": "Loussouarn",
   "Brand": "Loussouarn",
-  "Product": "saucisson à l'ail",
+  "Product": "Garlic dry sausage (saucisson à l'ail)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Presence of Listeria monocytogenes",
   "Class": "Voluntary",
@@ -61,55 +61,55 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24027/interne",
-  "Notes": "e.leclerc kerlouan"
+  "Notes": "e.leclerc kerlouan [morning fix pass 2026-11-07: the published Product was the French \"saucisson à l'ail\". THIS ROW CARRIED NO \"needs cleanup\" STAMP: the language detector needs two non-English word hits and \"saucisson\" and \"ail\" are short tokens with \"à l'\" between them, which it reads as punctuation. Fourth consecutive morning on which the by-hand sweep of every Product published in the last 26 h found one the stamp missed — fiche 23552 published \"Unbranded\" from 18 September to 30 October, 23983 a barcode, 23996 a brand. Read on the rappel.conso listing today: Dénomination \"Saucisson à l'ail\", Marque \"LOUSSOUARN\", Motif \"Présence de Listeria Monocytogenes\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", publiée le 06/11/2026. \"Saucisson\" is a dry-cured sausage and has no single English word, so the French is kept in brackets. Reason was already English and is untouched; no weight or lot is added, because the row and the listing give none.] [original product: saucisson à l'ail]"
  },
  {
   "Date": "2026-11-06",
   "Source": "RappelConso (FR)",
   "Company": "Alnatura",
   "Brand": "Alnatura",
-  "Product": "mélange de graines pour salade 100g",
+  "Product": "Mixed seeds for salad, 100 g",
   "Pathogen": "Salmonella",
-  "Reason": "Presence of Salmonella détectée dans des pignons de pin",
+  "Reason": "Salmonella detected in pine nuts",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24032/interne",
-  "Notes": "supermarché match [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-11-07: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-11-07: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3]"
+  "Notes": "supermarché match [offline-enrich 2026-11-07: Pathogen '' -> 'Salmonella', read from this row's own hazard text; no fetch, no model] [promote 2026-11-07: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella is always Tier 1; forced from Tier 3] [morning fix pass 2026-11-07: Product and Reason translated from this row's own French, cross-read on the rappel.conso listing today — Dénomination \"Mélange de graines pour salade 100g\", Marque \"ALNATURA\", Motif \"Présence de Salmonelle détectée dans des pignons de pin.\", Risques \"Salmonella spp (agent responsable de la salmonellose)\", publiée le 06/11/2026. The stored Reason was half-translated already (\"Presence of Salmonella détectée dans des pignons de pin\"), which is how it passed the wholly-foreign detector while still failing the language policy.] [original product: mélange de graines pour salade 100g] [original Reason (fr): \"Presence of Salmonella détectée dans des pignons de pin\"]"
  },
  {
   "Date": "2026-11-06",
   "Source": "RappelConso (FR)",
   "Company": "Carrefour Bio",
   "Brand": "Carrefour Bio",
-  "Product": "bocal haricots verts – extra-fins bio 660g",
+  "Product": "Organic extra-fine green beans, 660 g jar",
   "Pathogen": "Foreign material (glass)",
-  "Reason": "Suspicion présence morceau de verre",
+  "Reason": "Suspected presence of a piece of glass",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24033/interne",
-  "Notes": "carrefour [needs cleanup: Reason not in English] [offline-enrich 2026-11-07: Pathogen '' -> 'Foreign material (glass)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-07: status 'pending_enrichment'->'pending' — passes every publish-gate rule]"
+  "Notes": "carrefour [offline-enrich 2026-11-07: Pathogen '' -> 'Foreign material (glass)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-07: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-07: Product and Reason translated from this row's own French, cross-read on the rappel.conso listing today — Dénomination \"HARICOTS VERTS EXTRA-FINS BIO\", Marque \"CARREFOUR BIO\", Motif \"Suspicion présence morceau de verre\", Risques \"Inertes (verre, métal, plastique, papier, textile…)\", publiée le 06/11/2026. The jar and the 660 g are on this row's own Product text. The stamp named only the Reason; the Product was French too, which the detector missed — \"bocal\" and \"haricots\" are one hit short of its threshold once \"bio\" and the numerals are discounted.] [original product: bocal haricots verts – extra-fins bio 660g] [original Reason (fr): \"Suspicion présence morceau de verre\"]"
  },
  {
   "Date": "2026-11-06",
   "Source": "BVL (DE)",
   "Company": "Norderstedter Fleisch- und Wurstwaren Peter Faden GmbH & Co KG",
   "Brand": "",
-  "Product": "Rinder-Peperonisalami, Rindfleischsalami, Rindfleischsalami rein Rind, Pizza Rindfleischsalami",
-  "Pathogen": "Bacillus",
-  "Reason": "Bakterienfund",
+  "Product": "Beef salami products, halal: beef pepperoni salami; beef salami calibre 60 and calibre 80; pure-beef salami calibre 80, including a vacuum pack; salami end-pieces; sliced beef salami; pizza beef salami calibre 60 — 500 g, 2 x 500 g and 1000 g (14 products)",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Shiga toxin-producing Escherichia coli (STEC) detected in a single sample; precautionary recall",
   "Class": "Recall",
   "Country": "Germany",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261106_05_SH_Rindfleischsalamiprodukte/261106_05_SH_Rindfleischsalamiprodukte_Presse.pdf?__blob=publicationFile&v=2",
-  "Notes": "Discovered via news: tagesschau.de [locality: Norderstedt] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-11-07: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "Discovered via news: tagesschau.de [locality: Norderstedt] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-11-07: status 'pending'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-07: the published Pathogen was \"Bacillus\" — a bare genus, on no page. The Germany gap finder's own candidate record shows where it came from: the Google News headline \"Rindfleischsalamiprodukte wegen Bakterienfund zurueckgerufen - tagesschau.de\", and \"Bakterienfund\" is German for \"bacteria found\". Read today on the regulator's own HTML notice beside the PDF this row cites, https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261106_05_SH_Rindfleischsalamiprodukte/261106_05_SH_Rindfleischsalamiprodukte.html — heading \"Diverse Rindfleischsalamiprodukte\", \"Grund der Meldung: Krankheitserreger\", and \"… in einer Einzeluntersuchung Shigatoxinbildende Escherichia coli (STEC) nachgewiesen wurden\", the recall described as precautionary; Hersteller \"Norderstedter Fleisch- und Wurstwaren Peter Faden GmbH & Co KG, Koesliner Weg 14, 22850 Norderstedt\"; 14 Produktbezeichnungen (Rinder-Peperonisalami halal 1000 g; Rindfleischsalami halal Kaliber 60 and 80 in 1000 g, 500 g and 2x500 g; Rindfleischsalami rein Rind Kaliber 80 1000 g and 500 g; rein Rind halal Kaliber 80 Vakuum; Rindfleischsalami Kappen halal; Rindfleischsalami-Scheiben halal; Pizza Rindfleischsalami halal Kaliber 60 1000 g and 500 g); 15 of the 16 Bundeslaender (not Saarland); 40 Chargennummern with dates from 23.10.2026 to 22.12.2026; Erstveroeffentlichung 06.11.2026, Meldung created by Schleswig-Holstein. The firm's own press release, which the same gap finder had already fetched into docs/data/gap_finder_de/verified.jsonl, and the dpa copy beside it, say STEC too. Pathogen is written in the register's own canonical spelling, which 120 published rows carry. It was also the ONLY hazard among 2306 published rows that no subscriber alert could reach; the gate half of that fix is pipeline/_publish_gate._unreachable_hazard_blockers. No lot, weight or state is added that the notice does not give.] [original product: Rinder-Peperonisalami, Rindfleischsalami, Rindfleischsalami rein Rind, Pizza Rindfleischsalami] [original Reason (de): \"Bakterienfund\"]"
  },
  {
   "Date": "2026-11-05",
@@ -173,7 +173,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24019/interne",
-  "Notes": "magasins u [needs cleanup: Product not in English] [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24019 today — Distributeurs \"Magasins U\", Marque \"Sans marque\", Modèles ou références \"Merguez de boeuf origine France\", Conditionnements \"Vente quantité à la demande au rayon Boucherie traditionnelle\", Motif \"Non conformité microbiologique\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Régions Île-de-France et Normandie, GTIN 3467980036813, lots 26302146008 / 26303146008 / 26306146008, DLC 10/11/2026, 11/11/2026 and 14/11/2026, commercialisée du 02/11/2026 au 05/11/2026, publiée le 05/11/2026, Fiche réf. 2026-11-0037. Company is the distributor because the product has no brand, which is this register's own convention for a RappelConso \"sans marque\" row.] [original product: Merguez de boeuf origine France] [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "magasins u [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24019 today — Distributeurs \"Magasins U\", Marque \"Sans marque\", Modèles ou références \"Merguez de boeuf origine France\", Conditionnements \"Vente quantité à la demande au rayon Boucherie traditionnelle\", Motif \"Non conformité microbiologique\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Régions Île-de-France et Normandie, GTIN 3467980036813, lots 26302146008 / 26303146008 / 26306146008, DLC 10/11/2026, 11/11/2026 and 14/11/2026, commercialisée du 02/11/2026 au 05/11/2026, publiée le 05/11/2026, Fiche réf. 2026-11-0037. Company is the distributor because the product has no brand, which is this register's own convention for a RappelConso \"sans marque\" row.] [original product: Merguez de boeuf origine France] [promote 2026-11-06: status 'pending'->'pending' — passes every publish-gate rule] [morning-fix 2026-11-07: dropped a stale \"needs cleanup: Product\" stamp — this Product was translated by yesterday's pass and the original is already quoted in these Notes]"
  },
  {
   "Date": "2026-11-05",
@@ -349,7 +349,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24015/interne",
-  "Notes": "détaillants, carrefour, sté grosdoit, intermarché, leclerc, métro, super u [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [confirm-agent hold: 2026-11-05: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24015 today — Origine de la fiche \"VALLEGRAIN DISTRIBUTION\", Marque \"SANS MARQUE\", Modèles ou références \"Merguez boeuf mouton\", Conditionnements \"Vendus en rayon traditionnel (vrac)\", Motif \"Suspicion de présence de Listéria monocytogenes\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Distributeurs \"Détaillants, Carrefour, Sté Grosdoit, Intermarché, Leclerc, Métro, Super U\", eleven départements from CALVADOS (14) to ESSONNE (91), lots 26303146008 and 26306146008, DLC 11/11/2026 and 14/11/2026, commercialisée du 01/11/2026 au 03/11/2026, publiée le 04/11/2026, Fiche réf. 2026-11-0034. Company here is the fiche's own originator, not a distributor: the distributor field holds seven retailers and a list of seven retailers is not a firm. The two lot numbers are the same lots fiche 24019 recalls at Magasins U, so this is the manufacturer-side notice for the same product. The published Reason must be English, so the fiche's Motif is translated here too; the original is kept below.] [original product: Merguez boeuf mouton] [original Reason (fr): \"Suspicion de présence de Listéria monocytogenes\"] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+  "Notes": "détaillants, carrefour, sté grosdoit, intermarché, leclerc, métro, super u [confirm-agent hold: 2026-11-05: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24015 today — Origine de la fiche \"VALLEGRAIN DISTRIBUTION\", Marque \"SANS MARQUE\", Modèles ou références \"Merguez boeuf mouton\", Conditionnements \"Vendus en rayon traditionnel (vrac)\", Motif \"Suspicion de présence de Listéria monocytogenes\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Distributeurs \"Détaillants, Carrefour, Sté Grosdoit, Intermarché, Leclerc, Métro, Super U\", eleven départements from CALVADOS (14) to ESSONNE (91), lots 26303146008 and 26306146008, DLC 11/11/2026 and 14/11/2026, commercialisée du 01/11/2026 au 03/11/2026, publiée le 04/11/2026, Fiche réf. 2026-11-0034. Company here is the fiche's own originator, not a distributor: the distributor field holds seven retailers and a list of seven retailers is not a firm. The two lot numbers are the same lots fiche 24019 recalls at Magasins U, so this is the manufacturer-side notice for the same product. The published Reason must be English, so the fiche's Motif is translated here too; the original is kept below.] [original product: Merguez boeuf mouton] [original Reason (fr): \"Suspicion de présence de Listéria monocytogenes\"] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [morning-fix 2026-11-07: dropped two stale \"needs cleanup\" stamps — Product and Reason were both translated by yesterday's pass]"
  },
  {
   "Date": "2026-11-04",
@@ -365,7 +365,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24011/interne",
-  "Notes": "carrefour [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [url-agent 2026-11-05: pending_enrichment→pending_gap_v2 URL confirmed] [morning fix pass 2026-11-06: Pathogen was empty and the publish gate held the row on it, for a recall whose Motif names the contaminant. Read on fiche 24011 today — Titre \"Viandes et préparations de viande ficelées vendues au rayon boucherie (paupiettes, rôtis,...)\", Marque \"sans marque\", Modèles ou références \"Tout produit ficelé avec de la ficelle blanche vendu au rayon boucherie de votre magasin entre le 06/07 et le 19/10/2026 (paupiettes, rôtis,...)\", Conditionnements \"produits ficelés, vendus au rayon traditionnel ou préparés par nos équipes et vendus en libre service (barquettes) au rayon attenant au rayon traditionnel\", Motif \"mise en évidence de bisphénol A dans certains lots de ficelle alimentaire de notre fournisseur Meyer-Sansboeuf\", Risques \"Autres contaminants chimiques\", Origine de la fiche \"CARREFOUR FRANCE\", Distributeurs \"CARREFOUR\", France entière, publiée le 04/11/2026, Fiche réf. 2026-11-0031. Bisphenol A is named in the AFTS scope rule and the canonical spelling written here is the one a published row already carries (BLV (CH) 23.09.2026, Royal Orient bamboo shoots). The root cause was a vocabulary gap in pipeline/enrich_pending_offline, fixed in this pass; the value is written here as well because the rebase tool re-runs the gate and the promoter, not the enricher. No substance beyond the one the fiche names is added.] [original product: Tout produit ficelé avec de la ficelle blanche vendu au rayon boucherie de votre magasin entre le 06/07 et le 19/10/2026 (paupiettes, rôtis,...)] [original Reason (fr): \"mise en évidence de bisphénol A dans certains lots de ficelle alimentaire de notre fournisseur Meyer-Sansboeuf\"] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule]"
+  "Notes": "carrefour [url-agent 2026-11-05: pending_enrichment→pending_gap_v2 URL confirmed] [morning fix pass 2026-11-06: Pathogen was empty and the publish gate held the row on it, for a recall whose Motif names the contaminant. Read on fiche 24011 today — Titre \"Viandes et préparations de viande ficelées vendues au rayon boucherie (paupiettes, rôtis,...)\", Marque \"sans marque\", Modèles ou références \"Tout produit ficelé avec de la ficelle blanche vendu au rayon boucherie de votre magasin entre le 06/07 et le 19/10/2026 (paupiettes, rôtis,...)\", Conditionnements \"produits ficelés, vendus au rayon traditionnel ou préparés par nos équipes et vendus en libre service (barquettes) au rayon attenant au rayon traditionnel\", Motif \"mise en évidence de bisphénol A dans certains lots de ficelle alimentaire de notre fournisseur Meyer-Sansboeuf\", Risques \"Autres contaminants chimiques\", Origine de la fiche \"CARREFOUR FRANCE\", Distributeurs \"CARREFOUR\", France entière, publiée le 04/11/2026, Fiche réf. 2026-11-0031. Bisphenol A is named in the AFTS scope rule and the canonical spelling written here is the one a published row already carries (BLV (CH) 23.09.2026, Royal Orient bamboo shoots). The root cause was a vocabulary gap in pipeline/enrich_pending_offline, fixed in this pass; the value is written here as well because the rebase tool re-runs the gate and the promoter, not the enricher. No substance beyond the one the fiche names is added.] [original product: Tout produit ficelé avec de la ficelle blanche vendu au rayon boucherie de votre magasin entre le 06/07 et le 19/10/2026 (paupiettes, rôtis,...)] [original Reason (fr): \"mise en évidence de bisphénol A dans certains lots de ficelle alimentaire de notre fournisseur Meyer-Sansboeuf\"] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed '; that defect is repaired and the row now passes every publish-gate rule] [morning-fix 2026-11-07: dropped two stale \"needs cleanup\" stamps — Product and Reason were both translated by yesterday's pass]"
  },
  {
   "Date": "2026-11-04",
@@ -381,7 +381,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24005/interne",
-  "Notes": "magasins u [needs cleanup: Product not in English] [confirm-agent hold: 2026-11-05: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24005 today — Distributeurs \"Magasins U\" with a \"liste_magasins_livrés.pdf\", Origine de la fiche \"COOPERATIVE U ENSEIGNE\", Marque \"Sans marque\", Modèles ou références \"Merguez de boeuf origine France\", Motif \"Non conformité microbiologique\", Description complémentaire du risque \"Suspicion détection listeria\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Régions Île-de-France et Normandie, GTIN 3467980036813, lot 26302146008, DLC 10/11/2026, commercialisée du 02/11/2026 au 03/11/2026, publiée le 04/11/2026, Fiche réf. 2026-11-0025. This fiche covers one lot; fiche 24019 extends the same recall to three. If the near-duplicate rule refuses one of the two, that refusal is correct and this pass accepts it.] [original product: Merguez de boeuf origine France] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+  "Notes": "magasins u [confirm-agent hold: 2026-11-05: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [morning fix pass 2026-11-06: Company was empty and the publish gate held the row on it. Read on fiche 24005 today — Distributeurs \"Magasins U\" with a \"liste_magasins_livrés.pdf\", Origine de la fiche \"COOPERATIVE U ENSEIGNE\", Marque \"Sans marque\", Modèles ou références \"Merguez de boeuf origine France\", Motif \"Non conformité microbiologique\", Description complémentaire du risque \"Suspicion détection listeria\", Risques \"Listeria monocytogenes (agent responsable de la listériose)\", Régions Île-de-France et Normandie, GTIN 3467980036813, lot 26302146008, DLC 10/11/2026, commercialisée du 02/11/2026 au 03/11/2026, publiée le 04/11/2026, Fiche réf. 2026-11-0025. This fiche covers one lot; fiche 24019 extends the same recall to three. If the near-duplicate rule refuses one of the two, that refusal is correct and this pass accepts it.] [original product: Merguez de boeuf origine France] [promote 2026-11-06: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [morning-fix 2026-11-07: dropped a stale \"needs cleanup: Product\" stamp — translated by yesterday's pass]"
  },
  {
   "Date": "2026-11-03",
@@ -530,8 +530,8 @@
  {
   "Date": "2026-11-02",
   "Source": "RappelConso (FR)",
-  "Company": "La Cabane à Jus",
-  "Brand": "La Cabane à Jus",
+  "Company": "La Cabane à jus",
+  "Brand": "La Cabane à jus",
   "Product": "Apple juice, 1 L bottle",
   "Pathogen": "Mycotoxin",
   "Reason": "Presence of patulin",
@@ -541,7 +541,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23980/interne",
-  "Notes": "leclerc, carrefour, match, super u, [promote 2026-11-02: status 'pending'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-04: Product and Reason translated from this row's own text. \"bouteille jus de pomme 1l\" is a 1-litre bottle of apple juice; \"patuline\" is the French for the mycotoxin patulin, which the register already publishes as \"Patulin\". No lot, GTIN or best-before is on the row, so none is added.] [original product: bouteille jus de pomme 1l] [original Reason (as stored, fr): \"Presence of patuline\"]"
+  "Notes": "leclerc, carrefour, match, super u, [promote 2026-11-02: status 'pending'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-04: Product and Reason translated from this row's own text. \"bouteille jus de pomme 1l\" is a 1-litre bottle of apple juice; \"patuline\" is the French for the mycotoxin patulin, which the register already publishes as \"Patulin\". No lot, GTIN or best-before is on the row, so none is added.] [original product: bouteille jus de pomme 1l] [original Reason (as stored, fr): \"Presence of patuline\"] [morning-fix 2026-11-07: Company and Brand recased from \"La Cabane à Jus\" to \"La Cabane à jus\". The three sibling fiches of this firm's patulin recall added today (24024, 24029, 24030) all print the Marque as \"La Cabane à jus\", so the register held the one name two ways and tests/test_firm_names_are_uniform went red. pipeline._firm_names.canonical_map chose this spelling itself — it is the fiche's own and now the majority. The recall is not otherwise touched.]"
  },
  {
   "Date": "2026-10-30",
@@ -36926,5 +36926,69 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-11-06",
+  "Source": "RappelConso (FR)",
+  "Company": "Cooperl Arc Atlantique",
+  "Brand": "Unbranded",
+  "Product": "Label Rouge eggs in boxes of 6 and 12, and free-range eggs sold loose in trays of 30",
+  "Pathogen": "Salmonella enteritidis",
+  "Reason": "Présence Salmonella enteritidis",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24040/interne",
+  "Notes": "calidel, magasins à la ferme coop chez vous, aurelien, maxiviande, magasin d'usine montagne noire (albi), prix miam, cli [url-agent 2026-11-07: pending_enrichment→pending_gap_v2 URL confirmed] [morning fix pass 2026-11-07: Company was empty and the publish gate held the row on it. Read today on https://rappel.conso.gouv.fr/fiche-rappel/24040/Interne — Dénomination \"OEUFS LABEL ROUGE\", Marque \"SANS MARQUE\", Modèles ou références \"6 OEUFS LABEL ROUGE 12 OEUFS LABEL ROUGE OEUFS PLEIN AIR VENDUS EN VRAC\", GTIN 3700133918889 / 3700133918872 / 3273620823268, Conditionnements \"boîte de 12\", \"boîte de 6\" and \"6 alvéoles de 30 oeufs\", lot \"06\" on all three, \"Date de durabilité minimale entre le 16/10/2026 et le 16/11/2026\", Motif \"Présence Salmonelle Enteritidis\", Risques \"Salmonella spp (agent responsable de la salmonellose)\", Origine de la fiche \"COOPERL ARC ATLANTIQUE\", ten distributeurs including CALIDEL, CASINO, VIVAL and SPAR, France entière, commercialisée du 30/09/2026 au 06/11/2026, Fiche réf. 2026-11-0053 version 1. Company is the fiche's own originator because the product has no brand, which is this register's convention for a RappelConso \"sans marque\" row. Product is translated from the références field and the Conditionnements; no GTIN or date is written into it.] [original product: 6 oeufs label rouge; 12 oeufs label rouge; oeufs plein air vendus en vrac] [promote 2026-11-07: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [tier-guard: Salmonella enteritidis is always Tier 1; forced from Tier 3]"
+ },
+ {
+  "Date": "2026-11-06",
+  "Source": "RappelConso (FR)",
+  "Company": "Distillerie Barranco",
+  "Brand": "La Cabane à jus",
+  "Product": "Blackcurrant apple juice, 1 L bottle (Jus de pomme cassis 1L), GTIN 3770009509107, minimum durability date 29/05/2028",
+  "Pathogen": "Mycotoxin",
+  "Reason": "Juice with a patulin level above the authorised limits",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24030/Interne",
+  "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24030/Interne, opened 2026-11-07: Dénomination \"Jus de pomme CASSIS 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme cassis 1L\"; GTIN 3770009509107; Conditionnements \"Bouteille de 1L\"; the lot column is blank and the Informations complémentaires say the number on the capsule must match \"29/05/28\"; \"Date de durabilité minimale 29/05/2028\"; Motif \"Jus présentant un taux de Patuline supérieur aux normes autorisées.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Match, Intermarché, Auchan, Carrefour\"; France entière; commercialisée du 02/06/2026 au 26/10/2026; publiée le 06/11/2026; Fiche réf. 2026-11-0040, version 2. Company is the fiche's own originator, the distillery; Brand is the fiche's Marque. [original product: Jus de pomme CASSIS 1L] [original Reason (fr): \"Jus présentant un taux de Patuline supérieur aux normes autorisées.\"] [scope: patuline is the French for the mycotoxin patulin, which this register already publishes as \"Patulin\" — fiche 23878 of 2026-10-09 and CFS (HK) 2026-03-26.] [near-duplicate note: the same firm's fiche 23980 is already published (2026-11-02, \"Apple juice, 1 L bottle\", Pathogen \"Mycotoxin\"). This is a different product with a different GTIN, but same source, firm and hazard; if the near-duplicate rule refuses this row that refusal is correct and this pass accepts it.] [promote 2026-11-07: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-06",
+  "Source": "RappelConso (FR)",
+  "Company": "Distillerie Barranco",
+  "Brand": "La Cabane à jus",
+  "Product": "Apple and pear juice, 1 L bottle (Jus de pomme poire 1L), GTIN 3770009509015",
+  "Pathogen": "Mycotoxin",
+  "Reason": "Fruit juice with a patulin level above the authorised limit",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24029/Interne",
+  "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24029/Interne, opened 2026-11-07: Dénomination \"Jus de pomme poire 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme poire 1L\"; GTIN 3770009509015; Conditionnements \"Bouteilles de 1L\"; the lot column is blank and the Informations complémentaires say the bottle carries \"01/06/28\" on the capsule; the fiche's own \"Date de durabilité minimale\" field reads 01/06/2026, which does not agree with the capsule date it names, so neither is written into Product; Motif \"Jus de fruit présentant un taux de Patuline supérieur à la norme autorisée.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Match, Carrefour, Auchan, Intermarché\"; France entière; commercialisée du 02/08/2026 au 18/09/2026; publiée le 06/11/2026; Fiche réf. 2026-11-0042, version 2. [original product: Jus de pomme poire 1L] [original Reason (fr): \"Jus de fruit présentant un taux de Patuline supérieur à la norme autorisée.\"] [scope: patuline is the French for the mycotoxin patulin, already published by this register as \"Patulin\".] [near-duplicate note: same firm and hazard as the published fiche 23980 of 2026-11-02; a near-duplicate refusal would be correct and is accepted.] [promote 2026-11-07: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-05",
+  "Source": "RappelConso (FR)",
+  "Company": "Distillerie Barranco",
+  "Brand": "La Cabane à jus",
+  "Product": "Apple and raspberry juice, 1 L bottle (Jus de pomme framboise 1L), GTIN 3770009509152",
+  "Pathogen": "Mycotoxin",
+  "Reason": "Juice with a patulin level above the authorised limits",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24024/Interne",
+  "Notes": "Added by the morning fix pass 2026-11-07 after a by-hand sweep of the rappel.conso food listing (https://rappel.conso.gouv.fr/categorie/1) found it in no sheet of the register. Every field was read on the fiche itself, https://rappel.conso.gouv.fr/fiche-rappel/24024/Interne, opened 2026-11-07: Dénomination \"Jus de pomme framboise 1L\"; catégorie Alimentation / Boissons non alcoolisées; Marque \"La Cabane à jus\"; Modèles ou références \"Jus de pomme Framboise 1L\"; GTIN 3770009509152; Conditionnements \"Bouteilles de 1L\"; the lot column is blank; \"Date de durabilité minimale 01/06/2026\"; Motif \"Jus présentant un taux de patuline supérieur aux normes autorisées.\"; Risques \"Autres contaminants biologiques\"; Origine de la fiche \"DISTILLERIE BARRANCO La Cabane à jus\"; Distributeurs \"Leclerc, Auchan, Match, Carrefour, Intermarché\"; \"Départements : MEURTHE-ET-MOSELLE (54), MOSELLE (57)\"; commercialisée du 02/06/2026 au 18/09/2026; publiée le 05/11/2026; Fiche réf. 2026-11-0041, version 1. This fiche is the only one of the three limited to two départements; the other two are France entière. [original product: Jus de pomme framboise 1L] [original Reason (fr): \"Jus présentant un taux de patuline supérieur aux normes autorisées.\"] [scope: patuline is the French for the mycotoxin patulin, already published by this register as \"Patulin\".] [near-duplicate note: same firm and hazard as the published fiche 23980 of 2026-11-02; a near-duplicate refusal would be correct and is accepted.] [promote 2026-11-07: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
