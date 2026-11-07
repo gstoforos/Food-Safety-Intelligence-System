@@ -350,15 +350,105 @@ def refuse_stale_alert_numbers(rows: list[dict]) -> tuple[list[dict], list[dict]
     for r in rows:
         why = alert_number_year_mismatch(r)
         if why:
-            r = dict(r)
-            r["Notes"] = (str(r.get("Notes") or "").strip() +
-                          f" [gap-finder refusal "
-                          f"{datetime.now(timezone.utc).date().isoformat()}: "
-                          f"alert_number_year_mismatch — {why}]").strip()
-            refused.append(r)
+            refused.append(_stamp_refusal(
+                r, "alert_number_year_mismatch", why))
         else:
             keep.append(r)
     return keep, refused
+
+
+def refuse_non_food_appliances(
+    rows: list[dict],
+) -> tuple[list[dict], list[dict]]:
+    """(keep, refused) — a row whose own text names a non-food appliance.
+
+    THE SAME DOORWAY, THE SAME WAY (2026-11-07)
+    -------------------------------------------
+    ``pipeline._publish_gate._non_food_appliance_blockers`` was added on
+    2026-11-06, after a cordless electric shaver (Camry / Adler Sp. z o.o.,
+    recalled by Hungary's NKFH because the batteries inside it hold too
+    much mercury to throw away) was PUBLISHED by the offline promoter with
+    the report line "passes every publish-gate rule". The gate now refuses
+    it at promotion time, and on the morning of 2026-11-07 Recalls was
+    clean.
+
+    Pending was not. The row was back, Status 'pending', ScrapedAt that
+    night, with no re-promotion stamp on it — written by the Hungary gap
+    finder, which reaches Pending through ``write_pending_rows`` below and
+    so consults no gate at all beyond "is this URL already in Pending or
+    Recalls". The Weekly_Review slice mirrored it from there, and
+    tests/test_non_food_appliance_is_never_published.py went red on both
+    sheets. This is exactly the lesson of refuse_stale_alert_numbers above,
+    one rule later: a gate in the publish doorway cannot stop a collector
+    that does not use that doorway.
+
+    MEASURED ON THE 2026-11-07 REGISTER before wiring it in: the shape
+    appears in 0 of 2306 published Recalls rows, 1 of 22 Pending rows (the
+    shaver) and 1 of 31 Weekly_Review rows (the same one). It costs no row
+    that can be published — the publish gate refuses the shape anyway, one
+    stage later — and it ends a loop that would otherwise re-queue the row
+    every night.
+
+    Imported, not copied, for the same reason the two gates above are.
+    """
+    try:
+        from pipeline._publish_gate import _non_food_appliance_blockers
+    except ImportError:                                 # pragma: no cover
+        return list(rows), []
+    keep: list[dict] = []
+    refused: list[dict] = []
+    for r in rows:
+        why = _non_food_appliance_blockers(r)
+        if why:
+            refused.append(_stamp_refusal(
+                r, "non_food_appliance", why[0]))
+        else:
+            keep.append(r)
+    return keep, refused
+
+
+def _stamp_refusal(row: dict, rule: str, why: str) -> dict:
+    """A refused row carries its verdict in every column the sheet names.
+
+    THE BLANK COLUMNS (2026-11-07)
+    ------------------------------
+    refuse_stale_alert_numbers archives through write_rejected_rows, which
+    appends the row dict as-is. The dict is a PENDING row, so it has no
+    Week_Added, RejectedBy, RejectionReason or Reviewed — and
+    ``_append_rows`` writes a blank for every header it cannot find a key
+    for. The first row the 2026-11-06 fix archived (NAFDAC public alert
+    027/2022, Japata Alcoholic Bitters) therefore landed in Weekly_Rejected
+    with all four of those columns empty, which held
+    tests/test_gap_finder_rejection_stamps::
+    test_only_dateless_rows_remain_unstamped_on_the_live_sheet red the next
+    morning: a blank Week_Added matches no review window, so the refusal
+    appears in no Sunday email, and a blank RejectionReason tells an
+    auditor nothing about why THIS row went.
+
+    The four values are the ones extractor.build_rejected_row writes, by
+    the same helpers, so a refusal from this path and a refusal from the
+    rules classifier are the same shape on the sheet.
+    """
+    out = dict(row)
+    today = datetime.now(timezone.utc).date().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
+    out["Notes"] = (str(out.get("Notes") or "").strip() +
+                    f" [gap-finder refusal {today}: {rule} — {why}]").strip()
+    out["RejectedBy"] = f"gap_finder/{rule}"
+    out["RejectionReason"] = f"{rule}: {why}"
+    out["RejectReason"] = rule
+    out["RejectedAt"] = now
+    out["Status"] = "rejected"
+    out["Reviewed"] = "N"
+    try:
+        from pipeline.weekly_rejected_capture import review_day_for
+        out["Week_Added"] = review_day_for().isoformat()
+    except Exception as exc:                            # pragma: no cover
+        print(f"  [WARN] cannot stamp Week_Added ({type(exc).__name__}: "
+              f"{exc}) — this refusal will appear in no Sunday email",
+              file=sys.stderr)
+        out["Week_Added"] = ""
+    return out
 
 
 def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]:
@@ -382,6 +472,22 @@ def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]
                   file=sys.stderr)
         try:
             write_rejected_rows(stale, xlsx_path)
+        except Exception as exc:                        # pragma: no cover
+            print(f"    WARNING: could not archive them: {exc}",
+                  file=sys.stderr)
+    # A non-food consumer appliance never reaches Pending either. See
+    # refuse_non_food_appliances for the loop this ends.
+    rows, appliances = refuse_non_food_appliances(rows)
+    if appliances:
+        print(f"  [non-food] refused {len(appliances)} row(s) whose own "
+              f"text names a durable consumer good; archived to "
+              f"{REJECTED_SHEET}", file=sys.stderr)
+        for r in appliances:
+            print(f"    {str(r.get('Date'))[:10]} "
+                  f"{str(r.get('Product'))[:40]} "
+                  f"{str(r.get('URL'))[:70]}", file=sys.stderr)
+        try:
+            write_rejected_rows(appliances, xlsx_path)
         except Exception as exc:                        # pragma: no cover
             print(f"    WARNING: could not archive them: {exc}",
                   file=sys.stderr)
