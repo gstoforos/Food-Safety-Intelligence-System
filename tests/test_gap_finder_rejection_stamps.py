@@ -93,8 +93,43 @@ def _of():
     return ex.build_rejected_row(_V, _C(), _cfg("EFET", "Greece", "gr"))
 
 
+def _gate_refusal():
+    """The gate-refusal doorway, added 2026-11-07.
+
+    refuse_stale_alert_numbers (2026-11-06) and refuse_non_food_appliances
+    (2026-11-07) archive to Weekly_Rejected WITHOUT going through
+    build_rejected_row — the row they archive is a PENDING row dict, and
+    _append_rows writes a blank for every header it finds no key for. The
+    first row that path archived (NAFDAC public alert 027/2022, Japata
+    Alcoholic Bitters, 2026-10-24) therefore landed with Week_Added,
+    RejectedBy, RejectionReason and Reviewed all empty, which held
+    test_only_dateless_rows_remain_unstamped_on_the_live_sheet below red
+    the next morning.
+
+    It is NOT in BUILDERS: a gate refusal keeps the row's own Reason and
+    Pathogen, which build_rejected_row overwrites with the rule and the
+    matched term. Only the four MUST_BE_SET columns are the shared
+    contract, so only those are parametrised over it, below.
+    """
+    from pipeline.gap_finder.main import _stamp_refusal
+    return _stamp_refusal(
+        {"Date": "2026-09-20", "Source": "Salute",
+         "Product": "Richiamo di formaggio",
+         "Pathogen": "Listeria monocytogenes",
+         "Reason": "Presence of Listeria monocytogenes",
+         "URL": "https://example.test/richiamo-1",
+         "Notes": "Discovered via news: ansa.it"},
+        "non_food_appliance",
+        "the row's own text names a durable consumer good "
+        "('electric shaver')")
+
+
 BUILDERS = [("pipeline.extractor", _pl), ("official_feeds.extractor", _of),
             ("gap_finder", _it), ("gap_finder_gr", _gr)]
+#: Every path that appends a row to Weekly_Rejected, builders plus the gate
+#: refusals. These four columns are what the Sunday email and an auditor
+#: read, and no path may land them blank.
+APPENDERS = BUILDERS + [("gap_finder.main._stamp_refusal", _gate_refusal)]
 MODULES = ["pipeline.extractor", "pipeline.official_feeds.extractor",
            "pipeline.gap_finder.extractor", "pipeline.gap_finder_gr.extractor"]
 
@@ -103,12 +138,64 @@ def _src(mod):
     return (ROOT / (mod.replace(".", "/") + ".py")).read_text(encoding="utf-8")
 
 
-@pytest.mark.parametrize("name,build", BUILDERS, ids=[b[0] for b in BUILDERS])
+@pytest.mark.parametrize("name,build", APPENDERS,
+                         ids=[b[0] for b in APPENDERS])
 @pytest.mark.parametrize("col", MUST_BE_SET)
 def test_the_column_is_not_blank(name, build, col):
     assert str(build().get(col, "")).strip(), (
         f"{name} still writes a blank {col} — the rejection lands on the "
         f"sheet with nothing to identify or explain it")
+
+
+@pytest.mark.parametrize("col", ("Week_Added", "RejectionReason",
+                                 "RejectedBy", "Reviewed", "Status",
+                                 "RejectReason", "RejectedAt"))
+def test_a_gate_refusal_fills_every_archive_column(col):
+    """The NAFDAC row of 2026-10-24 landed with four of these blank."""
+    assert str(_gate_refusal().get(col, "")).strip(), (
+        f"a gate refusal still lands a blank {col} on Weekly_Rejected")
+
+
+def test_a_gate_refusal_keeps_the_rows_own_recall_fields():
+    """A refusal records a verdict; it does not rewrite the recall.
+
+    build_rejected_row puts the rule in Reason and the matched term in
+    Pathogen because it builds a row from a classification. A gate refusal
+    starts from a row that already HAS those fields, and overwriting them
+    would destroy the only record of what was refused.
+    """
+    row = _gate_refusal()
+    assert row["Reason"] == "Presence of Listeria monocytogenes"
+    assert row["Pathogen"] == "Listeria monocytogenes"
+    assert row["Product"] == "Richiamo di formaggio"
+    assert row["URL"] == "https://example.test/richiamo-1"
+
+
+def test_a_gate_refusal_says_which_rule_fired_and_why():
+    row = _gate_refusal()
+    assert "non_food_appliance" in row["RejectionReason"]
+    assert "durable consumer good" in row["RejectionReason"], (
+        "the category alone does not tell an auditor why THIS row went")
+    assert "non_food_appliance" in str(row["RejectedBy"])
+    assert "Discovered via news: ansa.it" in row["Notes"], (
+        "the refusal note must be appended to the row's Notes, not replace "
+        "them")
+    assert "[gap-finder refusal" in row["Notes"]
+
+
+def test_a_gate_refusal_takes_its_week_from_the_capture_module():
+    assert _gate_refusal()["Week_Added"] == review_day_for().isoformat()
+
+
+def test_both_gate_refusals_go_through_the_one_stamp():
+    """Two refusal rules, one shape on the sheet."""
+    src = _src("pipeline.gap_finder.main")
+    for fn in ("refuse_stale_alert_numbers", "refuse_non_food_appliances"):
+        body = src[src.index(f"def {fn}("):]
+        body = body[:body.index("\ndef ", 1)]
+        assert "_stamp_refusal(" in body, (
+            f"{fn} builds its archive row by hand again — that is how the "
+            f"four columns came to be blank")
 
 
 @pytest.mark.parametrize("name,build", BUILDERS, ids=[b[0] for b in BUILDERS])

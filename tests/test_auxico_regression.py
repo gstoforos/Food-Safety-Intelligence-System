@@ -229,18 +229,36 @@ class TestDefect3_HazardClassContradiction(unittest.TestCase):
         """RASFF Reason carries 'category: milk and milk products' on genuine
         Listeria notifications. A bare food-name token would break every one
         of them — this is why the allergen list is framing-tokens only."""
-        for reason in (
-            "Listeria monocytogenes in smoked ribs raw materials originating "
-            "from Germany; risk: serious; category: meat and meat products "
-            "(other than poultry)",
-            "Salmonella spp. in cured sausage from Spain; risk: serious; "
-            "category: meat and meat products (other than poultry)",
-            "Listeria monocytogenes in cheese; risk: serious; category: milk "
-            "and milk products",
-            "Clostridium botulinum in pork pâté with almonds from Czechia; "
-            "risk: serious; category: meat and meat products",
+        # The Pathogen is written out per case rather than taken as
+        # reason.split()[0] (2026-11-07). That shortcut produced a BARE
+        # GENUS for the botulinum case — Pathogen "Clostridium" — and
+        # publish-gate rule 10c now refuses a hazard no subscriber alert
+        # can reach, which a bare "Clostridium" is: the alert vocabulary
+        # matches whole token lists, so it holds "Clostridium botulinum"
+        # and "Clostridium perfringens" and nothing that a row reading
+        # "Clostridium" alone can match. That is the exact Apps Script
+        # defect tools/alert_vocab.py was written to end — the mailer used
+        # to truncate "Clostridium botulinum" to "clostridium" and email
+        # subscribers about C. perfringens instead. So the shortcut, not
+        # the new rule, was wrong, and each case now names the organism the
+        # way its own Reason names it. The rule under test here is
+        # unchanged: RASFF category text must not manufacture a mismatch.
+        for pathogen, reason in (
+            ("Listeria monocytogenes",
+             "Listeria monocytogenes in smoked ribs raw materials "
+             "originating from Germany; risk: serious; category: meat and "
+             "meat products (other than poultry)"),
+            ("Salmonella spp.",
+             "Salmonella spp. in cured sausage from Spain; risk: serious; "
+             "category: meat and meat products (other than poultry)"),
+            ("Listeria monocytogenes",
+             "Listeria monocytogenes in cheese; risk: serious; category: "
+             "milk and milk products"),
+            ("Clostridium botulinum",
+             "Clostridium botulinum in pork pâté with almonds from "
+             "Czechia; risk: serious; category: meat and meat products"),
         ):
-            row = dict(IN_SCOPE_ROW, Pathogen=reason.split()[0], Reason=reason)
+            row = dict(IN_SCOPE_ROW, Pathogen=pathogen, Reason=reason)
             self.assertEqual([], publish_blockers(row), reason[:60])
 
     def test_claude_check_shares_the_one_table(self):
