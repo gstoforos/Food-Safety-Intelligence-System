@@ -1,16 +1,27 @@
 {
   "entries": [
     {
-      "date": "2026-11-05",
-      "url": "daily/2026-11-05.html",
-      "total": 9,
-      "tier1": 7,
+      "date": "2026-11-06",
+      "url": "daily/2026-11-06.html",
+      "total": 7,
+      "tier1": 5,
       "outbreak": 0,
       "by_region": {
-        "Europe": 7,
+        "Europe": 7
+      },
+      "generated": "2026-11-07T08:12:50Z"
+    },
+    {
+      "date": "2026-11-05",
+      "url": "daily/2026-11-05.html",
+      "total": 11,
+      "tier1": 9,
+      "outbreak": 0,
+      "by_region": {
+        "Europe": 9,
         "Asia": 2
       },
-      "generated": "2026-11-06T10:24:32Z"
+      "generated": "2026-11-07T08:12:51Z"
     },
     {
       "date": "2026-11-04",
@@ -21,7 +32,7 @@
       "by_region": {
         "Europe": 6
       },
-      "generated": "2026-11-06T10:24:31Z"
+      "generated": "2026-11-07T08:12:53Z"
     },
     {
       "date": "2026-11-03",
@@ -33,7 +44,7 @@
         "Europe": 5,
         "North America": 1
       },
-      "generated": "2026-11-06T10:24:29Z"
+      "generated": "2026-11-07T08:12:54Z"
     },
     {
       "date": "2026-11-02",
@@ -44,7 +55,7 @@
       "by_region": {
         "Europe": 3
       },
-      "generated": "2026-11-06T08:12:43Z"
+      "generated": "2026-11-07T08:12:55Z"
     },
     {
       "date": "2026-11-01",
@@ -53,7 +64,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-11-06T08:12:45Z"
+      "generated": "2026-11-07T08:12:57Z"
     },
     {
       "date": "2026-10-31",
@@ -62,20 +73,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-11-06T08:12:46Z"
-    },
-    {
-      "date": "2026-10-30",
-      "url": "daily/2026-10-30.html",
-      "total": 14,
-      "tier1": 9,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 12,
-        "North America": 1,
-        "Oceania": 1
-      },
-      "generated": "2026-11-06T08:12:48Z"
+      "generated": "2026-11-07T08:12:58Z"
     }
   ]
 }
