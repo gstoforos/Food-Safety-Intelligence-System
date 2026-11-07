@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-11-06 (Athens)
+# FSIS Daily Review — 2026-11-07 (Athens)
 
-Mode: **live** · generated 2026-11-06T15:23:45+02:00
-Recalls rows reviewed: **2298** · in-progress week (never published): **W45**
+Mode: **live** · generated 2026-11-07T14:02:23+02:00
+Recalls rows reviewed: **2306** · in-progress week (never published): **W45**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -63,6 +63,10 @@ Recalls rows reviewed: **2298** · in-progress week (never published): **W45**
   - Evidence: CFIA slug variants of one recall (shared stem: charlevoisienne-joe-meat-smoked)
   - Duplicate of: https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria
   - id `4ae9dcc6ef9bc9fc` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
+- **[cross_source_dup · medium]** 2026-11-06 · Alnatura · Salmonella — https://rappel.conso.gouv.fr/fiche-rappel/24032/interne
+  - Evidence: same content identity (date + company + pathogen) as a row from a different source (hah (hr))
+  - Duplicate of: https://www.hapih.hr/opoziv-proizvoda-alnatura-mjesavina-sjemenki-za-salatu-100-g-ekoproizvod-i-alnatura-pinjoli-ekoproizvod-60-g/
+  - id `bbc704762c534ba2` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cross_source_dup · medium]** 2026-10-08 · Greencore · Salmonella — https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsai (ie))
   - Duplicate of: https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products

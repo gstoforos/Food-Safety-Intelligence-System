@@ -1,17 +1,17 @@
 {
-  "generated": "2026-11-06T15:23:45+02:00",
-  "date": "2026-11-06",
+  "generated": "2026-11-07T14:02:23+02:00",
+  "date": "2026-11-07",
   "mode": "live",
   "in_progress_week": "W45",
   "counts": {
-    "recalls_rows": 2298,
+    "recalls_rows": 2306,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 21,
+    "proposed_deletions": 22,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -315,6 +315,32 @@
           "Country": "Canada",
           "Tier": 1,
           "URL": "https://recalls-rappels.canada.ca/en/alert-recall/charlevoisienne-and-joe-smoked-meat-brand-meat-products-recalled-due-listeria"
+        }
+      },
+      {
+        "id": "bbc704762c534ba2",
+        "category": "cross_source_dup",
+        "confidence": "medium",
+        "reason": "same content identity (date + company + pathogen) as a row from a different source (hah (hr))",
+        "row": {
+          "Date": "2026-11-06",
+          "Source": "RappelConso (FR)",
+          "Company": "Alnatura",
+          "Product": "mélange de graines pour salade 100g",
+          "Pathogen": "Salmonella",
+          "Country": "France",
+          "Tier": 1,
+          "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24032/interne"
+        },
+        "duplicate_of": {
+          "Date": "2026-11-06",
+          "Source": "HAH (HR)",
+          "Company": "Alnatura GmbH",
+          "Product": "Mixed seeds for salad 100 g EKOPROIZVOD and ALNATURA PINJOLI EKOPROIZVOD 60 g",
+          "Pathogen": "Salmonella",
+          "Country": "Croatia",
+          "Tier": 1,
+          "URL": "https://www.hapih.hr/opoziv-proizvoda-alnatura-mjesavina-sjemenki-za-salatu-100-g-ekoproizvod-i-alnatura-pinjoli-ekoproizvod-60-g/"
         }
       },
       {
