@@ -195,10 +195,27 @@ PATHOGEN: dict[str, list[str]] = {
     # pipeline/_language._MARKERS, so a Swedish or Danish description field
     # is invisible to the language detector and this list is the only
     # thing standing between such a row and an unreachable hazard.
+    # "thallium" added 2026-11-08. FDA published Snack Right Super Foods
+    # (dba Brad's Raw Chips) "Due to Potential Thallium Contamination" on
+    # 2026-11-03 — the row sat in Pending with an empty Pathogen, and the
+    # morning-fix pass read the hazard off the FDA page. Thallium is a
+    # heavy metal and heavy metals are in AFTS scope, but no term in this
+    # list reached it, so the row would have published unalertable. Found
+    # before publication, not after.
     "Heavy metals": ["heavy metal", "cadmium", "kadmium", "lead (",
-                     "mercury", "arsenic", "molybdenum"],           # 9
+                     "mercury", "arsenic", "molybdenum", "thallium"],  # 9
+    # "veterinary drug" and "doxycycline" added 2026-11-08. Hong Kong CFS
+    # announced on 2026-11-06 that an imported frozen chicken leg sample
+    # carried doxycycline at 180 ppb against a 100 ppb limit, and the
+    # importer recalled the batch. "veterinary medicine" and "veterinary
+    # chemical" were both here; "veterinary drug" — the wording CFS itself
+    # uses in its headline — was not. "residue" would have caught the
+    # hazard only as long as the Pathogen keeps that word, which is a
+    # thinner thread than it looks.
     "Pesticide / veterinary residues": ["pesticide", "veterinary medicine",
-                                        "veterinary chemical", "penicillin",
+                                        "veterinary chemical",
+                                        "veterinary drug", "doxycycline",
+                                        "penicillin",
                                         "nitrofurazone", "chloramphenicol",
                                         "rodenticide", "residue"],  # 6
     "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin",

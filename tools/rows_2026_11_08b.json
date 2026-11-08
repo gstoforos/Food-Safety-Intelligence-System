@@ -1,0 +1,30 @@
+[
+  {
+    "Date": "2026-11-06",
+    "Source": "BVL (DE)",
+    "Company": "EDEKA ZENTRALE Stiftung & Co. KG",
+    "Brand": "EDEKA Bio",
+    "Product": "EDEKA Bio soft apricots (dried), 180 g, best before 09.06.2027",
+    "Pathogen": "Ochratoxin A",
+    "Reason": "Elevated levels of ochratoxin A found.",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261106_08_HH_Soft_Aprikosen/261106_08_HH_Soft_Aprikosen.html",
+    "Notes": "[daily-global pass 2026-11-08: missed-recall sweep. Read on the lebensmittelwarnung.de notice itself today — title \"EDEKA Bio Soft-Aprikosen\", Erstveröffentlichung 06.11.2026, Produktbezeichnung \"EDEKA Bio Soft-Aprikosen, 180 Gramm\", Hersteller/Inverkehrbringer \"EDEKA ZENTRALE Stiftung & Co. KG, New-York-Ring 6, 22297 Hamburg\", MHD 09.06.2027, no lot printed, Grund der Meldung \"Rückstände und Kontaminanten\", Weitere Infos \"Es wurden erhöhte Werte an Ochratoxin A festgestellt.\", Länder Baden-Württemberg, Bayern, Brandenburg, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Saarland, Sachsen, Sachsen-Anhalt, Schleswig-Holstein (sold via Edeka and Marktkauf). No illnesses stated, so Outbreak 0. The four 2026-11-06 Weekly_Rejected rows for this recall (BVL/AGES/AFSCA/NVWA, no-authority-url) came from a news article; this is the regulator's own page. Nothing added that the page does not state.] [original Reason (de): \"Es wurden erhöhte Werte an Ochratoxin A festgestellt.\"]"
+  },
+  {
+    "Date": "2026-11-04",
+    "Source": "AESAN (ES)",
+    "Company": "(not specified in AESAN alert 2026_79)",
+    "Brand": "La Pardina",
+    "Product": "Goat kefir with probiotics (kéfir de cabra con probióticos): lot 62100902, best before 14/11/2026, 500 ml and 1000 ml; lot 62102102, best before 25/11/2026, 250 ml, 500 ml and 1000 ml",
+    "Pathogen": "Salmonella",
+    "Reason": "Presence of Salmonella in goat kefir from Spain (ref. ES2026/659).",
+    "Class": "Alert",
+    "Country": "Spain",
+    "Outbreak": 0,
+    "URL": "https://www.aesan.gob.es/alertas/2026_79",
+    "Notes": "[daily-global pass 2026-11-08: a real recall refused on a false premise. Read on the AESAN alert itself today — title \"Alerta por presencia de Salmonella en kéfir de cabra procedente de España. (Ref. ES2026/659).\", dated 04/11/2026, brand \"La Pardina\", product \"Kéfir de cabra con probióticos\", lot 62100902 best before 14/11/2026 (500 ml and 1000 ml) and lot 62102102 best before 25/11/2026 (250, 500 and 1000 ml), initially distributed to Aragón with redistribution to other communities not ruled out. The alert names no firm (it says only that the company itself reported the incident), so Company carries the register's existing marker for that shape. No illnesses are reported, so Outbreak 0. Weekly_Rejected held this URL with \"URL agent: The hazard is an undeclared allergen (Salmonella) and not a microbial pathogen\" — wrong on its face; that archive row is marked SUPERSEDED by tools/repair_2026_11_08b.py.] [original Reason (es): \"Alerta por presencia de Salmonella en kéfir de cabra procedente de España\"]"
+  }
+]

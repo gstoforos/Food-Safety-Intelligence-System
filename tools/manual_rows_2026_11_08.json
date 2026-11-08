@@ -1,0 +1,29 @@
+[
+  {
+    "Date": "2026-11-06",
+    "Source": "CFS (HK)",
+    "Company": "Willy More Development Limited",
+    "Product": "Frozen chicken leg, 15 kg per carton, place of origin China, manufacture date 22 July 2026, best-before 21 January 2028",
+    "Pathogen": "Veterinary drug residue (doxycycline)",
+    "Reason": "Doxycycline detected at 180 parts per billion against the legal limit of 100 ppb; the importer recalled the affected batch under CFS instruction",
+    "Class": "Recall",
+    "Country": "Hong Kong",
+    "Outbreak": 0,
+    "URL": "https://www.cfs.gov.hk/english/press/20261106_12720.html",
+    "Notes": "Added by the morning fix pass 2026-11-08 after a by-hand sweep of the CFS November 2026 press page (https://www.cfs.gov.hk/english/press/11-2026.html) found it in no sheet of the register. Every field was read on the CFS's own press release, https://www.cfs.gov.hk/english/press/20261106_12720.html, opened 2026-11-08: headline \"Imported frozen chicken leg sample detected with veterinary drug residue exceeding legal limit\"; \"Ends/Friday, November 6, 2026\" and \"announced today (November 6)\"; importer \"Willy More Development Limited\"; doxycycline at \"180 parts per billion (ppb)\" against a legal limit of \"100 ppb\", given in the legal text as \"100 micrograms per kilogram\" of poultry muscle; place of origin China; net weight \"15 kilograms per carton\"; manufacture date July 22, 2026; best-before date January 21, 2028; the importer \"has initiated a recall of the affected batch\" under CFS instruction; hotline 2944 8139. BRAND STAYS EMPTY: the CFS prints both the product name and the brand as \"(Not available in English)\", so neither is written and neither is guessed at. No lot number is printed. [scope: a veterinary drug residue above a legal limit is a chemical contaminant, which this register publishes — RASFF rows on nitrofurazone and chloramphenicol carry the same class of hazard. \"veterinary drug\", the CFS's own wording, and \"doxycycline\" are added to tools/alert_vocab.py in this same commit; before that the hazard was reachable only through the generic \"residue\" term.] [pipeline note: CFS (HK) is not stale by this register's own rule — newest row 2026-10-21, 3 rows in 30 days, and today's scrape-fleet commit exists — and the CFS page did not block this pass. This is a plain miss by scrapers/asia/cfs_hk.py on a release its own month page lists.] [the second CFS release of 2026-11-06, \"CFS follows up on aquatic product imported from Japan suspected of breaching Food Safety Order\" (https://www.cfs.gov.hk/english/press/20261106_12721.html), was read and is NOT queued: two cartons of dried fish product with almond were marked and sealed before entering the market, the release reports no contamination finding and no recall, and an import-control action on an Order breach names no hazard.]"
+  },
+  {
+    "Date": "2026-11-06",
+    "Source": "BLV (CH)",
+    "Company": "Migros",
+    "Brand": "Alnatura",
+    "Product": "Alnatura Bio Salatkerne Mix (organic salad seed mix)",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella detected in the product",
+    "Class": "Recall",
+    "Country": "Switzerland",
+    "Outbreak": 0,
+    "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1185",
+    "Notes": "Added by the morning fix pass 2026-11-08 after a by-hand sweep of the BLV recall list found the Swiss copy of the Alnatura salad-seed Salmonella recall in no sheet of the register, while the register already carries the same recall for Croatia (HAH, 2026-11-06), France (RappelConso fiche 24032, 2026-11-06), Austria (AGES, 2026-11-05) and Germany (BVL / dennree, 2026-11-05). Read on the BLV's own list, https://www.blv.admin.ch/blv/de/home/lebensmittel-und-ernaehrung/rueckrufe-und-oeffentliche-warnungen.html, opened 2026-11-08, which prints the entry as \"Migros ruft das Produkt «Alnatura Bio Salatkerne Mix» wegen Nachweis von Salmonellen zurück — 06.11.2026\" and links it to https://www.recallswiss.admin.ch/customer-access/#Recalls/1185. THE RECALLSWISS VIEWER IS A JAVASCRIPT SHELL — 704 characters of HTML with no recall text in it — so no pack size, lot number or Haltbarkeitsdatum could be read and none is written. The recallswiss address is still the row's URL: it is the regulator's own per-recall address and the twenty-plus BLV rows already in Recalls all cite it in that form. Company is Migros, the only firm the BLV entry names as recalling; \"Alnatura\" appears in the entry as part of the product name and goes to Brand, not to Company. [original product: Alnatura Bio Salatkerne Mix] [original Reason (de): \"wegen Nachweis von Salmonellen\"] [Weekly_Rejected already holds two news-mirror copies of this recall, an SRF report and a second German-language piece, both refused for carrying no official regulator URL. Those refusals were correct on their own terms and are left as they are; this row is the official copy.] [near-duplicate note: same hazard and same product as four already-published national copies, each on its own regulator's URL, which is how this register files a multi-country recall. If the near-duplicate rule refuses this row, that refusal is correct and this pass accepts it.]"
+  }
+]
