@@ -1,6 +1,6 @@
 {
   "week_end": "2026-11-08",
-  "generated_utc": "2026-11-08T14:27:53+00:00",
+  "generated_utc": "2026-11-08T15:41:42+00:00",
   "row_count": 669,
   "tier1_count": 19,
   "outbreak_count": 4,
@@ -15435,5 +15435,7 @@
       "RejectionReason": "no-authority-url: no official BLV press-release URL in the source article (news-only discovery)",
       "Reviewed": "N"
     }
-  ]
+  ],
+  "sheet_wiped_utc": "2026-11-08T15:41:42+00:00",
+  "note": "Weekly_Rejected was cleared for this window after the Sunday 17:00 Athens email. These are the rejections that email covered, kept so a re-send is correct rather than empty. The next rejection replaces this file."
 }
