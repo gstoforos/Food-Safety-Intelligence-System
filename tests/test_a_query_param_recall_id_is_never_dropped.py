@@ -79,6 +79,17 @@ INTENTIONAL = (
     # while two more copies waited in Pending and three sat in Rejected.
     # The alert id is in the path either way, so no identifier is lost.
     re.compile(r"^aesan\.gob\.es/"),
+    # 2026-11-08. One FSA alert is addressable on three food.gov.uk hosts —
+    # alerts.food.gov.uk/news-alerts/alert/<notation>, the API record at
+    # data.food.gov.uk/food-alerts/id/<NOTATION>, and the bare host — and the
+    # PRIN notation in the path is the identity on all three (the API returns
+    # it as the record's own `notation`). Exactly the admin.ch / AESAN shape:
+    # before the fix, six notations were PUBLISHED under one host form while
+    # an independently-reviewed copy of the same alert sat REJECTED under
+    # another. The notation stays in the key, so no identifier is lost, and
+    # the `-update-N` suffix stays in it too — see
+    # tests/test_one_fsa_alert_is_one_dedup_key.py.
+    re.compile(r"^food\.gov\.uk/food-alerts/fsa-"),
 )
 
 
