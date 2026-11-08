@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-11-07 (Athens)
+# FSIS Daily Review — 2026-11-08 (Athens)
 
-Mode: **live** · generated 2026-11-07T14:02:23+02:00
-Recalls rows reviewed: **2306** · in-progress week (never published): **W45**
+Mode: **live** · generated 2026-11-08T14:22:39+02:00
+Recalls rows reviewed: **2327** · in-progress week (never published): **W45**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
@@ -70,11 +70,7 @@ Recalls rows reviewed: **2306** · in-progress week (never published): **W45**
 - **[cross_source_dup · medium]** 2026-10-08 · Greencore · Salmonella — https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsai (ie))
   - Duplicate of: https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products
-  - id `a56be5e7e21754e5` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
-- **[cross_source_dup · medium]** 2026-10-08 · Greencore · Salmonella — https://alerts.food.gov.uk/article/6920/Greencore-recalls-several-products-due-to-the-presence-of-Salmonella
-  - Evidence: same content identity (date + company + pathogen) as a row from a different source (fsai (ie))
-  - Duplicate of: https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products
-  - id `856dabddef775f27` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
+  - id `5a5bff88b13dbc77` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 - **[cross_source_dup · medium]** 2026-09-03 · Frutas y Hortalizas del Sur S.A. · E. coli O145 (STEC) — https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html
   - Evidence: same content identity (date + company + pathogen) as a row from a different source (fda)
   - Duplicate of: https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple
@@ -89,8 +85,8 @@ Recalls rows reviewed: **2306** · in-progress week (never published): **W45**
   - id `29c0d765f326ca61` — Approve: ⟨token⟩ · Reject: ⟨token⟩  _(Phase 2 fills signed links)_
 
 ## 4. Reports flagged stale (rebuild → UPDATED masthead)
-- Weeklies: W06, W26, W34, W36, W37, W39, W40
-- Monthlies: M08, M09, M10
+- Weeklies: W06, W26, W34, W36, W37, W40
+- Monthlies: M08, M09
 
 ## 5. Asset / deliverable integrity
 - **[unexpected_pdf_link]** M01: M01 has a pdf_url but is HTML-only by rule

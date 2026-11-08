@@ -1,17 +1,17 @@
 {
-  "generated": "2026-11-07T14:02:23+02:00",
-  "date": "2026-11-07",
+  "generated": "2026-11-08T14:22:39+02:00",
+  "date": "2026-11-08",
   "mode": "live",
   "in_progress_week": "W45",
   "counts": {
-    "recalls_rows": 2306,
+    "recalls_rows": 2327,
     "duplicate_url_groups": 0,
     "shared_nonspecific_urls": 0,
     "blank_field_rows": 0,
     "mistiered_rows": 0,
     "date_issue_rows": 0,
     "lane_a_changes": 0,
-    "proposed_deletions": 22,
+    "proposed_deletions": 21,
     "ledger_resolved": 0,
     "asset_issues": 1
   },
@@ -326,7 +326,7 @@
           "Date": "2026-11-06",
           "Source": "RappelConso (FR)",
           "Company": "Alnatura",
-          "Product": "mélange de graines pour salade 100g",
+          "Product": "Mixed seeds for salad, 100 g",
           "Pathogen": "Salmonella",
           "Country": "France",
           "Tier": 1,
@@ -344,7 +344,7 @@
         }
       },
       {
-        "id": "a56be5e7e21754e5",
+        "id": "5a5bff88b13dbc77",
         "category": "cross_source_dup",
         "confidence": "medium",
         "reason": "same content identity (date + company + pathogen) as a row from a different source (fsai (ie))",
@@ -357,32 +357,6 @@
           "Country": "United Kingdom",
           "Tier": 1,
           "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026"
-        },
-        "duplicate_of": {
-          "Date": "2026-10-08",
-          "Source": "FSAI (IE)",
-          "Company": "Greencore",
-          "Product": "M&S Food Super Nutty Wholefood with a Soy & Ginger Dressing 200 g; M&S Food Nutrient Dense Nutty Super Wholefood 285 g; M&S Collection Pistachio and Parmigiano Reggiano Cheese Pesto 115 g",
-          "Pathogen": "Salmonella",
-          "Country": "Ireland",
-          "Tier": 1,
-          "URL": "https://www.fsai.ie/news-and-alerts/food-alerts/recall-of-various-ready-to-eat-products"
-        }
-      },
-      {
-        "id": "856dabddef775f27",
-        "category": "cross_source_dup",
-        "confidence": "medium",
-        "reason": "same content identity (date + company + pathogen) as a row from a different source (fsai (ie))",
-        "row": {
-          "Date": "2026-10-08",
-          "Source": "FSA (UK)",
-          "Company": "Greencore",
-          "Product": "several products",
-          "Pathogen": "Salmonella",
-          "Country": "United Kingdom",
-          "Tier": 1,
-          "URL": "https://alerts.food.gov.uk/article/6920/Greencore-recalls-several-products-due-to-the-presence-of-Salmonella"
         },
         "duplicate_of": {
           "Date": "2026-10-08",
@@ -484,13 +458,11 @@
       "W34",
       "W36",
       "W37",
-      "W39",
       "W40"
     ],
     "monthlies": [
       "M08",
-      "M09",
-      "M10"
+      "M09"
     ]
   },
   "rebuilt": {
@@ -500,7 +472,6 @@
       "W34",
       "W36",
       "W37",
-      "W39",
       "W40"
     ],
     "monthlies": []
