@@ -481,6 +481,31 @@ HAZARD_CLASS_KEYWORDS = {
         "semicarbazide", " sem ", " sem)", " sem,",
         "histamine",
         "heavy metal", " mercury ", " cadmium ", " arsenic ",
+        # ── TWO MORE METALS (audit 2026-11-08) ───────────────────────────
+        # This class knew four metals; merge_master's own in-scope token
+        # list (the "metals and contaminants" block) knows FIVE — it has
+        # had "nickel" since it was written — so the two gates have
+        # disagreed about nickel for as long as both have existed.
+        #
+        # THE ROW THAT FOUND IT. FDA, 2026-11-03, "Snack Right Super Foods,
+        # Inc., doing business as Brad's Raw Chips Recalls Brad's Crunchy
+        # Kale & Veggie Chips Due to Potential Thallium Contamination",
+        # reason field "Product may contain thallium". Thallium is a heavy
+        # metal, heavy metals are in the printed AFTS scope, and the hazard
+        # classified as NOTHING: classify_hazard("Thallium") returned the
+        # empty set, is_in_afts_scope said False, and
+        # tests/test_curator_scope_2026_09_09.py went red the moment the row
+        # was promoted — the curator refused the hazard of a published row,
+        # so it could not have corrected a typo on it either.
+        #
+        # Measured the same morning by pushing metal names through
+        # is_in_afts_scope: thallium, nickel, tin, antimony, chromium,
+        # copper, aluminium, barium and cobalt were ALL out of scope as a
+        # bare Pathogen. Only the two with evidence are added. "tin" in
+        # particular must never become a bare token here — this class is
+        # matched against Reason as well as Pathogen, and "180 g tin" and
+        # "sold in tins" are everywhere in the register.
+        "thallium", " nickel ",
         # NOT a bare " lead " (audit 2026-08-02). Once the French motifs were
         # translated, "…can lead to poor preservation and microbial growth"
         # classified as CHEMICAL and manufactured a contradiction against a

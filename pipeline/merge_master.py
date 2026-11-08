@@ -382,6 +382,45 @@ def _normalize_url_for_dedup(url: str) -> str:
     m = re.match(r"^aesan\.gob\.es/(?:en|ca|eu|gl|va|fr|es)/(.+)$", s)
     if m:
         s = "aesan.gob.es/" + m.group(1)
+    # ── FSA (UK) alert hosts (audit 2026-11-08) ───────────────────────────
+    # The SAME identity-split as admin.ch and AESAN above, on the UK agency,
+    # and this one is already sitting in the workbook six times over. One FSA
+    # alert is addressable on three food.gov.uk hosts:
+    #
+    #   alerts.food.gov.uk/news-alerts/alert/fsa-prin-38-2026   (the page)
+    #   data.food.gov.uk/food-alerts/id/FSA-PRIN-38-2026        (the API record)
+    #   food.gov.uk/news-alerts/alert/fsa-prin-02-2026          (bare host)
+    #
+    # The PRIN notation is the identity — data.food.gov.uk returns it as the
+    # record's own `notation`, and the two addresses carry the same title,
+    # company, hazard and product list. The host is not identity.
+    #
+    # Measured on the workbook of 2026-11-08 by sweeping every food.gov.uk
+    # URL in all five sheets through this function and grouping by notation:
+    # 8 of 28 notations had more than one dedup key, and SIX of them —
+    # fsa-prin-28, 38, 39, 40, 41 and 42 of 2026 — were PUBLISHED under one
+    # host form while an independently-reviewed copy of the same alert sat
+    # REJECTED under another. On 2026-11-08 a third copy of fsa-prin-38-2026
+    # (the alerts.food.gov.uk/article/6816/… form) reached the front of the
+    # publish gate and would have been promoted as a seventh row for a
+    # recall the register has carried since 2026-08-07.
+    #
+    # The `-update-N` suffix is deliberately KEPT in the key. FSA republishes
+    # an amended alert at its own slug and this register publishes those as
+    # separate rows (fsa-prin-02-2026 plus update-1 and update-2; 28 plus
+    # update-1; 47 plus update-1). Collapsing them would start discarding
+    # extensions as duplicates, which is a different question and not one
+    # this normalizer should answer on its own.
+    #
+    # The /article/<n>/<slug> form carries no notation and cannot be mapped
+    # here without fetching the page; it is left alone on purpose.
+    m = re.match(
+        r"^(?:[a-z0-9-]+\.)?food\.gov\.uk/.*?"
+        r"(fsa-(?:prin|aa|fafa)-\d+-\d{4}(?:-update-\d+)?)",
+        s,
+    )
+    if m:
+        s = "food.gov.uk/food-alerts/" + m.group(1)
     if "?" in s:
         path, _, query = s.partition("?")
         keepers = []
@@ -2898,6 +2937,31 @@ def promote_approved(
                         _repromote_kind = "superseded"
                 except Exception:                       # pragma: no cover
                     _repromote_ok = False               # fail closed
+
+            # ── DUPLICATE-VERDICT VETO (2026-11-08) ─────────────────────────
+            # None of the exceptions above may re-open a URL that an
+            # operator or outbreak check removed as a DUPLICATE of a row
+            # already published at another URL. A duplicate verdict is
+            # about the register, not about this page, so no field repair,
+            # reachability reading, policy reversal or SUPERSEDED marker on
+            # an older archive row answers it.
+            #
+            # THE ROW THAT FOUND IT. FDA's outbreak-investigation page for
+            # the Sierra Nevada Graziers E. coli O26:H11 outbreak was
+            # removed 2026-10-04 as "duplicate_of_published_recall" (the
+            # firm's own FDA recall notice is published, Outbreak=1). On
+            # 2026-10-28 it was re-promoted by the reachability exception:
+            # reject_refusal() matched a stale "Unable to find the official
+            # regulator URL" inside the archive row's Notes, which
+            # load_rejected_urls folds into the description. It was then
+            # counted as a second October outbreak and ranked #2 in the
+            # October top-10. FSA-PRIN-47 update-1 came back the same way.
+            if _repromote_ok and "duplicate_of_published_recall" in _prior_reason.lower():
+                log.warning(
+                    "re-promotion VETOED %s — the archive verdict is "
+                    "duplicate_of_published_recall",
+                    str(clean.get("URL", ""))[:90])
+                _repromote_ok = False
 
             if _repromote_ok:
                 # Each exception tells a different story. The log and the
