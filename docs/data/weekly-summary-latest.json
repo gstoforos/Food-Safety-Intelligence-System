@@ -10,21 +10,21 @@
   "week_end_display": "8 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-08T04:26:44.111671+00:00",
+  "generated_utc": "2026-11-08T11:00:12.230185+00:00",
   "prev_total": 85,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 48,
-    "tier1": 29,
+    "total": 56,
+    "tier1": 34,
     "outbreaks": 0,
-    "delta": -37,
-    "delta_pct": -44
+    "delta": -29,
+    "delta_pct": -34
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 14,
-    "pct": 29
+    "cases": 17,
+    "pct": 30
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -58,6 +58,20 @@
     },
     {
       "rank": 3,
+      "date": "2026-11-06",
+      "pathogen": "Listeria",
+      "pathogen_raw": "Listeria",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Odin",
+      "brand": "De Oude Streek",
+      "product": "Machedoux goat's cheese (article number 0825, barcode 8714108860108, best before 21-11-2026); Macandré goat's cheese (article number 2020, barcode 8714108005028, best before 21-11-2026)",
+      "country": "Netherlands",
+      "source": "NVWA (NL)",
+      "url": "https://www.nvwa.nl/actueel/nieuws/2026/11/06/veiligheidswaarschuwing-de-oude-streek-machedoux-en-macandre-geitenkaas"
+    },
+    {
+      "rank": 4,
       "date": "2026-11-05",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -71,7 +85,7 @@
       "url": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261105_01_BW_Rohmilchkaese/261105_01_BW_Rohmilchkaese.html"
     },
     {
-      "rank": 4,
+      "rank": 5,
       "date": "2026-11-05",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -83,21 +97,7 @@
       "country": "Spain",
       "source": "RASFF (EU)",
       "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/882459"
-    },
-    {
-      "rank": 5,
-      "date": "2026-11-03",
-      "pathogen": "Listeria monocytogenes",
-      "pathogen_raw": "Listeria monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "Boucherie Viau inc.",
-      "brand": "",
-      "product": "Cured ham (Jambon cuit)",
-      "country": "Canada",
-      "source": "MAPAQ QC",
-      "url": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-presence-possible-de-listeria-monocytogenes-dans-du-jambon-cuit-prepare-et-vendu-par-lentreprise-boucherie-viau-inc-72888"
     }
   ],
-  "country_count": 15
+  "country_count": 17
 }
