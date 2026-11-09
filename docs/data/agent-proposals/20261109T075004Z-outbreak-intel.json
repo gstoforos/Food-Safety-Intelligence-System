@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261109T075004Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c988eaa7107b560c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "746116e5467a8d20"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms broccoli, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+          "quote": "2026-09-09 CDC Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3b441478e611aa47"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms broccoli, sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
+          "quote": "2026-09-10 FDA Broccoli Sprouts",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "80fda21ae23b0ee7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms sprouts. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk",
+          "quote": "2026-09-23 FDA Alfalfa sprouting seeds",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "30a2f8caa1f307b1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eak-distribution-llc-recalls-home-grown-green-sprouting-calabrese-broccoli-seeds-8-oz-heirloom"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms broccoli. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eak-distribution-llc-recalls-home-grown-green-sprouting-calabrese-broccoli-seeds-8-oz-heirloom",
+          "quote": "2026-10-02 FDA Green Sprouting Calabrese Broccoli Seeds",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f6935a15a7a1443d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eden-brothers-recalls-calabrese-broccoli-seeds-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms broccoli. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eden-brothers-recalls-calabrese-broccoli-seeds-due-possible-salmonella-contamination",
+          "quote": "2026-10-07 FDA Broccoli Seeds - Calabrese",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "04d1a9878493b6d5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gardeners-basics-recalls-waltham-29-broccoli-sprouting-seeds-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms broccoli. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/sunday-edition-farm-bill-2-0-2",
+          "quote": "A contaminated seed lot imported from New Zealand resulted in at least 34 cases of Salmonella infection in six states.",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gardeners-basics-recalls-waltham-29-broccoli-sprouting-seeds-due-possible-salmonella-contamination",
+          "quote": "2026-10-08 FDA Broccoli Sprouting Seeds",
+          "retrieved_utc": "2026-11-09T07:49:16+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d62ca18579888993"
+    }
+  ]
+}
