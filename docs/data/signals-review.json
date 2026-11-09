@@ -1,10 +1,10 @@
 {
  "meta": {
-  "week": "2026-10-26/2026-11-01",
-  "week_start": "2026-10-26",
-  "week_end": "2026-11-01",
-  "corpus_week_total": 83,
-  "generated_utc": "2026-11-02T03:26:46+00:00",
+  "week": "2026-11-02/2026-11-08",
+  "week_start": "2026-11-02",
+  "week_end": "2026-11-08",
+  "corpus_week_total": 56,
+  "generated_utc": "2026-11-09T03:26:33+00:00",
   "agent": "signal_review_agent",
   "model": null,
   "advisory_only": true,
@@ -29,16 +29,16 @@
   },
   "items": [
    {
-    "date": "2026-10-27",
+    "date": "2026-11-06",
     "hazard": "Clostridium botulinum",
     "pathogen": "Clostridium botulinum",
-    "source": "FDA",
-    "company": "Haifa Smoked Fish",
-    "product": "Cold smoked sprat fish, packed loose in bulk cardboard boxes labelled \"Cold Smoked Sprats\", all lots (approximately 560 ",
-    "country": "United States",
+    "source": "RappelConso (FR)",
+    "company": "Pinton",
+    "product": "Sardinella pâté, Pinton, 180 g tin",
+    "country": "France",
     "tier": "1",
     "outbreak": false,
-    "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/haifa-smoked-fish-recalls-cold-smoked-sprats-due-potential-health-risk",
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24039/interne",
     "why": [
      "sentinel hazard"
     ]
@@ -49,40 +49,9 @@
  },
  "novelty": [
   {
-   "pathogen": "Pseudomonas aeruginosa",
-   "stratum_key": "global::Pseudomonas aeruginosa",
+   "pathogen": "Foreign material (aluminium)",
+   "stratum_key": "global::Foreign material (aluminium)",
    "observed": 1,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 1,
-   "severity": "tier-1",
-   "records": [
-    {
-     "date": "2026-10-28",
-     "source": "Ministero della Salute (IT)",
-     "company": "Fonti Terme di Brennero Srl",
-     "product": "Mineral water",
-     "country": "Italy",
-     "outbreak": false,
-     "tier": "1"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Glass fragments",
-   "stratum_key": "global::Glass fragments",
-   "observed": 3,
    "baseline": [
     0,
     0,
@@ -98,201 +67,10 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-10-27",
-     "source": "AESAN (ES)",
-     "company": "(not specified in AESAN alert 2026_76)",
-     "product": "Vanilla cookie flavour pudding, 200 g jar, chilled, lot ES26271001, best before 25/04/2027",
-     "country": "Spain",
-     "outbreak": false,
-     "tier": "3"
-    },
-    {
-     "date": "2026-10-27",
-     "source": "SFDA (SA)",
-     "company": "(not specified in SFDA warning 19788)",
-     "product": "Arla Protein Pudding, 6 × 200 g — chocolate, hazelnut latte, salted caramel and crème brûlée flavour",
-     "country": "Saudi Arabia",
-     "outbreak": false,
-     "tier": "3"
-    },
-    {
-     "date": "2026-10-26",
-     "source": "SFA (SG)",
-     "company": "Trade-Pro Food Distribution Pte Ltd",
-     "product": "Arla Protein Salted Caramel Flavour Pudding, 200 g, best before 28.04.2027",
-     "country": "Singapore",
-     "outbreak": false,
-     "tier": "3"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Cadmium exceeding limit",
-   "stratum_key": "global::Cadmium exceeding limit",
-   "observed": 2,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-10-28",
-     "source": "Fødevarestyrelsen (DK)",
-     "company": "Coop Danmark",
-     "product": "Chopped chili",
-     "country": "Denmark",
-     "outbreak": false,
-     "tier": "2"
-    },
-    {
-     "date": "2026-10-26",
-     "source": "Livsmedelsverket (SE)",
-     "company": "Coop Sverige",
-     "product": "Frozen red chili",
-     "country": "Sweden",
-     "outbreak": false,
-     "tier": "2"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Delta-9-tetrahydrocannabinol (THC)",
-   "stratum_key": "global::Delta-9-tetrahydrocannabinol (THC)",
-   "observed": 2,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-10-28",
-     "source": "GIS (PL)",
-     "company": "DR JOINT sp. z o.o.",
-     "product": "BRAIN WASH food supplement — cannabis gummies, multifruit flavour with added vitamin C, 100 g (lot 0",
-     "country": "Poland",
-     "outbreak": false,
-     "tier": "3"
-    },
-    {
-     "date": "2026-10-26",
-     "source": "RappelConso (FR)",
-     "company": "CBeDink",
-     "product": "Loose gummies 30 mg, blueberry (Gummies vrac 30 mg, myrtille)",
-     "country": "France",
-     "outbreak": false,
-     "tier": "3"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Chlorpyrifos (pesticide residue) and unauthorized dye E 122",
-   "stratum_key": "global::Chlorpyrifos (pesticide residue) and unauthorized dye E 122",
-   "observed": 1,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-10-26",
-     "source": "BVL (DE)",
-     "company": "Abido Company for Trade and Industry",
-     "product": "Sumac (Abido Sumak), 50 g, lot 10-3-2618952 OH, best before 10.03.2029",
-     "country": "Germany",
-     "outbreak": false,
-     "tier": "3"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Glass bits",
-   "stratum_key": "global::Glass bits",
-   "observed": 1,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-10-27",
-     "source": "Mattilsynet",
-     "company": "Arla Foods",
-     "product": "Protein Pudding Chocolate",
-     "country": "Norway",
-     "outbreak": false,
-     "tier": "3"
-    }
-   ],
-   "testable": false,
-   "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
-  },
-  {
-   "pathogen": "Mushroom toxins (Clitocybe nebularis)",
-   "stratum_key": "global::Mushroom toxins (Clitocybe nebularis)",
-   "observed": 1,
-   "baseline": [
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-   ],
-   "first_appearance_ever": true,
-   "outbreak_records": 0,
-   "tier1_records": 0,
-   "severity": "no severity flag",
-   "records": [
-    {
-     "date": "2026-10-28",
+     "date": "2026-11-05",
      "source": "CAA (JP)",
-     "company": "Noguchi",
-     "product": "Shiro-shimeji mushrooms, sold as shiro-shimeji and found to be haiiro-shimeji (Clitocybe nebularis)",
+     "company": "Takase Chagyo Kumiai",
+     "product": "Shunan City specialty Takase tea",
      "country": "Japan",
      "outbreak": false,
      "tier": "3"
@@ -302,8 +80,8 @@
    "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
   },
   {
-   "pathogen": "Pesticide residue exceeding limit (klorpirifos)",
-   "stratum_key": "global::Pesticide residue exceeding limit (klorpirifos)",
+   "pathogen": "Thallium (heavy metal)",
+   "stratum_key": "global::Thallium (heavy metal)",
    "observed": 1,
    "baseline": [
     0,
@@ -320,11 +98,11 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-10-29",
-     "source": "HAH (HR)",
-     "company": "Naturala d.o.o.",
-     "product": "Kraut 6-9 670 g K Classic",
-     "country": "Croatia",
+     "date": "2026-11-03",
+     "source": "FDA",
+     "company": "Snack Right Super Foods, Inc. (dba Brad's Raw Chips)",
+     "product": "Brad's Crunchy Kale Original, 2 oz (57 g), UPC 813104021679; Brad's Crunchy Kale Cheeze It Up, 2 oz ",
+     "country": "United States",
      "outbreak": false,
      "tier": "3"
     }
@@ -333,8 +111,8 @@
    "why_untestable": "guarded 7-week baseline is entirely zero: the sparsity ladder suppresses the stratum (mean < 1/week, no non-zero weeks) and with pi_hat = 0 the share-channel binomial is degenerate. A p-value cannot be measured against a baseline that does not exist; this is reported as a fact, not scored."
   },
   {
-   "pathogen": "Unauthorised food additive use (calcium pantothenate)",
-   "stratum_key": "global::Unauthorised food additive use (calcium pantothenate)",
+   "pathogen": "Veterinary drug residue (doxycycline)",
+   "stratum_key": "global::Veterinary drug residue (doxycycline)",
    "observed": 1,
    "baseline": [
     0,
@@ -351,11 +129,11 @@
    "severity": "no severity flag",
    "records": [
     {
-     "date": "2026-10-29",
-     "source": "CAA (JP)",
-     "company": "SBK Toyama",
-     "product": "Pantothenic acid 300 mg",
-     "country": "Japan",
+     "date": "2026-11-06",
+     "source": "CFS (HK)",
+     "company": "Willy More Development Limited",
+     "product": "Frozen chicken leg, 15 kg per carton, place of origin China, manufacture date 22 July 2026, best-bef",
+     "country": "Hong Kong",
      "outbreak": false,
      "tier": "3"
     }
@@ -368,21 +146,17 @@
   "observed": 0,
   "baseline": [
    4,
-   4,
    2,
    1,
    1,
    1,
-   3
+   2,
+   0
   ],
-  "baseline_mean": 2.29,
+  "baseline_mean": 1.57,
   "poisson_p_upper": 1.0,
   "note": "exact Poisson upper tail vs the guarded 7-week mean; small counts — read the tail, do not threshold it",
   "series_12w": [
-   {
-    "week": "2026-08-10/2026-08-16",
-    "n": 0
-   },
    {
     "week": "2026-08-17/2026-08-23",
     "n": 1
@@ -413,7 +187,7 @@
    },
    {
     "week": "2026-10-05/2026-10-11",
-    "n": 3
+    "n": 2
    },
    {
     "week": "2026-10-12/2026-10-18",
@@ -426,109 +200,70 @@
    {
     "week": "2026-10-26/2026-11-01",
     "n": 0
+   },
+   {
+    "week": "2026-11-02/2026-11-08",
+    "n": 0
    }
   ],
   "records": []
  },
  "news": {
-  "n_headlines": 29,
+  "n_headlines": 26,
   "burst_threshold": 3,
   "applies_to_week": true,
   "note": "rolling 7-day NEWS sheet read at run time; describes the latest complete week",
-  "baseline_weeks_available": 9,
+  "baseline_weeks_available": 10,
   "pathogens": [
    {
     "pathogen": "Salmonella",
-    "headlines": 9,
-    "burst": true,
-    "baseline_weeks": 7,
-    "baseline_mean": 9.29,
-    "samples": [
-     "West Virginia Salmonella Outbreak Sickens 41, Source Unknown",
-     "Wicomico River Raw Oysters Salmonella Outbreak Case Count Grows",
-     "365 Whole Foods Ashwagandha Capsules Recalled For Salmonella",
-     "Salmonella sickens 60 at hospital in Costa Rica",
-     "Botulism risk prompts warning in Czech Republic"
-    ]
-   },
-   {
-    "pathogen": "Possible incomplete pasteurization (process deviation)",
-    "headlines": 6,
-    "burst": true,
-    "baseline_weeks": 7,
-    "baseline_mean": 1.29,
-    "samples": [
-     "Possible E. coli Outbreak at State Fair of Texas Sickens Seven",
-     "Possible E. coli Outbreak at Brookshire Farms in San Luis Obispo",
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "USDA Study Explores Enzyme-Bacteriocin Treatments to Control Listeria Biofilms in Food Processing Environments",
-     "Possible E. coli Outbreak at Bengtson’s Pumpkin Farm in Illinois"
-    ]
-   },
-   {
-    "pathogen": "Possible foreign body (Steel sphere)",
     "headlines": 5,
     "burst": true,
     "baseline_weeks": 7,
-    "baseline_mean": 0.14,
+    "baseline_mean": 8.71,
     "samples": [
-     "Possible E. coli Outbreak at State Fair of Texas Sickens Seven",
-     "Possible E. coli Outbreak at Brookshire Farms in San Luis Obispo",
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "Possible E. coli Outbreak at Bengtson’s Pumpkin Farm in Illinois",
-     "FDA Warns About Possible Botulism in Haifa Cold Smoked Sprats"
+     "Evergreen Fresh Broccoli Sprouts Salmonella Outbreak Ends",
+     "Public health officials say sprout outbreak is over; won't name seed supplier",
+     "Slovenia sees rise in E. coli but fall in Salmonella cases",
+     "FDA Issues Safety Alert for Little Wicomico Company Oysters",
+     "Seasonal Salmonella Meat Contamination Patterns Disappearing in U.S., Except for Ground Beef"
     ]
    },
    {
     "pathogen": "Clostridium botulinum",
-    "headlines": 2,
-    "burst": false,
+    "headlines": 4,
+    "burst": true,
     "baseline_weeks": 7,
-    "baseline_mean": 1.14,
+    "baseline_mean": 1.0,
     "samples": [
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "FDA Warns About Possible Botulism in Haifa Cold Smoked Sprats"
+     "Sunday Edition: Farm Bill 2.0",
+     "ByHeart Formula Discontinued After Infant Botulism Outbreak, But Founders Set to Acquire Different Formula Bus",
+     "Rep. DeLauro Questions Sale of ByHeart Infant Formula",
+     "Congresswoman has concerns about sale of infant formula company"
     ]
    },
    {
     "pathogen": "Clostridium perfringens",
+    "headlines": 4,
+    "burst": true,
+    "baseline_weeks": 7,
+    "baseline_mean": 1.0,
+    "samples": [
+     "Sunday Edition: Farm Bill 2.0",
+     "ByHeart Formula Discontinued After Infant Botulism Outbreak, But Founders Set to Acquire Different Formula Bus",
+     "Rep. DeLauro Questions Sale of ByHeart Infant Formula",
+     "Congresswoman has concerns about sale of infant formula company"
+    ]
+   },
+   {
+    "pathogen": "Coliform / total bacterial count",
     "headlines": 2,
     "burst": false,
     "baseline_weeks": 7,
     "baseline_mean": 1.14,
     "samples": [
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "FDA Warns About Possible Botulism in Haifa Cold Smoked Sprats"
-    ]
-   },
-   {
-    "pathogen": "Coliform / total bacterial count",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 7,
-    "baseline_mean": 1.0,
-    "samples": [
-     "Wicomico River Raw Oysters Salmonella Outbreak Case Count Grows"
-    ]
-   },
-   {
-    "pathogen": "Cyclospora",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 7,
-    "baseline_mean": 3.14,
-    "samples": [
-     "FDA declares end to outbreak linked to Trader Joe's chicken wraps; a new outbreak is under investigation"
-    ]
-   },
-   {
-    "pathogen": "Mycotoxin (unspecified)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 7,
-    "baseline_mean": 0.71,
-    "samples": [
-     "USDA Researchers Use Crickets to Convert Mycotoxin-Contaminated Corn Into High-Protein Animal Feed"
+     "County closes investigation into pumpkin patch linked to E. coli outbreak",
+     "Bird Flu Killed a Yakima County Dairy Worker. Thirty-Four Washington Dairy Herds Are Infected in Three Weeks, "
     ]
    },
    {
@@ -536,19 +271,79 @@
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 7,
-    "baseline_mean": 4.0,
+    "baseline_mean": 3.57,
     "samples": [
-     "USDA Study Explores Enzyme-Bacteriocin Treatments to Control Listeria Biofilms in Food Processing Environments"
+     "Biscuit sandwiches recalled because of Listeria risk"
     ]
    },
    {
-    "pathogen": "Campylobacter",
+    "pathogen": "Aflatoxin",
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 7,
-    "baseline_mean": 1.14,
+    "baseline_mean": 0.14,
     "samples": [
-     "Campylobacter response in chickens not enough for elimination"
+     "FAO and WHO ask for aflatoxin and Brucella data"
+    ]
+   },
+   {
+    "pathogen": "Bacillus cereus",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.43,
+    "samples": [
+     "Novel Bacteriophage Shows Potential to Control Drug-Resistant Bacillus cereus in Milk, Rice, Pork"
+    ]
+   },
+   {
+    "pathogen": "Cereulide (B. cereus toxin)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.43,
+    "samples": [
+     "Novel Bacteriophage Shows Potential to Control Drug-Resistant Bacillus cereus in Milk, Rice, Pork"
+    ]
+   },
+   {
+    "pathogen": "Cyclospora",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 2.57,
+    "samples": [
+     "UK links illnesses in 2025 and 2026 to eggs from Ukraine"
+    ]
+   },
+   {
+    "pathogen": "Thallium (heavy metal)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.0,
+    "samples": [
+     "Kale chips recalled because of thallium contamination"
+    ]
+   },
+   {
+    "pathogen": "Foreign material (shell fragments)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.14,
+    "samples": [
+     "FDA increases enforcement of import rules on shellfish, tamarind and canned foods"
+    ]
+   },
+   {
+    "pathogen": "Paralytic shellfish toxins (PSP)",
+    "headlines": 1,
+    "burst": false,
+    "baseline_weeks": 7,
+    "baseline_mean": 0.14,
+    "samples": [
+     "FDA increases enforcement of import rules on shellfish, tamarind and canned foods"
     ]
    },
    {
@@ -556,9 +351,9 @@
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 7,
-    "baseline_mean": 0.29,
+    "baseline_mean": 0.43,
     "samples": [
-     "Taylor Farms recalls salad kits because of undeclared allergens"
+     "USDA issues warning about Betterballen beef and chicken products because of undeclared allergens"
     ]
    },
    {
@@ -566,9 +361,9 @@
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 7,
-    "baseline_mean": 0.0,
+    "baseline_mean": 0.14,
     "samples": [
-     "Taylor Farms recalls salad kits because of undeclared allergens"
+     "USDA issues warning about Betterballen beef and chicken products because of undeclared allergens"
     ]
    },
    {
@@ -576,45 +371,22 @@
     "headlines": 1,
     "burst": false,
     "baseline_weeks": 7,
-    "baseline_mean": 0.71,
+    "baseline_mean": 0.86,
     "samples": [
-     "Taylor Farms recalls salad kits because of undeclared allergens"
-    ]
-   },
-   {
-    "pathogen": "Rodenticide (rat poison)",
-    "headlines": 1,
-    "burst": false,
-    "baseline_weeks": 7,
-    "baseline_mean": 0.29,
-    "samples": [
-     "Caterer suspended after food poisoning link"
+     "USDA issues warning about Betterballen beef and chicken products because of undeclared allergens"
     ]
    }
   ],
   "news_only": [
    {
-    "pathogen": "Possible incomplete pasteurization (process deviation)",
-    "headlines": 6,
+    "pathogen": "Clostridium perfringens",
+    "headlines": 4,
     "register_records_this_week": 0,
     "samples": [
-     "Possible E. coli Outbreak at State Fair of Texas Sickens Seven",
-     "Possible E. coli Outbreak at Brookshire Farms in San Luis Obispo",
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "USDA Study Explores Enzyme-Bacteriocin Treatments to Control Listeria Biofilms in Food Processing Environments",
-     "Possible E. coli Outbreak at Bengtson’s Pumpkin Farm in Illinois"
-    ]
-   },
-   {
-    "pathogen": "Possible foreign body (Steel sphere)",
-    "headlines": 5,
-    "register_records_this_week": 0,
-    "samples": [
-     "Possible E. coli Outbreak at State Fair of Texas Sickens Seven",
-     "Possible E. coli Outbreak at Brookshire Farms in San Luis Obispo",
-     "Haifa Cold Smoked Sprats Recalled For Possible Botulism Risk",
-     "Possible E. coli Outbreak at Bengtson’s Pumpkin Farm in Illinois",
-     "FDA Warns About Possible Botulism in Haifa Cold Smoked Sprats"
+     "Sunday Edition: Farm Bill 2.0",
+     "ByHeart Formula Discontinued After Infant Botulism Outbreak, But Founders Set to Acquire Different Formula Bus",
+     "Rep. DeLauro Questions Sale of ByHeart Infant Formula",
+     "Congresswoman has concerns about sale of infant formula company"
     ]
    }
   ]
