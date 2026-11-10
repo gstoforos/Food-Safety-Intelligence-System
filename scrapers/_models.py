@@ -335,7 +335,14 @@ PATHOGEN_RULES: List[Tuple[str, str]] = [
     ("Sulphite-reducing anaerobes (ASR)",
         r"\basr\b|\bsulph?ite[\s-]?reducing\s+anaerob\w*\b"
         r"|\banaerobies\s+sulfito"),
-    ("Histamine / scombrotoxin", r"\bhistamine\b|\bscombro(toxin|id)?\b"),
+    # "istamina" (it), "histamina" (es/pt), "histamin" (de/sv/no) —
+    # 2026-11-10: a Ministero della Salute tuna recall sat in Pending on
+    # Pathogen "Istamina exceeding limit", which matches no subscriber
+    # alert term, so publish-gate rule 10c held it; a second copy was
+    # already archived in Rejected on the same label. The register's own
+    # canonical value, on 23 published rows, is "Histamine / scombrotoxin".
+    ("Histamine / scombrotoxin",
+     r"\b(?:h?istamin[aeo]?|histamine)\b|\bscombro(toxin|id)?\b"),
     # Visible mould / fungal growth — in scope from 2026-09-07 (see the
     # block in pipeline/_pathogen_scope.py). LAST in the list on purpose:
     # a notice that also names a mycotoxin or a pathogen matches that rule
