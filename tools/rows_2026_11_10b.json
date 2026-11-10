@@ -1,0 +1,30 @@
+[
+  {
+    "Date": "2026-11-09",
+    "Source": "RappelConso (FR)",
+    "Company": "Houra",
+    "Brand": "Alnatura",
+    "Product": "Organic salad seed mix (mélange graine salade bio), 100 g sachet, GTIN 4104420230538, best before 03/06/2027 to 13/07/2027",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella detected in pine nuts.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24041/Interne",
+    "Notes": "[daily-global pass 2026-11-10: missed-recall sweep. Read on the fiche itself today — Fiche réf. 2026-11-0054 version 1, publiée le 09/11/2026, Titre \"Mélange graine salade Bio 100g ALNATURA\", Marque ALNATURA, GTIN 4104420230538, Conditionnement \"Sachet de 100g\", date de durabilité minimale entre le 03/06/2027 et le 13/07/2027, Motif \"Présence de Salmonelle détectée dans des pignons de pin.\", Risques \"Salmonella spp (agent responsable de la salmonellose)\", Distributeur houra.fr, Zone Auvergne-Rhône-Alpes, Grand-Est, Hauts-de-France, Île-de-France, Origine de la fiche \"HOURA HOURA\", Volontaire (sans arrêté préfectoral). Company is the fiche's own originator. A different fiche (24032, 2026-11-06, filed for Alnatura) covers the same product nationally; this is a separate fiche by a separate filer. If the near-duplicate rule refuses this row, that refusal is accepted. Nothing added that the fiche does not state.] [original product: Mélange graine salade Bio 100g] [original Reason (fr): \"Présence de Salmonelle détectée dans des pignons de pin.\"]"
+  },
+  {
+    "Date": "2026-11-09",
+    "Source": "RappelConso (FR)",
+    "Company": "Ecoplus Prodorplus",
+    "Brand": "Santa Maria",
+    "Product": "Santa Maria pears (poire Santa Maria), sold by the crate, lot 290926 231KG",
+    "Pathogen": "Pesticide residues",
+    "Reason": "Pesticide residues above the authorised limits.",
+    "Class": "Voluntary",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24006/Interne",
+    "Notes": "[daily-global pass 2026-11-10: missed-recall sweep. Read on the fiche itself today — Fiche réf. 2026-11-0026 version 1, published 09/11/2026, Titre \"POIRE SANTA MARIA\", Marque SANTA MARIA, Lot \"290926 231KG\", Conditionnement \"CAISSE\", commercialisée du 21/10/2026 au 24/10/2026, Motif \"PECTICIDE ET BIOCIDE\" (as printed), Risques \"Dépassement des limites autorisées de pesticides\", Distributeurs PRODORPLUS BORNY and PRODORPLUS LONGEVILLE LES ST AVOLD, Zone France entière, Origine de la fiche \"ECOPLUS PRODORPLUS\", Volontaire (sans arrêté préfectoral). No substance is named, so Pathogen is the register's generic label. No unit weight or date mark is printed and none is added.] [original product: POIRE SANTA MARIA] [original Reason (fr): \"Dépassement des limites autorisées de pesticides\"]"
+  }
+]
