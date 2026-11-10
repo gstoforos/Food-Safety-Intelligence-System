@@ -139,6 +139,31 @@ class TestTheRegisterRows:
                 if str(dict(zip(hdr, r)).get("Pathogen") or "")
                 .startswith("Uninspected product")]
 
+    @classmethod
+    def _fsis_rows(cls):
+        """The USDA FSIS cohort this file was written for.
+
+        NARROWED 2026-11-10. The selector above picks every row carrying the
+        uninspected canonical, and until today only FSIS produced one, so the
+        two sets were the same and three assertions below were written as if
+        the canonical IMPLIED the host. It does not. The 2026-11-10 morning
+        pass published a Japan CAA recall — Sajima Kakojo Misaikan, hassaku
+        marmalade, rcl=00000036105 — whose ground is 無許可施設で製造された:
+        made at an UNLICENSED facility, so the product's safety cannot be
+        confirmed. That is the same hazard class (no inspection, therefore no
+        hazard assessed) reached under a different country's law, and R6
+        lists "uninspected product" as its own scope category, separately
+        from the FSIS import-eligibility cases the parenthetical is about.
+
+        So the canonical is shared, and the FSIS-specific assertions — the
+        row count, the fsis.usda.gov path, the FSIS operator-ruling stamps —
+        apply to the FSIS cohort. test_a_non_fsis_uninspected_row_is_on_its
+        _own_authority_host holds the rest of the class to the same standard
+        on its own terms.
+        """
+        return [r for r in cls._uninspected_rows()
+                if "fsis.usda.gov" in str(r.get("URL") or "")]
+
     IMPORT_FIRMS = ("mays chemical", "sobico", "bci foods", "maple leaf",
                     "corte argentino", "shan distribution",
                     "asian america", "el eden", "sempio",
@@ -162,15 +187,40 @@ class TestTheRegisterRows:
         federal inspection, 24 Oct 2026. The count is a floor on the rows
         this file was written for, plus the ones published since; each must
         still carry its provenance (test below)."""
-        rows = [r for r in self._uninspected_rows() if not self._is_import(r)]
+        rows = [r for r in self._fsis_rows() if not self._is_import(r)]
         assert len(rows) == 5, [r.get("Date") for r in rows]
 
     def test_each_is_on_the_authority_host_with_a_per_recall_path(self):
-        for r in self._uninspected_rows():
+        for r in self._fsis_rows():
             url = str(r.get("URL") or "")
             assert url.startswith("https://www.fsis.usda.gov/recalls-alerts/"), url
             assert len(url.rstrip("/").split("/")[-1]) > 12, (
                 f"looks like a listing, not a notice: {url}")
+
+    def test_a_non_fsis_uninspected_row_is_on_its_own_authority_host(self):
+        """The canonical is shared since 2026-11-10 — the standard is not.
+
+        A row that is not FSIS's still has to cite ITS OWN regulator's own
+        per-recall page (R3), not a news URL and not a listing.
+        """
+        from pipeline._gap_finder_guards import REGULATOR_HOSTS, _host
+        others = [r for r in self._uninspected_rows()
+                  if r not in self._fsis_rows()]
+        for r in others:
+            url = str(r.get("URL") or "")
+            host = _host(url)
+            assert host and (host in REGULATOR_HOSTS or
+                             any(host.endswith("." + h)
+                                 for h in REGULATOR_HOSTS)), (
+                f"{r.get('Date')}: {url} is not on a known regulator host")
+            tail = url.rstrip("/").split("/")[-1]
+            assert len(tail) > 12, (
+                f"looks like a listing, not a notice: {url}")
+            notes = str(r.get("Notes") or "")
+            assert "[original Reason" in notes or "read on" in notes.lower(), (
+                f"{r.get('Date')}: a row published under the uninspected "
+                f"canonical by a route other than FSIS must say in Notes "
+                f"where its facts were read")
 
     def test_none_of_them_invented_a_pathogen(self):
         for r in self._uninspected_rows():
@@ -191,7 +241,7 @@ class TestTheRegisterRows:
         """fsis.usda.gov answers 403 to the environment these were added
         from, so each row has to say where its facts came from — and which
         ruling put it in scope."""
-        for r in self._uninspected_rows():
+        for r in self._fsis_rows():
             notes = str(r.get("Notes") or "")
             assert "SOURCES:" in notes, r.get("Date")
             ruling = ("operator ruling 2026-09-30" if self._is_import(r)
@@ -204,7 +254,7 @@ class TestTheRegisterRows:
         line while it was unruled. All nine 2026 FSIS import-violation
         recalls are now in the register, under the uninspected canonical."""
         blobs = [(str(r.get("Company")) + " " + str(r.get("Reason"))).lower()
-                 for r in self._uninspected_rows()]
+                 for r in self._fsis_rows()]
         for firm in self.IMPORT_FIRMS:
             assert any(firm in b for b in blobs), firm
 
