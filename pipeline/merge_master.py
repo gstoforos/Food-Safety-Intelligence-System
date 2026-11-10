@@ -32,6 +32,35 @@ from openpyxl.styles import Font, PatternFill
 
 from scrapers._models import Recall
 
+
+def _text(value: Any) -> str:
+    """A cell's text, with a pandas EMPTY CELL read as "" (2026-11-10).
+
+    ``pd.read_excel(...).to_dict("records")`` gives ``float('nan')`` for every
+    empty cell, and **nan is truthy**, so the idiom used all over this module
+
+        (row.get("RejectedBy") or "").strip()
+
+    does not fall back — it calls ``.strip()`` on a float and raises
+    ``AttributeError: 'float' object has no attribute 'strip'``. That is what
+    killed ``pipeline.promote_gate_passing --apply`` on 2026-11-10, inside
+    ``mark_rejected_with_counter``, while it was promoting seven verified
+    rows: the whole run died and nothing was written.
+
+    Wrapping in ``str()`` is NOT the fix for these columns, even though most
+    of this module does exactly that: ``str(float('nan'))`` is the string
+    ``"nan"``, and writing "nan" into RejectedBy would register a reviewer by
+    that name and make the two-reviewer delete threshold fire on fiction.
+    An empty cell means nothing was written, so it reads as "".
+    """
+    if value is None:
+        return ""
+    if isinstance(value, float) and value != value:       # NaN
+        return ""
+    t = str(value)
+    return "" if t.strip().lower() in ("nan", "nat", "none") else t
+
+
 log = logging.getLogger(__name__)
 
 SCHEMA = ["Date", "Source", "Company", "Brand", "Product", "Pathogen", "Reason",
@@ -576,7 +605,7 @@ def _check_date_consistency(row: Dict[str, Any]) -> Optional[str]:
     Rows where Notes mentions e.g. "in 2025" while Date is 2026 will pass.
     """
     date_field = str(row.get("Date") or "")[:10]
-    notes = str(row.get("Notes") or "")
+    notes = _text(row.get("Notes"))
     if not date_field or not notes:
         return None
     try:
@@ -1845,7 +1874,7 @@ def append_to_pending(
         if u:
             existing_urls.add(u)
     for r in existing_pending:
-        if (r.get("Status") or "").lower() == STATUS_REJECTED:
+        if _text(r.get("Status")).lower() == STATUS_REJECTED:
             continue  # let the retry path handle this URL
         u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
         if u:
@@ -2103,7 +2132,7 @@ def mark_rejected_with_counter(row: Dict[str, Any], reason: str
     reviewer = _reviewer_from_reason(reason)
 
     # Parse existing reviewer set from the RejectedBy column
-    raw = (row.get("RejectedBy") or "").strip()
+    raw = _text(row.get("RejectedBy")).strip()
     rejected_by = set(filter(None, (s.strip() for s in raw.split(","))))
 
     # Same-reviewer repeat is idempotent (still update Notes for visibility)
@@ -2116,7 +2145,7 @@ def mark_rejected_with_counter(row: Dict[str, Any], reason: str
     # Stamp reason into Notes (preserve any prior REJECTED: prefix history
     # by appending instead of overwriting if a previous reviewer already
     # tagged it).
-    orig_notes = (row.get("Notes") or "").strip()
+    orig_notes = _text(row.get("Notes")).strip()
     new_stamp = f"REJECTED: {reason}"
     if orig_notes.startswith("REJECTED:"):
         # Already has a rejection stamp — append the new reviewer's reason
@@ -2156,20 +2185,20 @@ def cleanup_orphan_rejected(pending: List[Dict[str, Any]],
     filtered: List[Dict[str, Any]] = []
     n_deleted = 0
     for r in pending:
-        if (r.get("Status") or "").lower() != STATUS_REJECTED:
+        if _text(r.get("Status")).lower() != STATUS_REJECTED:
             filtered.append(r)
             continue
 
         # If RejectedBy already tracks 2+ reviewers, mark_rejected_with_counter
         # would have deleted this row already — keep it as-is for the caller.
         rejected_by = set(filter(None, (
-            s.strip() for s in (r.get("RejectedBy") or "").split(","))))
+            s.strip() for s in _text(r.get("RejectedBy")).split(","))))
         if len(rejected_by) >= 2:
             n_deleted += 1
             continue  # delete (already past the counter threshold)
 
         # Otherwise, age-based delete: anything rejected >24h ago goes away.
-        scraped_at = (r.get("ScrapedAt") or "").strip()
+        scraped_at = _text(r.get("ScrapedAt")).strip()
         try:
             sa = datetime.fromisoformat(scraped_at.replace("Z", "+00:00"))
             if sa.tzinfo is None:
@@ -3625,7 +3654,7 @@ def strip_empty_identifier_template(rows, *, where: str = "") -> int:
                         raw[-60:], cleaned[-60:])
             row["Reason"] = cleaned
             row["Notes"] = (
-                str(row.get("Notes") or "").strip() +
+                _text(row.get("Notes")).strip() +
                 " [reason-cleanup: the extractor's own empty-identifier "
                 "template text was stripped from Reason — it names no "
                 "identifier and would have been published verbatim. Same "
@@ -3847,6 +3876,37 @@ def _write_sheet(wb: Workbook,
                     ).strip()
     except Exception as exc:
         log.warning("Bot-wall scrub skipped at writer [%s]: %s: %s",
+                    sheet_name, type(exc).__name__, str(exc)[:80])
+
+    # ── Page furniture (2026-11-10) ─────────────────────────────────────────
+    # The sibling of the bot wall: the fetch WORKED and the title extractor
+    # took the chrome. 16 rows carried a consent heading ("Ihre
+    # Datenschutzeinstellungen", AGES, 13 rows), a nav heading ("Navigation
+    # und Service", BVL, 3), an FDA outbreak TABLE HEADER, or an SFA share
+    # widget as their Product. Five of them were recalls already PUBLISHED
+    # under the same URL, and two of those were the rows that turned
+    # tests/test_a_recall_is_not_both_published_and_rejected.py red.
+    #
+    # Same choke point, same remedy, a DIFFERENT note: blanking is the true
+    # statement, and an empty Product holds the row from publication.
+    try:
+        from pipeline._bot_wall import scrub_furniture_fields as _scrub_furn
+        for _row in rows:
+            _hit = _scrub_furn(_row)
+            if _hit:
+                log.warning("Page furniture blanked at writer [%s]: %s (%s)",
+                            sheet_name, ",".join(_hit),
+                            str(_row.get("URL", ""))[:80])
+                if "Notes" in schema and "page furniture" not in str(
+                        _row.get("Notes") or ""):
+                    _row["Notes"] = (
+                        str(_row.get("Notes") or "").strip() +
+                        f" [page furniture removed from {'/'.join(_hit)}: the "
+                        f"fetch succeeded but the extractor read the page's "
+                        f"chrome, not the notice]"
+                    ).strip()
+    except Exception as exc:
+        log.warning("Page-furniture scrub skipped at writer [%s]: %s: %s",
                     sheet_name, type(exc).__name__, str(exc)[:80])
 
     # ── Page status banners folded into Company (audit 2026-08-02) ─────────

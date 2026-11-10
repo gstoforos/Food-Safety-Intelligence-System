@@ -252,12 +252,13 @@ def product_is_garbage(product: str) -> bool:
     if _ARTIFACT_RE.search(p):
         return True
     # A challenge page's title ("Gcore", "Just a moment...") is not a product
-    # (2026-09-30). Imported lazily and fail-OPEN on import error only for
-    # this one check, so the stdlib-only guarantee above still holds for
-    # every other guard.
+    # (2026-09-30), and neither is the page's own chrome — a consent heading,
+    # a nav heading, a table header row (2026-11-10). Imported lazily and
+    # fail-OPEN on import error only for this one check, so the stdlib-only
+    # guarantee above still holds for every other guard.
     try:
-        from pipeline._bot_wall import is_wall_title
-        if is_wall_title(p):
+        from pipeline._bot_wall import is_not_the_notice
+        if is_not_the_notice(p):
             return True
     except Exception:                                        # noqa: BLE001
         pass
