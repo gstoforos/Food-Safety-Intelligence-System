@@ -575,11 +575,12 @@ def _extract_title_raw(html: str) -> str:
 
 
 def extract_title(html: str) -> str:
-    """_extract_title_raw, but never a challenge page's title (2026-09-30)."""
+    """_extract_title_raw, but never a challenge page's title (2026-09-30)
+    and never the page's own chrome (2026-11-10)."""
     t = _extract_title_raw(html)
     try:
-        from pipeline._bot_wall import is_wall_title
-        if is_wall_title(t):
+        from pipeline._bot_wall import is_not_the_notice
+        if is_not_the_notice(t):
             return ""
     except Exception:                                        # noqa: BLE001
         pass
