@@ -1,0 +1,25 @@
+[
+  {
+    "proposal_id": "013efa440d7810bb",
+    "action": "enrich",
+    "applied": false,
+    "refusals": [
+      "Company is not English: 'La Ferme des Robins'"
+    ],
+    "detail": ""
+  },
+  {
+    "proposal_id": "4392765a61043037",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 3"
+  },
+  {
+    "proposal_id": "fb62ca3a40602a14",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 4"
+  }
+]
