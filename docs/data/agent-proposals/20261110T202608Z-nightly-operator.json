@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-11-10T20:25:57Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.95,
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24052/interne"
+      },
+      "changes": {
+        "Product": "Seasoned sheep sausage meat (chair à saucisse de brebis assaisonnée)",
+        "Reason": "Non-compliant microbiological analysis; Listeria monocytogenes and Salmonella spp. named as the risks",
+        "Pathogen": "Listeria monocytogenes and Salmonella spp."
+      },
+      "reason": "Product and Reason were French (standing English-output rule). The fiche's Risques encourus names BOTH Listeria monocytogenes and Salmonella spp; the row named only the first. Read on the fiche 2026-11-10.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24052/interne",
+          "quote": "Chair à saucisse de brebis assaisonnée — LA FERME DES ROBINS — Motif: Analyse microbiologique non conforme — Risques: Listeria monocytogenes (agent responsable de la listériose); Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-10T20:25:57Z"
+        }
+      ]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.95,
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24043/interne"
+      },
+      "changes": {
+        "Product": "Chicken delight slices (tranche délice de poulet), 120 g",
+        "Reason": "Presence of Listeria monocytogenes detected"
+      },
+      "reason": "Product and Reason were French (standing English-output rule). Read on the fiche 2026-11-10.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24043/interne",
+          "quote": "TRANCHE DELICE DE POULET 120g — ALJADID — Motif: Mise en évidence de la présence de Listeria Monocytogenes — Risques: Listeria monocytogenes (agent responsable de la listériose)",
+          "retrieved_utc": "2026-11-10T20:25:57Z"
+        }
+      ]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.95,
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24048/interne"
+      },
+      "changes": {
+        "Product": "Artisanal rillettes (rillette artisanale)"
+      },
+      "reason": "Product was French (standing English-output rule). Read on the fiche 2026-11-10.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24048/interne",
+          "quote": "RILLETTE ARTISANALE — E.LECLERC SAINT GREGOIRE — fiche réf. 2026-11-0061 — Motif: présence de listeria monocytogenes — Risques: Listeria monocytogenes (agent responsable de la listériose)",
+          "retrieved_utc": "2026-11-10T20:25:57Z"
+        }
+      ]
+    }
+  ]
+}

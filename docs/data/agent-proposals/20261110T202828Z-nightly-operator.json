@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "2026-11-10T20:28:06Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.9,
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24052/interne"
+      },
+      "changes": {
+        "Company": "SCIC Bio A Pro",
+        "Brand": "La Ferme des Robins",
+        "Product": "Seasoned sheep sausage meat (chair à saucisse de brebis assaisonnée)",
+        "Reason": "Non-compliant microbiological analysis; Listeria monocytogenes and Salmonella spp. named as the risks",
+        "Pathogen": "Listeria monocytogenes and Salmonella spp."
+      },
+      "reason": "Product and Reason were French (standing English-output rule). Company set to the distributor the fiche names (Distributeurs: SCIC BIO A PRO uniquement), as the register did today for fiche 24041 (Company Houra, Brand Alnatura); the brand LA FERME DES ROBINS stays in Brand. The fiche's Risques encourus names BOTH Listeria monocytogenes and Salmonella spp; the row named only the first. Read on the fiche 2026-11-10.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24052/interne",
+          "retrieved_utc": "2026-11-10T20:28:06Z",
+          "quote": "Chair à saucisse de brebis assaisonnée — Nom de la marque du produit: LA FERME DES ROBINS — Distributeurs: SCIC BIO A PRO uniquement — Motif du rappel: Analyse microbiologique non conforme — Risques encourus: Listeria monocytogenes (agent responsable de la listériose); Salmonella spp (agent responsable de la salmonellose)"
+        }
+      ]
+    }
+  ]
+}
