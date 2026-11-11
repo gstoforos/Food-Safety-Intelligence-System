@@ -1,0 +1,30 @@
+[
+  {
+    "Date": "2026-11-09",
+    "Source": "BVL (DE)",
+    "Company": "Bakenhus Biofleisch GmbH",
+    "Brand": "Bakenhus Biofleisch",
+    "Product": "German corned beef (Deutsches Corned Beef), 160 g glass jar, batch 090426, best before 01.03.2028, 05.03.2028 and 10.03.2028",
+    "Pathogen": "Foreign material (glass)",
+    "Reason": "Glass fragments found in one jar; the batch is recalled as a precaution.",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261109_09_NI_Corned_Beef/261109_09_NI_Corned_Beef.html",
+    "Notes": "[daily-global pass 2026-11-11: a recall refused four times on 2026-11-09 (BVL/AGES/AFSCA/NVWA gap finders, \"no official BVL press-release URL in the source article\") although the regulator's per-Meldung page exists. Read on that page today: title \"Deutsches Corned Beef\", Erstveröffentlichung 09.11.2026, Produktbezeichnung \"Deutsches Corned Beef, 160 Gramm\", Hersteller \"Bakenhus Biofleisch GmbH, Bakenhuser Esch 8, 26197 Großenkneten\", Chargennummer 090426, MHD 01.03.2028, 05.03.2028 und 10.03.2028, \"160 Gramm im Glas\", Grund der Meldung \"Fremdkörper\" — glass fragments were found in one jar and the batch is recalled as a precaution; Länder Bremen, Hamburg, Mecklenburg-Vorpommern, Niedersachsen, Schleswig-Holstein. No illnesses stated. The four refused archive rows carry no URL, so they do not collide with this row.] [original product: Deutsches Corned Beef, 160 Gramm] [original Reason (de): \"Fremdkörper\"]"
+  },
+  {
+    "Date": "2026-11-10",
+    "Source": "MAST (IS)",
+    "Company": "Heuschen & Schrouff Oriental Foods Trading B.V.",
+    "Brand": "GOLDEN TURTLE",
+    "Product": "Golden Turtle wasabi rice crackers, 125 g, best before 02/02/27, 24/02/27, 19/03/27, 18/08/27 and 05/06/27",
+    "Pathogen": "Glycidyl fatty acid esters (chemical contaminant)",
+    "Reason": "Glycidyl fatty acid esters above the limits found in the product.",
+    "Class": "Recall",
+    "Country": "Iceland",
+    "Outbreak": 0,
+    "URL": "https://www.mast.is/is/um-mast/frettir/innkallanir/adskotaefni-yfir-morkum-i-kexi",
+    "Notes": "[daily-global pass 2026-11-11: missed-recall sweep. Read on the MAST notice itself today — \"Innkallanir - 10.11.2026\", title \"Aðskotaefni yfir mörkum í kexi\", brand Golden Turtle, wasabi rice cracker, manufacturer Heuschen & Schrouff Oriental Foods Trading B.V. (Netherlands), importer Lagsmaður ehf / Fiska.is, net weight 125 g, best-before dates 02/02/27, 24/02/27, 19/03/27, 18/08/27, 05/06/27, no lot codes printed, hazard \"aðskotarefna glýsidýl fitusýruestera sem fundust í vörunni\"; recalled in consultation with HEF (Greater Reykjavík health inspection); consumers asked not to eat it and to discard it or return it to a Fiska.is store. Same manufacturer and product line as the Go Asia / Golden Turtle glycidol recall in Germany of 09.11.2026, which has no lebensmittelwarnung.de page yet. Pathogen uses the register's existing label for this hazard; Brand uses the register's existing spelling GOLDEN TURTLE.] [original Reason (is): \"aðskotarefna glýsidýl fitusýruestera sem fundust í vörunni\"]"
+  }
+]
