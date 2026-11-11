@@ -142,6 +142,15 @@ PATHOGENS_TIER_2 = {
     "yersinia", "γερσίνια", "γερσινια",
     "shigella", "σιγκέλλα", "σιγκελλα",
     "staphylococcus aureus", "σταφυλόκοκκος",
+    # Pseudomonas aeruginosa (added 2026-11-11). The publish gate's
+    # 'biological' class and tools/alert_vocab.py both took it on
+    # 2026-10-29, when the register's first Pseudomonas row arrived
+    # (Ministero della Salute, Acqua Minerale Brennero Srl, 2026-10-28,
+    # "Potential presence of Pseudomonas aeruginosa"). This gate was not
+    # told — the "stopped one gate short" shape the uninspected-product
+    # note below describes. Bottled water is where it is reported, and a
+    # news-discovered copy of that recall classified "unknown".
+    "pseudomonas", "aeruginosa",
     "norovirus", "νοροϊός", "νοροιος", "norwalk virus",
     # Hepatitis A & E — foodborne viruses
     "hepatitis a", "ηπατίτιδα α", "ηπατιτιδα α",
@@ -308,6 +317,31 @@ MICROBIAL_TOXINS = {
     "torajyväalkaloidit",  # Finnish
     # Cereulide (Bacillus cereus toxin)
     "cereulide", "cereulida",
+    # ── Staphylococcal enterotoxin (added 2026-11-11) ──────────────────
+    #
+    # THE SAME SHAPE AS THE PYRROLIZIDINE AND TROPANE GAPS ABOVE, on the
+    # commonest bacterial toxin in the register. Measured on the workbook
+    # of 2026-11-11: TEN published rows carry it — 7 "Staphylococcus
+    # enterotoxin" and 3 "Staphylococcus aureus enterotoxin" — and
+    # classify() could see only the three that happen to spell out the
+    # species, because "staphylococcus aureus" is in PATHOGENS_TIER_2 and
+    # nothing here or there matched the toxin itself. A notice that names
+    # the toxin without the species ("staphylococcal enterotoxin detected
+    # in cheese", "enterotossina stafilococcica") matched no needle at all
+    # and classified "unknown: No matching hazard category".
+    #
+    # The toxin, not the organism, is what these recalls are about: it is
+    # heat-stable and survives pasteurisation, so a notice often reports
+    # the toxin in a product where the staphylococci are already dead.
+    # "enterotoxin" is left as a stem so staphylococcal, B. cereus and
+    # E. coli enterotoxin wordings all reach it; the species-specific
+    # entries stay where they are.
+    "enterotoxin", "enterotoxins", "εντεροτοξιν",
+    "enterotossin",        # Italian stem (enterotossina/enterotossine)
+    "enterotoxina", "enterotoxinas",   # Spanish + Portuguese
+    "enterotoksyn",        # Polish stem
+    "enterotoksiini",      # Finnish
+    "enterotoxine",        # French / German / Dutch
 }
 
 # ACCEPT — natural plant / fungal toxins
@@ -325,6 +359,67 @@ NATURAL_TOXINS = {
     "scombroid", "histamine poisoning",
     "sgombroide", "intossicazione da istamina",
     "intoxicación por histamina", "intoxicação por histamina",
+    # ── Histamine, the bare substance name (added 2026-11-11) ──────────
+    #
+    # THE ROW THAT FOUND THIS. The Italian gap finder rediscovered the
+    # Ministero della Salute tuna recall of 2026-11-03 — PUBLISHED in the
+    # register as "Histamine / scombrotoxin", Tier 1 — and archived it to
+    # Weekly_Rejected as "allergen: Undeclared allergen — out of scope
+    # (Rule B reject)". The register then said the same recall was both
+    # published and thrown away, which is what
+    # tests/test_a_recall_is_not_both_published_and_rejected caught on
+    # 2026-11-11, and the Italian gap finder re-wrote the same rejection
+    # on every run.
+    #
+    # The cause is the one the Anisakis note in PATHOGENS_TIER_2
+    # describes: the only lexicon that could see anything in
+    # "Tonno richiamato per istamina" was the ALLERGEN list, matching a
+    # second recall ("mostarda") mentioned in the same article. Above,
+    # only the long phrases were listed — "intossicazione da istamina"
+    # needs the word "intossicazione", which a headline never has — so a
+    # plain "richiamo per istamina" matched nothing and the allergen
+    # reject was the only branch left. The same held for German
+    # ("Histamin in Thunfisch" → reject/allergen on "fisch") and for
+    # Spanish and Portuguese ("histamina" is not a substring of
+    # "histamine").
+    #
+    # The hazard was never in doubt anywhere else: the publish gate's
+    # 'chemical' class carries "histamine" and tools/alert_vocab.py has
+    # offered "Histamine / scombrotoxin" to subscribers since it was
+    # written; the register publishes 24 rows under it. Only this gate
+    # could not read it outside English.
+    #
+    # Stems, as everywhere above: "histamin" covers histamine, histamina,
+    # Histamin, histaminu and histaminowej; Italian drops the h, so
+    # "istamin" is its own needle; "ισταμίν" is the Greek stem. An
+    # antihistamine recall will also match "histamin" — an undeclared
+    # medicine is in scope anyway (the 'chemical' class accepts it), so
+    # the worst case is the category label, not the verdict, exactly as
+    # for the bare "atropine" and "scopolamine" below.
+    "histamin", "istamin", "ισταμίν", "ισταμιν",
+    # ── Hydrocyanic acid / cyanogenic glycosides (added 2026-11-11) ────
+    #
+    # Found in the same sweep, and it would have cost two rows the same
+    # morning: RappelConso fiches 24053 and 24054 (Biocoop brown flaxseed
+    # 250 g and 10 kg, published 10/11/2026) carry the motif "Teneur en
+    # acide cyanhydrique dépassée", which matched nothing — only the
+    # glycoside wording was listed, and English "hydrocyanic" lives in
+    # the publish gate's 'chemical' class, not here. The register already
+    # publishes the hazard ("Hydrocyanic acid (acido cianidrico) —
+    # chemical hazard", Italy, 2026) and alert_vocab reaches it under
+    # "Mushroom / plant toxins", so again only this gate was short.
+    #
+    # The acid is the regulated form: EU Regulation 2023/915 caps HCN in
+    # linseed, apricot kernels and cassava, and a notice names the acid,
+    # not the glycoside it came from.
+    "hydrocyanic", "cyanhydrique", "acide cyanhydrique",
+    "acido cianidrico", "cianidrico",                     # Italian
+    "ácido cianhídrico", "cianhidrico",                   # Spanish
+    "ácido cianídrico", "cianidrico",                     # Portuguese
+    "blausäure", "blausaure",                             # German
+    "blauwzuur",                                          # Dutch
+    "cyjanowodór", "cyjanowodor",                         # Polish
+    "υδροκυάνιο", "υδροκυανιο",                           # Greek
     "lectin", "ricin", "ρικίνη",
     "lectina", "ricina",                 # universal Romance form
     "grayanotoxin", "γκραγιανοτοξίνη",
