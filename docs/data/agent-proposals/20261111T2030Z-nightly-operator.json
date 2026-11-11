@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261111T2030Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.97,
+      "target": {"sheet": "Pending", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne"},
+      "changes": {
+        "Company": "GAEC Les Deux Savoies",
+        "Brand": "Unbranded",
+        "Product": "Farmhouse Reblochon de Savoie (Reblochon de Savoie fermier), 450 g, use-by 25/11/2026",
+        "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC)",
+        "Class": "Voluntary",
+        "Date": "2026-11-11"
+      },
+      "reason": "Fiche 24064 read 2026-11-11: Company was the scraper's '/' (fiche prints no brand), Product was French. Professional named on the fiche is GAEC LES DEUX SAVOIES (also the distributor); Origine de la fiche Syndicat Interprofessionnel du Reblochon. Lot/Date 21/10/2026, DLC 25/11/2026, zone Haute-Savoie (74).",
+      "evidence": [
+        {"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne", "retrieved_utc": "2026-11-11T20:15:00Z",
+         "quote": "Titre: REBLOCHON FERMIER; Marque: /; Noms des modèles ou références: REBLOCHON DE SAVOIE FERMIER 450g; Motif du rappel: Présence de Escherichia Coli STEC; Risques encourus par le consommateur: Escherichia coli shiga toxinogène (STEC); Nom du professionnel / Distributeurs: GAEC LES DEUX SAVOIES; Origine de la fiche: SYNDICAT INTERPROFESSIONNEL DU REBLOCHON; Fiche réf. 2026-11-0077; 11/11/2026; Date limite de consommation 25/11/2026; Nature juridique du rappel: Volontaire (sans arrêté préfectoral)"}
+      ]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.95,
+      "target": {"sheet": "Pending", "url": "https://aesan.gob.es/en/alertas/2026_81"},
+      "changes": {
+        "Company": "(not specified in AESAN alert 2026_81)",
+        "Brand": "Priégola",
+        "Product": "Priégola fresh milk (whole, semi-skimmed, skimmed and lactose-free semi-skimmed, 1 L), Lában cremoso fermented milk 1 L, Simbiotic Drink fermented milk 500 ml, fresh cream 1 L and 250 ml; lots 299, 300, 302, 303, 307, 308, 309 and 310",
+        "Reason": "Possible presence of Listeria monocytogenes in several Priégola dairy products, several lots; result of the company's own controls",
+        "Class": "Alert",
+        "Date": "2026-11-10"
+      },
+      "reason": "AESAN alert 2026_81 (Ref. ES2026/678) read 2026-11-11: Product was page furniture ('calendar_today 10/11/2026'), Company empty, Date one day early. The page names the brand Priégola, eight products and eight lots but no company (register convention for AESAN pages that name no firm: '(not specified in AESAN alert ...)', as on 2026_80, 2026_79, 2026_76).",
+      "evidence": [
+        {"kind": "regulator_page", "url": "https://aesan.gob.es/en/alertas/2026_81", "retrieved_utc": "2026-11-11T20:15:00Z",
+         "quote": "Alerta por posible presencia de Listeria monocytogenes en productos lácteos procedentes de España. (Ref.ES2026/678); 10/11/2026; la posible presencia de Listeria monocytogenes en varios productos lácteos de la marca Priégola, de varios lotes; Leche Fresca Entera Priégola 1 Litro; Leche Fresca Semidesnatada Priégola 1 Litro; Leche Fresca Desnatada Priégola 1 Litro; Leche Fresca Semidesnatada Priégola SIN LACTOSA 1 Litro; Priégola Lában Cremoso (Leche Fermentada) 1 Litro; Priégola Simbiotic Drink (Leche Fermentada) 500 ml; Nata Fresca Priégola 1 Litro; Nata Fresca Priégola 250 ml; lotes 299, 300, 302, 303, 307, 308, 309, 310; es resultante del autocontrol de la propia empresa"}
+      ]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.96,
+      "target": {"sheet": "Pending", "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal"},
+      "changes": {
+        "Company": "Molson Canada 2005",
+        "Brand": "Blue Moon; Coors Light; Molson Canadian; Brasseur de Montréal; Hop Valley; India Beer; Black Horse",
+        "Product": "Alcoholic and non-alcoholic beer, various brands, 355 mL and 473 mL cans and multipacks",
+        "Pathogen": "Foreign material (metal)",
+        "Reason": "Pieces of metal in various alcoholic and non-alcoholic beers; CFIA Class 3 recall",
+        "Class": "Class 3",
+        "Date": "2026-11-10"
+      },
+      "reason": "CFIA notice read 2026-11-11: Company was empty, Product and Reason were the headline, Pathogen the scraper's 'Pieces Of Metal' (register label: Foreign material (metal), 13 rows). Recalling firm Molson Canada 2005; recall date 2026-11-02, original published date 2026-11-10 (register uses the CFIA published date, e.g. J. G. Fruits & Légumes 2026-10-29).",
+      "evidence": [
+        {"kind": "regulator_page", "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal", "retrieved_utc": "2026-11-11T20:15:00Z",
+         "quote": "Various brands of alcoholic and non-alcoholic beer recalled due to pieces of metal; Recalling firm: Molson Canada 2005; Brands: Brasseur de Montréal, Hop Valley, Blue Moon, Molson Canadian, Coors Light, India Beer, Black Horse; Date of recall 2026-11-02; Original published date 2026-11-10; Food - Extraneous Material; Class 3; Blue Moon Non-Alcoholic Belgian White Belgian-Style Wheat Ale Beer 6 x 355 mL; Coors Light Light Beer 24 x 355 mL; Molson Canadian Beer 24 x 473 mL"}
+      ]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator",
+      "confidence": 0.95,
+      "target": {"sheet": "Recalls", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24048/interne"},
+      "changes": {
+        "Product": "Artisanal rillettes (rillette artisanale)"
+      },
+      "reason": "Fiche 24048 read 2026-11-11: published Product was the fiche's lowercase French 'rillette artisanale'; translated with the original kept in brackets, as the register did today for fiches 24043, 24049, 24050, 24051, 24052 and 24060.",
+      "evidence": [
+        {"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24048/interne", "retrieved_utc": "2026-11-11T20:15:00Z",
+         "quote": "Titre: RILLETTE ARTISANALE; Marque: E.LECLERC SAINT GREGOIRE; Noms des modèles ou références: RILLETTE ARTISANALE; Motif du rappel: présence de listeria monocytogenes; Risques encourus par le consommateur: Listeria monocytogenes (agent responsable de la listériose); Origine de la fiche: SODIRENNES TPLM E. LECLERC; Distributeurs: E.LECLERC SAINT GREGOIRE; Fiche réf. 2026-11-0061; 10/11/2026"}
+      ]
+    },
+    {
+      "action": "flag",
+      "agent": "nightly-operator",
+      "confidence": 0.9,
+      "target": {"sheet": "Recalls", "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modello_richiamo_Cascina_Balcarino_ALTRE_CONSERVE_VEGETALI_1794247765.pdf"},
+      "changes": {},
+      "reason": "PUBLISHED PATHOGEN NOT SUPPORTED BY ANY SOURCE ON THE ROW. Recalls row (Cascina Balcarino, 2026-11-10, 'Canned vegetables, preserves, juices and sauces') carries Pathogen 'Salmonella' with Reason 'Possible microbiological contamination'. The Italian gap finder took 'Salmonella' from the Il Fatto Alimentare article of 10 Nov 2026, which mentions Salmonella only for the EARLIER blueberry-jam recall and says of the 38 new notices (398 products) that the organism is not specified and that Salmonella is not attributed to them. salute.gov.it is not resolvable from this session, so the regulator PDF could not be read and no enrich can be proposed with regulator evidence. Human: read the PDF; if it names no organism, set Pathogen to 'Unspecified microbiological contamination' (register precedent) — otherwise to what it names.",
+      "evidence": [
+        {"kind": "news_article", "url": "https://ilfattoalimentare.it/maxi-richiamo-conserve.html", "retrieved_utc": "2026-11-11T20:20:00Z",
+         "quote": "Si allarga in maniera massiccia il richiamo precauzionale di conserve vegetali per una possibile contaminazione microbiologica: dopo la confettura extra di mirtilli con Salmonella e il seguente ritiro cautelativo delle mostarde, il Ministero della Salute ha pubblicato 38 avvisi relativi a 398 prodotti ... Tutti gli avvisi sono datati 3 novembre ... Non viene specificato quale microrganismo possa essere alla base del rischio"}
+      ]
+    }
+  ]
+}
