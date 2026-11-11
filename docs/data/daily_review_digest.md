@@ -1,7 +1,7 @@
-# FSIS Daily Review — 2026-11-08 (Athens)
+# FSIS Daily Review — 2026-11-11 (Athens)
 
-Mode: **live** · generated 2026-11-08T14:22:39+02:00
-Recalls rows reviewed: **2327** · in-progress week (never published): **W45**
+Mode: **live** · generated 2026-11-11T15:08:06+02:00
+Recalls rows reviewed: **2358** · in-progress week (never published): **W46**
 
 ## 1. Integrity
 - Duplicate URL groups: **0**
