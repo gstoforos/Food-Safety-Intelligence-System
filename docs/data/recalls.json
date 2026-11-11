@@ -93,7 +93,39 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24049/interne",
-  "Notes": "grossistes, charcuterie/boucherie, restaurants [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [url-agent 2026-11-11: pending_enrichment→pending_gap_v2 URL confirmed] [confirm-agent 2026-11-11: pending_gap_v2 → pending; deterministic checks passed; reviewer 2 did NOT review this row] [needs cleanup: Reason not in English and no verified translation on file] [tier-guard: Listeria monocytogene is always Tier 1; forced from Tier 3]"
+  "Notes": "grossistes, charcuterie/boucherie, restaurants [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [url-agent 2026-11-11: pending_enrichment→pending_gap_v2 URL confirmed] [promote 2026-11-11: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogene is always Tier 1; forced from Tier 3]"
+ },
+ {
+  "Date": "2026-11-10",
+  "Source": "RappelConso (FR)",
+  "Company": "Maison Laborie",
+  "Brand": "Maison Laborie",
+  "Product": "saucisson cuit à l'ail entier ou en demi",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Présence faible de Listeria monocytogene; rappel de précaution car développement possible dans le produits avant la fin de dlc",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24050/interne",
+  "Notes": "REJECTED: URL agent: Identity does not match: the official page does not contain the required details. | grossistes; gms; boucherie/charcuterie [needs cleanup: Reason not in English] [offline-enrich 2026-11-11: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-11-11: status 'rejected'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
+ },
+ {
+  "Date": "2026-11-10",
+  "Source": "RappelConso (FR)",
+  "Company": "Maison Laborie",
+  "Brand": "Maison Laborie",
+  "Product": "boudin aux châtaignes par dix ou par trois",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Présence faible de Listeria monocytogene; rappel de précaution car développement possible dans le produits avant la fin de dlc",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24051/interne",
+  "Notes": "boucherie/charcuterie; grossiste [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-11-11: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-11-11: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3]"
  },
  {
   "Date": "2026-11-09",
