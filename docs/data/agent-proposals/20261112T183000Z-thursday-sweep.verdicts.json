@@ -1,0 +1,30 @@
+[
+  {
+    "proposal_id": "f9e8a4a3a4811f87",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 18"
+  },
+  {
+    "proposal_id": "326f92e924c3d68c",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 19"
+  },
+  {
+    "proposal_id": "2bbde832c5f2dc76",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 20"
+  },
+  {
+    "proposal_id": "5801ed9148db9be0",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 21"
+  }
+]

@@ -1,0 +1,115 @@
+{
+ "schema": 1,
+ "agent": "thursday-sweep",
+ "generated_utc": "20261112T183000Z",
+ "proposals": [
+  {
+   "action": "promote",
+   "target": {
+    "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal"
+   },
+   "changes": {
+    "Pathogen": "Foreign material (metal)",
+    "Reason": "Recalled due to pieces of metal",
+    "Product": "Nuit Blanche White IPA, 473 ml (UPC 8 76976 00075 3) and 4 x 473 ml (UPC 8 76976 00078 4), codes starting J28Q61",
+    "Company": "Archibald Inc.",
+    "Brand": "Archibald",
+    "Country": "Canada",
+    "Class": "Class 3",
+    "Date": "2026-11-12"
+   },
+   "reason": "Thursday global sweep 2026-11-12: notice published by the regulator this week and absent from Recalls, Pending, Weekly_Rejected and Rejected by URL and by company+product+date; page opened and read.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+     "quote": "Archibald brand Nuit Blanche White IPA recalled due to pieces of metal",
+     "retrieved_utc": "2026-11-12T18:30:00Z"
+    }
+   ],
+   "confidence": 0.9,
+   "agent": "thursday-sweep"
+  },
+  {
+   "action": "promote",
+   "target": {
+    "url": "https://recalls-rappels.canada.ca/en/alert-recall/cold-grind-brand-organic-turmeric-powder-may-be-unsafe-due-non-permitted-colour"
+   },
+   "changes": {
+    "Pathogen": "Unauthorised food additive (Sudan I dye)",
+    "Reason": "Contains Sudan I, a colour not permitted in food",
+    "Product": "Organic Turmeric Powder, 50 g, UPC 6 28110 34220 1, all packages",
+    "Company": "Cold Grind",
+    "Brand": "Cold Grind",
+    "Country": "Canada",
+    "Class": "Alert",
+    "Date": "2026-11-12"
+   },
+   "reason": "Thursday global sweep 2026-11-12: notice published by the regulator this week and absent from Recalls, Pending, Weekly_Rejected and Rejected by URL and by company+product+date; page opened and read.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://recalls-rappels.canada.ca/en/alert-recall/cold-grind-brand-organic-turmeric-powder-may-be-unsafe-due-non-permitted-colour",
+     "quote": "not to consume the affected product due to non-permitted colour Sudan I",
+     "retrieved_utc": "2026-11-12T18:30:00Z"
+    }
+   ],
+   "confidence": 0.9,
+   "agent": "thursday-sweep"
+  },
+  {
+   "action": "promote",
+   "target": {
+    "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eros-apothecary-issues-recall-candy-power-man-organic-honey-due-undeclared-tadalafil"
+   },
+   "changes": {
+    "Pathogen": "Undeclared pharmacological ingredient (tadalafil)",
+    "Reason": "FDA analysis found undeclared tadalafil in a honey-based dietary supplement",
+    "Product": "Candy Power For Man Organic Honey, honey-based dietary supplement, 60 individually wrapped candies (300 g), batch 241020, UPC 5285002251390",
+    "Company": "Eros Apothecary",
+    "Brand": "Candy Power For Man",
+    "Country": "United States",
+    "Class": "Recall",
+    "Date": "2026-11-12"
+   },
+   "reason": "Thursday global sweep 2026-11-12: notice published by the regulator this week and absent from Recalls, Pending, Weekly_Rejected and Rejected by URL and by company+product+date; page opened and read.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eros-apothecary-issues-recall-candy-power-man-organic-honey-due-undeclared-tadalafil",
+     "quote": "The undeclared tadalafil may interact with nitrates found in certain prescription medications",
+     "retrieved_utc": "2026-11-12T18:30:00Z"
+    }
+   ],
+   "confidence": 0.9,
+   "agent": "thursday-sweep"
+  },
+  {
+   "action": "promote",
+   "target": {
+    "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/game-changer-products-llc-issues-voluntary-nationwide-recall-10-day-forecast-capsules-due-presence"
+   },
+   "changes": {
+    "Pathogen": "Undeclared pharmacological ingredient (sildenafil, acetaminophen)",
+    "Reason": "FDA analysis found the dietary supplement tainted with undeclared sildenafil and acetaminophen",
+    "Product": "10 Day Forecast Capsules 3200 mg, dietary supplement, cards of 1 to 2 capsules, UPC 191645852717, all lots",
+    "Company": "Game Changer Products, LLC",
+    "Brand": "10 Day Forecast",
+    "Country": "United States",
+    "Class": "Recall",
+    "Date": "2026-11-12"
+   },
+   "reason": "Thursday global sweep 2026-11-12: notice published by the regulator this week and absent from Recalls, Pending, Weekly_Rejected and Rejected by URL and by company+product+date; page opened and read.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/game-changer-products-llc-issues-voluntary-nationwide-recall-10-day-forecast-capsules-due-presence",
+     "quote": "FDA analysis has found the product to be tainted with sildenafil and acetaminophen",
+     "retrieved_utc": "2026-11-12T18:30:00Z"
+    }
+   ],
+   "confidence": 0.9,
+   "agent": "thursday-sweep"
+  }
+ ]
+}
