@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator-2026-11-12",
+  "generated_utc": "20261112T203000Z",
+  "proposals": [
+    {
+      "action": "promote",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne", "sheet": "Pending"},
+      "changes": {
+        "Company": "GAEC Les Deux Savoies",
+        "Brand": "Unbranded",
+        "Product": "Farmhouse Reblochon de Savoie, 450 g (reblochon de Savoie fermier 450 g), use-by 25/11/2026",
+        "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC)"
+      },
+      "reason": "Fiche 24064 read 2026-11-12: Company was '/', Product French. Fiche réf. 2026-11-0077, 11/11/2026, distributor GAEC LES DEUX SAVOIES, Marque '/', model REBLOCHON DE SAVOIE FERMIER 450g, Motif 'Présence de Escherichia Coli STEC', DLC 25/11/2026.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne", "quote": "Fiche réf. 2026-11-0077 • Version 1 | 11/11/2026 | REBLOCHON DE SAVOIE FERMIER 450g | Nom de la marque du produit: / | Distributeurs: GAEC LES DEUX SAVOIES | Motif du rappel: Présence de Escherichia Coli STEC | Risques encourus: Escherichia coli shiga toxinogène (STEC) | Date limite de consommation 25/11/2026", "retrieved_utc": "2026-11-12T20:20:00Z"}]
+    },
+    {
+      "action": "promote",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal", "sheet": "Pending"},
+      "changes": {
+        "Company": "Molson Canada 2005",
+        "Product": "Alcoholic and non-alcoholic beer, 28 listings across seven brands (473 mL cans and bottles to 24-packs)",
+        "Pathogen": "Foreign material (metal)",
+        "Reason": "Pieces of metal (extraneous material) in alcoholic and non-alcoholic beer",
+        "Class": "Class 3",
+        "Date": "2026-11-10"
+      },
+      "reason": "CFIA notice RA-82913 read 2026-11-12: Company was empty, Pathogen 'Pieces Of Metal', Reason the CFIA category string. Recalling firm Molson Canada 2005, seven brands, Class 3, original published date 2026-11-10.",
+      "evidence": [{"kind": "regulator_page", "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal", "quote": "Various brands of alcoholic and non-alcoholic beer recalled due to pieces of metal | Recalling firm: Molson Canada 2005 | Brands: Brasseur de Montréal, Hop Valley, Blue Moon, Molson Canadian, Coors Light, India Beer, and Black Horse | Food - Extraneous Material | Recall class: Class 3 | Original published date: 2026-11-10 | Last updated: 2026-11-09 | Recall date: 2026-11-02", "retrieved_utc": "2026-11-12T20:25:00Z"}]
+    },
+    {
+      "action": "promote",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://aesan.gob.es/en/alertas/2026_81", "sheet": "Pending"},
+      "changes": {
+        "Company": "(not specified in AESAN alert 2026_81)",
+        "Brand": "Priégola",
+        "Product": "Priégola fresh milk (whole, semi-skimmed, skimmed, lactose-free semi-skimmed) 1 L; Lában Cremoso fermented milk 1 L; Simbiotic Drink fermented milk 500 ml; fresh cream 1 L and 250 ml; chilled brick cartons, lots 299, 300, 302, 303, 307, 308, 309, 310",
+        "Reason": "Possible presence of Listeria monocytogenes in dairy products from Spain (Ref. ES2026/678)",
+        "Date": "2026-11-10"
+      },
+      "reason": "AESAN alert 2026_81 read 2026-11-12 at aesan.gob.es (the www host does not resolve from this session): Product was the scraper string 'calendar_today 10/11/2026', Company empty, Date 2026-11-09. Page dated 10/11/2026, eight Priégola products, lots 299-310, no firm named; register convention for AESAN pages that name no firm applied.",
+      "evidence": [{"kind": "regulator_page", "url": "https://aesan.gob.es/en/alertas/2026_81", "quote": "Alerta por posible presencia de Listeria monocytogenes en productos lácteos procedentes de España. (Ref.ES2026/678) | 10/11/2026 | Leche Fresca Entera Priégola 1 L; Leche Fresca Semidesnatada Priégola 1 L; Leche Fresca Desnatada Priégola 1 L; Leche Fresca Semidesnatada Priégola SIN LACTOSA 1 L; Priégola Lában Cremoso (Leche Fermentada) 1 L; Priégola Simbiotic Drink (Leche Fermentada) 500 ml; Nata Fresca Priégola 1 L; Nata Fresca Priégola 250 ml | Lotes: 299, 300, 302, 303, 307, 308, 309, 310", "retrieved_utc": "2026-11-12T20:28:00Z"}]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24062/interne", "sheet": "Recalls"},
+      "changes": {
+        "Company": "SNC Allonnedis (distributor)",
+        "Brand": "B&S (and unbranded)",
+        "Product": "Pumpkin seeds and mixes containing pumpkin seeds (graines de courge et mélanges contenant des graines de courge): Mélange sportif, Mélange spécial salade estivale 60 g trays, Graine de Courge 70 g trays; sold in Sarthe 01/03/2026 to 23/09/2026"
+      },
+      "reason": "Fiche 24062 read 2026-11-12: Product was published in French and Company held the Marque field 'B&S et Sans Marque' (B&S and unbranded). Fiche réf. 2026-11-0075, 12/11/2026, Motif 'Détection Salmonelle', distributor SNC ALLONNEDIS.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24062/interne", "quote": "Fiche réf. 2026-11-0075 • Version 1 | 12/11/2026 | Graines de courge et mélanges contenant des graines de courge | Marque: B&S et sans marque | Modèles: Mélange sportif, Mélange spécial salade estivale, Graine de Courge | Motif du rappel: Détection Salmonelle | Risques encourus: Salmonella spp (agent responsable de la salmonellose) | Distributeur: SNC ALLONNEDIS, ZAC de la Pointe, 72190 Sargé-lès-le-Mans | Sarthe (72), du 01/03/2026 au 23/09/2026", "retrieved_utc": "2026-11-12T20:22:00Z"}]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24073/interne", "sheet": "Recalls"},
+      "changes": {
+        "Product": "Plain chicken thighs, 3 kg trays (cuisses de poulet nature x 3 kg), GTIN 3661632012860, lots 315829, 316434 and 317091, use-by 08/11/2026 to 10/11/2026",
+        "Reason": "Salmonella contamination"
+      },
+      "reason": "Fiche 24073 read 2026-11-12: Product French, Reason French ('Contamination en Salmonella'). Fiche réf. 2026-11-0086, 12/11/2026, L'Atelier de Gustave.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24073/interne", "quote": "Fiche réf. 2026-11-0086 | 12/11/2026 | Cuisse de poulet X12 Rhônes Alpes | Cuisses de poulet Nature x 3Kgs | Marque: L'Atelier de Gustave | Motif du rappel: Contamination en Salmonella | Risques encourus: Salmonella spp (agent responsable de la salmonellose) | GTIN 3661632012860 | Lot 315829 DLC 08/11/2026; Lot 316434 DLC 09/11/2026; Lot 317091 DLC 10/11/2026", "retrieved_utc": "2026-11-12T20:22:00Z"}]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24074/interne", "sheet": "Recalls"},
+      "changes": {
+        "Product": "Chicken thighs, pack of 2, Rhône-Alpes, S/AT (cuisse de poulet x2 Rhônes Alpes S/AT), GTIN 3661632021800, lots 313700 and 317379, use-by 11/11/2026 and 13/11/2026"
+      },
+      "reason": "Fiche 24074 read 2026-11-12: Product French. Fiche réf. 2026-11-0087, 12/11/2026, Motif 'Présence de Salmonella'.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24074/interne", "quote": "2026-11-0087 | 12/11/2026 | Cuisse de poulet X2 Rhônes Alpes S/AT | L'Atelier de Gustave | Présence de Salmonella | Salmonella spp (agent responsable de la salmonellose) | GTIN 3661632021800, lot 313700, DLC 11/11/2026; lot 317379, DLC 13/11/2026", "retrieved_utc": "2026-11-12T20:22:00Z"}]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24075/interne", "sheet": "Recalls"},
+      "changes": {
+        "Product": "Chicken thighs, 3 kg, Rhône-Alpes (cuisse de poulet 3 kg Rhônes Alpes), GTIN 3661632025686, lots 315831, 316435 and 317089, use-by 08/11/2026 to 10/11/2026"
+      },
+      "reason": "Fiche 24075 read 2026-11-12: Product French. Fiche réf. 2026-11-0088, 12/11/2026, Motif 'Présence de Salmonella'.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24075/interne", "quote": "2026-11-0088 | 12/11/2026 | Cuisse de poulet 3 Kgs Rhônes Alpes | L'Atelier de Gustave | Motif du rappel: Présence de Salmonella | Risques encourus: Salmonella spp (agent responsable de la salmonellose) | GTIN 3661632025686 lot 315831 DLC 08/11/2026; lot 316435 DLC 09/11/2026; lot 317089 DLC 10/11/2026", "retrieved_utc": "2026-11-12T20:22:00Z"}]
+    },
+    {
+      "action": "enrich",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.95,
+      "target": {"url": "https://rappel.conso.gouv.fr/fiche-rappel/24065/interne", "sheet": "Recalls"},
+      "changes": {
+        "Product": "Creamy yoghurt on a raspberry layer, 2 x 125 g (yaourt crémeux sur lit de framboise), GTIN 3608580183297, lot 23/11, use-by 23/11/2026",
+        "Reason": "Potential risk of small glass fragments in the yoghurt"
+      },
+      "reason": "Fiche 24065 read 2026-11-12: Product and Reason published in French (the Reason fails tests/test_language_policy on main). Fiche réf. 2026-11-0078, 12/11/2026, Bonne Maman, Motif 'RISQUE POTENTIEL de bris de verre de petite taille dans le Yaourt'.",
+      "evidence": [{"kind": "regulator_page", "url": "https://rappel.conso.gouv.fr/fiche-rappel/24065/interne", "quote": "2026-11-0078 | 12/11/2026 | Yaourt Cremeux sur lit de Framboise | Marque: Bonne Maman | Motif du rappel: RISQUE POTENTIEL de bris de verre de petite taille dans le Yaourt | Risques encourus: Inertes (verre, métal, plastique, papier, textile…) | GTIN 3608580183297 | Lot 23/11 | Date limite de consommation 23/11/2026", "retrieved_utc": "2026-11-12T20:22:00Z"}]
+    },
+    {
+      "action": "flag",
+      "agent": "nightly-operator-2026-11-12",
+      "confidence": 0.9,
+      "target": {"url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modello_richiamo_Cascina_Balcarino_ALTRE_CONSERVE_VEGETALI_1794247765.pdf", "sheet": "Recalls"},
+      "changes": {},
+      "reason": "PUBLISHED row carries Pathogen 'Salmonella' that no source names. Il Fatto Alimentare (10 Nov 2026) says the 38 Cascina Balcarino notices cite only 'possibile contaminazione microbiologica' and names Salmonella solely for the earlier blueberry-jam recall. salute.gov.it does not resolve from this session, so the PDF could not be read and no regulator quote is available. Second consecutive night flagged.",
+      "evidence": [{"kind": "news_article", "url": "https://ilfattoalimentare.it/maxi-richiamo-conserve.html", "quote": "possibile contaminazione microbiologica", "retrieved_utc": "2026-11-12T20:30:00Z"}]
+    }
+  ]
+}
