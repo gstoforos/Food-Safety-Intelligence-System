@@ -1,0 +1,65 @@
+[
+  {
+    "proposal_id": "a5a27cc5627db485",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 3"
+  },
+  {
+    "proposal_id": "07c4646a197f3f08",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 4"
+  },
+  {
+    "proposal_id": "a5fe6c646212462b",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 2"
+  },
+  {
+    "proposal_id": "8e286e6928264ab6",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 4"
+  },
+  {
+    "proposal_id": "349c0287be3dfa5d",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 7"
+  },
+  {
+    "proposal_id": "1a46046d4aed37af",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 6"
+  },
+  {
+    "proposal_id": "1a67b73dae1d77ca",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 5"
+  },
+  {
+    "proposal_id": "e0a9d774fbb0c0a2",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 8"
+  },
+  {
+    "proposal_id": "71bda178999d4c9f",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2387"
+  }
+]

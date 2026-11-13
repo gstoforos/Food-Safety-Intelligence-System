@@ -1,0 +1,202 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261113T203000Z",
+  "proposals": [
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne"
+      },
+      "changes": {
+        "Company": "GAEC La Louisa",
+        "Brand": "Unbranded",
+        "Product": "Raw-milk Reblochon de Savoie (reblochon de Savoie au lait cru), lots 1609, 1709, 1809, 2109, 2209, 2309",
+        "Reason": "Precautionary withdrawal on suspicion of Salmonella",
+        "Pathogen": "Salmonella"
+      },
+      "reason": "Fiche 24077 read 2026-11-13: Company and Brand were '/', Product and Reason French. Fiche réf. 2026-11-0090, 13/11/2026, origin GAEC LA LOUISA, Marque '/', 'REBLOCHON DE SAVOIE au lait cru', six lots.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "Fiche réf. 2026-11-0090 · 13/11/2026 · GAEC LA LOUISA · REBLOCHON DE SAVOIE au lait cru · Motif: 'retrait par mesure de précaution dans un contexte suspicion salmonelle' · Risques: 'Salmonella spp' · lot 2309 23/11/2026, lot 1609 16/11/2026, lot 1709 17/11/2026, lot 1809 18/11/2026, lot 2109 21/11/2026, lot 2209 22/11/2026",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne"
+      },
+      "changes": {
+        "Company": "GAEC Les Deux Savoies",
+        "Brand": "Unbranded",
+        "Product": "Farmhouse Reblochon de Savoie, 450 g (reblochon de Savoie fermier 450g), lot 21/10/2026, use by 25/11/2026",
+        "Reason": "Presence of Shiga toxin-producing Escherichia coli (STEC)"
+      },
+      "reason": "Fiche 24064 read 2026-11-13: Company and Brand were '/', Product French. Fiche réf. 2026-11-0077, 11/11/2026, distributor GAEC LES DEUX SAVOIES. The Weekly_Rejected copy (NO_REASON_RECORDED, publish-gate debris) is marked SUPERSEDED tonight.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "Fiche réf. 2026-11-0077 · 11/11/2026 · GAEC LES DEUX SAVOIES · 'REBLOCHON DE SAVOIE FERMIER 450g' · Motif: 'Présence de Escherichia Coli STEC' · Risques: 'Escherichia coli shiga toxinogène (STEC)' · Lot 21/10/2026 · Date limite de consommation 25/11/2026",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects"
+      },
+      "changes": {
+        "Company": "Tree of Life Canada",
+        "Brand": "Producers",
+        "Product": "Producers brand Brown Rice, 22.6 kg (UPC 0 72806 00225 0), lot codes 13326PRM, 13426PRM, 16626PRM, 16826PRM",
+        "Pathogen": "Foreign material (pest)",
+        "Reason": "Presence of insects (extraneous material); CFIA issue type \"Food - Extraneous Material\"",
+        "Class": "Class 3"
+      },
+      "reason": "CFIA notice RA-82943 read 2026-11-13: Company empty, Product and Reason were the headline, Pathogen 'Insect'. Recalling firm Tree of Life Canada, brand Producers, Class 3, Food - Nuts, grains, and seeds; hotel/restaurant/institutional distribution.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "'Producers brand Brown Rice recalled due to presence of insects' · Recalling firm: Tree of Life Canada · Brand: Producers · Brown Rice, 22.6 kg, UPC 0 72806 00225 0 · lot codes 11/09/26 (13326PRM), 11/10/26 (13426PRM), 12/12/26 (16626PRM), 12/14/26 (16826PRM) · Issue: 'Food - Extraneous Material' · Class 3 · RA-82943 · published 2026-11-13",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24062/interne"
+      },
+      "changes": {
+        "Company": "SNC Allonnedis (distributor)",
+        "Brand": "B&S (and unbranded)",
+        "Product": "Pumpkin seeds and mixes containing pumpkin seeds (graines de courge; mélange sportif, mélange spécial salade estivale)"
+      },
+      "reason": "Fiche 24062 read 2026-11-13: Product published in French; Brand field held 'B&S et Sans Marque'. Fiche réf. 2026-11-0075, 12/11/2026, SNC ALLONNEDIS, Motif 'Détection Salmonelle'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24062/interne",
+          "quote": "Fiche réf. 2026-11-0075 · 12/11/2026 · Marque: B&S et sans marque · Graines de courge et mélanges contenant des graines de courge; modèles 'Mélange sportif', 'Mélange spécial salade estivale Graines de courge' · SNC ALLONNEDIS, Sargé-lès-le-Mans (72190) · Motif: 'Détection Salmonelle' · Risques: 'Salmonella spp'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24073/interne"
+      },
+      "changes": {
+        "Product": "Plain chicken thighs, 3 kg trays (cuisses de poulet nature x 3 kg), Rhône-Alpes"
+      },
+      "reason": "Fiche 24073 read 2026-11-13: Product French. Fiche réf. 2026-11-0086, 12/11/2026, L'Atelier de Gustave, Motif 'Contamination en Salmonella'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24073/interne",
+          "quote": "Fiche réf. 2026-11-0086 · 12/11/2026 · L'Atelier de Gustave · 'Cuisse de poulet X12 Rhônes Alpes', modèle 'Cuisses de poulet Nature x 3Kgs' · Motif: 'Contamination en Salmonella' · Risques: 'Salmonella spp (agent responsable de la salmonellose)'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24074/interne"
+      },
+      "changes": {
+        "Product": "Chicken thighs, pack of 2, Rhône-Alpes, S/AT (cuisse de poulet x2 Rhônes Alpes S/AT)"
+      },
+      "reason": "Fiche 24074 read 2026-11-13: Product French. Fiche réf. 2026-11-0087, 12/11/2026, L'Atelier de Gustave, Motif 'Présence de Salmonella'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24074/interne",
+          "quote": "Fiche réf. 2026-11-0087 · 12/11/2026 · L'Atelier de Gustave · 'Cuisse de poulet X2 Rhônes Alpes S/AT' · Motif: 'Présence de Salmonella' · Risques: 'Salmonella spp (agent responsable de la salmonellose)'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24075/interne"
+      },
+      "changes": {
+        "Product": "Chicken thighs, 3 kg, Rhône-Alpes (cuisse de poulet 3 kg Rhônes Alpes)"
+      },
+      "reason": "Fiche 24075 read 2026-11-13: Product French. Fiche réf. 2026-11-0088, 12/11/2026, L'Atelier de Gustave, Motif 'Présence de Salmonella'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24075/interne",
+          "quote": "Fiche réf. 2026-11-0088 · 12/11/2026 · L'Atelier de Gustave · 'Cuisse de poulet 3 Kgs Rhônes Alpes' · Motif: 'Présence de Salmonella' · Risques: 'Salmonella spp (agent responsable de la salmonellose)'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24065/interne"
+      },
+      "changes": {
+        "Product": "Bonne Maman creamy yoghurt on a raspberry layer, 2 x 125 g, ref. 5013230301 (yaourt crémeux sur lit de framboise)"
+      },
+      "reason": "Fiche 24065 read 2026-11-13: Product was the French reference string '5013230301 : cremeux sur lit framboises 125x2 bm'. Fiche réf. 2026-11-0078, 12/11/2026, Bonne Maman / Novandie.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24065/interne",
+          "quote": "Fiche réf. 2026-11-0078 · 12/11/2026 · Marque: Bonne Maman · 'Yaourt Cremeux sur lit de Framboise', référence '5013230301 : CREMEUX SUR LIT FRAMBOISES 125X2 BM' · origine NOVANDIE · Motif: 'RISQUE POTENTIEL de bris de verre de petite taille dans le Yaourt' · Risques: 'Inertes (verre, métal, plastique, papier, textile…)'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24082/interne"
+      },
+      "changes": {
+        "Product": "Crépinettes (sausage patties), processed in France (crépinettes transformées en France)",
+        "Company": "E.Leclerc Vermelles (Vermeldis)"
+      },
+      "reason": "Fiche 24082 read 2026-11-13: Product French. Fiche réf. 2026-11-0095, 13/11/2026, origin VERMELDIS E.LECLERC, Marque Leclerc Vermelles, Motif 'Présence de Salmonelles'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24082/interne",
+          "quote": "Fiche réf. 2026-11-0095 · 13/11/2026 · Marque: 'Leclerc Vermelles' · 'Crépinette', décliné en 'Crépinettes transformées en France' · 'E Leclerc Vermelles', origine 'VERMELDIS E.LECLERC' · Motif: 'Présence de Salmonelles' · Risques: 'Salmonella spp (agent responsable de la salmonellose)'",
+          "retrieved_utc": "2026-11-13T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}
