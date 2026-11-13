@@ -57,6 +57,13 @@ ALLOWED = {
     "Class I",
     "Class II",
     "Food Alert",
+    # 2026-11-13: the CFIA distinguishes a "food safety warning" from a
+    # recall — it warns the public about a product the agency has not
+    # recalled, and prints no recall class. Its own alert-type label, on
+    # the Cold Grind Organic Turmeric Powder notice (Sudan I, RA-78452,
+    # published 2026-11-12). English, and a notice type, so it meets both
+    # admission tests above.
+    "Food safety warning",
     "Food recall warning",
     "Food recall warning (Class 1)",
     "Information",
