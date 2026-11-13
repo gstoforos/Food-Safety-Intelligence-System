@@ -16,6 +16,22 @@
   "Notes": "Found by the morning fix pass 2026-11-13 missed-recall sweep of the CAA food recall listing (https://www.recall.caa.go.jp/result/index.php?screenkbn=01&category=1), which this morning carried six notices with 掲載日 2026/11/12 or 2026/11/13. Two are out of scope and were not added: rcl=00000036129 (ミートサプライ「牛プルコギ味付焼肉」, 回収理由 「アレルゲン「りんご」の表示欠落、原材料名の誤表示」 — undeclared allergen and a mislabelled ingredient name, labelling only) and rcl=00000036118 (World Import「緑豆-ドリアンピアケーキ」, 回収理由 「原材料と添加物が明確に区分されていない、記載の保存方法と消費期限の表示が不適切で著しい品質劣化のおそれ、アレルゲン「卵」の表示欠落」 — labelling and quality). Date is the CAA 掲載日, as every CAA row in this register uses. The detail page prints no lot, date mark or region, and its 対象の特定情報 and 連絡先 headings are empty in the served HTML, so no such field is claimed here. Read on the CAA detail page today: 件名 「河鶴「たくあん一本漬」（北海道のダイゼン、イオン北海道で販売） - 回収」, 回収理由 「甘味料サッカリンナトリウムの使用基準超過0.20g/kg（基準値：0.20g/kg未満）が判明」, 対応開始日 2026年10月31日; CAA listed it 2026/11/13. Company is ダイゼン (katakana, romanised Daizen), the Hokkaido firm the title names; イオン北海道 (AEON Hokkaido) is the retailer. Brand is left \"—\": the title's 河鶴 is a kanji brand for which the page publishes neither a reading nor an English name, and this register does not invent a field value — the kanji is kept verbatim here instead. Unapproved additives over a limit are in AFTS scope; same shape as the 2026-11-09 Hotei Nyugyo acesulfame-potassium row and the 2026-10-29 SBK Toyama calcium-pantothenate row. [original brand: 河鶴] [original company: ダイゼン] [original product: たくあん一本漬] [original Reason (ja): \"甘味料サッカリンナトリウムの使用基準超過0.20g/kg（基準値：0.20g/kg未満）が判明\"] [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-13",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Chiodo Ferrante Srl",
+  "Brand": "Chiodo",
+  "Product": "Fiore Sardo DOP",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Alert",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/RICHIAMO%20LOTTO_29_AP_26_6_1794488578.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Nuoro province, Italy] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-11-12",
   "Source": "RappelConso (FR)",
   "Company": "Allonnedis",
@@ -222,6 +238,22 @@
   "Outbreak": 0,
   "URL": "https://www.foedevarestyrelsen.dk/nyheder/tilbagekaldte-produkter/2026/nov/tilbagekald-spind-fra-moel-i-knaekkede-byggryn",
   "Notes": "[daily-global pass 2026-11-13: missed-recall sweep. Read on the Fødevarestyrelsen notice itself today — \"Tilbagekald: Spind fra møl i knækkede byggryn\", published 12-11-2026, product \"Kilic byggryn, knækkede 700g\", EAN 5706920116344, best before 08.04.2027, no lot printed, company Megafood ApS, Sintrupvej 30–32, 8220 Brabrand; moth webbing (spind fra møl) found in the batch, product unfit as food; sold in selected grocery and specialty shops nationwide; consumers told to return or discard. Pathogen uses the register's existing label for pest contamination.] [original product: Kilic byggryn, knækkede 700g] [original Reason (da): \"spind fra møl\"] [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-12",
+  "Source": "BVL (DE)",
+  "Company": "Rossmann",
+  "Brand": "Nuby",
+  "Product": "Baby spoons",
+  "Pathogen": "Bisphenol AF exceeding limit",
+  "Reason": "Bisphenol AF exceeding limit",
+  "Class": "Alert",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261112_13_NI_Waermesensorloeffel/261112_13_NI_Waermesensorloeffel.html",
+  "Notes": "Discovered via news: n-tv.de [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/de/rules.py: llm-extraction-failed: Llama timeout or circuit-open; title-only fallback could not produce clean fields. Not a content verdict — re-ext'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-11",
