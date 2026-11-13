@@ -68,6 +68,29 @@ class Verdict:
     detail: str = ""
 
 
+def _norm_url(url: Any) -> str:
+    """The register's one definition of "same recall URL".
+
+    Audit 2026-11-13 — the same disagreement found in
+    merge_master.validate_pending_row this morning. ``_find`` and
+    ``check_duplicate`` matched URLs with a bare
+    ``.strip().lower().rstrip("/")``, which keeps the protocol, a leading
+    "www.", the fragment and the admin.ch / AESAN / FSA language and host
+    variants that merge_master._normalize_url_for_dedup folds. So the
+    curator could not find the row it was asked to curate — the register
+    holds AESAN alert 2026_81 at https://www.aesan.gob.es/en/alertas/2026_81
+    and a proposal naming https://aesan.gob.es/alertas/2026_81 resolved to
+    nothing — and check_duplicate reported "not in Recalls" for a recall
+    that is. Defer to the normaliser; fall back to the old behaviour only
+    if merge_master cannot be imported.
+    """
+    try:
+        from pipeline.merge_master import _normalize_url_for_dedup
+    except Exception:                                       # pragma: no cover
+        return str(url or "").strip().lower().rstrip("/")
+    return _normalize_url_for_dedup(str(url or "").strip())
+
+
 def _rows(sheet: str) -> Tuple[List[str], List[Dict[str, Any]]]:
     import openpyxl
     wb = openpyxl.load_workbook(XLSX, read_only=True, data_only=True)
@@ -81,7 +104,7 @@ def _rows(sheet: str) -> Tuple[List[str], List[Dict[str, Any]]]:
 
 def _find(url: str) -> Tuple[Optional[str], Optional[int], Optional[Dict]]:
     """Locate a row by URL across Pending and Recalls. Returns 1-based sheet row."""
-    u = (url or "").strip().lower().rstrip("/")
+    u = _norm_url(url)
     if not u:
         return None, None, None
     for sheet in ("Pending", "Recalls"):
@@ -90,7 +113,7 @@ def _find(url: str) -> Tuple[Optional[str], Optional[int], Optional[Dict]]:
         except KeyError:
             continue
         for i, r in enumerate(rows):
-            if str(r.get("URL", "") or "").strip().lower().rstrip("/") == u:
+            if _norm_url(r.get("URL", "")) == u:
                 return sheet, i + 2, r
     return None, None, None
 
@@ -227,9 +250,8 @@ def check_scope(row: Dict[str, Any]) -> List[str]:
 
 def check_duplicate(url: str) -> List[str]:
     _hdr, rows = _rows("Recalls")
-    u = (url or "").strip().lower().rstrip("/")
-    n = sum(1 for r in rows
-            if str(r.get("URL", "") or "").strip().lower().rstrip("/") == u)
+    u = _norm_url(url)
+    n = sum(1 for r in rows if _norm_url(r.get("URL", "")) == u)
     return [f"already in Recalls ({n} row(s) with this URL)"] if n else []
 
 
