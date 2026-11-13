@@ -286,6 +286,30 @@ PATHOGEN: dict[str, list[str]] = {
                                            "foreign matter",
                                            "physical/foreign", "physical hazard",
                                            "glass", "metal fragment",
+                                           # 2026-11-13: the CFIA notice
+                                           # "Various brands Alcoholic and
+                                           # non-alcoholic beer recalled due
+                                           # to pieces of metal" (2026-11-09)
+                                           # reached Pending with Pathogen
+                                           # exactly "Pieces Of Metal", and
+                                           # the publish gate refused it:
+                                           # "metal fragment" does not reach
+                                           # it and no other token here does.
+                                           # "pieces of metal" is CFIA's own
+                                           # standing headline wording for
+                                           # this hazard, so it is the needle
+                                           # — the same discipline as
+                                           # "veterinary drug" on 2026-11-08.
+                                           # The BARE noun "metal" is NOT
+                                           # used, deliberately: "heavy metal"
+                                           # contains it, so every cadmium,
+                                           # lead, mercury and thallium row
+                                           # would fire the foreign-material
+                                           # alert as well as its own. That
+                                           # is why "plastic" could be bared
+                                           # on 2026-10-14 and "metal" cannot.
+                                           "pieces of metal", "metal piece",
+                                           "metal shard",
                                            "shell fragment",
                                            "stones", "sand)",
                                            # 2026-10-10: BVL Schneider Kochkäse

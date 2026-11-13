@@ -1,0 +1,30 @@
+[
+  {
+    "Date": "2026-11-12",
+    "Source": "HAH (HR)",
+    "Company": "MIJUKIĆ-PROM",
+    "Brand": "Okusi zavičaja",
+    "Product": "Dalmatian bacon (Dalmatinska panceta), sliced, 100 g, LOT 918N2Z, use by 15.01.2027",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "Listeria monocytogenes contamination; the product does not comply with Commission Regulation (EC) No 2073/2005.",
+    "Class": "Recall",
+    "Country": "Croatia",
+    "Outbreak": 0,
+    "URL": "https://www.hapih.hr/opoziv-proizvoda-okusi-zavicaja-dalmatinska-panceta-narezak-100g/",
+    "Notes": "[daily-global pass 2026-11-13: missed-recall sweep. Read on the HAPIH notice itself today — published 12. studenoga 2026, \"Dalmatinska panceta, narezak, 100g\" under the name \"Okusi zavičaja\", producer MIJUKIĆ-PROM, Runović 242, Runović, placed on the market by Lidl d.o.o. (Croatia), LOT 918N2Z, use by 15.01.2027, contamination with Listeria monocytogenes, non-compliance with Regulation (EC) 2073/2005; consumers referred to Lidl Croatia for the recall. The register holds two October recalls of the same producer's sliced Dalmatian bacon (HAH 2026-10-09 and 2026-10-11, other retailers); this is a new notice with its own lot and retailer. If the near-duplicate rule refuses it, that refusal is accepted. No illnesses stated.] [original product: Dalmatinska panceta, narezak, 100g]"
+  },
+  {
+    "Date": "2026-11-12",
+    "Source": "Fødevarestyrelsen (DK)",
+    "Company": "Megafood ApS",
+    "Brand": "Kilic",
+    "Product": "Kilic cracked barley groats (byggryn, knækkede), 700 g, EAN 5706920116344, best before 08.04.2027",
+    "Pathogen": "Foreign material (pest)",
+    "Reason": "Moth webbing found in the batch, making the product unfit as food.",
+    "Class": "Recall",
+    "Country": "Denmark",
+    "Outbreak": 0,
+    "URL": "https://www.foedevarestyrelsen.dk/nyheder/tilbagekaldte-produkter/2026/nov/tilbagekald-spind-fra-moel-i-knaekkede-byggryn",
+    "Notes": "[daily-global pass 2026-11-13: missed-recall sweep. Read on the Fødevarestyrelsen notice itself today — \"Tilbagekald: Spind fra møl i knækkede byggryn\", published 12-11-2026, product \"Kilic byggryn, knækkede 700g\", EAN 5706920116344, best before 08.04.2027, no lot printed, company Megafood ApS, Sintrupvej 30–32, 8220 Brabrand; moth webbing (spind fra møl) found in the batch, product unfit as food; sold in selected grocery and specialty shops nationwide; consumers told to return or discard. Pathogen uses the register's existing label for pest contamination.] [original product: Kilic byggryn, knækkede 700g] [original Reason (da): \"spind fra møl\"]"
+  }
+]
