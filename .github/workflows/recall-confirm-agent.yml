@@ -278,6 +278,18 @@ jobs:
               m = _re.match(r"^[a-z0-9.-]*admin\.ch/(?:[a-z]{2}/)?newnsb/([a-z0-9]+)", u)
               if m:
                   return "admin.ch/newnsb/" + m.group(1)
+              # AESAN (ES) language variants (audit 2026-11-13): the SAME shape as
+              # admin.ch above, and merge_master._normalize_url_for_dedup has folded
+              # it since 2026-10-28 — this function did not, so the confirmer's own
+              # duplicate test disagreed with the register's dedup key on every
+              # Spanish alert. AESAN serves one notice at aesan.gob.es/alertas/<id>
+              # and at aesan.gob.es/{en,ca,eu,gl,va,fr,es}/alertas/<id>. The language
+              # segment is presentation; the alert id is the identity. Host-scoped,
+              # so a real first path segment ("alertas", "actualidad") is never
+              # mistaken for a language code.
+              m = _re.match(r"^aesan\.gob\.es/(?:en|ca|eu|gl|va|fr|es)/(.+)$", u)
+              if m:
+                  return "aesan.gob.es/" + m.group(1)
               return u
 
 
