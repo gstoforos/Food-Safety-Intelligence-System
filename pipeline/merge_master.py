@@ -1267,7 +1267,27 @@ def validate_pending_row(
             return False, f'Company field contains HTML/JS fragment: "{company[:60]}"'
 
     # ── REJECT: duplicate URL already in Recalls or Pending ─────────────
-    url_norm = url.rstrip("/").lower()
+    # Audit 2026-11-13 — THE GATE DISAGREED WITH THE DEDUP KEY.
+    # This check used a bare ``url.rstrip("/").lower()`` on both sides,
+    # so every normalisation _normalize_url_for_dedup performs was lost
+    # HERE and nowhere else: protocol, a leading "www.", the fragment,
+    # non-canonical query strings, and the admin.ch / AESAN language
+    # variants. _dedup_key uses the normaliser, so the two halves of the
+    # same gate keyed URLs differently.
+    #
+    # Measured on the workbook of 2026-11-13: Pending held AESAN alert
+    # 2026_81 (Listeria monocytogenes in Priégola dairy, Ref. ES2026/678)
+    # TWICE — https://www.aesan.gob.es/en/alertas/2026_81 and
+    # https://aesan.gob.es/en/alertas/2026_81, one "www." apart. Reviewer 2
+    # indexes Pending as url_to_idx[url], one slot per URL, last write
+    # wins, so the first copy was invisible to it: it could never be
+    # corrected, promoted or refused, while reviewer 3 held it and the
+    # offline promoter reported it every morning
+    # (tests/test_pending_holds_one_row_per_url.py was RED on main).
+    #
+    # The normaliser is the register's single definition of "same recall".
+    # Use it on both sides of this gate too.
+    url_norm = _normalize_url_for_dedup(url)
     if url_norm and url_norm in existing_urls:
         return False, "Duplicate URL already exists"
 
@@ -1868,15 +1888,18 @@ def append_to_pending(
     # because validate_pending_row's dup-URL check fired first (the URL
     # was in existing_urls regardless of Status), bouncing the retry
     # before the retry logic ever ran.
+    # Keyed with _normalize_url_for_dedup, the same function _dedup_key
+    # uses — see the audit note of 2026-11-13 in validate_pending_row.
+    # A bare lowercase here let one alert queue twice, one "www." apart.
     existing_urls: set = set()
     for r in approved:
-        u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
+        u = _normalize_url_for_dedup(str(r.get("URL", "") or ""))
         if u:
             existing_urls.add(u)
     for r in existing_pending:
         if _text(r.get("Status")).lower() == STATUS_REJECTED:
             continue  # let the retry path handle this URL
-        u = str(r.get("URL", "") or "").strip().rstrip("/").lower()
+        u = _normalize_url_for_dedup(str(r.get("URL", "") or ""))
         if u:
             existing_urls.add(u)
 
