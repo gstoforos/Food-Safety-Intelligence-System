@@ -119,8 +119,13 @@ class TestThePublishedRow(unittest.TestCase):
         wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
         rows = list(wb["Recalls"].values)
         hdr = [str(h) for h in rows[0]]
+        # The pudding notice, by its own slug. A bare "milbona" prefix also
+        # matched the 2026-11-13 Milbona UHT milk warning (an unspecified
+        # microbiological hazard, Tier 3) once that row was added, and the
+        # test then asserted B. cereus tiering on a row that has no
+        # B. cereus in it (nightly operator 2026-11-14).
         hits = [dict(zip(hdr, r)) for r in rows[1:] if r
-                and "veiligheidswaarschuwing-milbona"
+                and "veiligheidswaarschuwing-milbona-high-protein-pudding"
                 in str(dict(zip(hdr, r)).get("URL") or "")]
         if not hits:                                       # pragma: no cover
             self.skipTest("row not in the register")
