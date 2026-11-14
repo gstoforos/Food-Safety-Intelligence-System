@@ -80,6 +80,22 @@
   "Notes": "listing (deterministic parse); FSVO title: \"Aldi Suisse AG ruft das Produkt «Mini-Hähnchenbrust-Filetstücke» in den Sorten «Mini Klassik, Mini Paprika und Mini Curry» wegen Nachweis auf Listerien zurück\" [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-13",
+  "Source": "RappelConso (FR)",
+  "Company": "Carrefour Market de Plouhinec -Brizeux",
+  "Brand": "Unbranded",
+  "Product": "coquilles saint-jacques vendues au rayon traditionnel",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+  "Notes": "carrefour market de  plouhinec -brizeux  uniquement"
+ },
+ {
   "Date": "2026-11-12",
   "Source": "RappelConso (FR)",
   "Company": "Allonnedis",
@@ -334,6 +350,22 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/886588",
   "Notes": "[RASFF #2026.10083; classification: alert notification; category: meat and meat products (other than poultry); notifId=886588] [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-12",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Hungary | Notifying: Italy",
+  "Brand": "—",
+  "Product": "Salmonella Infantis, Montevideo, and Kedougou in chicken meat  from Hungary",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella Infantis, Montevideo, and Kedougou in chicken meat from Hungary; risk: not serious; category: poultry meat and poultry meat products",
+  "Class": "Information",
+  "Country": "Hungary",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/886102",
+  "Notes": "[RASFF #2026.10086; classification: information notification for attention; category: poultry meat and poultry meat products; notifId=886102] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
  },
  {
   "Date": "2026-11-11",
@@ -38238,5 +38270,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-11-13",
+  "Source": "RappelConso (FR)",
+  "Company": "Mamie Nova",
+  "Brand": "Mamie Nova",
+  "Product": "gourmand à la grecque citron yuzu 2x140g",
+  "Pathogen": "Foreign material (glass)",
+  "Reason": "Risque potentiel de bris de verre de petite taille dans le yaourt",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24087/interne",
+  "Notes": "REJECTED: URL agent: Hazard is a foreign body (glass) not a microbial pathogen | leclerc, auchan, systeme u et carrefour [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-11-14: Pathogen '' -> 'Foreign material (glass)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-14: status 'rejected'->'pending' — passes every publish-gate rule]"
  }
 ]
