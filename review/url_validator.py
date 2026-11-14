@@ -185,6 +185,61 @@ def is_generic_url(url: str) -> bool:
     return False
 
 
+# ── SOFT 404: A LIVE 200 THAT IS NOT THE PAGE (audit 2026-11-14) ─────────
+#
+# rappel.conso.gouv.fr answers HTTP 200 for a fiche that does not exist,
+# serving its generic listing page — title "Rappel Consommateur - Accueil"
+# — instead of a 404. Every check in this module is status-based, so a
+# withdrawn fiche reads as alive.
+#
+# It happened. The published PINTON Sardinella pâté row (Clostridium
+# botulinum, RappelConso fiche 24039, published 06/11/2026) pointed at a
+# fiche the regulator had withdrawn and re-published as fiche 24086 on
+# 13/11/2026. The url_guardian runs every four hours and saw HTTP 200
+# every time; the dead URL stood in the published register for eight days
+# and was found only by a by-hand read of the page.
+#
+# HOST-SCOPED ON PURPOSE. A content check is only as good as the string it
+# matches, and a wrong match deletes a live URL. Each entry here names one
+# host and the exact title that host serves in place of a missing record,
+# measured on that host. Nothing else is content-checked, and a soft 404
+# is NEVER verified_dead: it flags the row for a human the way a generic
+# URL does, and the guardian does not blank it on its own.
+_SOFT_404_TITLES = {
+    "rappel.conso.gouv.fr": ("rappel consommateur - accueil",),
+}
+
+_TITLE_RX = re.compile(r"<title[^>]*>(.*?)</title>", re.I | re.S)
+
+
+def host_serves_soft_404(url: str) -> bool:
+    """Is this a host that answers 200 for a record that is not there?"""
+    host = _domain(url)
+    return host.lstrip("www.") in _SOFT_404_TITLES or host in _SOFT_404_TITLES
+
+
+def _soft_404_titles_for(url: str):
+    host = _domain(url)
+    return _SOFT_404_TITLES.get(host) or _SOFT_404_TITLES.get(host.lstrip("www.")) or ()
+
+
+def body_is_soft_404(url: str, body: str) -> bool:
+    """True when `body` is the host's stand-in page for a missing record.
+
+    `body` may be the whole HTML or just the title text. A host with no
+    entry above is never a soft 404, whatever its body says.
+    """
+    titles = _soft_404_titles_for(url)
+    if not titles:
+        return False
+    m = _TITLE_RX.search(body or "")
+    text = (m.group(1) if m else (body or ""))
+    text = " ".join(text.split()).strip().lower()
+    if not text:
+        return False
+    return any(text == t or text.startswith(t) for t in titles)
+
+
 def is_probably_valid_url(url: str) -> bool:
     """
     Fast local-only check for the weekly report's Top-5 filter.
@@ -306,6 +361,21 @@ def check_url(url: str, do_get_fallback: bool = True) -> Dict[str, Any]:
             r.close()
         code = r.status_code
         if 200 <= code < 400:
+            # A 200 from a host that serves a stand-in page for a missing
+            # record proves nothing until the body is read. See the
+            # _SOFT_404_TITLES block above.
+            if host_serves_soft_404(url) and do_get_fallback:
+                try:
+                    g = requests.get(url, allow_redirects=True,
+                                     timeout=TIMEOUT, headers=HEADERS)
+                    if body_is_soft_404(url, g.text):
+                        return {"url": url, "status": code, "ok": False,
+                                "generic": True,
+                                "error": "soft 404: the host served its "
+                                         "stand-in page, not this record",
+                                "reason": "generic", "verified_dead": False}
+                except Exception:
+                    pass
             return {"url": url, "status": code, "ok": True, "generic": False,
                     "error": "", "reason": "ok", "verified_dead": False}
         # A 4xx/5xx from a host on the tolerance list is not evidence. It
