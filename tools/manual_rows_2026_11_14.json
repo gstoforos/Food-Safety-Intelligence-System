@@ -1,0 +1,30 @@
+[
+  {
+    "Date": "2026-11-13",
+    "Source": "BVL (DE)",
+    "Company": "Fleischerei Lars Methe",
+    "Brand": "—",
+    "Product": "Knackwurst \"Kümmel\" (caraway) and Knackwurst \"Knoblauch\" (garlic), sold loose",
+    "Pathogen": "Listeria monocytogenes",
+    "Reason": "The firm's own in-house testing found microbiological contamination with Listeria monocytogenes",
+    "Class": "Recall",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261113_17_SN_Knackwurst_Kuemmel_und_Knackwurst_Knoblauch/261113_17_SN_Knackwurst_Kuemmel_und_Knackwurst_Knoblauch.html",
+    "Notes": "Added by the morning fix pass 2026-11-14 after a by-hand sweep of https://www.lebensmittelwarnung.de/ found this as one of two entries dated 13.11.2026. All five sheets were searched first by URL, by company (Methe), by product (Knackwurst) and by town (Pegau). Every field here was read on the BVL's own Meldung page, opened 2026-11-14: Produktbezeichnung \"Knackwurst „Kümmel” und Knackwurst „Knoblauch”\"; Hersteller/Inverkehrbringer \"Fleischerei Lars Methe, Dorfstraße 2, 04523 Pegau\"; Grund der Meldung \"Krankheitserreger\"; Weitere Informationen \"Die Eigenkontrolluntersuchungen haben ergeben, dass die Produkte eine mikrobiologische Verunreinigung mit Listeria monocytogenes aufweisen.\"; Produktionsdatum 05.11.2026; Verkaufsdatum 06.11.2026; Verpackungseinheit \"lose Ware\"; betroffene Bundesländer Sachsen, Sachsen-Anhalt, Thüringen; Vertrieb \"über den eigenen Hofladen der Firma Fleischerei Lars Methe\"; Meldungserstellung durch Sachsen; Datum der Erstveröffentlichung 13.11.2026; Letzte Aktualisierung 13.11.2026. The page names NO brand, NO lot numbers, NO MHD and NO EAN, so none is claimed here. [original product: Knackwurst „Kümmel” und Knackwurst „Knoblauch”] [original Reason (de): \"Krankheitserreger\" / \"Die Eigenkontrolluntersuchungen haben ergeben, dass die Produkte eine mikrobiologische Verunreinigung mit Listeria monocytogenes aufweisen.\"] [WHY IT WAS MISSED — a discovery-channel defect, not a blocked site: this recall was ALREADY in the register, four times over, as Weekly_Rejected rows 640, 646, 654 and one more, all dated 2026-11-13, all carrying the SAME news headline \"Rückruf in Sachsen: Listerien in Knackwurst der Fleischerei Methe\", all with URL EMPTY, and all refused with \"No official <agency> press-release URL found in the source article — discovery via news only\". The four copies are attributed to four different national agencies — BVL (DE), AGES (AT), AFSCA (BE) and NVWA (NL) — for one German recall. The authority URL the four refusals say does not exist is the lebensmittelwarnung.de Meldung above, which was live and readable this morning. The same shape produced four more rows on 2026-11-11 for the Wittenseer IsoSport recall, which also has a live lebensmittelwarnung.de Meldung. Reported in the morning-fix verdict of 2026-11-14; not repaired in code by this pass.]"
+  },
+  {
+    "Date": "2026-11-13",
+    "Source": "NVWA (NL)",
+    "Company": "Lidl Nederland",
+    "Brand": "Milbona",
+    "Product": "Milbona UHT whole milk (UHT volle melk), barcode 4335619043268, best before 05-07-2027",
+    "Pathogen": "Unspecified microbiological contamination",
+    "Reason": "The product may contain disease-causing bacteria, which can cause serious health risks; the NVWA warns consumers not to drink the milk",
+    "Class": "Recall",
+    "Country": "Netherlands",
+    "Outbreak": 0,
+    "URL": "https://www.nvwa.nl/actueel/nieuws/2026/11/13/veiligheidswaarschuwing-milbona-uht-volle-melk-van-lidl",
+    "Notes": "Added by the morning fix pass 2026-11-14 after a by-hand sweep of https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen found this as the newest entry, dated 13 november 2026. All five sheets were searched first by URL, by brand (Milbona), by seller (Lidl Nederland) and by product (volle melk); the register's newest NVWA row before this one is 2026-11-06. Every field here was read on the NVWA's own veiligheidswaarschuwing page, opened 2026-11-14: headline \"Veiligheidswaarschuwing Milbona – UHT volle melk van Lidl\"; published 13-11-2026 14:45; \"Lidl Nederland waarschuwt voor Milbona – UHT volle melk. Het product bevat mogelijk ziekmakende bacteriën. Deze bacteriën kunnen ernstige gezondheidsrisico's veroorzaken. Drink de melk niet.\"; Streepjescode 4335619043268; Ten minste houdbaar tot (THT) 05-07-2027; \"Het product is verkocht in de winkels van Lidl Nederland.\" NO PATHOGEN SPECIES IS NAMED ON THE NOTICE — the page says only \"ziekmakende bacteriën\" (disease-causing bacteria) and names no genus or species, so none is claimed. Pathogen is the register's existing value for exactly this case, \"Unspecified microbiological contamination\", which tools/alert_vocab.py already carries (\"a recall the regulator issued for a microbiological hazard it did not name is still a microbiological hazard\") and pipeline/_publish_gate.py already accepts. The hazard class is pathogenic bacteria, not allergen, labelling, packaging or quality, so it is in AFTS scope. [original product: Milbona – UHT volle melk] [original Reason (nl): \"Het product bevat mogelijk ziekmakende bacteriën. Deze bacteriën kunnen ernstige gezondheidsrisico's veroorzaken. Drink de melk niet.\"]"
+  }
+]
