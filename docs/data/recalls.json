@@ -96,6 +96,22 @@
   "Notes": "carrefour market de  plouhinec -brizeux  uniquement"
  },
  {
+  "Date": "2026-11-13",
+  "Source": "RappelConso (FR)",
+  "Company": "Mamie Nova",
+  "Brand": "Mamie Nova",
+  "Product": "gourmand à la grecque citron yuzu 2x140g",
+  "Pathogen": "Foreign material (glass)",
+  "Reason": "Risque potentiel de bris de verre de petite taille dans le yaourt",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24087/interne",
+  "Notes": "REJECTED: URL agent: Hazard is a foreign body (glass) not a microbial pathogen | leclerc, auchan, systeme u et carrefour [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [offline-enrich 2026-11-14: Pathogen '' -> 'Foreign material (glass)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-14: status 'rejected'->'pending' — passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-11-12",
   "Source": "RappelConso (FR)",
   "Company": "Allonnedis",
