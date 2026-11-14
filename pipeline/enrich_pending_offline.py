@@ -314,6 +314,60 @@ def infer_pathogen(row: Dict) -> Tuple[Optional[str], str]:
     return None, "no hazard term in the row's own text"
 
 
+# ── A FILLED HAZARD CAN STILL BE THE WRONG WORD (audit 2026-11-14) ───────
+#
+# This module only ever looked at rows whose Pathogen was EMPTY. A row that
+# arrives with a hazard WORD rather than this register's label for that
+# hazard was never touched, and nothing downstream canonicalises it.
+#
+# The row that found it: CFIA, 2026-11-13, "Producers brand Brown Rice
+# recalled due to presence of insects" (Tree of Life Canada). The scraper
+# wrote Pathogen "Insect". Six published rows call that hazard "Foreign
+# material (pest)"; pipeline/_publish_gate.py and
+# tests/test_pest_and_foreign_material_are_one_hazard.py are both written
+# around that label; and the curator's scope map does not carry "Insect"
+# at all. Publishing the row as it stood turned
+# tests/test_curator_scope_2026_09_09.py RED — the curator refusing the
+# hazard of a row this register had just published.
+#
+# DELIBERATELY NARROW. A filled Pathogen is a decision some stage already
+# made, so this does not re-run the RULES table over it: that would rewrite
+# "Metal fragments found in the product" into "Foreign material (metal)"
+# and a hundred other values nobody measured. It rewrites a Pathogen that
+# is a BARE HAZARD WORD — the whole field is the word, nothing else — and
+# only where the register already publishes a canonical label for it.
+# Anything longer, and anything not listed, is left exactly alone.
+BARE_HAZARD_WORDS = {
+    "insect": "Foreign material (pest)",
+    "insects": "Foreign material (pest)",
+    "pest": "Foreign material (pest)",
+    "pests": "Foreign material (pest)",
+    "glass": "Foreign material (glass)",
+    "metal": "Foreign material (metal)",
+    "plastic": "Foreign material (plastic)",
+    # "wood" is deliberately absent: "Foreign material (wood)" appears
+    # nowhere in the published register, and a canonical label nobody
+    # publishes is a new vocabulary rather than a canonicalisation. Caught
+    # by this module's own test, which checks every label here against the
+    # register before letting it map anything.
+}
+
+
+def canonical_hazard_word(value) -> Optional[str]:
+    """The register's label for a Pathogen that is a bare hazard word.
+
+    None when the value is empty, is not a single listed word, or is
+    already the canonical label.
+    """
+    v = " ".join(str(value or "").split()).strip().lower().rstrip(".")
+    canon = BARE_HAZARD_WORDS.get(v)
+    if canon is None:
+        return None
+    if " ".join(str(value or "").split()) == canon:
+        return None
+    return canon
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--xlsx", default=str(XLSX))
@@ -334,6 +388,21 @@ def main() -> int:
     for r in range(2, ws.max_row + 1):
         row = {head[i]: ws.cell(r, i + 1).value for i in range(len(head))}
         if str(row.get("Pathogen") or "").strip():
+            canon = canonical_hazard_word(row.get("Pathogen"))
+            if canon:
+                was = " ".join(str(row.get("Pathogen")).split())
+                label = (f"{str(row.get('Source'))[:14]:15} "
+                         f"{str(row.get('Product'))[:44]}")
+                filled.append(f"{label}  {was!r} -> {canon}   "
+                              f"(bare hazard word canonicalised)")
+                if args.apply:
+                    ws.cell(r, pcol).value = canon
+                    stamp = (f"[offline-enrich {dt.date.today().isoformat()}: "
+                             f"Pathogen {was!r} -> {canon!r}, the register's "
+                             f"own label for this hazard; no fetch, no model]")
+                    prev = str(ws.cell(r, ncol).value or "")
+                    if stamp not in prev:
+                        ws.cell(r, ncol).value = (prev + " " + stamp).strip()
             continue
         got, why = infer_pathogen(row)
         label = f"{str(row.get('Source'))[:14]:15} {str(row.get('Product'))[:44]}"
