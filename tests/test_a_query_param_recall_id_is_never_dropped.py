@@ -79,6 +79,23 @@ INTENTIONAL = (
     # while two more copies waited in Pending and three sat in Rejected.
     # The alert id is in the path either way, so no identifier is lost.
     re.compile(r"^aesan\.gob\.es/"),
+    # 2026-11-14. salute.gov.it/new/it/avvisi/avvisi-e-richiami-di-prodotti-
+    # alimentari is the Ministero della Salute's LISTING INDEX, not a recall
+    # notice, and "?tab=1&offset=0&pageElements=10" is that listing's own
+    # paginator: a tab number, a row offset and a page size. None of the
+    # three is a recall identifier — a real ministry notice is a PDF under
+    # /new/sites/default/files/external_data/avvisi_sicurezza_alimentare/,
+    # which carries its identifier in the PATH and cannot reach this key.
+    #
+    # The two URLs on this key are a PUBLISHED row of 2026-04-14 (La Vacje
+    # Salumerie, Salame Nostrano) that cites the index page as its authority
+    # URL — an R3 defect, flagged UNRESOLVED on the row itself by the morning
+    # fix pass of 2026-11-14 — and a news-only discovery of the index page
+    # refused the same morning. Collapsing them loses no recall: neither
+    # address identifies one. Listed here so the paginator cannot be mistaken
+    # for an identifier, NOT as a precedent for query strings generally.
+    re.compile(r"^salute\.gov\.it/new/it/avvisi/"
+               r"avvisi-e-richiami-di-prodotti-alimentari$"),
     # 2026-11-08. One FSA alert is addressable on three food.gov.uk hosts —
     # alerts.food.gov.uk/news-alerts/alert/<notation>, the API record at
     # data.food.gov.uk/food-alerts/id/<NOTATION>, and the bare host — and the

@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import json
 import sys
+from datetime import date, timedelta
 from pathlib import Path
 
 import pytest
@@ -51,9 +52,53 @@ from pipeline._language import (  # noqa: E402
 RECALLS = ROOT / "docs" / "data" / "recalls.json"
 STAMP = "[needs cleanup:"
 
+# ── THE STAMP IS A TO-DO, NOT A LICENCE (audit 2026-11-14) ────────────────
+#
+# The two register tests below excuse any row carrying the reviewers'
+# "[needs cleanup: …]" stamp, on the ground that a stamped row is tracked
+# work rather than a silent miss. That was written with no bound on how
+# long the work may stay untracked, and the bound is the whole of its
+# force: the deterministic gates re-stamp a row on EVERY run for as long
+# as the condition holds, so a row that is never translated carries a
+# fresh-looking stamp for ever and this suite stays green.
+#
+# It happened. Five RappelConso rows published on 12/11/2026 reached this
+# register with their Product in French. tools/repair_2026_11_13.py
+# guarded each field edit on an exact, case-sensitive compare against the
+# fiche's own capitalisation while the scraper lower-cases that field, so
+# not one of the five Products was written — and the note recording the
+# repair WAS written, because it is not guarded. The suite was green the
+# next morning with five French Products published and five stamps on
+# them, and only the by-hand sweep found it. That is the fifth consecutive
+# morning on which the by-hand sweep caught something the gates did not.
+#
+# So the excuse now expires. The morning fix pass runs once a day and
+# translates what is stamped; a row added more than GRACE_DAYS ago that is
+# STILL stamped has had its turn and is a miss again. One day of grace
+# means a row published this morning or yesterday morning is tracked work;
+# anything older is not.
+#
+# The test reads DateAdded, not LastUpdated: a row that is re-stamped or
+# re-noted every run must not be able to renew its own grace period. A row
+# with no usable DateAdded is NOT excused — an undated stamp is exactly
+# the untracked case this bound exists for.
+GRACE_DAYS = 1
+
 
 def _rows():
     return json.loads(RECALLS.read_text(encoding="utf-8"))
+
+
+def _stamp_still_excuses(row) -> bool:
+    """True while a "[needs cleanup: …]" stamp is still tracked work."""
+    if STAMP not in str(row.get("Notes") or ""):
+        return False
+    added = str(row.get("DateAdded") or "")[:10]
+    try:
+        added_d = date.fromisoformat(added)
+    except ValueError:
+        return False
+    return (date.today() - added_d).days <= GRACE_DAYS
 
 
 # ── the detector ───────────────────────────────────────────────────────────
@@ -111,17 +156,19 @@ def test_no_published_name_is_in_a_non_latin_script():
     offenders = [(r.get("Source"), f, str(r.get(f))[:50])
                  for r in _rows() for f in ("Product", "Company", "Brand")
                  if has_non_latin_script(r.get(f))
-                 and STAMP not in str(r.get("Notes") or "")]
+                 and not _stamp_still_excuses(r)]
     assert not offenders, offenders[:8]
 
 
 def test_no_published_product_reads_in_another_language():
-    """A row the publish gates stamped for translation is tracked work, not a
-    silent miss; everything else must already be English."""
+    """A row the publish gates stamped for translation is tracked work, not
+    a silent miss — but only while the work is still tracked. See
+    GRACE_DAYS above: a row stamped more than a day after it was added has
+    had the morning pass's turn and is a miss again."""
     offenders = [(r.get("Source"), str(r.get("Product"))[:60])
                  for r in _rows()
                  if product_needs_english(r.get("Product"))
-                 and STAMP not in str(r.get("Notes") or "")]
+                 and not _stamp_still_excuses(r)]
     assert not offenders, offenders[:8]
 
 
@@ -232,3 +279,43 @@ def test_the_model_free_gates_stamp_untranslated_names(path):
     assert "product_needs_english" in src
     assert "[needs cleanup: Product not in English]" in src
     assert "[needs cleanup: Company/Brand not in English]" in src
+
+
+# ── the bound on the stamp (audit 2026-11-14) ─────────────────────────────
+
+def _stamped(days_ago, notes=STAMP + " Product not in English]"):
+    return {"Product": "cuisse de poulet 3 kgs rhônes alpes",
+            "Notes": notes,
+            "DateAdded": (date.today() - timedelta(days=days_ago)).isoformat()}
+
+
+def test_a_fresh_stamp_is_tracked_work():
+    assert _stamp_still_excuses(_stamped(0))
+    assert _stamp_still_excuses(_stamped(GRACE_DAYS))
+
+
+def test_a_stale_stamp_is_a_miss_again():
+    """The five French Products of 12/11/2026 were two days old and stamped.
+
+    Before this bound the suite was green on them. It must not be again.
+    """
+    assert not _stamp_still_excuses(_stamped(GRACE_DAYS + 1))
+    assert not _stamp_still_excuses(_stamped(30))
+
+
+def test_an_unstamped_row_is_never_excused():
+    assert not _stamp_still_excuses({"Product": "x", "Notes": "", "DateAdded":
+                                     date.today().isoformat()})
+
+
+def test_a_stamp_with_no_usable_dateadded_is_not_excused():
+    """An undated stamp is the untracked case the bound exists for."""
+    for bad in ("", "not a date", None):
+        assert not _stamp_still_excuses(_stamped(0) | {"DateAdded": bad})
+
+
+def test_the_stamp_cannot_renew_its_own_grace_period():
+    """DateAdded, not LastUpdated: the gates re-stamp on every run."""
+    row = _stamped(GRACE_DAYS + 1)
+    row["LastUpdated"] = date.today().isoformat()
+    assert not _stamp_still_excuses(row)
