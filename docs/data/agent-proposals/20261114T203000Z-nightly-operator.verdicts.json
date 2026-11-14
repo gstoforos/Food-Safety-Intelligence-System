@@ -1,0 +1,58 @@
+[
+  {
+    "proposal_id": "02d2b0ba9196cd30",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 9"
+  },
+  {
+    "proposal_id": "ac827059875b4e1f",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 7"
+  },
+  {
+    "proposal_id": "bc62771b58ff09ad",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 5"
+  },
+  {
+    "proposal_id": "d38a979b6fb8cded",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 9"
+  },
+  {
+    "proposal_id": "76732322e58ad270",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 11"
+  },
+  {
+    "proposal_id": "cea1ae687737009a",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 13"
+  },
+  {
+    "proposal_id": "bd96cd8558b6e439",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 14"
+  },
+  {
+    "proposal_id": "90a94ea634f2cbe3",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 15"
+  }
+]

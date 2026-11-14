@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261114T204500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne"
+      },
+      "changes": {
+        "Product": "Farmhouse Reblochon de Savoie cheese, 450 g"
+      },
+      "reason": "The promoted wording 'Reblochon de Savoie fermier (farmhouse), 450 g' still reads as French to product_needs_english (tests/test_product_and_firm_names_are_english.py). Fiche 24064: Nom du produit REBLOCHON FERMIER, Modèle REBLOCHON DE SAVOIE FERMIER 450g. 'Reblochon de Savoie' is the protected cheese name and is kept; 'fermier' is translated.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "REBLOCHON DE SAVOIE FERMIER 450g",
+          "retrieved_utc": "2026-11-14T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "REBLOCHON FERMIER",
+          "retrieved_utc": "2026-11-14T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    }
+  ]
+}

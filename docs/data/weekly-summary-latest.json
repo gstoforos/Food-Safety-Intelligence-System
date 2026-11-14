@@ -10,16 +10,16 @@
   "week_end_display": "8 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-14T16:27:09.125249+00:00",
+  "generated_utc": "2026-11-14T20:27:07.811655+00:00",
   "prev_total": 85,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 58,
+    "total": 59,
     "tier1": 36,
     "outbreaks": 0,
-    "delta": -27,
-    "delta_pct": -32
+    "delta": -26,
+    "delta_pct": -31
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
