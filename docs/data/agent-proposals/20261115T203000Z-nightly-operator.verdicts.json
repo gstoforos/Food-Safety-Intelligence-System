@@ -1,0 +1,51 @@
+[
+  {
+    "proposal_id": "75e42361ce7cc2e4",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 11"
+  },
+  {
+    "proposal_id": "52718ee8d13896aa",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 9"
+  },
+  {
+    "proposal_id": "dba785ae4b42ad98",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 3"
+  },
+  {
+    "proposal_id": "ad3a7782d10be0ae",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 4"
+  },
+  {
+    "proposal_id": "9aeb5177252359c3",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 5"
+  },
+  {
+    "proposal_id": "803de3843e2a7f48",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 6"
+  },
+  {
+    "proposal_id": "c2897b0230a17bf7",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 7"
+  }
+]
