@@ -2,9 +2,9 @@
  {
   "Date": "2026-11-14",
   "Source": "USDA FSIS",
-  "Company": "(not named in the FSIS text held on this row)",
-  "Brand": "",
-  "Product": "Ready-to-eat meat products containing FDA-regulated biscuits",
+  "Company": "C.H. Guenther & Son (biscuit recaller; meat establishment not named)",
+  "Brand": "Mmm! Meals Made In Minutes",
+  "Product": "Biscuit & Sausage Gravy, 9.5 oz, use by 11/12/26 to 11/18/26 (ready-to-eat meat product made with recalled FDA-regulated biscuits)",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria monocytogenes",
   "Class": "Recall",
@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-ready-eat-meat-products-containing-biscuits-recalled",
-  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [promote 2026-11-15: status 'pending_gap_v1'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-15: this row was published with Company and Brand 'FSIS Issues Public Health' and Product 'for Ready-to-Eat Meat ...' — the two halves of the notice's own headline, cut by gap_finder_tavily._TITLE_SPLIT_RX on the bare word 'Alert' inside it. Product is restored from THIS ROW'S OWN captured text, which quotes the release: 'is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm)'. Brand is emptied: that text names no brand. COMPANY IS NOT KNOWN AND IS NOT GUESSED — fsis.usda.gov would not open from this pass (the alert page, /recalls and /food-safety/alerts each returned a client error through the agent proxy), so the recalling firm has not been read by anyone. The pipeline's own FSIS scraper reaches the site from GitHub Actions; the firm should be filled from the notice. The hazard, the date and the authority URL are the row's own and are unchanged.]"
+  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [promote 2026-11-15: status 'pending_gap_v1'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-15: this row was published with Company and Brand 'FSIS Issues Public Health' and Product 'for Ready-to-Eat Meat ...' — the two halves of the notice's own headline, cut by gap_finder_tavily._TITLE_SPLIT_RX on the bare word 'Alert' inside it. Product is restored from THIS ROW'S OWN captured text, which quotes the release: 'is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm)'. Brand is emptied: that text names no brand. COMPANY IS NOT KNOWN AND IS NOT GUESSED — fsis.usda.gov would not open from this pass (the alert page, /recalls and /food-safety/alerts each returned a client error through the agent proxy), so the recalling firm has not been read by anyone. The pipeline's own FSIS scraper reaches the site from GitHub Actions; the firm should be filled from the notice. The hazard, the date and the authority URL are the row's own and are unchanged.] [review 2026-11-15c: fsis.usda.gov and the FSIS product list PDF still unreadable from this pass (client_error). Brand/Product/size/use-by from efoodalert 'Recalls and Alerts: November 12-14, 2026' quoting the FSIS list: \"Mmm! MEALS MADE IN MINUTES brand BISCUIT & SAUSAGE GRAVY (9.5 oz; Use by 11/12/26 -11/18/26)\"; matched by Yahoo News/KTAL (AR, LA, MS, OK, TN, TX, mainly vending machines). Company from Food Safety News 14.11.2026 quoting the release: a firm \"notified FSIS that they had received FDA-regulated biscuits that had been recalled by C.H. Guenther & Son\"; the USDA-inspected establishment is not named in any text read. Replace from the FSIS page when the scraper reaches it.]"
  },
  {
   "Date": "2026-11-13",
@@ -4870,14 +4870,14 @@
   "Brand": "—",
   "Product": "Whole (shellstock) oysters harvested in the Little Wicomico River, Virginia, 18 Sep – 8 Oct 2026 (shellfish dealer VA-1421-SP)",
   "Pathogen": "Salmonella",
-  "Reason": "Recalled oysters linked to a cluster of 27 Salmonella Telelkebir illnesses under investigation by CDC, FDA and state authorities. Distributed to CA, CO, CT, DC, FL, GA, IL, MD, MO, NC, NJ, NV, NY, PA, TX and VA, possibly further. Do not serve, sell or eat; discard.",
+  "Reason": "Recalled oysters linked to a cluster of 28 Salmonella Telelkebir illnesses under investigation by CDC, FDA and state authorities. Distributed to CA, CO, CT, DC, FL, GA, IL, MD, MO, NC, NJ, NV, NY, PA, TX and VA, possibly further. Do not serve, sell or eat; discard.",
   "Class": "Recall",
   "Country": "United States",
   "Region": "North America",
   "Tier": 1,
   "Outbreak": 1,
   "URL": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia",
-  "Notes": "[operator review 2026-10-20] FDA safety alert read on its own page 2026-10-20, posted Mon 10/19/2026 16:01: firm \"Little Wicomico Oyster Company (VA-1421-SP)\"; harvested \"September 18, through October 8, 2026\"; \"a cluster of 27 Salmonella Telelkebir illnesses\". Brand left empty: none printed. [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "[operator review 2026-10-20] FDA safety alert read on its own page 2026-10-20, posted Mon 10/19/2026 16:01: firm \"Little Wicomico Oyster Company (VA-1421-SP)\"; harvested \"September 18, through October 8, 2026\"; \"a cluster of 27 Salmonella Telelkebir illnesses\". Brand left empty: none printed. [promote 2026-10-20: status 'pending'->'pending' — passes every publish-gate rule] [outbreak check 2026-11-15: CONFIRMED. FDA safety alert, Current Update October 30, 2026: \"part of a cluster of 28 Salmonella Telelkebir illnesses being investigated by CDC, FDA, and the relevant state authorities\"; \"One additional illness has been reported since October 19, 2026.\" Reason count 27 -> 28. No hospitalisations or deaths stated on the FDA page.]"
  },
  {
   "Date": "2026-10-19",
@@ -5238,14 +5238,14 @@
   "Brand": "",
   "Product": "Cocktail tomatoes",
   "Pathogen": "Salmonella Strathcona",
-  "Reason": "Salmonella Strathcona",
+  "Reason": "Salmonella Strathcona — AGES warning against eating raw cocktail tomatoes from Ragusa and Caltanissetta (Sicily), linked to a recurring Salmonella Strathcona outbreak; 29 cases in Austria since end of July 2026, 7 hospitalised.",
   "Class": "Recall",
   "Country": "Austria",
   "Region": "Europe",
   "Tier": 1,
-  "Outbreak": 0,
+  "Outbreak": 1,
   "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/produktwarnung-salmonellen-in-tomaten-aus-zwei-regionen-in-sizilien",
-  "Notes": "Discovered via news: produktwarnung.eu [locality: Sicily, Ragusa and Caltanissetta regions] [fabricated identifier stripped 2026-10-17: the Reason read \"Salmonella Strathcona (Recall ID AGES-2026-07-10)\". The AGES notice was read this pass and prints NO reference number of any kind — not an AGES number, not a RASFF number; its only outbound link is to the AGES Radar für Infektionskrankheiten. \"AGES-2026-07-10\" is the extractor's own identifier template filled from nothing, the same defect class as the \"Recall ID 842632\" prompt example named in publish-gate rule 2. READ ON THE NOTICE: \"Lebensmittel-Warnung\" 16.10.2026; \"Rückrufgrund: Salmonellen\"; serovar \"Salmonella Strathcona\"; \"Cocktailtomaten\" from \"den italienischen Regionen Ragusa und Caltanissetta in Sizilien\"; no company and no brand named. Company follows the register's existing wording for an unnamed firm.] [promote 2026-10-17: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/at/rules.py: llm-extraction-failed: Llama timeout or circuit-open; title-only fallback could not produce clean fields. Not a content verdict — re-ext'; that defect is repaired and the row now passes every publish-gate rule]"
+  "Notes": "Discovered via news: produktwarnung.eu [locality: Sicily, Ragusa and Caltanissetta regions] [fabricated identifier stripped 2026-10-17: the Reason read \"Salmonella Strathcona (Recall ID AGES-2026-07-10)\". The AGES notice was read this pass and prints NO reference number of any kind — not an AGES number, not a RASFF number; its only outbound link is to the AGES Radar für Infektionskrankheiten. \"AGES-2026-07-10\" is the extractor's own identifier template filled from nothing, the same defect class as the \"Recall ID 842632\" prompt example named in publish-gate rule 2. READ ON THE NOTICE: \"Lebensmittel-Warnung\" 16.10.2026; \"Rückrufgrund: Salmonellen\"; serovar \"Salmonella Strathcona\"; \"Cocktailtomaten\" from \"den italienischen Regionen Ragusa und Caltanissetta in Sizilien\"; no company and no brand named. Company follows the register's existing wording for an unnamed firm.] [promote 2026-10-17: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/at/rules.py: llm-extraction-failed: Llama timeout or circuit-open; title-only fallback could not produce clean fields. Not a content verdict — re-ext'; that defect is repaired and the row now passes every publish-gate rule] [outbreak check 2026-11-15: CONFIRMED OUTBREAK, Outbreak 0 -> 1. AGES warning read 2026-11-15 (Lebensmittel-Warnung 16.10.2026): \"Diese Tomaten stehen im Zusammenhang mit einem jährlich wiederkehrenden, Ausbruch von Salmonella Strathcona.\" / \"Auch in Österreich wurden seit Ende Juli 29 Fälle registriert.\" / \"Sieben Personen (24 %) mussten hospitalisiert werden.\" No deaths stated. Reason was the bare serovar; it now carries the page's own counts.]"
  },
  {
   "Date": "2026-10-16",
@@ -5502,22 +5502,6 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/23797/interne",
   "Notes": "ponera, maxicoffee [offline-enrich 2026-10-15: Pathogen '' -> 'Ochratoxin A', read from this row's own hazard text; no fetch, no model] [promote 2026-10-15: status 'pending_enrichment'->'pending' — passes every publish-gate rule] fiche read 2026-10-16: dénomination \"PERFETTO MOKA CARAMELLO\", marque \"BIALETTI\", motif \"Teneurs en ochratoxine A supérieures aux limites réglementaires autorisées\", published 15/10/2026. The denomination is the product's own commercial name and is kept as published (case normalised). [original Reason (fr): \"Teneurs en ochratoxine a supérieures aux limites réglementaires autorisées\"]"
- },
- {
-  "Date": "2026-10-15",
-  "Source": "FDA",
-  "Company": "Family Farmstead Dairy, LLC (Worcester, NY)",
-  "Brand": "Family Farmstead Dairy",
-  "Product": "Raw Mild Cheddar Cheese — one lot, lot code and best-by 7/22/27",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Product may be contaminated with Shiga toxin-producing Escherichia coli O157:H7. Distributed to grocers in New York and New Jersey; no illnesses reported.",
-  "Class": "Voluntary",
-  "Country": "United States",
-  "Region": "North America",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o157h7",
-  "Notes": "[manual 2026-10-16: morning fix pass MISSING #1. FDA recall announcement read on the FDA's own page, which gives the announcement and publish date 15 October 2026, the firm 'Family Farmstead Dairy, LLC, of Worcester, NY', 'Family Farmstead Dairy Raw Mild Cheddar Cheese' with lot code and best-by 7/22/27, the hazard 'Shiga toxin-producing E. coli O157:H7', distribution to grocers in New York and New Jersey, and 'No illnesses or allergic reactions have been reported to date'. The FDA recalls listing was also read this pass and shows this as the only food recall dated 10/15/2026. No pack size is published in the announcement, so none is recorded. read on the authority page by the morning fix pass 2026-10-16; dedup checked across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected] [promote 2026-10-16: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-10-15",
