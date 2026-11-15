@@ -357,6 +357,26 @@ class Run:
         if repairs or self.data:
             py(self.repo, "-m", "tools.monitored_sources")
             py(self.repo, "-m", "pipeline.export_public_xlsx")
+            # THE PROMISE IN THIS MODULE'S OWN DOCSTRING (2026-11-15).
+            # "Derived files (recalls.json, public xlsx, sources.json) are
+            # regenerated" — two of the three were. recalls.json is what
+            # advfood.tech/fsis-recalls reads, and it is also in DERIVED,
+            # so classify() refuses to COPY it out of a data zip: rebuilt
+            # by nothing and copied by nothing, it could only ever reach
+            # an upload if the pass's own repair script happened to call
+            # mirror_json_from_xlsx. Most do. The morning fix of
+            # 2026-11-15 did not, and the gate zipped a workbook whose
+            # three repaired rows the dashboard would still have shown
+            # broken — eight field differences, suite green, nothing in
+            # the report. A derived file is this step's job, not a thing
+            # each repair script has to remember.
+            py(self.repo, "-c",
+               "import sys; sys.path.insert(0, '.');"
+               "from pathlib import Path;"
+               "from pipeline.merge_master import mirror_json_from_xlsx;"
+               "print('recalls.json:', mirror_json_from_xlsx("
+               "Path('docs/data/recalls.xlsx'),"
+               "Path('docs/data/recalls.json')), 'rows')")
 
     # 5
     def rebuild_reports(self, added, removed, changed) -> List[str]:
