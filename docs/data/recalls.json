@@ -2,9 +2,9 @@
  {
   "Date": "2026-11-14",
   "Source": "USDA FSIS",
-  "Company": "FSIS Issues Public Health",
-  "Brand": "FSIS Issues Public Health",
-  "Product": "for Ready-to-Eat Meat ...",
+  "Company": "(not named in the FSIS text held on this row)",
+  "Brand": "",
+  "Product": "Ready-to-eat meat products containing FDA-regulated biscuits",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria monocytogenes",
   "Class": "Recall",
@@ -13,14 +13,14 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-ready-eat-meat-products-containing-biscuits-recalled",
-  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [promote 2026-11-15: status 'pending_gap_v1'->'pending' — passes every publish-gate rule]"
+  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [promote 2026-11-15: status 'pending_gap_v1'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-15: this row was published with Company and Brand 'FSIS Issues Public Health' and Product 'for Ready-to-Eat Meat ...' — the two halves of the notice's own headline, cut by gap_finder_tavily._TITLE_SPLIT_RX on the bare word 'Alert' inside it. Product is restored from THIS ROW'S OWN captured text, which quotes the release: 'is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm)'. Brand is emptied: that text names no brand. COMPANY IS NOT KNOWN AND IS NOT GUESSED — fsis.usda.gov would not open from this pass (the alert page, /recalls and /food-safety/alerts each returned a client error through the agent proxy), so the recalling firm has not been read by anyone. The pipeline's own FSIS scraper reaches the site from GitHub Actions; the firm should be filled from the notice. The hazard, the date and the authority URL are the row's own and are unchanged.]"
  },
  {
-  "Date": "2026-11-14",
+  "Date": "2026-11-13",
   "Source": "BVL (DE)",
   "Company": "Ökoland GmbH Nord",
   "Brand": "",
-  "Product": "Liver sausage, finely sliced, 100 grams",
+  "Product": "Fine liver sausage (Leberwurst fein), 100 g tube bag, batch 3825082 (best before 04.12.2026) and batch 3825083 (best before 08.12.2026), EAN 4031829233511",
   "Pathogen": "Metal foreign body",
   "Reason": "Foreign body (Fremdkörper) in the product (Recall ID 3825082, 3825083)",
   "Class": "Recall",
@@ -29,7 +29,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261113_16_NI_Leberwurst_fein,_100_Gramm/261113_16_NI_Leberwurst_fein,_100_Gramm.html",
-  "Notes": "Discovered via news: news.de [locality: 14 federal states in Germany] [promote 2026-11-15: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "Discovered via news: news.de [locality: 14 federal states in Germany] [promote 2026-11-15: status 'pending'->'pending' — passes every publish-gate rule] [daily-global 2026-11-15: Date 2026-11-14 -> 2026-11-13 (Datum der Erstveröffentlichung 13.11.2026) and Product corrected from the BVL Meldung read 2026-11-15 — \"fein\" is the texture, not \"finely sliced\"; manufacturer Franz Ludowig Fleischerei GmbH & Co. KG, placed on the market by Ökoland GmbH Nord] [original product: Leberwurst fein, 100 Gramm]"
  },
  {
   "Date": "2026-11-13",
@@ -100,7 +100,7 @@
   "Source": "BLV (CH)",
   "Company": "Aldi Suisse AG",
   "Brand": "—",
-  "Product": "Mini-Hähnchenbrust-Filetstücke; Mini Klassik, Mini Paprika und Mini Curry",
+  "Product": "Mini chicken breast fillet pieces, in the Mini Klassik, Mini Paprika and Mini Curry varieties",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria monocytogenes — FSVO recall",
   "Class": "Recall",
@@ -109,7 +109,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1191",
-  "Notes": "listing (deterministic parse); FSVO title: \"Aldi Suisse AG ruft das Produkt «Mini-Hähnchenbrust-Filetstücke» in den Sorten «Mini Klassik, Mini Paprika und Mini Curry» wegen Nachweis auf Listerien zurück\" [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "listing (deterministic parse); FSVO title: \"Aldi Suisse AG ruft das Produkt «Mini-Hähnchenbrust-Filetstücke» in den Sorten «Mini Klassik, Mini Paprika und Mini Curry» wegen Nachweis auf Listerien zurück\" [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule] [morning fix pass 2026-11-15: a second German Product on the same Aldi Suisse Listeria recall, this one the FSVO's Recalls/1191 record, published 2026-11-13 and so OUTSIDE the 26-hour window the standing instruction names — which is how the by-hand read missed it too. It surfaced because the 13 November daily brief still rendered it in German. Translated from this row's own captured FSVO title, 'Aldi Suisse AG ruft das Produkt «Mini-Hähnchenbrust-Filetstücke» in den Sorten «Mini Klassik, Mini Paprika und Mini Curry» wegen Nachweis auf Listerien zurück'. The three variety names are the notice's own and are kept as written. pipeline/_language.product_needs_english returned False on this string — its Latin-script detectors were French-only — and is widened to Germanic and Nordic food words in the same pass, measured at one hit and no false positive across all 2,404 published Products. [original product: Mini-Hähnchenbrust-Filetstücke; Mini Klassik, Mini Paprika und Mini Curry]]"
  },
  {
   "Date": "2026-11-13",
@@ -260,7 +260,7 @@
   "Source": "BLV (CH)",
   "Company": "Aldi Suisse AG",
   "Brand": "",
-  "Product": "Mini-Hähnchenbrust-Filetstücke 150g",
+  "Product": "Mini chicken breast fillet pieces, 150 g",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "Listeria monocytogenes - FSVO public warning",
   "Class": "Recall",
@@ -269,7 +269,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/de/newnsb/BRX4VP3-xxIP",
-  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG\" [review-agent 2026-11-14: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged]"
+  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG\" [review-agent 2026-11-14: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [morning fix pass 2026-11-15: Product was published in German and carried no '[needs cleanup: Product not in English]' stamp — the detector needs two non-English word hits and this is one hyphenated compound plus a weight, which is the short-name blind spot the standing instruction to read every Product published in the last 26 h exists for. Translated from this row's own captured FSVO title, 'Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG'. The weight is the notice's own; no lot, species or pack detail is added. [original product: Mini-Hähnchenbrust-Filetstücke 150g]]"
  },
  {
   "Date": "2026-11-12",
@@ -23219,7 +23219,7 @@
   "Date": "2026-06-24",
   "Source": "AFSCA (BE)",
   "Company": "Bestar Europe",
-  "Brand": "Bestar Europe | Agence fédérale pour la sécurité de ...",
+  "Brand": "Bestar Europe",
   "Product": "Bestar Europe product — aflatoxin contamination (see FAVV notice).",
   "Pathogen": "Aflatoxin",
   "Reason": "FAVV/AFSCA: Bestar Europe withdraws/recalls product due to aflatoxin. Official FAVV notice.",
@@ -23229,7 +23229,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://favv-afsca.be/fr/produits/rappel-de-bestar-europe",
-  "Notes": "Promoted 2026-06-30. In scope: mycotoxin (aflatoxin). Company cleaned from regulator-boilerplate. [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.]"
+  "Notes": "Promoted 2026-06-30. In scope: mycotoxin (aflatoxin). Company cleaned from regulator-boilerplate. [source-label canonicalised 2026-09-01: 'FAVV (BE)' -> 'AFSCA (BE)'; host favv-afsca.be confirms the same agency. One form per agency — the split inflated distinct-source counts and fragmented the Herfindahl index.] [morning fix pass 2026-11-15: Brand held 'Bestar Europe | Agence fédérale pour la sécurité de ...' — the firm's name, the FAVV/AFSCA site-name suffix the CMS appends to its <title>, and a truncation ellipsis. _SITE_SUFFIX_RX strips such a suffix only when it is 40 characters or fewer and this one is longer, so it survived; the same debris was cleaned out of Company by an earlier pass and left here. Brand set to the firm's own name, which is this row's Company and its own URL slug (rappel-de-bestar-europe). No other field is touched: the June notice was not read by this pass. [original brand: Bestar Europe | Agence fédérale pour la sécurité de ...]]"
  },
  {
   "Date": "2026-06-24",
