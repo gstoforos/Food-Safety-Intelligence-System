@@ -76,6 +76,24 @@ MUST_BE_CLEAN = NEW_2026_09_23 | CORRECTED | LATE_ADDITION
 #: and the gate refusing it is the gate working.
 TRUSTED_SHEETS = ("Recalls", "Pending")
 
+#: ...and a PENDING row already stamped with a rejection verdict is the same
+#: thing in a sheet that does not say so (2026-11-15). A reviewer stamps
+#: Status='rejected' in Pending and the confirmer evicts the row on its next
+#: committing run, so between the two the row sits in a "trusted" sheet
+#: carrying a verdict against it. This file went RED on [br] that morning
+#: for exactly one such row:
+#:
+#:     gov.br/anvisa/en/updates/to-disinfect-produce-use-water-and-a-
+#:     proper-solution-specifically-designed-for-food
+#:
+#: — an ANVISA consumer-advice article, not a recall, correctly refused by
+#: Brazil's item regex and correctly stamped rejected. Reading that as "a
+#: recall Brazil has already found and could not find again" is the test
+#: misreading its own oracle, and the pressure it creates is to widen a
+#: country gate until it accepts an advice column. The verdict is honoured
+#: wherever it is written.
+_REJECTED_STATUSES = frozenset({"rejected"})
+
 
 def _authority_urls():
     """{code: {(sheet, url)}} for every register URL on a configured
@@ -102,9 +120,14 @@ def _authority_urls():
         if "URL" not in head:
             continue
         iu = head.index("URL")
+        istat = head.index("Status") if "Status" in head else None
         for row in ws.iter_rows(min_row=2, values_only=True):
             url = str(row[iu] or "").strip()
             if not url.startswith("http"):
+                continue
+            if (istat is not None
+                    and str(row[istat] or "").strip().lower()
+                    in _REJECTED_STATUSES):
                 continue
             host = urlparse(url).netloc.lower()
             for dom, code in dom2code.items():

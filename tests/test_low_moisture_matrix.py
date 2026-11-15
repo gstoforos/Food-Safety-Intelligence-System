@@ -164,8 +164,16 @@ class TestTheTierOutcome(unittest.TestCase):
         wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
         rows = list(wb["Recalls"].values)
         hdr = [str(h) for h in rows[0]]
+        # 2026-11-15: this matched on "veiligheidswaarschuwing-milbona"
+        # until the NVWA published, on 2026-11-13,
+        #   /2026/11/13/veiligheidswaarschuwing-milbona-uht-volle-melk-van-lidl
+        # — a different Milbona product (UHT whole milk, "may contain
+        # disease-causing bacteria", correctly Tier 3). It sorts above the
+        # August pudding in the register, so hits[0] became the milk row and
+        # this test failed on a row it was never about. The slug is now the
+        # pudding's own.
         hits = [dict(zip(hdr, r)) for r in rows[1:] if r
-                and "veiligheidswaarschuwing-milbona"
+                and "veiligheidswaarschuwing-milbona-high-protein-pudding"
                 in str(dict(zip(hdr, r)).get("URL") or "")]
         if not hits:                                       # pragma: no cover
             self.skipTest("row not in the register")
