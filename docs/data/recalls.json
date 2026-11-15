@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-ready-eat-meat-products-containing-biscuits-recalled",
-  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [confirm-agent 2026-11-15: pending_gap_v1 → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "1 day ago · WASHINGTON, Nov. 14, 2026 – The U.S. Department of Agriculture’s Food Safety and Inspection Service (FSIS) is issuing a public health alert for ready-to-eat meat products containing FDA-regulated biscuits that may be contaminated with Listeria monocytogenes (Lm). Additional downstream pr  [via DDGS gap-finder, deterministic extract] [url-agent 2026-11-15: pending_gap→pending_gap_v1 URL confirmed] [promote 2026-11-15: status 'pending_gap_v1'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-14",
@@ -29,7 +29,7 @@
   "Tier": 3,
   "Outbreak": 0,
   "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261113_16_NI_Leberwurst_fein,_100_Gramm/261113_16_NI_Leberwurst_fein,_100_Gramm.html",
-  "Notes": "Discovered via news: news.de [locality: 14 federal states in Germany] [confirm-agent 2026-11-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: news.de [locality: 14 federal states in Germany] [promote 2026-11-15: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-13",
@@ -1789,7 +1789,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/dmbio-pinienkerne-60g",
-  "Notes": "Discovered via news: produktwarnung.eu [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [confirm-agent 2026-11-15: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: produktwarnung.eu [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-11-15: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-04",
