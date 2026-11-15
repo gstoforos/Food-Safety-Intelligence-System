@@ -1769,6 +1769,52 @@ _AUTHORITY_OWN_NAMES = (
 )
 
 
+#: THE AGENCY IS THE SUBJECT OF ITS OWN HEADLINE (morning-fix 2026-11-15).
+#:
+#: Published that morning, Tier 1, through the DDGS gap-finder:
+#:
+#:     Date     2026-11-14                 Source   USDA FSIS
+#:     Company  'FSIS Issues Public Health'
+#:     Brand    'FSIS Issues Public Health'
+#:     Product  'for Ready-to-Eat Meat ...'
+#:     URL      fsis.usda.gov/recalls-alerts/fsis-issues-public-health-
+#:              alert-ready-eat-meat-products-containing-biscuits-recalled
+#:
+#: The headline is "FSIS Issues Public Health Alert for Ready-to-Eat Meat
+#: Products Containing Biscuits Recalled …". _TITLE_SPLIT_RX in
+#: gap_finder_tavily matched the bare verb "Alert" out of the middle of it,
+#: so everything to its left became Company (and, because that module sets
+#: `Brand=company`, Brand too) and everything to its right became Product.
+#:
+#: _HEADLINE_COMPANY_START already refuses a headline that OPENS with a
+#: recall verb, and _FRAGMENT_PRODUCT already refuses a Product that opens
+#: with a causal connector — this split lands between both: the sentence
+#: opens with the agency's own acronym, and the Product opens with "for",
+#: which is a preposition and not a connector. Two more rules of the same
+#: family, measured on the whole corpus before being written: each matches
+#: exactly this row in Recalls and Weekly_Review, nothing else in 2,404
+#: published rows, and in the Rejected archive only debris of the same kind
+#: ("of Chlorella Powder | NZ Government", "and alerts").
+_AGENCY_SUBJECT_HEADLINE = re.compile(
+    r"\bissues?\s+(?:an?\s+)?(?:public\s+health|food\s+safety)\b"
+    r"|\bissues?\s+(?:an?\s+)?(?:alert|notice|warning|advisory|recall)\b"
+    r"|\bpublic\s+health\s+alert\b",
+    re.IGNORECASE)
+
+#: A Product that OPENS with a bare lowercase function word is the right-hand
+#: side of a split headline. Deliberately case-SENSITIVE: "With fresh cheese
+#: 140g; ktipiti 175g…" (Recalls row 963) is a real multi-item product list
+#: and a capital opener, while a split leaves the word exactly as the
+#: headline wrote it mid-sentence — lower case.
+_FUNCTION_WORD_PRODUCT = re.compile(
+    r"^(for|of|in|on|at|to|by|with|and|that|which|after|from|containing)\b")
+
+#: A value that ENDS in a truncation ellipsis is page debris. A regulator
+#: never names a food "… ..." — the search snippet was cut mid-title and
+#: stored whole.
+_TRUNCATION_ELLIPSIS = re.compile(r"(\.\.\.|\u2026)\s*$")
+
+
 def _name_field_blockers_2026_10_19(row: Dict[str, Any]) -> List[str]:
     """Company/Brand must be a name; Product must not be the authority."""
     out: List[str] = []
@@ -1785,6 +1831,26 @@ def _name_field_blockers_2026_10_19(row: Dict[str, Any]) -> List[str]:
                 f"{field} {value!r} is the website that published this "
                 "notice, not the recalling firm — that host belongs in "
                 "Source, and the firm is named on the notice itself")
+        elif _AGENCY_SUBJECT_HEADLINE.search(value):
+            out.append(
+                f"{field} {value!r} is the authority's own headline with the "
+                "agency as its subject, not the recalling firm — the page "
+                "<title> was split on a recall verb in the middle of it")
+        elif _TRUNCATION_ELLIPSIS.search(value):
+            out.append(
+                f"{field} {value!r} ends in a truncation ellipsis — that is a "
+                "search snippet cut mid-title, not a name")
+    product_raw = str(row.get("Product") or "").strip()
+    if product_raw and product_raw.lower() not in _NAME_SENTINELS:
+        if _FUNCTION_WORD_PRODUCT.match(product_raw):
+            out.append(
+                f"Product {product_raw[:70]!r} opens with a bare function "
+                "word — this is the right-hand side of a split headline, not "
+                "a food name")
+        if _TRUNCATION_ELLIPSIS.search(product_raw):
+            out.append(
+                f"Product {product_raw[:70]!r} ends in a truncation ellipsis "
+                "— that is a search snippet cut mid-title, not a product")
     product = str(row.get("Product") or "").strip().lower()
     if product and product not in _NAME_SENTINELS:
         for name in _AUTHORITY_OWN_NAMES:

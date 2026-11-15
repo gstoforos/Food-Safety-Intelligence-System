@@ -442,6 +442,43 @@ def _strip_site_suffix(title: str) -> str:
     return t
 
 
+#: A SPLIT THAT PRODUCES THESE IS NOT A SPLIT (morning-fix 2026-11-15).
+#:
+#: _TITLE_SPLIT_RX finds a recall VERB and cuts the title at it. _RECALL_VERBS
+#: includes the bare word "alert", which appears in the middle of every
+#: agency headline of the form "<AGENCY> Issues Public Health Alert for <X>".
+#: On 2026-11-14 that published, Tier 1:
+#:
+#:     Company = Brand = 'FSIS Issues Public Health'
+#:     Product          = 'for Ready-to-Eat Meat ...'
+#:     URL  fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-
+#:          ready-eat-meat-products-containing-biscuits-recalled
+#:
+#: The 2026-09-16 audit removed the "whole title as Company" fallback for
+#: exactly this failure mode, but a MATCH that splits in the wrong place
+#: produces the same thing by another route, and nothing checked the match.
+#: So the match is now checked: when either side of the cut has the shape of
+#: a headline rather than a name, the split is discarded and the row goes on
+#: with no Company and no Product — which the publish gate refuses, which is
+#: the correct outcome for a title nothing could parse.
+_AGENCY_SUBJECT_COMPANY = re.compile(
+    r"\bissues?\s+(?:an?\s+)?(?:public\s+health|food\s+safety)\b"
+    r"|\bpublic\s+health\s+alert\b",
+    re.IGNORECASE)
+
+#: Case-SENSITIVE on purpose: a split leaves the word as the headline wrote
+#: it mid-sentence (lower case), while a real multi-item product list opens
+#: with a capital ("With fresh cheese 140g; ktipiti 175g …").
+_FUNCTION_WORD_PRODUCT = re.compile(
+    r"^(for|of|in|on|at|to|by|with|and|that|which|after|from|containing)\b")
+
+
+def _split_is_a_headline(company: str, product: str) -> bool:
+    """True when a title split cut a sentence, not a name from a product."""
+    return bool(_AGENCY_SUBJECT_COMPANY.search(company or "")
+                or _FUNCTION_WORD_PRODUCT.match((product or "").strip()))
+
+
 def _extract_company_product(title: str, content: str) -> Tuple[str, str]:
     """Best-effort company + product extraction. Blank strings if nothing found.
     The URL gate (Claude Haiku) will reject rows missing required fields, so
@@ -451,7 +488,12 @@ def _extract_company_product(title: str, content: str) -> Tuple[str, str]:
     if m:
         company = m.group("company").strip(" -:,;")
         product = m.group("product").strip(" -:,;")[:200]
-        return company, product
+        if not _split_is_a_headline(company, product):
+            return company, product
+        # Fall through: a bad cut is worse than no cut. Returning ("", "")
+        # below leaves the row for the gate to refuse instead of publishing
+        # half a headline as a firm and the other half as a food.
+        return "", ""
     # Fallback: no verb match. A "Company - Product" split is still safe,
     # because the separator is what identifies the boundary.
     if len(t) > 10:

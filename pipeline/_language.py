@@ -353,6 +353,41 @@ _FRENCH_FOOD_WORDS = frozenset("""
 # the two defective rows above and NOTHING else, and loses nothing the old
 # detector caught. Held by
 # tests/test_a_short_french_product_name_is_caught.py.
+#: GERMANIC AND NORDIC FOOD WORDS (morning fix pass 2026-11-15).
+#:
+#: This module's Latin-script detectors are French-centric — _FRENCH_FOOD_WORDS
+#: and _FRENCH_STRUCTURE_WORDS — because every untranslated Product found up to
+#: 2026-10-27 came from RappelConso. On 2026-11-13 BLV (CH) published, Tier 1,
+#: Listeria:
+#:
+#:     Product 'Mini-Hähnchenbrust-Filetstücke; Mini Klassik, Mini Paprika
+#:              und Mini Curry'
+#:
+#: product_needs_english() returned False for it: no French word, and the
+#: two-hit function-word detector sees "Mini", "Klassik", "Paprika" and
+#: "Curry" as perfectly good Latin-script tokens. It carried no cleanup stamp,
+#: nothing flagged it, and it sat in the register and on the 13 November
+#: daily brief for two days.
+#:
+#: Gated exactly as the French food-word rule is — a Germanic/Nordic food word
+#: and NO English word anywhere — so the house convention of an English
+#: description with the regulator's own words in brackets still passes:
+#: "Savory, rubbed and dried (Bohnenkraut, gerebelt und getrocknet), 25 g" and
+#: "Kägi Butterbiscuits (butter biscuits)" are both English rows and both
+#: carry German, and neither fires.
+#:
+#: MEASURED BEFORE IT WAS WRITTEN: across all 2,404 published Products this
+#: rule matches exactly the row above. One hit, no false positive.
+_GERMANIC_FOOD_WORDS = frozenset("""
+hähnchen haehnchen hühner huehner käse kaese fleisch wurst brot milch butter
+salat gemahlen geschnitten getrocknet packung beutel scheiben rückruf rueckruf
+stücke stuecke filetstücke filetstuecke sorten zurück zurueck wegen
+hackfleisch leberwurst schinken speck sahne quark joghurt mehl zucker
+geräuchert geraeuchert gekocht frisch tiefgekühlt tiefgekuehlt
+kaas vlees melk gesneden gerookte stukjes
+kött kylt fryst ost skivad grønnkål økologisk
+""".split())
+
 _NAME_SAFE_FRENCH = frozenset("à a l au d de du des la le les un une".split())
 _ENGLISH_HOMOGRAPHS = frozenset("est lot lots detection presence analyse".split())
 _FRENCH_STRUCTURE_WORDS = frozenset(
@@ -377,6 +412,13 @@ def product_needs_english(text) -> bool:
     # "référence 3225164" — and neither the confirmer stamp nor the Morning
     # Fix (which reads what is stamped) ever saw them.
     if (w & _FRENCH_FOOD_WORDS) and not (w & _ENGLISH_PRODUCT_WORDS):
+        return True
+    # The same rule for German, Dutch and the Nordic languages (2026-11-15).
+    # Both English vocabularies have to come up empty, so an English
+    # description that keeps the regulator's own words in brackets passes.
+    if ((w & _GERMANIC_FOOD_WORDS)
+            and not (w & _ENGLISH_PRODUCT_WORDS)
+            and not (w & _ENGLISH_MARKERS)):
         return True
     # One French structure word, and no English word from EITHER English
     # vocabulary. Two independent English word lists have to come up empty
