@@ -1,0 +1,430 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261115T203000Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+        "sheet": "Recalls"
+      },
+      "changes": {
+        "Product": "Producers brand Brown Rice, 22.6 kg (UPC 0 72806 00225 0)",
+        "Brand": "Producers",
+        "Reason": "Presence of insects; CFIA issue type \"Food - Extraneous Material\""
+      },
+      "reason": "Published 2026-11-14 with the CFIA headline duplicated into Product and Reason and Brand empty. CFIA notice read 2026-11-15: recalling firm Tree of Life Canada, brand Producers, Brown Rice 22.6 kg, UPC 0 72806 00225 0, issue Food - Extraneous Material, Class 3, published 2026-11-13.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "Producers brand Brown Rice recalled due to presence of insects",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "Recalling firm: Tree of Life Canada",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "Brand: Producers",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "Brown Rice",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "22.6 kg",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "0 72806 00225 0",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/producers-brand-brown-rice-recalled-due-presence-insects",
+          "quote": "Food - Extraneous Material",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.97,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+        "sheet": "Recalls"
+      },
+      "changes": {
+        "Product": "Scallops (coquilles Saint-Jacques), sold loose at the traditional fish counter",
+        "Company": "Carrefour Market de Plouhinec-Brizeux"
+      },
+      "reason": "Published 2026-11-14 with Product in French ('coquilles saint-jacques vendues au rayon traditionnel') and a stray space in Company. Fiche 24088 read 2026-11-15: Coquilles St Jacques, sans marque, sold only at Carrefour market de Plouhinec-brizeux, 13/11/2026, Présence de Listeria.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "Coquilles St Jacques",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "sans marque",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "Carrefour market de Plouhinec -brizeux UNIQUEMENT",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "Présence de Listeria",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "Listeria monocytogenes (agent responsable de la listériose)",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24088/interne",
+          "quote": "13/11/2026",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+        "sheet": "Pending"
+      },
+      "changes": {
+        "Company": "GAEC La Louisa",
+        "Brand": "Unbranded",
+        "Product": "Raw-milk Reblochon de Savoie cheese",
+        "Reason": "Precautionary withdrawal following a suspicion of Salmonella",
+        "Date": "2026-11-13"
+      },
+      "reason": "Company '/' and a French Reason blocked the gate. Fiche 24077 read 2026-11-15: REBLOCHON DE SAVOIE au lait cru, Marque '/', Origine de la fiche GAEC LA LOUISA, distributors Cremerie du Treige, Tripard GAEC Les Airelles, SARL La Ferme des Chalets d'Oche, C'Nos Terroirs; 13/11/2026; Motif 'retrait par mesure de précaution dans un contexte suspicion salmonelle'; Risques Salmonella spp. Lots 1609-2309, sold 08/10-27/10/2026 in Haute-Savoie.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "REBLOCHON DE SAVOIE au lait cru",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "GAEC LA LOUISA",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "retrait par mesure de précaution dans un contexte suspicion salmonelle",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "13/11/2026",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.96,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+        "sheet": "Pending"
+      },
+      "changes": {
+        "Company": "GAEC Les Deux Savoies",
+        "Brand": "Unbranded",
+        "Product": "Farmhouse Reblochon de Savoie cheese, 450 g",
+        "Reason": "Presence of Escherichia coli STEC",
+        "Date": "2026-11-11"
+      },
+      "reason": "Company '/' and a French Product blocked the gate. Fiche 24064 (réf. 2026-11-0077) read 2026-11-15: REBLOCHON DE SAVOIE FERMIER 450g, Marque '/', GAEC LES DEUX SAVOIES, 11/11/2026, Motif 'Présence de Escherichia Coli STEC', DLC 25/11/2026, sold 06/11-09/11/2026 in Haute-Savoie.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "REBLOCHON DE SAVOIE FERMIER 450g",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "GAEC LES DEUX SAVOIES",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "Présence de Escherichia Coli STEC",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "Escherichia coli shiga toxinogène (STEC)",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "11/11/2026",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.96,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+        "sheet": "Pending"
+      },
+      "changes": {
+        "Company": "Molson Canada 2005",
+        "Product": "Various brands of alcoholic and non-alcoholic beer (31 products across seven brands)",
+        "Pathogen": "Foreign material (metal)",
+        "Reason": "Pieces of metal; CFIA issue type \"Food - Extraneous Material\"",
+        "Class": "Class 3",
+        "Date": "2026-11-10"
+      },
+      "reason": "Company empty, Product/Reason held the headline, Pathogen a bare 'Pieces Of Metal', Date was the page's 'last updated' (2026-11-09). CFIA notice read 2026-11-15: recalling firm Molson Canada 2005; brands Brasseur de Montréal, Hop Valley, Blue Moon, Molson Canadian, Coors Light, India Beer, Black Horse; 31 SKUs; issue Food - Extraneous Material (pieces of metal); Class 3; recall date 2026-11-02, original published date 2026-11-10. Not in Recalls (only the separate Archibald IPA recall is).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Various brands of alcoholic and non-alcoholic beer recalled due to pieces of metal",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Molson Canada 2005",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Brasseur de Montréal",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Hop Valley",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Blue Moon",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Molson Canadian",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Coors Light",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "India Beer",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Black Horse",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Food - Extraneous Material",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Class 3",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "2026-11-10",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+        "sheet": "Pending"
+      },
+      "changes": {
+        "Company": "Champibon (distributed by Promocash)",
+        "Pathogen": "Mushroom toxins (unspecified)",
+        "Product": "Dried morel mushrooms, 400 g (lot 262306)",
+        "Reason": "Probable contamination of a batch of morels by a toxin liable to cause food poisoning",
+        "Date": "2026-11-09"
+      },
+      "reason": "Pathogen empty, Product and Reason French. Fiche 24047 read 2026-11-15: CHAMPIGNONS MORILLES SECHEES, marque CHAMPIBON, Origine de la fiche K 2 M PROMOCASH, distributor Promocash, 09/11/2026, lot 262306, GTIN 3760201600023, 400g, sold 23/06-03/11/2026 France entière; Motif names a toxin in morels causing food poisoning (diarrhoea/vomiting); Risques 'Autre risque', no toxin named — so the Pathogen says unspecified.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "Promocash",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "probable contamination d'un lot de morilles par une toxine susceptible d'être à l'origine d'intoxication alimentaire",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "262306",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "400g",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "09/11/2026",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.93,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+        "sheet": "Pending"
+      },
+      "changes": {
+        "Company": "Champibon (distributed by B&M)",
+        "Pathogen": "Mushroom toxins (unspecified)",
+        "Product": "Dried morel mushrooms, 60 g (all lots)",
+        "Reason": "Probable contamination of a batch of morels by a toxin liable to cause food poisoning",
+        "Date": "2026-11-04"
+      },
+      "reason": "Product held lot codes, Pathogen empty, Reason French. Fiche 24012 read 2026-11-15: CHAMPIGNONS MORILLES SECHEES 60G, marque CHAMPIBON, distributor B&M (B&M France SAS), 04/11/2026, tous les lots, GTIN 3760201609743, référence 534199, sold 12/10-03/11/2026; same Motif as fiche 24047; Risques 'Autre risque'.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES 60G",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "B&M",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "Probable contamination d'un lot de morilles par une toxine susceptible d'être à l'origine d'intoxication alimentaire",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "Tous les lots",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "3760201609743",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "04/11/2026",
+          "retrieved_utc": "2026-11-15T20:30:00Z"
+        }
+      ],
+      "confidence": 0.93,
+      "agent": "nightly-operator"
+    }
+  ]
+}
