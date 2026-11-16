@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-11-15",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Mediterranea Snc di Milanese Rosanna & C.",
+  "Brand": "",
+  "Product": "Dried tomato",
+  "Pathogen": "Salmonella",
+  "Reason": "Presence of Salmonella spp.",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modello_richiamo_Pomodorino_1794652742.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Sicily (Vittoria, Ragusa province)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-11-14",
   "Source": "USDA FSIS",
   "Company": "C.H. Guenther & Son (biscuit recaller; meat establishment not named)",
