@@ -1,0 +1,702 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261117T203000Z",
+  "proposals": [
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne"
+      },
+      "changes": {
+        "Company": "GAEC La Louisa",
+        "Brand": "Unbranded",
+        "Product": "Raw-milk Reblochon de Savoie (reblochon de savoie au lait cru), lots 1609, 1709, 1809, 2109, 2209, 2309",
+        "Pathogen": "Salmonella",
+        "Reason": "Precautionary withdrawal in a context of suspected Salmonella",
+        "Date": "2026-11-13",
+        "Notes": "gaec la louisa; cremerie du treige; tripard; gaec les airelles; sarl la ferme des chalets d'oche; c'nos terroirs [nightly operator 2026-11-17: fiche 24077 read in full; Company '/' and Brand '/' were page debris — the fiche's 'Nom de la société à l'origine de la fiche' is GAEC LA LOUISA, no brand; Product and Reason translated from the fiche; sold in Haute-Savoie (74)]"
+      },
+      "reason": "Fiche 24077 read in full 2026-11-17: Company '/' and Brand '/' are page debris, the recalling firm is GAEC LA LOUISA; Product and Motif translated to English; Date is the fiche's 13/11/2026.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "REBLOCHON DE SAVOIE au lait cru",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "GAEC LA LOUISA",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "13/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "retrait par mesure de précaution dans un contexte suspicion salmonelle",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne"
+      },
+      "changes": {
+        "Company": "GAEC Les Deux Savoies",
+        "Brand": "Unbranded",
+        "Product": "Farmhouse Reblochon de Savoie 450 g (reblochon de savoie fermier), lot 21/10/2026, best-before 25/11/2026",
+        "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+        "Reason": "Presence of Escherichia coli STEC",
+        "Date": "2026-11-11",
+        "Notes": "gaec les deux savoies [nightly operator 2026-11-17: fiche 24064 read in full; Company '/' and Brand '/' were page debris — the fiche's firm is GAEC LES DEUX SAVOIES, no brand; Product translated from the fiche]"
+      },
+      "reason": "Fiche 24064 read in full 2026-11-17: Company '/' and Brand '/' are page debris, the recalling firm is GAEC LES DEUX SAVOIES; Product translated; Date is the fiche's 11/11/2026.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "REBLOCHON DE SAVOIE FERMIER 450g",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "GAEC LES DEUX SAVOIES",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "11/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "Escherichia coli shiga toxinogène (STEC)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "Présence de Escherichia Coli STEC",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne"
+      },
+      "changes": {
+        "Company": "B&M France SAS",
+        "Brand": "Champibon",
+        "Product": "Dried morel mushrooms 60 g (champignons morilles séchées), all lots, GTIN 3760201609743, best-before 01/12/2029, sold at B&M 12/10/2026-03/11/2026",
+        "Pathogen": "Mushroom toxins (unspecified)",
+        "Reason": "Probable contamination of a batch of morels by a toxin liable to cause food poisoning (RappelConso: Autre risque; symptoms diarrhoea and/or vomiting)",
+        "Date": "2026-11-04",
+        "Notes": "b&m [scraper-flag: Product taken from the fiche title; the model/reference field held only lot codes] [nightly operator 2026-11-17: fiche 24012 read in full (version 2, 04/11/2026); Product was the lot-code string '3760201609743; tous les lots; date limite de consommation; 2029-12-01' and is restored from the fiche's title; firm B&M France SAS; Pathogen filled from the fiche's own Motif — it names no specific toxin; Reason translated]"
+      },
+      "reason": "Fiche 24012 read in full 2026-11-17; Product was a lot-code string and is restored from the fiche's title; firm B&M France SAS; hazard 'Mushroom toxins (unspecified)'; Reason translated; Date 04/11/2026.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES 60G",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "B&M France SAS",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "04/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "Tous les lots",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "3760201609743",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "Probable contamination d'un lot de morilles par une toxine susceptible d'être à l'origine d'intoxication alimentaire",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne"
+      },
+      "changes": {
+        "Company": "Even Lait Industrie",
+        "Brand": "Belle France",
+        "Product": "Fromage blanc (fresh white cheese) 0% and 3%, 500 g and 1 kg, 4 references (GTIN 3258561419695, 3258561419701, 3258561419718, 3258561419725), use-by 01/12/2026",
+        "Pathogen": "Chemical contaminant (cleaning product residue)",
+        "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: Autres contaminants chimiques)",
+        "Date": "2026-11-16",
+        "Notes": "diapar, codifrance, segurel&fils [nightly operator 2026-11-17: fiche 24097 read in full (version 1, 16/11/2026); firm EVEN LAIT INDUSTRIE; Pathogen filled from the fiche's Risques/Motif — a chemical contaminant (cleaning products), in AFTS scope; the fiche's own dose statement is kept in Reason; Product and Reason translated] [nightly operator 2026-11-17: the Weekly_Rejected verdict 'Official URL is a listing page' is false — this URL is fiche réf. 2026-11-0107; archive row marked SUPERSEDED]"
+      },
+      "reason": "Fiche 24097 read in full 2026-11-17: chemical-contaminant recall (Risques 'Autres contaminants chimiques'), firm EVEN LAIT INDUSTRIE; Product and Reason translated; Pathogen filled from the fiche.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "EVEN LAIT INDUSTRIE",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Belle France",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "16/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Autres contaminants chimiques",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Possible contamination par des produits de nettoyage à des doses ne présentant pas de risque pour la santé du consommateur",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne"
+      },
+      "changes": {
+        "Company": "Coopérative U (Magasins U)",
+        "Brand": "Unbranded",
+        "Product": "Rocher chocolate-praline mini log (bûchette rocher chocolat praliné) and rolled praline-vanilla log and mini logs (bûche / bûchette roulée pralinée vanille), lots 1/288/26, 1/289/26 (GTIN 2000000324418) and 1/286/26 (GTIN 2000000278902), sold at Magasins U",
+        "Pathogen": "Foreign material (stones)",
+        "Reason": "Physical risk: possible presence of small foreign bodies (stones) in 2/4 mm hazelnut pieces",
+        "Date": "2026-11-16",
+        "Notes": "magasins u [offline-enrich 2026-11-16: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [nightly operator 2026-11-17: fiche 24089 read in full (16/11/2026); firm Coopérative U (enseigne U), sans marque; Pathogen narrowed to the fiche's 'cailloux' (stones); Product and Reason translated]"
+      },
+      "reason": "Fiche 24089 read in full 2026-11-17: foreign-body (stones) recall filed by Coopérative U, no brand; Product and Reason translated; Pathogen narrowed from 'Foreign material' to stones per the Motif.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Bûche / bûchette roulée pralinée vanille et Bûchette Rocher chocolat praliné",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Sans marque",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Magasins U",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "16/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Inertes (verre, métal, plastique, papier, textile…)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "RISQUE PHYSIQUE : Présence possible de petit corps étrangers de type cailloux dans des éclats de noisette 2/4mm",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal"
+      },
+      "changes": {
+        "Company": "Molson Canada 2005",
+        "Brand": "Brasseur de Montréal, Hop Valley, Blue Moon, Molson Canadian, Coors Light, India Beer, Black Horse",
+        "Product": "Various alcoholic and non-alcoholic beers (7 brands), national retail distribution",
+        "Pathogen": "Foreign material (metal)",
+        "Reason": "Pieces of metal; CFIA Class 3 recall",
+        "Date": "2026-11-10",
+        "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal [via official-feed collector] [url-agent 2026-11-16: pending_gap→pending_gap_v1 URL confirmed] [nightly operator 2026-11-17: CFIA notice read in full; Company and Brand were empty and Product/Reason were the headline — filled from the notice (recalling firm Molson Canada 2005, seven brands, Class 3, original published 2026-11-10; the row's Date 2026-11-09 was the page's 'last updated' field)]"
+      },
+      "reason": "CFIA notice read in full 2026-11-17: recalling firm Molson Canada 2005, seven brands, issue 'pieces of metal', Class 3, original published 2026-11-10 (row Date was the 'last updated' 2026-11-09). Company/Brand were empty, Product and Reason the headline.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Molson Canada 2005",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Various brands of alcoholic and non-alcoholic beer recalled due to pieces of metal",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Class 3",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Original published 2026-11-10",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/various-brands-alcoholic-and-non-alcoholic-beer-recalled-due-pieces-metal",
+          "quote": "Brasseur de Montréal, Hop Valley, Blue Moon, Molson Canadian, Coors Light, India Beer, Black Horse",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne"
+      },
+      "changes": {
+        "Company": "K 2 M Promocash",
+        "Brand": "Champibon",
+        "Product": "Dried morel mushrooms 400 g (champignons morilles séchées), lot 262306, GTIN 3760201600023, best-before 01/12/2029, sold at Promocash 23/06/2026-03/11/2026",
+        "Pathogen": "Mushroom toxins (unspecified)",
+        "Reason": "Probable contamination of a batch of morels by a toxin liable to cause food poisoning (RappelConso: Autre risque; symptoms diarrhoea and/or vomiting)",
+        "Date": "2026-11-09",
+        "Notes": "promocash [nightly operator 2026-11-17: fiche 24047 read in full (fiche réf. 2026-11-0060, version 1, 09/11/2026); origine de la fiche K 2 M PROMOCASH; Pathogen filled from the fiche's own Motif — it names no specific toxin; Reason translated. This fiche is the regulator's republication of fiche 24016 (05/11/2026, same product, brand, lot 262306, GTIN, distributor and Motif), which exists only in the archives tonight; 24047 is therefore the copy published. The affichettePDF/24016 Pending row is archived as its duplicate]"
+      },
+      "reason": "Fiche 24047 read in full 2026-11-17; the fiche names a toxin but no specific one, so the hazard is 'Mushroom toxins (unspecified)' (biotoxin, in scope); origine K 2 M PROMOCASH; Reason translated; Date 09/11/2026. Only live copy of the recall first published as fiche 24016.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "K 2 M PROMOCASH",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "09/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "262306",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "3760201600023",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "Du 23/06/2026 au 03/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "probable contamination d'un lot de morilles par une toxine susceptible d'être à l'origine d'intoxication alimentaire",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "Autre risque",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.93,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne"
+      },
+      "changes": {
+        "Company": "Even Lait Industrie",
+        "Brand": "Paysan Breton",
+        "Product": "Fromage blanc (fresh white cheese) 0%, 5 kg pail (Fromage blanc Paysan Breton 0% Seau 5kg), GTIN 3412290026917, use-by 01/12/2026, lots per attached list",
+        "Pathogen": "Chemical contaminant (cleaning product residue)",
+        "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: Autres contaminants chimiques)",
+        "Date": "2026-11-17",
+        "Notes": "lcm 62 billy, lcm 33 cestas [nightly operator 2026-11-17: fiche 24098 read in full (fiche réf. 2026-11-0108, version 1, 17/11/2026); firm EVEN LAIT INDUSTRIE (same firm and same hazard as fiche 24097, Belle France, a different brand and references, so a separate fiche and a separate row); Pathogen filled from the fiche's Risques/Motif — a chemical contaminant (cleaning products), in AFTS scope; the fiche's own dose statement is kept in Reason; Product and Reason translated; distributors LCM 62 Billy, LCM 33 Cestas; zone France entière]"
+      },
+      "reason": "Fiche 24098 read in full 2026-11-17: firm EVEN LAIT INDUSTRIE, brand Paysan Breton, 5 kg pail; Pathogen filled from the fiche's Risques 'Autres contaminants chimiques'; Product and Reason translated; Date 17/11/2026.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "Fromage blanc Paysan Breton 0% Seau 5kg",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "Paysan Breton",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "EVEN LAIT INDUSTRIE",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "17/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "3412290026917",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "Autres contaminants chimiques",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "Possible contamination par des produits de nettoyage à des doses ne présentant pas de risque pour la santé du consommateur",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24098/interne",
+          "quote": "LCM 62 Billy, LCM 33 Cestas",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne"
+      },
+      "changes": {
+        "Company": "EARL des Noirettes",
+        "Product": "Poultry in jelly (volaille en gelée), lot VEG AB42, use-by 04/11/2026",
+        "Notes": "saveurs paysannes; halle paysanne; ferme [promote 2026-11-16: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-17: fiche 24092 read in full; Company was the product name 'Volaille en Gelée' — the fiche's 'Nom de la société à l'origine de la fiche' is EARL DES NOIRETTES (Brand on the fiche is literally 'volaille en gelée' and is kept); Product translated]"
+      },
+      "reason": "Fiche 24092 read in full 2026-11-17: the published Company 'Volaille en Gelée' is the product name; the recalling firm on the fiche is EARL DES NOIRETTES. Product translated to English.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "volaille en gelée",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "EARL DES NOIRETTES",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "16/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "Listeria monocytogenes (agent responsable de la listériose)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "présence de listeria",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24092/interne",
+          "quote": "VEG AB42",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne"
+      },
+      "changes": {
+        "Product": "Superior traditional chipolata sausages (chipolata supérieure traditionnelle), lot 26313-4449, GTIN 3700502799958, use-by 17/11/2026",
+        "Notes": "novoviandes [promote 2026-11-16: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-17: fiche 24094 read in full; Product translated from the fiche, lot and GTIN added]"
+      },
+      "reason": "Fiche 24094 read in full 2026-11-17: Product was the fiche's lower-cased French model field; translated, lot and GTIN added.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "CHIPOLATA SUPERIEURE TRADITIONNELLE",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "Les Ateliers",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "16/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "Détection de salmonelle spp",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24094/interne",
+          "quote": "26313-4449",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne"
+      },
+      "changes": {
+        "Product": "Rainbow marshmallows (guimauve arc-en-ciel), lot F005879, best-before 30/08/2027",
+        "Notes": "site internet de la marque [promote 2026-11-16: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-17: fiche 24095 read in full; Product tidied from the fiche's bilingual model field, lot added; the fiche lists no distributor and no firm beyond the brand 'ahead', so Company is left as the brand owner]"
+      },
+      "reason": "Fiche 24095 read in full 2026-11-17: Product tidied from the bilingual model field 'marshmallows rainbow / guimauve arc -en-ciel', lot and best-before added.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "Marshmallows Rainbow / Guimauve arc-en-ciel",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "ahead",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "16/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "Détection de Salmonelle",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24095/interne",
+          "quote": "F005879",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal"
+      },
+      "changes": {
+        "Product": "Archibald brand Nuit Blanche White IPA, 473 ml (UPC 8 76976 00075 3) and 4 x 473 ml (UPC 8 76976 00078 4), all codes starting with J28Q61; Désirée Session IPA, 473 ml (UPC 8 76976 00076 0) and 4 x 473 ml (UPC 8 76976 00079 1), codes K07Q61 1323A to K07Q61 1340A",
+        "Notes": "Found by the morning fix pass 2026-11-13 missed-recall sweep of the Canadian recall database (https://recalls-rappels.canada.ca/en), which carried two food items dated 2026-11-12. Read on the CFIA notice itself today: \"Archibald brand Nuit Blanche White IPA recalled due to pieces of metal\"; recalling firm Archibald Inc.; issue \"Food - Extraneous Material\"; class 3; distribution Quebec; identification number RA-82940; original published date 2026-11-12; recall date 2026-11-06. No best-before is printed. The register's newest CFIA row before this one was 2026-10-29. Related but distinct: Pending already holds the CFIA notice \"Various brands Alcoholic and non-alcoholic beer recalled due to pieces of metal\" of 2026-11-09; this is its own notice with its own RA number and its own URL, naming one firm. If the near-duplicate rule refuses it as an extension of that recall, that refusal is correct and should stand. [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-17: CFIA notice RA-82940 re-read at this URL tonight; it now lists a second product, Désirée Session IPA (473 ml UPC 8 76976 00076 0, 4 x 473 ml UPC 8 76976 00079 1, codes K07Q61 1323A to K07Q61 1340A), under the same recalling firm, recall date 2026-11-06, published 2026-11-12, Class 3, Quebec. The slug-variant URL '…nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces' that the official-feed collector queued to Pending is the same notice and is archived as its duplicate]"
+      },
+      "reason": "CFIA notice RA-82940 re-read 2026-11-17 at the published URL; the notice now lists Désirée Session IPA alongside Nuit Blanche White IPA (same firm, recall date, class and distribution); Product extended to both. The slug-variant Pending copy is archived as a duplicate.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "Archibald Inc.",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "Nuit Blanche White IPA",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "Désirée Session IPA",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "8 76976 00076 0",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "K07Q61 1323A to K07Q61 1340A",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "pieces of metal",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "Class 3",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "2026-11-12",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal",
+          "quote": "RA-82940",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator",
+      "proposal_id": ""
+    }
+  ]
+}
