@@ -38926,5 +38926,21 @@
   "Outbreak": 0,
   "URL": "https://www.cfs.gov.hk/english/press/20261117_12747.html",
   "Notes": "Added by the daily-global review 2026-11-18 (MISSING in the daily brief; newest CFS (HK) row in the register was 2026-11-06). Every field read on the CFS press release of Tuesday, November 17, 2026: headline \"CFS urges public not to consume batch of bottled apple juice drink with patulin concentration exceeding legal limit\"; product \"100% Pure NZ Apple Juice\", brand \"Homegrown\", origin New Zealand, one litre per bottle, best-before February 11, 2027; sample collected at a wholesale market in Sai Ying Pun; \"79 micrograms per kilogram\" against \"legal limit of 50 mcg per kg of the food\"; importer \"The Homegrown Juice Company Limited\" stopped sale, removed the batch and initiated a recall. No lot number named on the page, so none claimed. [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-17",
+  "Source": "EFET (GR)",
+  "Company": "Kampasi EPE",
+  "Brand": "Rice Up",
+  "Product": "Parmesan rice cakes, 60 g, lot L07 26 27, best before 01.07.2027, imported from Bulgaria",
+  "Pathogen": "Foreign material (pest)",
+  "Reason": "Presence of worms found by EFET's Attica office after consumer complaints; the company withdrew the lot from the market",
+  "Class": "Recall",
+  "Country": "Greece",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.efet.gr/index.php/el/enimerosi/deltia-typou/anakleiseis-cat/item/5428-deltio-typou-anaklisi-se-ryzogkofretes",
+  "Notes": "Discovered via news: kathimerini.gr [locality: Athens] [review 2026-11-18d: efet.gr unreadable from this pass (client_error). Fields from EFET's announcement as reproduced by Newsbomb 17.11.2026 12:19 (newsbomb.gr/ellada/story/1777091), matched by Documento and Larissanet: \"Rice Up Parmesan Rice Cakes\", \"συσκευασίας 60 γραμμαρίων\", lot \"L07 26 27\", \"κατά προτίμηση πριν από την 01.07.2027\", imported from Bulgaria by \"Καμπάση ΕΠΕ\" (Thessaloniki), \"την παρουσία σκουληκιών\". Company 'FarmakeioAthens.com' and the invented 'Recall ID EFET-2026-1118' replaced. Re-read from efet.gr when reachable.] [original product: ρυζογκοφρέτες] [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
