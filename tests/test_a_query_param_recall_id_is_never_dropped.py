@@ -107,6 +107,28 @@ INTENTIONAL = (
     # the `-update-N` suffix stays in it too — see
     # tests/test_one_fsa_alert_is_one_dedup_key.py.
     re.compile(r"^food\.gov\.uk/food-alerts/fsa-"),
+    # 2026-11-18. fda.gov.tw/UnsafeFood/UnsafeFood.aspx is Taiwan TFDA's
+    # BORDER-INSPECTION LISTING ("邊境檢驗不符合食品資訊查詢"), not a notice, and
+    # "?idx=" is that listing's paginator. BOTH URLs on this key were fetched
+    # today and are the same page: the same title, the same search form
+    # (日期(起)/日期(迄)/出口國家/產品名稱/關鍵字), the same "共有 2672 筆搜尋結果"
+    # count and the same ten rows. The pagination row is "1 2 3 4 5 下一頁"
+    # linking idx=1..4, and idx=0 renders page one, which is what the bare
+    # URL renders — so idx is a page number, never a recall id.
+    #
+    # A single TFDA border notice DOES have its own address, and it carries
+    # its identifier in a DIFFERENT path:
+    # fda.gov.tw/UnsafeFood/UnsafeFoodContent.aspx?id=<n> (the listing's ten
+    # rows link id=6260..6269). Such a URL cannot reach this key at all, so
+    # collapsing the listing addresses loses no recall. The two rows on this
+    # key are both news-headline captures that cite the listing instead of a
+    # notice — Weekly_Rejected 2026-11-17 and Rejected 2026-10-13, both
+    # already refused, neither published.
+    #
+    # NOT a precedent for query strings generally: the differing part is
+    # provably a page number, exactly as with the Salute and FSA-catalog
+    # entries above.
+    re.compile(r"^fda\.gov\.tw/unsafefood/unsafefood\.aspx$"),
 )
 
 

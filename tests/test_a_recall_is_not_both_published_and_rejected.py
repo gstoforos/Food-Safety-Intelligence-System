@@ -79,6 +79,40 @@ RESOLVED = ("superseded", "duplicate", "unresolved contradiction",
             "broken provenance", "already_approved")
 
 
+# ── WHERE A VERDICT ACTUALLY LIVES. 2026-11-18. ──────────────────────────
+# This test read the reason COLUMN only, and that is the fourth instance of
+# one shape in this repo: a reader looks at a fixed set of columns while the
+# writers put the verdict somewhere else.
+#
+#   * load_rejected_urls learned it about Notes on 2026-09-01 ("the reason
+#     COLUMN is frequently uninformative").
+#   * promote_gate_passing.supersede_archived_copies learned it on
+#     2026-10-05 — 35 of the 36 silent shared URLs it had missed carried a
+#     blank RejectReason and the verdict in Notes.
+#   * merge_master's re-promotion guard learned it about the Reason column
+#     the same morning, after it blocked a verified Tier-2 recall for ever.
+#   * THIS TEST had not learned it, and on 2026-11-18 it reported Rejected
+#     FDA/Eden Brothers 2026-10-07 as silent while that row's Notes read
+#     "REJECTED: Confirmer: row was at pending_gap_v2 … and duplicate: this
+#     URL is already published on 2026-10-07". A false positive: the row
+#     does say which copy wins. Three morning passes could have spent their
+#     time editing a row that was already correct.
+#
+# So the haystack is now the same one production reads: the reason column
+# first, then Notes, then Reason. This does NOT weaken the test. The two
+# Ministero della Salute rows that failed with it on the same workbook carry
+# Notes "Discovered via news: ilmessaggero.it" and a hazard-free Reason —
+# no verdict in any of the three columns — and they still fail until a
+# verdict is written. tests/test_a_verdict_in_notes_is_still_a_verdict.py
+# pins both halves.
+def verdict_text(row, reason_col: str) -> str:
+    """Lower-cased text of every column a rejection verdict is written to."""
+    parts = [str(row.get(reason_col) or ""),
+             str(row.get("Notes") or ""),
+             str(row.get("Reason") or "")]
+    return " | ".join(p for p in parts if p and p.lower() != "nan").lower()
+
+
 #: Sheets where Date DRIVES BEHAVIOUR: the daily sweep's in-window test, the
 #: weekly builder's report assignment, the signal detector's ISO week, and the
 #: promotion queue feeding all three. `Rejected` is a TERMINAL archive — no
@@ -119,7 +153,7 @@ def test_every_shared_url_says_which_copy_wins(sheet, reason_col):
     for _, r in arch.iterrows():
         if _key(str(r.get("URL") or "")) not in published:
             continue
-        reason = str(r.get(reason_col) or "").lower()
+        reason = verdict_text(r, reason_col)
         if not any(m in reason for m in RESOLVED):
             silent.append((str(r.get("Date"))[:10], str(r.get("Product"))[:40],
                            reason[:60]))
