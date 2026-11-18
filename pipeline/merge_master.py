@@ -2879,6 +2879,57 @@ def promote_approved(
                 # recall_review_agent no longer calls a headline. Condition
                 # 2 (the full publish gate) still has to pass.
                 "product looks like a headline",
+                # ── 2026-11-18. THE LIST HAD DRIFTED FROM THE GATE. ──────
+                # This tuple is a hand-kept subset of the FIELD-SHAPE
+                # defects pipeline/_publish_gate.py can emit, and the gate
+                # has grown several it never learned. Measured on this
+                # morning's workbook, the archives carry these publish-gate
+                # verdicts, none of which matched anything above:
+                #
+                #   7x  "Company holds the notice headline, not a company
+                #        name (…) — the scraper wrote a page title in"
+                #   6x  "… the scraper wrote page debris into a name field"
+                #   3x  "Company '…' contains no letter — a firm name is
+                #        not a number"
+                #   3x  "Brand '…' contains no letter …"
+                #   2x  "Product is the publisher's fallback text, and it
+                #        names nothing a subscriber could avoid"
+                #   1x  "Product '…' carries the authority's own name
+                #        ('fødevarestyrelsen') — the page <title> or its
+                #        site-name suffix was parsed as the product"
+                #
+                # Every one of them is a judgement on the SHAPE OF A FIELD,
+                # never on the recall — the same category as "company and
+                # brand are the same" and "product looks like a headline",
+                # which are already here.
+                #
+                # THE ROW THAT FOUND IT: Fødevarestyrelsen (DK) 13.11.2026,
+                # Lidl Danmark / Eridanous Chicken gyros 330 g, Salmonella,
+                # TIER 1, on the regulator's own per-recall URL. The scraper
+                # had put the page <title> in Product and the Danish
+                # headline in Company AND Brand; the gate archived it on the
+                # Product defect on 2026-11-14; the morning fix pass of
+                # 2026-11-18 read the Fødevarestyrelsen page and repaired
+                # all three fields; the row then passed the FULL publish
+                # gate — and this guard refused it anyway, because the one
+                # defect the archive row happens to name was the one phrase
+                # missing from this tuple. Third instance of the 2026-10-05
+                # Mattilsynet shape: a verified recall blocked FOR EVER by a
+                # reader that does not know what the writers write.
+                #
+                # Condition 2 — the full publish gate must pass on the
+                # repaired row — is unchanged, so widening this list cannot
+                # publish anything the gate still refuses.
+                # tests/test_every_field_defect_is_repairable.py pins the
+                # tuple against the gate's own messages so it cannot drift
+                # again.
+                "carries the authority's own name",
+                "holds the notice headline",
+                "wrote page debris into a name field",
+                "contains no letter",
+                "ends in a truncation ellipsis",
+                "fallback text, and it names nothing",
+                "contains no letter or digit",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):
@@ -4769,7 +4820,18 @@ def rebuild_daily_briefs_for_promoted(
             _root = Path(__file__).resolve().parent.parent
             brief_path = _root / "docs" / "daily" / f"{date_str}.html"
             brief_path.parent.mkdir(parents=True, exist_ok=True)
-            brief_path.write_text(html, encoding="utf-8")
+            # THE SUBSCRIBER GATE. 2026-11-18. This was `write_text(html)`.
+            # docs/daily/<date>.html is subscriber content, and the two other
+            # writers of it gate their output — daily_recall_search.py:1603
+            # and tools/rebase_and_verify.py:402 both call add_gate(). This
+            # path does not, and it runs on the HOURLY Pending->Recalls
+            # merge: every brief this merge rebuilds after the 08:00 daily
+            # search goes back to docs/ without <script src="/fsis-gate.js">
+            # and opens unblurred until the next morning's search overwrites
+            # it. The committed briefs look gated only because the gated
+            # writer happens to run last. Idempotent, so safe either way.
+            from pipeline._gate import add_gate
+            brief_path.write_text(add_gate(html), encoding="utf-8")
             update_daily_index(target, recalls_objs)
             rebuilt_briefs.append(str(brief_path))
             files_to_commit.append(f"docs/daily/{date_str}.html")

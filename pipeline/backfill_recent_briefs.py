@@ -173,7 +173,12 @@ def main() -> int:
             date.fromisoformat(iso), p["recalls"], 5
         )
         html_path = DAILY_DIR / f"{iso}.html"
-        html_path.write_text(html, encoding="utf-8")
+        # THE SUBSCRIBER GATE. 2026-11-18. Third instance of one shape: a
+        # writer of docs/daily/<date>.html that does not call add_gate(),
+        # while daily_recall_search.py:1603 and
+        # tools/rebase_and_verify.py:402 do. Idempotent.
+        from pipeline._gate import add_gate
+        html_path.write_text(add_gate(html), encoding="utf-8")
         print(f"  Wrote {html_path.relative_to(ROOT)}")
         window_entries.append({
             "date": iso,

@@ -78,6 +78,7 @@ from build_weekly_report_afts import (  # noqa: E402
     update_dashboard_data,
     write_weekly_summary_json,
 )
+from pipeline._gate import add_gate                        # noqa: E402
 
 XLSX = ROOT / "docs" / "data" / "recalls.xlsx"
 MANIFEST = ROOT / "docs" / "data" / "weekly-updates-pending.json"
@@ -204,7 +205,19 @@ def main() -> int:
         html, stats = build_html(week_end, dataset_recalls, prev_week_recalls,
                                  original_published=orig_pub)
         report_path.parent.mkdir(parents=True, exist_ok=True)
-        report_path.write_text(html, encoding="utf-8")
+        # THE SUBSCRIBER GATE. 2026-11-18.
+        # This line was `write_text(html)`, while the Friday path it says it
+        # "reuses" — build_weekly_report_afts.refresh_stale_weeks, line 4070 —
+        # writes `_gate_html(html)`. So every weekly report this Wednesday
+        # check rebuilt went back to docs/ WITHOUT <script
+        # src="/fsis-gate.js">, and a subscriber-only report then opens
+        # unblurred for anyone holding the link until the next Friday build
+        # puts the tag back. Rebuilding stale weeks is this module's ONLY
+        # job, so the defect fired on every week it ever touched. Found when
+        # this pass ran the check for 2026-11-18 and W46 (77 -> 78 recalls)
+        # came out ungated, failing test_subscriber_pages_are_gated.
+        # add_gate() is idempotent, so this is safe on an already-gated page.
+        report_path.write_text(add_gate(html), encoding="utf-8")
         log.info("W%02d rebuilt -> %s (%d recalls, original_pub=%r)",
                  wnum, report_path, dataset_total, orig_pub)
 

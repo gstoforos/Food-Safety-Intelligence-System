@@ -147,7 +147,32 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     # 2026-10-10: merge_master.REPAIRABLE_DEFECTS gained
                     # "product looks like a headline" (FSA-PRIN-48-2026,
                     # Greencore — a five-product "; " list); moved together.
-                    "product looks like a headline")
+                    "product looks like a headline",
+                    # ── 2026-11-18: THE SAME SEVEN, MOVED TOGETHER. ──────
+                    # merge_master.REPAIRABLE_DEFECTS gained the publish
+                    # gate's remaining FIELD-SHAPE messages this morning,
+                    # after the gate's own vocabulary had drifted past it and
+                    # blocked a repaired Tier 1 Salmonella recall for ever
+                    # (Fødevarestyrelsen (DK) 13.11.2026, Lidl Danmark /
+                    # Eridanous Chicken gyros, 330 g).
+                    #
+                    # THIS LIST HAD TO MOVE WITH IT AND DID NOT, AND THE
+                    # CONSEQUENCE IS THE ONE THE 2026-09-30 NOTE ABOVE
+                    # PREDICTS, OBSERVED THE SAME MORNING: the row
+                    # re-promoted, Rejected was marked SUPERSEDED, and the
+                    # Weekly_Rejected copy stayed silent — so
+                    # test_a_recall_is_not_both_published_and_rejected went
+                    # RED on a contradiction the promoter had just created.
+                    # tests/test_every_field_defect_is_repairable.py now
+                    # pins BOTH lists against the gate's own messages, so
+                    # the next phrase cannot land in one and miss the other.
+                    "carries the authority's own name",
+                    "holds the notice headline",
+                    "wrote page debris into a name field",
+                    "contains no letter",
+                    "ends in a truncation ellipsis",
+                    "fallback text, and it names nothing",
+                    "contains no letter or digit")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0
