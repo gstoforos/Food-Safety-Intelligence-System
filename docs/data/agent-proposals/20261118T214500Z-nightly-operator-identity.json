@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261118T214500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24090/interne"
+      },
+      "changes": {
+        "Product": "reblochon de savoie",
+        "Notes": "intermarché, système u, o tera, carrefour. [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-18: the published URL /fiche-rappel/24085 returns the RappelConso listing page tonight, not a fiche. The recall is live as fiche 24090 (réf. 2026-11-0097, Version 2, 16/11/2026, read in full: brand SCHMIDHAUSER, 'Reblochon de Savoie', GTIN 3365670000826 lots 160041264132 and 1600410003215, GTIN 3365672012810 lot 160041264132, DDM 29/11/2026 to 13/12/2026, distributors Intermarché, Système U, O tera, Carrefour, Motif 'Présence possible de salmonelles'). Same firm, product, hazard and distributors as this row, so this is the regulator's republication, not a second recall: URL moved, lots added, Date left at the first publication (13/11/2026). The morning pass of 2026-11-18 queued fiche 24090 as a 'missed recall'; the near-duplicate rule refused it, correctly] [agent nightly-operator proposal e0904c3f8e2adb2d applied 2026-11-18: The published URL /fiche-rappel/24085 no longer serves a fiche (it returns the RappelConso listing page, read 2026-11-18). The same recall - Schmidhauser Reblochon de Savoie, possible Salmonella - is live as fiche 24090 ] [nightly operator 2026-11-18: Product restored to the published wording 'reblochon de savoie' - tonight's URL repair must not also change the row's Date+Source+Company+Product identity, or the register-shrink guard cannot tell a repaired link from a deleted row. The lots and best-before dates of fiche 24090 are recorded in the note above]"
+      },
+      "reason": "Restores the published Product wording on the Schmidhauser row whose dead URL (fiche 24085) was repaired to the live republication (fiche 24090) tonight. A link repair keeps the row's stable identity; the lot detail stays in Notes.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24090/interne",
+          "quote": "Reblochon de Savoie",
+          "retrieved_utc": "2026-11-18T21:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24090/interne",
+          "quote": "SCHMIDHAUSER",
+          "retrieved_utc": "2026-11-18T21:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

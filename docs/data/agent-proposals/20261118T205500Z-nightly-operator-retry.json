@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261118T205500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-recalled-due-pieces-metal"
+      },
+      "changes": {
+        "Product": "Archibald brand Nuit Blanche White IPA, 473 ml (UPC 8 76976 00075 3) and 4 x 473 ml (UPC 8 76976 00078 4), all codes starting with J28Q61; Désirée Session IPA, 473 ml (UPC 8 76976 00076 0) and 4 x 473 ml (UPC 8 76976 00079 1), codes K07Q61 1323A to K07Q61 1340A",
+        "Notes": "Found by the morning fix pass 2026-11-13 missed-recall sweep of the Canadian recall database (https://recalls-rappels.canada.ca/en), which carried two food items dated 2026-11-12. Read on the CFIA notice itself today: \"Archibald brand Nuit Blanche White IPA recalled due to pieces of metal\"; recalling firm Archibald Inc.; issue \"Food - Extraneous Material\"; class 3; distribution Quebec; identification number RA-82940; original published date 2026-11-12; recall date 2026-11-06. No best-before is printed. The register's newest CFIA row before this one was 2026-10-29. Related but distinct: Pending already holds the CFIA notice \"Various brands Alcoholic and non-alcoholic beer recalled due to pieces of metal\" of 2026-11-09; this is its own notice with its own RA number and its own URL, naming one firm. If the near-duplicate rule refuses it as an extension of that recall, that refusal is correct and should stand. [promote 2026-11-13: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-18: CFIA notice RA-82940 (CFIA ID 17621 and 17660) re-read tonight at the slug-variant address the official-feed collector queued ('…nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces'); it is the same notice as this row and lists a second product, Désirée Session IPA (473 ml UPC 8 76976 00076 0; 4 x 473 ml UPC 8 76976 00079 1; codes K07Q61 1323A to K07Q61 1340A), same firm, recall date 2026-11-06, published 2026-11-12, Class 3, Quebec. Product extended; the Pending slug-variant row is archived as this row's duplicate]"
+      },
+      "reason": "CFIA notice RA-82940 re-read 2026-11-18 at the published URL; the notice now lists Désirée Session IPA alongside Nuit Blanche White IPA (same firm, recall date, class and distribution); Product extended to both. The slug-variant Pending copy is archived as a duplicate.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "Archibald Inc.",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "Nuit Blanche White IPA",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "Désirée Session IPA",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "8 76976 00076 0",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "K07Q61 1323A to K07Q61 1340A",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "Class 3",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/archibald-brand-nuit-blanche-white-ipa-and-desiree-session-ipa-recalled-due-pieces",
+          "quote": "RA-82940",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

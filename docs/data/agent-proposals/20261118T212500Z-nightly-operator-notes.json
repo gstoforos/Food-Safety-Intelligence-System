@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261118T212500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24099/interne"
+      },
+      "changes": {
+        "Notes": "magasins carnivor et alphaprim [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-18: fiche 24099 (réf. 2026-11-0109, version 1, 18/11/2026) read in full; Product was French and is translated with lot 26313-4569, GTIN 3700502708950, use-by 17/11/2026; Company was the brand 'Grillo Party' - the fiche's origin firm is LES ATELIERS; Brand kept as the fiche's GRILLO PARTY; distributors 'magasins CARNIVOR et alphaprim'] [agent nightly-operator proposal 9af5ddb8255d4683 applied 2026-11-18: Fiche 24099 read in full 2026-11-18: the published Product 'saucisse italienne' is the fiche's French model field; translated, lot/GTIN/use-by added. The fiche's 'Origine de la fiche' is LES ATELIERS (the firm behind fic]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24099/interne",
+          "quote": "SAUCISSE ITALIENNE",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24099/interne",
+          "quote": "Fiche réf. 2026-11-0109 • Version 1",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne"
+      },
+      "changes": {
+        "Notes": "lcm 62 billy, lcm 33 cestas [url-agent 2026-11-18: pending_enrichment→pending_gap_v2 URL confirmed] [url-guard 2026-11-18: reviewer 2 tried to reject this row as 'Unable to find the recall details on the page'; refused — the row already carries an official regulator URL (https://rappel.conso.gouv.fr/fiche-rappel/24098/interne); 'Unable to find the recall details on the page' is Left in Pending for a later run.] [URL- [nightly operator 2026-11-18: the row's URL /fiche-rappel/24098 no longer serves a fiche - it returns the RappelConso listing page ('Produits rappelés dans toutes les catégories'); reviewer 2's 'Unable to find the recall details on the page' was therefore TRUE by today. The recall is live as fiche 24109 (same réf. 2026-11-0108, Version 3, 18/11/2026, read in full tonight: brand Paysan Breton, 'Fromage blanc Paysan Breton 0% Seau 5kg', GTIN 3412290026917, use-by 01/12/2026, EVEN LAIT INDUSTRIE, distributors LCM 62 Billy and LCM 33 Cestas, France entière). URL and Date moved to the live fiche; Product, Reason translated; Pathogen from the fiche's Risques] [agent nightly-operator proposal 60dc23ce337013f4 applied 2026-11-18: RappelConso republished this recall: /fiche-rappel/24098 now serves the site's listing page (read 2026-11-18) and the same recall - fiche réf. 2026-11-0108, now Version 3, 18/11/2026 - is live at /fiche-rappel/24109. URL] [promote 2026-11-18: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "Fiche réf. 2026-11-0108 • Version 3",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "Fromage blanc Paysan Breton 0% Seau 5kg",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne"
+      },
+      "changes": {
+        "Notes": "magasins u [offline-enrich 2026-11-16: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [nightly operator 2026-11-18: fiche 24089 (réf. 2026-11-0101, version 1, 16/11/2026) re-read in full tonight; firm Coopérative U (enseigne U), 'Sans marque'; Pathogen narrowed to the fiche's 'cailloux' (stones); Product and Reason translated] [agent nightly-operator proposal b327b34dabd499f2 applied 2026-11-18: Fiche 24089 read in full 2026-11-18: foreign-body (stones) recall filed by Coopérative U, no brand; Product and Reason translated; Pathogen narrowed from 'Foreign material' to stones per the Motif.] [promote 2026-11-18: status 'pending_gap_v2'->'pending' — passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Bûche / bûchette roulée pralinée vanille et Bûchette Rocher chocolat praliné",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Sans marque",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne"
+      },
+      "changes": {
+        "Notes": "diapar, codifrance, segurel&fils [nightly operator 2026-11-18: fiche 24097 (réf. 2026-11-0107, version 1, 16/11/2026) re-read in full tonight; firm EVEN LAIT INDUSTRIE; Pathogen filled from the fiche's Risques/Motif - a chemical contaminant (cleaning products), in scope; Product and Reason translated. The Weekly_Rejected verdict 'Official URL is a listing page' is false: this URL is the fiche] [agent nightly-operator proposal a1fbde58f9a32877 applied 2026-11-18: Fiche 24097 read in full 2026-11-18: chemical-contaminant recall (Risques 'Autres contaminants chimiques'), firm EVEN LAIT INDUSTRIE; Product and Reason translated; Pathogen filled from the fiche.] [promote 2026-11-18: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying \"unknown: [SUPERSEDED 2026-11-18 by the nightly operator review 2026-11-18 — 'Official URL is a listing page, not the specific recall page' is false — this URL i\" is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "EVEN LAIT INDUSTRIE",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Belle France",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne"
+      },
+      "changes": {
+        "Notes": "gaec la louisa; cremerie du treige; tripard; gaec les airelles; sarl la ferme des chalets d'oche; c'nos terroirs [nightly operator 2026-11-18: fiche 24077 (réf. 2026-11-0090, version 1, 13/11/2026) re-read in full tonight; Company '/' and Brand '/' were page debris - the fiche's firm is GAEC LA LOUISA and it gives no brand; Product and Reason translated from the fiche. Same decision as unmerged PRs #46 and #47] [agent nightly-operator proposal 16c613dc6d5425d2 applied 2026-11-18: Fiche 24077 read in full 2026-11-18: Company '/' and Brand '/' are page debris, the recalling firm is GAEC LA LOUISA; Product and Motif translated to English; Date is the fiche's 13/11/2026.] [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as \"confirm-agent: | gaec la louisa; cremerie du treige; tripard; gaec les airelles; sarl la ferme des chalets d'oche; c'nos terroirs [needs cleanup: Reason not in\"; that defect is repaired and the row now passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "REBLOCHON DE SAVOIE au lait cru",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24077/interne",
+          "quote": "GAEC LA LOUISA",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne"
+      },
+      "changes": {
+        "Notes": "gaec les deux savoies [nightly operator 2026-11-18: fiche 24064 (réf. 2026-11-0077, version 1, 11/11/2026) re-read in full tonight; Company '/' and Brand '/' were page debris - the fiche's firm is GAEC LES DEUX SAVOIES, no brand; Product translated] [agent nightly-operator proposal 8e788eba56690353 applied 2026-11-18: Fiche 24064 read in full 2026-11-18: Company '/' and Brand '/' are page debris, the recalling firm is GAEC LES DEUX SAVOIES; Product translated; Date is the fiche's 11/11/2026.] [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'confirm-agent: | gaec les deux savoies [confirm-agent 2026-11-11: pending → pending; deterministic checks passed; revie'; that defect is repaired and the row now passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "REBLOCHON DE SAVOIE FERMIER 450g",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24064/interne",
+          "quote": "GAEC LES DEUX SAVOIES",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne"
+      },
+      "changes": {
+        "Notes": "promocash [nightly operator 2026-11-18: fiche 24047 (réf. 2026-11-0060, version 1, 09/11/2026) re-read in full tonight; origine K 2 M PROMOCASH; Pathogen filled from the fiche's own Motif, which names no specific toxin; Reason translated. This fiche is the regulator's republication of fiche 24016 (same product, lot 262306, GTIN), which exists only in the archives] [agent nightly-operator proposal ce031f483f7562e0 applied 2026-11-18: Fiche 24047 read in full 2026-11-18; the fiche names a toxin but no specific one, so the hazard is 'Mushroom toxins (unspecified)' (biotoxin, in scope); origine K 2 M PROMOCASH; Reason translated; Date 09/11/2026. Only l] [promote 2026-11-18: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: | REJECTED: Confirmer: row was at pending_gap_v2 (not reviewed by reviewer 2) and Pathogen is empty | promocash'; that defect is repaired and the row now passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24047/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne"
+      },
+      "changes": {
+        "Notes": "b&m [scraper-flag: Product taken from the fiche title; the model/reference field held only lot codes] [url-guard 2026-11-11: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-11-12: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [nightly operator 2026-11-18: fiche 24012 (réf. 2026-11-0023, version 2, 04/11/2026) re-read in full tonight; Product was a lot-code string and is restored from the fiche title; firm B&M France SAS; Pathogen filled from the fiche's own Motif, which names no specific toxin; Reason translated] [agent nightly-operator proposal 369bff6f8a56b574 applied 2026-11-18: Fiche 24012 read in full 2026-11-18; Product was a lot-code string and is restored from the fiche's title; firm B&M France SAS; hazard 'Mushroom toxins (unspecified)'; Reason translated; Date 04/11/2026.] [promote 2026-11-18: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as \"unknown: [SUPERSEDED 2026-11-18 by the nightly operator review 2026-11-18 — 'Pathogen is empty' was a repairable field defect, now filled from the fiche's own M\"; that defect is repaired and the row now passes every publish-gate rule]"
+      },
+      "reason": "Stale '[needs cleanup: … not in English]' stamps removed from Notes: the fields they name were translated from the fiche tonight (proposal file 20261118T204500Z), so the stamps no longer describe the row; on two rows the promoter's own audit stamp quoted the archive note and doubled the stamp (test_no_live_row_carries_a_duplicated_stamp).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIGNONS MORILLES SECHEES 60G",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24012/interne",
+          "quote": "CHAMPIBON",
+          "retrieved_utc": "2026-11-18T20:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}

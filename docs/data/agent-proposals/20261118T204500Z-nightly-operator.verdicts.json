@@ -1,0 +1,81 @@
+[
+  {
+    "proposal_id": "16c613dc6d5425d2",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 7"
+  },
+  {
+    "proposal_id": "8e788eba56690353",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 8"
+  },
+  {
+    "proposal_id": "369bff6f8a56b574",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 11"
+  },
+  {
+    "proposal_id": "a1fbde58f9a32877",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 6"
+  },
+  {
+    "proposal_id": "b327b34dabd499f2",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 4"
+  },
+  {
+    "proposal_id": "c134fb1ceb2066dc",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 9"
+  },
+  {
+    "proposal_id": "ce031f483f7562e0",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 10"
+  },
+  {
+    "proposal_id": "60dc23ce337013f4",
+    "action": "promote",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 3"
+  },
+  {
+    "proposal_id": "054645dd49262de3",
+    "action": "enrich",
+    "applied": false,
+    "refusals": [
+      "URL unreachable (ReadTimeout) \u2014 cannot confirm provenance"
+    ],
+    "detail": ""
+  },
+  {
+    "proposal_id": "9af5ddb8255d4683",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2436"
+  },
+  {
+    "proposal_id": "e0904c3f8e2adb2d",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 34"
+  }
+]
