@@ -1,0 +1,16 @@
+[
+  {
+    "Date": "2026-11-17",
+    "Source": "CFS (HK)",
+    "Company": "The Homegrown Juice Company Limited",
+    "Brand": "Homegrown",
+    "Product": "100% Pure NZ Apple Juice, 1 litre bottle, place of origin New Zealand, best-before 11 February 2027",
+    "Pathogen": "Patulin",
+    "Reason": "Patulin detected at 79 micrograms per kilogram against the legal limit of 50 mcg/kg; the importer stopped sale, removed the batch from shelves and started a recall",
+    "Class": "Recall",
+    "Country": "Hong Kong",
+    "Outbreak": 0,
+    "URL": "https://www.cfs.gov.hk/english/press/20261117_12747.html",
+    "Notes": "Added by the daily-global review 2026-11-18 (MISSING in the daily brief; newest CFS (HK) row in the register was 2026-11-06). Every field read on the CFS press release of Tuesday, November 17, 2026: headline \"CFS urges public not to consume batch of bottled apple juice drink with patulin concentration exceeding legal limit\"; product \"100% Pure NZ Apple Juice\", brand \"Homegrown\", origin New Zealand, one litre per bottle, best-before February 11, 2027; sample collected at a wholesale market in Sai Ying Pun; \"79 micrograms per kilogram\" against \"legal limit of 50 mcg per kg of the food\"; importer \"The Homegrown Juice Company Limited\" stopped sale, removed the batch and initiated a recall. No lot number named on the page, so none claimed."
+  }
+]
