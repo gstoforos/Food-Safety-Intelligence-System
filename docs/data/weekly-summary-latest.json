@@ -10,21 +10,21 @@
   "week_end_display": "15 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-18T04:26:50.860689+00:00",
+  "generated_utc": "2026-11-18T11:27:06.632132+00:00",
   "prev_total": 59,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 77,
-    "tier1": 40,
+    "total": 78,
+    "tier1": 41,
     "outbreaks": 0,
-    "delta": 18,
-    "delta_pct": 31
+    "delta": 19,
+    "delta_pct": 32
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 19,
-    "pct": 25
+    "cases": 20,
+    "pct": 26
   },
   "ai_lead_paragraph": "",
   "top_threats": [

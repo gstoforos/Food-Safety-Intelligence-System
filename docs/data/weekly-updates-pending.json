@@ -1,8 +1,23 @@
 {
-  "generated_utc": "2026-11-11T07:32:19.152382+00:00",
+  "generated_utc": "2026-11-18T07:33:18.079564+00:00",
   "checked_back_weeks": 4,
-  "anchor_week_end": "2026-11-08",
-  "anchor_friday": "2026-11-08",
-  "updated_weeks": [],
-  "primary_cta": null
+  "anchor_week_end": "2026-11-15",
+  "anchor_friday": "2026-11-15",
+  "updated_weeks": [
+    {
+      "year": 2026,
+      "week_num": 46,
+      "filename": "2026-W46.html",
+      "report_url": "https://fsis.advfood.tech/2026-W46.html",
+      "week_start": "2026-11-09",
+      "week_end": "2026-11-15",
+      "old_total": 77,
+      "new_total": 78,
+      "delta": 1
+    }
+  ],
+  "primary_cta": {
+    "label": "VIEW REFRESHED REPORT",
+    "url": "https://fsis.advfood.tech/2026-W46.html"
+  }
 }
