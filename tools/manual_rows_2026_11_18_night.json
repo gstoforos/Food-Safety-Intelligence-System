@@ -1,0 +1,16 @@
+[
+ {
+  "Date": "2026-11-13",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Ellegi Frutta Secca Sas",
+  "Brand": "Ellegi Frutta Secca",
+  "Product": "Shelled pistachios (pistacchi sgusciati), 50 g, lot 9.25.1, best-before 05/02/2027",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxin B1 above the legal limit",
+  "Class": "Recall",
+  "Country": "Italy",
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/cartello%20richiamo%20_%20Ellegi%20Frutta%20Secca%20sas%20_%20ROMA_1794593331.pdf",
+  "Outbreak": 0,
+  "Notes": "Queued by the nightly operator review 2026-11-18 (first queued 2026-11-17 on unmerged PR #47, so it never reached main). Found while correcting the published Bialetti coffee row, whose Product had merged this recall into it: ilfattoalimentare.it 'Caffè Bialetti macinato e pistacchi sgusciati richiamati per micotossine' (16/11/2026) reports a separate Ministero della Salute notice for pistacchi sgusciati, brand Ellegi Frutta Secca, producer Ellegi Frutta Secca Sas (via dell'Imbrecciato 262, Rome), 50 g, lot 9.25.1, TMC 05/02/2027, aflatossina B1 'oltre i limiti', with the ministry PDF linked above (upload stamp 1794593331 = 2026-11-13). salute.gov.it does not resolve from the operator's session, so the PDF itself was NOT read; the reviewers must verify it before promotion."
+ }
+]

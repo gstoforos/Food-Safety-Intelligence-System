@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator-flags",
+  "generated_utc": "20261118T210000Z",
+  "proposals": [
+    {
+      "action": "flag",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Richiamo_salm%20scozz13112026_1794825190.pdf"
+      },
+      "changes": {
+        "Company": "Norvelita UAB",
+        "Brand": "La Nef",
+        "Product": "Smoked Scottish salmon (salmone scozzese affumicato), 100 g, lot 170794, use-by 18/11/2026, marketed by La Nef S.p.A.",
+        "Pathogen": "Listeria monocytogenes",
+        "Reason": "Possible presence of Listeria monocytogenes"
+      },
+      "reason": "NEEDS-HUMAN. Published row's Company 'NORVEL UAB' is a truncation of the producer Norvelita UAB, Brand 'Salmone Scozzese Affumicato' is the product name (brand La Nef), Pathogen carries 'Possible presence', Reason carries the extractor's '(Recall ID AST-AN)'. salute.gov.it does not resolve from the session; the only evidence is the row's own discovery article, which is soft, so this is a flag, not a write.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "Salmone scozzese affumicato",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "La Nef",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "Norvelita Uab",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "170794",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "18/11/2026",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "100 grammi",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/richiamo-salmone-affumicato-scozzese.html",
+          "quote": "possibile presenza di Listeria monocytogenes",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.85,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "flag",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modulo%20richiamo%20Perfetto%20Moka%20e%20Macinato%20Universale%20nocciola_1794593365.pdf"
+      },
+      "changes": {
+        "Product": "Perfetto Moka nocciola and Macinato Universale nocciola hazelnut-flavoured ground coffee, 250 g, lots LC5 BD160B (both) and LC5 BD161B (Perfetto Moka), best-before 09/06/2027 and 10/06/2027",
+        "Pathogen": "Ochratoxin A",
+        "Reason": "Ochratoxin A above the legal limit"
+      },
+      "reason": "NEEDS-HUMAN. Published Product 'Ground Coffee and Shelled Pistachios' merges two separate ministry recalls: this PDF is the Bialetti coffee (ochratoxin A); the shelled pistachios are Ellegi Frutta Secca Sas, a different firm with its own PDF (queued to Pending tonight). salute.gov.it does not resolve from the session; evidence is the discovery article only, so this is a flag, not a write.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "Perfetto Moka nocciola",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "Macinato Universale nocciola",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "LC5 BD160B",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "LC5 BD161B",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "Bialetti Industrie Spa",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "ocratossina A",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "pistacchi sgusciati",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "Ellegi Frutta Secca Sas",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "9.25.1",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/caffe-bialetti-macinato-e-pistacchi-sgusciati-richiamati-per-micotossine.html",
+          "quote": "aflatossina B1",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "flag",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Modello_richiamo_Pomodorino_1794652742.pdf"
+      },
+      "changes": {
+        "Brand": "L'Ortofrutticola F",
+        "Product": "Fresh datterino tomatoes (pomodoro datterino), 500 g, lot 4406, barcode 8056590100820"
+      },
+      "reason": "NEEDS-HUMAN. Published Product 'Dried tomato' with no Brand; the discovery article (15/11/2026, updated 17/11/2026) describes fresh category-I datterino tomatoes, brand L'Ortofrutticola F, 500 g, lot 4406, barcode 8056590100820, and says the ministry notice named the producer 'erroneamente' (Company on the row is the notice's Mediterranea Snc di Milanese Rosanna & C.). salute.gov.it does not resolve from the session; soft evidence only, so this is a flag, not a write.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "pomodoro datterino",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "L’Ortofrutticola F",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "500 grammi",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "4406",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "8056590100820",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "presenza di Salmonella spp.",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        },
+        {
+          "kind": "news_article",
+          "url": "https://ilfattoalimentare.it/salmonella-pomodoro-datterino-richiamato.html",
+          "quote": "confezionato e commercializzato da L’Ortofrutticola F S.r.l., di Niscemi (Caltanissetta)",
+          "retrieved_utc": "2026-11-17T20:30:00Z"
+        }
+      ],
+      "confidence": 0.85,
+      "agent": "nightly-operator"
+    }
+  ]
+}
