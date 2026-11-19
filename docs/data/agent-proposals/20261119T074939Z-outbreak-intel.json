@@ -1,0 +1,2419 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261119T074939Z",
+  "proposals": [
+    {
+      "action": "flag",
+      "target": {
+        "news_url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "changes": {
+        "epidemiology": {
+          "pathogen": "Salmonella Newport",
+          "serotypes": [],
+          "cases": 119,
+          "deaths": null,
+          "hospitalisations": 19,
+          "countries": [
+            "United States"
+          ],
+          "implicated_food": null,
+          "period": "Aug. 7 - Oct. 2, 2026",
+          "agencies": [
+            "FDA",
+            "CDC"
+          ]
+        }
+      },
+      "reason": "Outbreak with NO product recall — nothing for a recall-derived register to ingest. Logged so the gap is visible instead of silent. FDA report withholds information on what produce sickened more than 100",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "outbreak-intel",
+      "proposal_id": "88a218b7c56d2921"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/midwest-poultry-services-lp-recalls-shell-eggs-due-possible-salmonella-enteritidis-contamination",
+          "quote": "2026-07-22 FDA White shell eggs & brown cage-free shell eggs, 1,589,577 dozen (codes P-1950 or 0840962, J",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bd15875305ecd151"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/boticelli-foods-recalls-bettergoods-pistachio-nut-butter-because-possible-health-risk",
+          "quote": "2026-08-03 FDA Pistachio Nut Butter",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "31d62dd23f1d9881"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026",
+          "quote": "2026-08-05 FDA Fresh jalapeño peppers grown in Sinaloa, Mexico — distributed to wholesalers, restaurants ",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "0c87e43bba15d47e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lexunder-inc-recalls-food-live-brand-green-powder-products-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lexunder-inc-recalls-food-live-brand-green-powder-products-because-possible-health-risk",
+          "quote": "2026-08-07 FDA Green Powder Products",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2b26c47c8684a7d7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
+          "quote": "2026-08-09 FDA Finished products (e.g. dips, salsa, guacamole and more) containing jalapeno",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e6e71f246874dda8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lidl-us-recalls-vitasia-asian-style-wok-spice-mix-due-potential-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/lidl-us-recalls-vitasia-asian-style-wok-spice-mix-due-potential-salmonella-contamination",
+          "quote": "2026-08-11 FDA Asian Style Wok Spice Mix, 1.58 oz (45 g), UPC 4335619355491, lot 155846, best by JUN 2028",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "27d167e7503c9314"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-announces-recall-select-salsas-guacamole-pico-de-gallo-and-prepared-foods",
+          "quote": "2026-08-12 FDA Finished products such as dips, salsa, guacamole, and more containing jalapeno.",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d020fc8ecebb7b10"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/naturebest-precut-produce-llc-voluntarily-recalls-products-containing-jalapenos-due-potential",
+          "quote": "2026-08-14 FDA Finished products such as Pico de Gallo, Stuffed Mushrooms, and Soup-mix Containing Jalape",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e8ae6c9c4816711a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hampton-grocers-inc-recalls-its-8-ounce-packages-lacnola-lactation-granola-because-possible-health"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hampton-grocers-inc-recalls-its-8-ounce-packages-lacnola-lactation-granola-because-possible-health",
+          "quote": "2026-08-14 FDA Granola",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2aadb673f2cf0881"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/recall-jalapeno-avocado-dressing-because-possible-health-risk",
+          "quote": "2026-08-14 FDA Salad dressing",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e7aa1cf508bfbbe4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hardies-fresh-foods-recalls-jalapenos-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/hardies-fresh-foods-recalls-jalapenos-because-possible-health-risk",
+          "quote": "2026-08-17 FDA Pepper Jalapenos",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9b6ce21311cde3c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d5dab187bbb94754"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/panorama-produce-recalls-mangoes-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/panorama-produce-recalls-mangoes-due-possible-salmonella-contamination",
+          "quote": "2026-08-29 FDA Mangoes",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "758cdd875a814a17"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "fe9edc05a3f372cb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/shell-eggs-07-26/index.html",
+          "quote": "2026-09-03 CDC Shell eggs — white and brown cage-free (more than 1.5 million dozen recalled)",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "29d1654a59c46c1d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/foods-alive-recalls-organic-moringa-leaf-powder-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/foods-alive-recalls-organic-moringa-leaf-powder-because-possible-health-risk",
+          "quote": "2026-09-04 FDA Moringa Leaf Powder",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8ee9eae07097ef31"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+          "quote": "2026-09-09 CDC Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2d45d255f94ac47a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
+          "quote": "2026-09-10 FDA Broccoli Sprouts",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "835e481ed048eb85"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk",
+          "quote": "2026-09-23 FDA Alfalfa sprouting seeds",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "887e9e07e178e7ae"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eak-distribution-llc-recalls-home-grown-green-sprouting-calabrese-broccoli-seeds-8-oz-heirloom"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eak-distribution-llc-recalls-home-grown-green-sprouting-calabrese-broccoli-seeds-8-oz-heirloom",
+          "quote": "2026-10-02 FDA Green Sprouting Calabrese Broccoli Seeds",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "a5b97b75e79ccac4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878041"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878041",
+          "quote": "2026-10-06 RASFF (EU) Salmonella spp. in almonds from the United States",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f2e6119f837e95bb"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eden-brothers-recalls-calabrese-broccoli-seeds-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/eden-brothers-recalls-calabrese-broccoli-seeds-due-possible-salmonella-contamination",
+          "quote": "2026-10-07 FDA Broccoli Seeds - Calabrese",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1c8e34b594547970"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gardeners-basics-recalls-waltham-29-broccoli-sprouting-seeds-due-possible-salmonella-contamination"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/gardeners-basics-recalls-waltham-29-broccoli-sprouting-seeds-due-possible-salmonella-contamination",
+          "quote": "2026-10-08 FDA Broccoli Sprouting Seeds",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "18976993ad404186"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/alerts-advisories-safety-information/safety-alert-salmonella-oysters-little-wicomico-river-virginia",
+          "quote": "2026-10-19 FDA Whole (shellstock) oysters harvested in the Little Wicomico River, Virginia, 18 Sep – 8 Oc",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "e91e0ba968f08f30"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/vitality-works-inc-recalls-365-whole-foods-market-ashwagandha-capsules-sold-nationwide-due-potential"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/fda-report-withholds-information-on-what-produce-sickened-more-than-100",
+          "quote": "sickened 119 people | hospitalization of 19 | No product or firm actions were taken as a result of this investigation",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/vitality-works-inc-recalls-365-whole-foods-market-ashwagandha-capsules-sold-nationwide-due-potential",
+          "quote": "2026-10-30 FDA Standardized + Full Spectrum Blend Ashwagandha Capsules",
+          "retrieved_utc": "2026-11-19T07:48:49+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "18ba9bd3561a8848"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.favv-afsca.be/fr/produits/rappel-de-biofresh-belgium-4"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.favv-afsca.be/fr/produits/rappel-de-biofresh-belgium-4",
+          "quote": "2026-07-29 AFSCA (BE) Organic turkey escalope, 2 x 165g",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7f3a6fb297fd1f2f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026",
+          "quote": "2026-08-05 FDA Fresh jalapeño peppers grown in Sinaloa, Mexico — distributed to wholesalers, restaurants ",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "91a336eed32e3c05"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/taylor-fresh-foods-recalls-products-made-jalapeno-peppers-because-possible-health-risk",
+          "quote": "2026-08-09 FDA Finished products (e.g. dips, salsa, guacamole and more) containing jalapeno",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f641abe5a08f6597"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/865359",
+          "quote": "2026-08-14 RASFF (EU) Salmonella enteritidis in gallina busto/Salmonella Enteritidis in frozen whole hens",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8e7b9f74519c13e2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868863"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868863",
+          "quote": "2026-08-26 RASFF (EU) Salmonella Infantis (detected in 2 of 5 sample units) and Salmonella Newport (detected in ",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "03f4861f8061e50f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868818"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/868818",
+          "quote": "2026-08-26 RASFF (EU) Salmonella spp. in turkey breast from Italy",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "77e218679e84fc1a"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/salmonella/outbreaks/broccoli-sprouts-09-26/index.html",
+          "quote": "2026-09-09 CDC Broccoli sprouts, distributed mainly in Idaho, Montana and Washington and possibly further",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "35df7030cccef687"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
+          "quote": "2026-09-10 FDA Broccoli Sprouts",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "be3a938ef605ab12"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874035"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/874035",
+          "quote": "2026-09-18 RASFF (EU) Udo z Indyczki bez kości świeże *Salmonella* spp. in the product named \"Fresh boneless tur",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c53acf9272763e20"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23573/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23573/interne",
+          "quote": "2026-09-21 RappelConso (FR) Fresh duck sausage in vacuum pouch",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f641621c00745a8b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/ALLEGATO_RICHIAMO_HAMBURGER_SCOTTONA_200g_1790355807.pdf"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/ALLEGATO_RICHIAMO_HAMBURGER_SCOTTONA_200g_1790355807.pdf",
+          "quote": "2026-09-25 Ministero della Salute (IT) Scottona beef hamburger 200 g (2x100 g), lot 7726018994, use by 30/09, 02/10, 03/10/2026",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9a57d0eba24d776e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876403"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876403",
+          "quote": "2026-09-30 RASFF (EU) Salmonella Agona in fresh chicken sausages with herbs from Lithuania",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "55764e78c923bd36"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876501",
+          "quote": "2026-09-30 RASFF (EU) Salmonella Enteritidis in fresh turkey meat from Poland",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "72ae0e254ff55c5d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876819"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876819",
+          "quote": "2026-10-01 RASFF (EU) Salmonella infantis in fresh chicken breast from Bulgaria",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1603f4ae241944d2"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876749"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/876749",
+          "quote": "2026-10-02 RASFF (EU) Suspected Salmonella Napoli in arugula",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "19516b755897aad4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872544"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/872544",
+          "quote": "2026-10-05 RASFF (EU) Salmonella Typhimurium var. monofasica in frozen pork meat // Salmonella Typhimurium varia",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "afc6397b01c1ec62"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877820"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/877820",
+          "quote": "2026-10-06 RASFF (EU) Salmonella Hadar in chilled turkey cutlets from Italy",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7386a78588a26a45"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23707/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23707/interne",
+          "quote": "2026-10-07 RappelConso (FR) Pork paupiette, Savoy style (Paupiette de porc à la savoyarde), lot 162680008, use-by 09/1",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f0ff751a1dbf1304"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-48-2026",
+          "quote": "2026-10-08 FSA (UK) Pinch Pan Poppin’ Chicken Pasanda & Nutty Pilau Rice; Pinch Bangin’ Butter Chicken & Nutty",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3fa5ef2ab03e6d4f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23744/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23744/interne",
+          "quote": "2026-10-09 RappelConso (FR) Fresh venison (deer) burger",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "3690eb19833092ef"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/produktwarnung-salmonellen-in-tomaten-aus-zwei-regionen-in-sizilien"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms tomatoes. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.ages.at/mensch/produktwarnungen-produktrueckrufe/produkt/produktwarnung-salmonellen-in-tomaten-aus-zwei-regionen-in-sizilien",
+          "quote": "2026-10-16 AGES (AT) Cocktail tomatoes",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ec6fdb671b28ea56"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/881247"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/881247",
+          "quote": "2026-10-21 RASFF (EU) Salmonella in meat preparation from Italy",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "006099b192121c04"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/881539"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/881539",
+          "quote": "2026-10-23 RASFF (EU) presence of Salmonella spp. in fresh poultry meat",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4b5523d5857901b9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/771_%20Modello_richiamo_1792776267.pdf"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/771_%20Modello_richiamo_1792776267.pdf",
+          "quote": "2026-10-27 Ministero della Salute (IT) sausage, salami paste, eggs",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ac824c036e58df1b"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23948/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus salmonella; food terms fresh. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodsafetynews.com/2026/11/tomato-restrictions-eased-in-italy-after-salmonella-concerns",
+          "quote": "A temporary suspension was put in place in response to the reporting of salmonellosis cases",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23948/interne",
+          "quote": "2026-10-29 RappelConso (FR) Fresh duck sausage in a vacuum pouch",
+          "retrieved_utc": "2026-11-19T07:48:51+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "214662be0f0892f9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "78e47e92bbbf60a7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "15eec545ff0ecdcd"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
+          "quote": "2026-09-03 FDA Organic Triple Berry Blend",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "9cdede34541b0e40"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html",
+          "quote": "2026-09-03 CDC Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, G",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "84b19e15a5af606c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk",
+          "quote": "2026-09-23 FDA Alfalfa sprouting seeds",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4c4d44d818294c1c"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk",
+          "quote": "2026-09-29 FDA Monterey Jack, Jalapeno Jack, Medium Cheddar, and Sharp Cheddar raw milk cheeses",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "bc8a0d1e34ddd8ec"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic",
+          "quote": "2026-10-02 FDA Organic Blueberries, Triple Berry Blend and Mixed Berry Blend",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ccc680ed8ee1c3aa"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o26h11-and"
+      },
+      "changes": {
+        "candidate_event": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://foodpoisoningbulletin.com/2026/case-count-in-ohio-universitys-e-coli-outbreak-increases-to-16",
+          "quote": "case count in the Ohio University's E. coli outbreak has risen to 16 | All 16 patients got sick at around the same time",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o26h11-and",
+          "quote": "2026-10-15 FDA Raw Mild Cheddar Cheese",
+          "retrieved_utc": "2026-11-19T07:48:56+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6bcb7667d2a871c7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus shiga; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/",
+          "quote": "Sixteen laboratory-confirmed STEC cases | reached sixteen as of the afternoon of November 16",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "383ed98d27a92e88"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus shiga; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/",
+          "quote": "Sixteen laboratory-confirmed STEC cases | reached sixteen as of the afternoon of November 16",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk",
+          "quote": "2026-09-23 FDA Alfalfa sprouting seeds",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "59f94707ac6bd0a7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus shiga; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/",
+          "quote": "Sixteen laboratory-confirmed STEC cases | reached sixteen as of the afternoon of November 16",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk",
+          "quote": "2026-09-29 FDA Monterey Jack, Jalapeno Jack, Medium Cheddar, and Sharp Cheddar raw milk cheeses",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "4e30e0b95a76ff81"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus shiga; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/",
+          "quote": "Sixteen laboratory-confirmed STEC cases | reached sixteen as of the afternoon of November 16",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic",
+          "quote": "2026-10-02 FDA Organic Blueberries, Triple Berry Blend and Mixed Berry Blend",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "1aa9ee222929bf27"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o26h11-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus shiga; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/ohio-university-e-coli-outbreak-what-we-know-and-what-we-dont/",
+          "quote": "Sixteen laboratory-confirmed STEC cases | reached sixteen as of the afternoon of November 16",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/family-farmstead-dairy-announces-recall-raw-mild-cheddar-cheese-due-potential-e-coli-o26h11-and",
+          "quote": "2026-10-15 FDA Raw Mild Cheddar Cheese",
+          "retrieved_utc": "2026-11-19T07:49:25+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "440ac1850fb36513"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23866/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; serotype o157:h7; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23866/interne",
+          "quote": "2026-10-19 RappelConso (FR) Beef burger patties, 5% fat, Charolais (steaks hachés 5% charolais) — 2 x 125 g, GTIN 3700",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "a2ea7ddaf284a466"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23865/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; serotype o157:h7; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23865/interne",
+          "quote": "2026-10-19 RappelConso (FR) Beef burger patties, 12% fat, Charolais (steaks hachés 12% charolais) — 2 x 125 g, 4 x 125",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "44bf4d197bebf1c0"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23864/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; serotype o157:h7; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23864/interne",
+          "quote": "2026-10-19 RappelConso (FR) Beef burger patties, 20% fat (steaks hachés 20%) — 6 x 100 g, GTIN 3700502701968, lot 2628",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "94d815d4c27c560d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23863/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; serotype o157:h7; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23863/interne",
+          "quote": "2026-10-19 RappelConso (FR) Minced beef, 20% fat (viande hachée 20%) — 350 g and 650 g; GTIN 3700502701074, lot 28285-",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "92e0423d8395df25"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23851/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; serotype o157:h7; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23851/interne",
+          "quote": "2026-10-19 RappelConso (FR) Beef tartare \"Brasserie\", 5% fat, Charolais (tartare brasserie 5% charolais) — 2 x 180 g, ",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.75,
+      "agent": "outbreak-intel",
+      "proposal_id": "b5dede4b7844ca9d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23015/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23015/Interne",
+          "quote": "2026-07-28 RappelConso (FR) Tonnelet (small cask)",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "f3e5f3b24ca258e1"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23017/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23017/Interne",
+          "quote": "2026-07-28 RappelConso (FR) Bouchons",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "265b7ec456fdfce5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23018/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23018/Interne",
+          "quote": "2026-07-28 RappelConso (FR) Tonnelet (small cask)",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6b6ab116c901cea7"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23019/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23019/Interne",
+          "quote": "2026-07-28 RappelConso (FR) Mini churns",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5174e11b2cf575b8"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23033/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23033/Interne",
+          "quote": "2026-07-29 RappelConso (FR) Fresh goat cheese",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "7f540aba48971f54"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23016/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23016/Interne",
+          "quote": "2026-07-31 RappelConso (FR) Satonnay 140 g (cheese)",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "66eacc94c46ce4fc"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-shiga-toxin-producing-e-coli-salmonella-sprouts-august-2026",
+          "quote": "2026-08-22 FDA Alfalfa Sprouts, 5 oz plastic containers; Crunchy Protein Sprout Mix; Zesty Garlic Mix (lo",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "957c83db2833e289"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/everything-sprouts-llc-expands-voluntarily-recall-include-robust-radish-mix-due-potential-e-coli-and",
+          "quote": "2026-08-29 FDA Robust Radish Mix, 5oz Cups",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "83e9f1e48fdb7780"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23405/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground, beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23405/interne",
+          "quote": "2026-09-01 RappelConso (FR) Pure ground beef 15% fat, 400g tray",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "729c3f7972caad04"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recall-include-one-lot-great-value-frozen-organic-triple",
+          "quote": "2026-09-03 FDA Organic Triple Berry Blend",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "d38d52055480809d"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.cdc.gov/ecoli/outbreaks/blueberries-07-26/index.html",
+          "quote": "2026-09-03 CDC Frozen berries — GreenWise Organic IQF Blueberries 10 oz, GreenWise Whole Mixed Berries, G",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "54b1d2878fcea059"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23400/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23400/interne",
+          "quote": "2026-09-04 RappelConso (FR) Young raw-milk Cantal, 1/4 wheel",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "c8dd0aba0d7c0110"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870999"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/870999",
+          "quote": "2026-09-04 RASFF (EU) Shiga toxin-producing Escherichia coli (STEC) O145:H28 in minced beef from Germany",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8446cdfbe074f53f"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23463/interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23463/interne",
+          "quote": "2026-09-07 RappelConso (FR) Charolais butcher-style minced beef 12% fat (\"Viande hachée de race Charolaise façon bouch",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "8c22feb9516a24c9"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/berlin-seeds-recalls-alfalfa-sprouting-seed-because-possible-health-risk",
+          "quote": "2026-09-23 FDA Alfalfa sprouting seeds",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "ade5ed07a6f68394"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23630/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground, beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23630/Interne",
+          "quote": "2026-09-25 RappelConso (FR) Pure beef ground meat 20% fat, tray 500g — lot 38513879, GTIN 4335619385245, use by 20/09/",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "987da7a9058afee3"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/sierra-nevada-cheese-company-recalls-graziers-raw-milk-cheese-because-possible-health-risk",
+          "quote": "2026-09-29 FDA Monterey Jack, Jalapeno Jack, Medium Cheddar, and Sharp Cheddar raw milk cheeses",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "18760d2a63a328b4"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/23656/Interne"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground, beef. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/23656/Interne",
+          "quote": "2026-09-30 RappelConso (FR) Pure beef ground meat 5% fat, 300 g tray — GTIN 4335619100503, lot 38511900",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "2351eb8e58d5b12e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; country named in the article. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/frutas-y-hortalizas-del-sur-sa-expands-recalls-include-additional-lots-great-value-frozen-organic",
+          "quote": "2026-10-02 FDA Organic Blueberries, Triple Berry Blend and Mixed Berry Blend",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "6fbbc698f365d7c5"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878330"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: pathogen genus e.; food terms ground. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/usda-has-opened-an-active-e-coli-o157h7-investigation-with-ground-beef-as-the-suspect-no-recall-no-alert-no-case-count-the-same-morning-cdc-added-three-e-coli-files-to-its-d/",
+          "quote": "investigation 2027-01, dated October 2026, pathogen E. coli O157:H7, product \"Ground Beef (suspect),\" Active: Yes | The row has no case count, no states, no hospitalization or HUS number, no recall and no public health alert attached to it",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/878330",
+          "quote": "2026-10-07 RASFF (EU) STEC O103:H2 detected in Ground meat",
+          "retrieved_utc": "2026-11-19T07:49:37+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "5aa489d2fe2950af"
+    }
+  ]
+}
