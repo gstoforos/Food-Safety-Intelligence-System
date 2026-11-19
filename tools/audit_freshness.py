@@ -214,6 +214,49 @@ def check_gap_finders(today):
             elif verdict == OK:
                 verdict = WARN
 
+        # ── A RUN THAT EXTRACTED NOTHING AT ALL (2026-11-19) ────────────
+        #
+        # The block above keys on llm_extraction_failures, which the finder
+        # can only count for rows it actually CLASSIFIED. It cannot see the
+        # shape the whole fleet hit on 2026-11-19: the Llama box failed its
+        # HEALTH CHECK, pipeline/gap_finder/main.stage_extractor returned
+        # ([], []) before touching a record, and the run log read
+        #
+        #   candidates_found=175 verified_count=45 extracted_accepted=0
+        #   extracted_rejected=0 llm_extraction_failures=0 errors=[]
+        #   status="completed"
+        #
+        # Twelve of twelve countries with verified candidates (at, be, ch,
+        # de, dk, fi, hu, is, nl, no, pl, se), 158 verified candidates
+        # dropped, and this function graded every one of them OK — because
+        # llm_lost was 0 and age is exactly what an outage leaves untouched.
+        # Zero such runs on any of the eight preceding days.
+        #
+        # main.py now folds that loss into llm_extraction_failures, so the
+        # block above catches it at the source. This is the backstop for the
+        # same SHAPE arriving any other way — the per-record
+        # `except: continue` in Stage 3, a future early return, a finder
+        # still running the previous code — because the question needs
+        # nothing but the log: a run that VERIFIED candidates and produced no
+        # row either way did not do its job, whatever its timestamp says.
+        #
+        # Guarded on `not llm_lost` so the counted case keeps the wording the
+        # 2026-09-25 incident gave it, and on verified_count > 0 so a country
+        # that genuinely found nothing to extract is not called stale.
+        _verified = int(rec.get("verified_count") or 0)
+        _produced = (int(rec.get("extracted_accepted") or 0)
+                     + int(rec.get("extracted_rejected") or 0))
+        if not llm_lost and _verified > 0 and _produced == 0:
+            verdict = STALE
+            _rec_errors = int(rec.get("extraction_errors") or 0)
+            detail = ("PRODUCED NOTHING USABLE: " + detail
+                      + "; Stage 3 returned no row either way, so these are "
+                        "NOT content rejections"
+                      + (f"; {_rec_errors} per-record error(s)"
+                         if _rec_errors else "")
+                      + ("; the Llama box failed its health check"
+                         if rec.get("llm_unreachable") else ""))
+
         out.append(dict(
             component="gap finder %s" % cc, last=str(when or "")[:16], age=age,
             verdict=verdict, detail=detail))

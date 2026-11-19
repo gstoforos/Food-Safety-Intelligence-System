@@ -1,0 +1,16 @@
+[
+  {
+    "Date": "2026-11-16",
+    "Source": "BLV (CH)",
+    "Company": "Migros",
+    "Brand": "",
+    "Product": "Milk rice products with raspberries",
+    "Pathogen": "Foreign material",
+    "Reason": "Possible foreign bodies; Migros recalls milk rice products with raspberries",
+    "Class": "Recall",
+    "Country": "Switzerland",
+    "Outbreak": 0,
+    "URL": "https://www.recallswiss.admin.ch/customer-access/#Recalls/1193",
+    "Notes": "Added by operator review 2026-11-19 (George approved). Read on the BLV's own list of food recalls (blv.admin.ch/de/oeffentliche-warnungen-und-rueckrufe-lebensmittel), entry dated 16.11.2026: \"Migros ruft Milchreis-Produkte mit Himbeeren wegen möglicher Fremdkörper zurück\", linking recallswiss #1193. The recallswiss detail page renders no content through the proxy, so product names, sizes and lots are not claimed. Previously rejected in Weekly_Rejected as \"Hazard is foreign material, not a microbial pathogen\" — foreign material is in scope (R6). [original product: Milchreis-Produkte mit Himbeeren]"
+  }
+]
