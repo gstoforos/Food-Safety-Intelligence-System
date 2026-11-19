@@ -172,7 +172,13 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     "contains no letter",
                     "ends in a truncation ellipsis",
                     "fallback text, and it names nothing",
-                    "contains no letter or digit")
+                    "contains no letter or digit",
+                    # 2026-11-19: merge_master.REPAIRABLE_DEFECTS gained the
+                    # publish gate's enum verdict ("Region 'Quebec' is not
+                    # one of [...]") — CFIA 2026-11-12 Archibald Inc. beer,
+                    # pieces of metal. Moved together, per the 2026-09-30
+                    # rule above.
+                    "is not one of")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0

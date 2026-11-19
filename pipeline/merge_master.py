@@ -30,7 +30,11 @@ from urllib.parse import urlparse
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Font, PatternFill
 
-from scrapers._models import Recall
+from scrapers._models import Recall, infer_region
+# The publish gate's controlled Region vocabulary, imported rather than
+# copied so apply_label_aliases can never disagree with the gate that
+# refuses the row (2026-11-19).
+from pipeline._publish_gate import VALID_REGIONS
 
 
 def _text(value: Any) -> str:
@@ -2930,6 +2934,23 @@ def promote_approved(
                 "ends in a truncation ellipsis",
                 "fallback text, and it names nothing",
                 "contains no letter or digit",
+                # ── 2026-11-19. THE ENUM VERDICT. ────────────────────────
+                # The gate's one controlled-vocabulary message, "Region
+                # 'Quebec' is not one of ['Africa', 'Asia', ...]", is a
+                # judgement on a field's SHAPE in the purest sense: the
+                # row's own Country already determines the right value and
+                # apply_label_aliases now writes it. It was the only
+                # publish-gate FIELD verdict in this workbook that nothing
+                # above matched, so the row it archived — CFIA 2026-11-12,
+                # Archibald Inc. beer, pieces of metal, on the CFIA's own
+                # per-recall URL — could never be re-promoted after repair.
+                # Fourth instance of the 2026-10-05 Mattilsynet shape.
+                #
+                # "is not one of" is the gate's exact wording and the gate
+                # emits it for Region and nothing else, so the phrase cannot
+                # swallow a scope verdict. Condition 2 — the full publish
+                # gate must pass on the repaired row — is unchanged.
+                "is not one of",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):
@@ -3761,6 +3782,53 @@ def apply_label_aliases(rows, *, where: str = "") -> int:
                      f" [{where}]" if where else "", row.get("Source"), reg)
             row["Source"] = reg
             n += 1
+        # ── REGION IS A BUCKET, NOT A DISTRIBUTION AREA. 2026-11-19. ─────
+        #
+        # pipeline/_publish_gate.VALID_REGIONS is a controlled vocabulary of
+        # eight buckets and its own comment says it: "A value outside these
+        # is an extraction artifact, not a regional judgement call." Several
+        # collectors write the notice's DISTRIBUTION AREA into the field
+        # instead, and the gate then refuses the row on a string the row's
+        # own Country already answers. Measured on this workbook:
+        #
+        #   Pending          'National'                       CFIA, 1 row
+        #   Weekly_Rejected  'Quebec'                         CFIA, 1 row
+        #   Rejected         'Poland' / 'Not specified in the
+        #                    article' / 'Nationwide and online'       3 rows
+        #
+        # THE ROW THAT FOUND IT: CFIA 2026-11-12, Archibald Inc., "Nuit
+        # Blanche White IPA and Désirée Session IPA recalled due to pieces
+        # of metal", on the CFIA's own per-recall URL — archived by the
+        # confirm agent with "NO_REASON_RECORDED … treat as UNAUDITED" and
+        # carrying the gate's "Region 'Quebec' is not one of [...]". A real
+        # foreign-material recall held out of the register by the word
+        # "Quebec" in a field that wanted "North America". A second copy of
+        # the same CFIA beer recall family sat in Pending on 'National'.
+        #
+        # scrapers._models.infer_region is the repo's own deterministic
+        # Country -> bucket map and four collectors already call it
+        # (daily_recall_search, gap_finder_tavily, gap_finder_claude,
+        # gap_finder_gemini). Nothing is guessed or invented here: the
+        # Country is on the row, the map is already the register's answer
+        # for it, and a Region already in the vocabulary is never touched.
+        # 'Unknown' is left as it is — it IS a valid bucket.
+        raw_region = str(row.get("Region") or "").strip()
+        if raw_region and raw_region not in VALID_REGIONS:
+            bucket = infer_region(row.get("Country"))
+            if bucket and bucket != raw_region:
+                log.info("Region canonicalised%s: %r -> %r (from Country %r)",
+                         f" [{where}]" if where else "", raw_region, bucket,
+                         row.get("Country"))
+                row["Notes"] = (
+                    _text(row.get("Notes")).strip() +
+                    f" [region-normalise: Region {raw_region!r} is not one of "
+                    f"the publish gate's eight buckets — it is a distribution "
+                    f"area, not a region. Replaced with {bucket!r}, read from "
+                    f"this row's own Country ({row.get('Country')!r}) through "
+                    f"scrapers._models.infer_region. No fetch, no model]"
+                ).strip()
+                row["Region"] = bucket
+                n += 1
     return n
 
 
