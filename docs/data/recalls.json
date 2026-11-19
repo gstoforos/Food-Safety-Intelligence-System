@@ -80,6 +80,22 @@
   "Notes": "magasins carnivor et alphaprim [needs cleanup: Product not in English] [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-18",
+  "Source": "FSA (UK)",
+  "Company": "Card Factory",
+  "Brand": "Card Factory",
+  "Product": "Candy Canes, Red & White",
+  "Pathogen": "Pieces Of Metal",
+  "Reason": "Card Factory recalls Red and White Candy Canes because they may contain pieces of metal",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/news-alerts/alert/fsa-prin-53-2026",
+  "Notes": "source_id=FSA-PRIN-53-2026 [via official-feed collector] [confirm-agent 2026-11-19: pending_gap → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-11-17",
   "Source": "FDA",
   "Company": "Aldi",
