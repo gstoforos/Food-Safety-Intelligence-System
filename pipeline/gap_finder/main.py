@@ -76,6 +76,41 @@ class RunState:
     # the Llama box could not be reached. Added 2026-09-25 — see the block
     # above the RUN SUMMARY for why a count is not enough on its own.
     llm_extraction_failures: int = 0
+    # ── THE BOX THAT WAS ALREADY DOWN. 2026-11-19. ───────────────────────
+    # llm_extraction_failures above counts rows the model lost AFTER the
+    # health check passed — the box dying mid-run, which is what happened on
+    # 2026-09-25. It cannot count the other case, and the other case is the
+    # one the whole fleet hit this morning: when the box is unreachable at
+    # the health check, stage_extractor returned ([], []) before touching a
+    # single record. Nothing classified, nothing rejected, nothing to count,
+    # no state.error, exit 0, status "completed".
+    #
+    # MEASURED on this morning's run logs: 12 of 12 gap-finder runs with
+    # verified candidates (at, be, ch, de, dk, fi, hu, is, nl, no, pl, se)
+    # reported candidates_found 4-175, verified_count 2-45, and
+    # extracted_accepted = extracted_rejected = llm_extraction_failures = 0.
+    # 158 verified candidates across the fleet, every one dropped in
+    # silence, and tools/audit_freshness graded every country OK because
+    # llm_lost was 0 and the timestamps were fresh. Zero such runs on any of
+    # the eight preceding days.
+    #
+    # This is the 2026-09-25 incident with the box down BEFORE the first
+    # request instead of during it, and the counter written that day cannot
+    # see it. So the loss is recorded here and folded into
+    # llm_extraction_failures in main(), which puts it on the one path the
+    # freshness audit already grades as STALE / "PRODUCED NOTHING USABLE".
+    #
+    # The exit code is deliberately NOT touched — 2026-08-24 stands: a VPS
+    # outage must not turn the whole fleet red. What was missing is the
+    # clause that followed it, "the finder itself reports honestly when the
+    # model is unavailable".
+    llm_unreachable: bool = False
+    llm_lost_before_first_request: int = 0
+    # Per-record exceptions in Stage 3. The loop around extract_one prints
+    # "ERROR record <i>" to stderr and continues, so a defect that throws on
+    # every record produced the same all-zero run log as an unreachable box
+    # and was equally invisible to every machine reader.
+    extraction_errors: int = 0
     errors: list[dict] = field(default_factory=list)
 
     def add_error(self, stage: str, exc: Exception) -> None:
@@ -742,7 +777,15 @@ def stage_article_fetch(
 
 def stage_extractor(
     verified: list[dict], cfg: CountryConfig, verbose: bool = False,
+    state: "RunState | None" = None,
 ) -> tuple[list[dict], list[dict]]:
+    """Classify and extract the verified candidates.
+
+    `state`, when given, receives the counts a machine reader needs to tell a
+    run that found nothing from a run that LOST everything: see the
+    llm_unreachable block on RunState. Optional so the signature stays
+    callable from anywhere that does not keep a RunState.
+    """
     print("\n=== Stage 3: Extractor ===", file=sys.stderr)
     if not verified:
         return [], []
@@ -755,8 +798,15 @@ def stage_extractor(
     print(f"  LlamaClient: {client.base_url}  model={client.model}",
           file=sys.stderr)
     if not client.health():
-        print(f"  ERROR: cannot reach llama-server at {client.base_url}",
-              file=sys.stderr)
+        # 2026-11-19: this return used to be the whole story, and it was told
+        # to stderr only. Record the loss so the run log says so — see the
+        # llm_unreachable block on RunState for the morning it cost.
+        print(f"  ERROR: cannot reach llama-server at {client.base_url} — "
+              f"{len(verified)} verified candidate(s) LOST, not classified "
+              f"and not rejected", file=sys.stderr)
+        if state is not None:
+            state.llm_unreachable = True
+            state.llm_lost_before_first_request = len(verified)
         return [], []
 
     pending_rows: list[dict] = []
@@ -770,6 +820,8 @@ def stage_extractor(
             pending, rejected = extractor.extract_one(v, client, cfg, verbose=verbose)
         except Exception as e:
             print(f"  ERROR record {i}: {e}", file=sys.stderr)
+            if state is not None:
+                state.extraction_errors += 1
             continue
         if pending:
             pending_rows.append(pending)
@@ -857,7 +909,8 @@ def main() -> int:
 
     # ── Stage 3: Extract ────────────────────────────────────────────────────
     try:
-        pending_rows, rejected_rows = stage_extractor(verified, cfg, verbose=args.verbose)
+        pending_rows, rejected_rows = stage_extractor(
+            verified, cfg, verbose=args.verbose, state=state)
     except Exception as e:
         state.add_error("extractor", e)
         print(f"  ERROR: {e}", file=sys.stderr)
@@ -888,6 +941,13 @@ def main() -> int:
     state.llm_extraction_failures = sum(
         1 for r in rejected_rows
         if str(r.get("RejectionReason") or "").startswith("llm-extraction-failed"))
+    # ── AND THE ROWS LOST BEFORE THE FIRST REQUEST (2026-11-19) ──────────
+    # stage_extractor cannot route a row to Rejected when the box fails its
+    # health check: it never classified one. Those rows are lost to the model
+    # just the same, so they are folded in here, on the one count the
+    # freshness audit grades. Without this the whole fleet reported a clean
+    # run on 2026-11-19 with 158 verified candidates dropped.
+    state.llm_extraction_failures += state.llm_lost_before_first_request
 
     # ── Stage 4: Write xlsx ─────────────────────────────────────────────────
     print(f"\n=== Stage 4: Write to {args.xlsx} ===", file=sys.stderr)
@@ -928,6 +988,11 @@ def main() -> int:
     print(f"  skipped (dupe Rejected): {state.skipped_dupe_rejected}", file=sys.stderr)
     print(f"  LLM failures (box down): {state.llm_extraction_failures}",
           file=sys.stderr)
+    print(f"  of which lost pre-flight: {state.llm_lost_before_first_request}"
+          f"{'  (health check failed)' if state.llm_unreachable else ''}",
+          file=sys.stderr)
+    print(f"  Stage 3 record errors:   {state.extraction_errors}",
+          file=sys.stderr)
     print(f"  errors:                  {len(state.errors)}", file=sys.stderr)
     print("=" * 70, file=sys.stderr)
 
@@ -953,11 +1018,26 @@ def main() -> int:
         _all_of_them = _accepted > 0 and _total >= _accepted
         _what = ("EVERY accepted row" if _all_of_them
                  else f"{_total} of {_accepted} accepted rows")
-        _msg = (f"{cfg.code}: {_what} was routed to Rejected because the "
-                f"Llama box was unreachable. These are not content "
-                f"rejections — re-run this country once the box is up, or "
-                f"re-extract them by hand from the authority page. This run "
-                f"exits 0 by the 2026-08-24 policy; it is NOT a clean run.")
+        if state.llm_unreachable:
+            # 2026-11-19: the box failed its HEALTH CHECK, so Stage 3 never
+            # classified a record and nothing could be routed anywhere. Say
+            # that, rather than the mid-run wording below, which would send
+            # the reader to a Rejected sheet holding none of these rows.
+            _msg = (f"{cfg.code}: the Llama box failed its health check, so "
+                    f"Stage 3 ran on nothing: "
+                    f"{state.llm_lost_before_first_request} verified "
+                    f"candidate(s) were neither classified nor rejected and "
+                    f"are NOT anywhere in the workbook. They are in "
+                    f"{cfg.verified_path}. Re-run this country once the box "
+                    f"is up. This run exits 0 by the 2026-08-24 policy; it "
+                    f"is NOT a clean run.")
+        else:
+            _msg = (f"{cfg.code}: {_what} was routed to Rejected because the "
+                    f"Llama box was unreachable. These are not content "
+                    f"rejections — re-run this country once the box is up, or "
+                    f"re-extract them by hand from the authority page. This "
+                    f"run exits 0 by the 2026-08-24 policy; it is NOT a clean "
+                    f"run.")
         print(f"::error title=LLM unavailable ({cfg.code})::{_msg}")
         _sm = os.environ.get("GITHUB_STEP_SUMMARY")
         if _sm:
