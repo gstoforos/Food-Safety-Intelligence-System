@@ -526,6 +526,11 @@ COUNTRY: list[str] = [
     "Iceland",
     "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
     "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
+    # Luxembourg entered the register on 2026-11-19 — RASFF 887650,
+    # Salmonella in cordon rouge, origin and notifier Luxembourg, published
+    # by the hourly merge. No offered word reached it. Found by
+    # test_alert_vocab.py::test_every_register_country_is_offered.
+    "Luxembourg",
     "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
