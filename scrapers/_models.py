@@ -926,6 +926,9 @@ _REGION_MAP: Dict[str, str] = {
     "Nigeria": "Africa", "Kenya": "Africa", "Ethiopia": "Africa",
     "Ghana": "Africa", "Tanzania": "Africa", "Uganda": "Africa",
     "Zimbabwe": "Africa", "Zambia": "Africa", "Mozambique": "Africa",
+    # 2026-11-19: absent from this table and from _COUNTRY_ALIASES, while
+    # the register publishes "Africa" for both of its Madagascar rows.
+    "Madagascar": "Africa",
     "Senegal": "Africa", "Ivory Coast": "Africa", "Cameroon": "Africa",
     "Côte d'Ivoire": "Africa",
 
@@ -945,10 +948,47 @@ _REGION_MAP: Dict[str, str] = {
 
 
 def infer_region(country: Any) -> str:
-    """Canonical country name -> region bucket. Returns 'Unknown' if not mapped."""
+    """Country name -> region bucket. Returns 'Unknown' if not mapped.
+
+    THE ALIAS STEP THAT WAS MISSING (2026-11-19)
+    --------------------------------------------
+    This was a raw dict lookup on the string as given, and _REGION_MAP is
+    keyed on the SHORT forms — "USA", "South Korea". The register is not: it
+    publishes the long forms. Swept across all five sheets of the workbook of
+    2026-11-19:
+
+        Country "United States"   493 rows, and not one row says "USA"
+        Country "Korea, South"     96 rows
+
+    Both returned "Unknown", in a function four collectors call to fill the
+    field — pipeline/daily_recall_search, pipeline/gap_finder_tavily,
+    pipeline/gap_finder_claude and pipeline/gap_finder_gemini — while the 381
+    published US rows read "North America" and the published Korean rows read
+    "Asia".
+
+    Nothing had to be added to the table. _COUNTRY_ALIASES two definitions
+    above ALREADY maps "united states" -> "USA" and "korea, south" ->
+    "South Korea", and normalize_country() ALREADY applies it; this function
+    was the one place that looked the country up without asking it. Same
+    shape as every other defect of this family in the repo: the knowledge is
+    present in four places and the fifth reader does not consult it.
+
+    FOUND BY tests/test_a_region_is_a_bucket_not_a_distribution_area.py. The
+    Region normaliser added to merge_master.apply_label_aliases the same
+    morning maps a Region outside the publish gate's vocabulary through this
+    function, and on the FDA row carrying Region "Nationwide and online" it
+    would have written "Unknown" over a United States recall — trading one
+    defect for another through a lookup table missing its biggest key.
+    """
     if not country:
         return "Unknown"
-    return _REGION_MAP.get(str(country).strip(), "Unknown")
+    raw = str(country).strip()
+    if not raw:
+        return "Unknown"
+    # The literal spelling first, so a key already in the table keeps
+    # whatever it maps to today; the alias form only as a fallback.
+    return _REGION_MAP.get(raw) or _REGION_MAP.get(
+        normalize_country(raw), "Unknown")
 
 
 __all__ = [
