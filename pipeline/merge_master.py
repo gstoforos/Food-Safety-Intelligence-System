@@ -2951,6 +2951,16 @@ def promote_approved(
                 # swallow a scope verdict. Condition 2 — the full publish
                 # gate must pass on the repaired row — is unchanged.
                 "is not one of",
+                # ── 2026-11-20. THE PUBLISHER-AS-FIRM VERDICT. ─────────────
+                # "Company 'lebensmittelwarnung.de' is the website that
+                # published this notice, not the recalling firm" is the gate
+                # judging the SHAPE of Company/Brand (a host name written
+                # where a firm belongs), never the recall. Two archive rows
+                # carry it and nothing above matched, so
+                # tests/test_every_field_defect_is_repairable.py went red on
+                # main. Condition 2 — the full publish gate must pass on the
+                # repaired row — is unchanged.
+                "is the website that published this notice",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):

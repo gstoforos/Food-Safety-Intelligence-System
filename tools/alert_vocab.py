@@ -526,6 +526,11 @@ COUNTRY: list[str] = [
     "Iceland",
     "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
     "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
+    # Luxembourg (RASFF 887650, Salmonella in cordon rouge, 2026-11-18) and
+    # Togo (RASFF 881688, aflatoxins in groundnut flour, 2026-11-19) entered
+    # the register with no offered word reaching them; found by
+    # test_alert_vocab.py::test_every_register_country_is_offered.
+    "Luxembourg",
     "Madagascar",
     "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
@@ -547,7 +552,7 @@ COUNTRY: list[str] = [
     "Saudi Arabia",
     "Serbia",
     "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sri Lanka",
-    "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey",
+    "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Togo", "Turkey",
     "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
     "United States", "Uruguay", "Uzbekistan", "Vietnam",
     "EU-wide / multi-country",

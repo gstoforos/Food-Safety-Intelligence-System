@@ -1,0 +1,496 @@
+{
+ "schema": 1,
+ "agent": "nightly-operator",
+ "generated_utc": "20261120T201500Z",
+ "proposals": [
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne"
+   },
+   "changes": {
+    "Company": "Mediterranean Regional Shellfish Farming Committee",
+    "Brand": "Unbranded",
+    "Product": "Shellfish harvested from the Thau lagoon (Etang de Thau) from 16 November 2026, blocked as a precaution pending analysis results",
+    "Reason": "PSP biotoxins (paralytic shellfish toxins), as a precaution",
+    "Notes": "producteurs en vente directe, marchés locaux ou régionaux, produits revendus par détaillants, grandes et moyennes surfac [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-20: fiche 24121 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24121 read 2026-11-19, re-read 2026-11-20: Company/Brand/Product held the headline; firm is the fiche's Origine; Product/Reason translated to English.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne",
+     "quote": "COMITE REGIONAL DE LA CONCHYLICULTURE DE LA MEDITERRANEE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne",
+     "quote": "Biotoxines PSP par mesure de précaution",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne",
+     "quote": "Biotoxines marines PSP (toxines paralysantes)",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne",
+     "quote": "blocage des coquillages récoltés dans l'étang de Thau à partir du 16 novembre 2026",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne"
+   },
+   "changes": {
+    "Product": "Fresh plain unsalted crottin cheese, pack of 6 (crottin frais nature sans sel x 6), reference CRSS6CA, lot 24432, best before 17/11/2026",
+    "Reason": "Suspected presence of Salmonella",
+    "Notes": "biocoop bas canal à pantin; le retour a la terre rive gauche à paris 5ème; naturalia plateforme garonor plateforme [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-20: fiche 24108 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24108 read 2026-11-19, re-read 2026-11-20: Product and Reason were French; translated.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne",
+     "quote": "Crottin frais nature sans sel x 6",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne",
+     "quote": "CRSS6CA",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne",
+     "quote": "24432",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne",
+     "quote": "Suspicion de présence de Salmonelles",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne"
+   },
+   "changes": {
+    "Product": "Flamed parsleyed head cheese (tete persillee flambee), GTIN 2307629029046, lot 54031, use-by 05/11/2026",
+    "Reason": "Listeria (Listeria monocytogenes)",
+    "Notes": "intermarche montaren sas bamont [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-20: fiche 23916 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 23916 read 2026-11-19, re-read 2026-11-20: Product was French; translated with GTIN/lot/use-by.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne",
+     "quote": "TETE PERSILLEE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne",
+     "quote": "2307629029046",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne",
+     "quote": "54031",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne",
+     "quote": "Listeria monocytogenes",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne"
+   },
+   "changes": {
+    "Company": "GAEC La Louisa",
+    "Brand": "Unbranded",
+    "Product": "Raw-milk Reblochon de Savoie (reblochon de savoie au lait cru), lots 1409, 1509, 1609, 1709, 1809, 2109, 2209, 2309, 2809",
+    "Reason": "Precautionary withdrawal in a context of suspected Salmonella",
+    "Date": "2026-11-19",
+    "Notes": "gaec la louisa; cremerie du treige; tripard; gaec les airelles; sarl la ferme des chalets d'oche; c'nos terroirs [nightly operator 2026-11-20: fiche 24111 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24111 read 2026-11-19, re-read 2026-11-20: Company/Brand '/' are debris; firm GAEC LA LOUISA; Product/Reason translated; extends fiche 24077.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+     "quote": "REBLOCHON DE SAVOIE au lait cru",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+     "quote": "GAEC LA LOUISA",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+     "quote": "retrait par mesure de précaution dans un contexte suspicion salmonelle",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+     "quote": "Salmonella spp (agent responsable de la salmonellose)",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+     "quote": "19/11/2026",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne"
+   },
+   "changes": {
+    "Company": "Even Lait Industrie",
+    "Brand": "Paysan Breton",
+    "Product": "Paysan Breton fromage blanc (fresh white cheese) 0%, 5 kg pail, GTIN 3412290026917, use-by 01/12/2026",
+    "Pathogen": "Chemical contaminant (cleaning product residue)",
+    "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: Autres contaminants chimiques)",
+    "Date": "2026-11-18",
+    "Notes": "lcm 62 billy, lcm 33 cestas [url-guard 2026-11-20: reviewer 1 tried to reject this row as 'No official regulator page found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [nightly operator 2026-11-20: fiche 24109 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24109 read 2026-11-19, re-read 2026-11-20: firm EVEN LAIT INDUSTRIE; chemical contaminant in scope; translated.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+     "quote": "EVEN LAIT INDUSTRIE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+     "quote": "3412290026917",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+     "quote": "Autres contaminants chimiques",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+     "quote": "Fromage blanc Paysan Breton 0% Seau 5kg",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne"
+   },
+   "changes": {
+    "Company": "Even Lait Industrie",
+    "Brand": "Belle France",
+    "Product": "Fromage blanc (fresh white cheese) 0% and 3%, 500 g and 1 kg, 4 references (GTIN 3258561419695, 3258561419701, 3258561419718, 3258561419725), use-by 01/12/2026",
+    "Pathogen": "Chemical contaminant (cleaning product residue)",
+    "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: Autres contaminants chimiques)",
+    "Date": "2026-11-16",
+    "Notes": "diapar, codifrance, segurel&fils [url-guard 2026-11-20: reviewer 1 tried to reject this row as 'No official regulator URL found for this recall'; refused — the official URL is on the row. Left in Pending for a later run.] [nightly operator 2026-11-20: fiche 24097 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24097 read 2026-11-19, re-read 2026-11-20: firm EVEN LAIT INDUSTRIE; chemical contaminant in scope; translated; archive 'listing page' verdict false.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+     "quote": "EVEN LAIT INDUSTRIE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+     "quote": "3258561419695",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+     "quote": "Autres contaminants chimiques",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+     "quote": "Belle France",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne"
+   },
+   "changes": {
+    "Company": "Cooperative U Enseigne U",
+    "Brand": "Unbranded",
+    "Product": "Rolled praline-vanilla log cake and mini log (bûche / bûchette roulée pralinée vanille) and Rocher chocolate-praline mini log (bûchette Rocher chocolat praliné); GTIN 2000000324418 lots 1/288/26 to 1/289/26, GTIN 2000000278902 lot 1/286/26; sold at Magasins U",
+    "Pathogen": "Foreign material (stones)",
+    "Reason": "Physical risk: possible small stone-like foreign bodies in 2/4 mm hazelnut pieces",
+    "Date": "2026-11-16",
+    "Notes": "magasins u [offline-enrich 2026-11-16: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [confirm-agent hold: 2026-11-19: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [nightly operator 2026-11-20: fiche 24089 re-read tonight; same decision as unmerged PR #49 (fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired)]"
+   },
+   "reason": "Fiche 24089 read 2026-11-19, re-read 2026-11-20: firm Cooperative U Enseigne U, unbranded; stones in hazelnut pieces; translated.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+     "quote": "COOPERATIVE U ENSEIGNE U",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+     "quote": "2000000324418",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+     "quote": "cailloux",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+     "quote": "noisette",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne"
+   },
+   "changes": {
+    "Company": "Fromagerie Edouard Conus",
+    "Product": "Reblochon de Savoie, 450 g, GTIN 3389190100835, lot 47201026, use-by 01/01/2027",
+    "Reason": "Suspected Salmonella contamination",
+    "Notes": "carrefour margencel et carrefour market seyssel [nightly operator 2026-11-20: fiche 24123 (réf. 2026-11-0132, v1, 19/11/2026) read: title 'Reblochon de Savoie', model 'format 450 gr', GTIN 3389190100835, lot 47201026, DLC 01/01/2027, motif 'Suspicion de contamination Salmonelle', origine FROMAGERIE EDOUARD CONUS; sold at Carrefour Margencel and Carrefour Market Seyssel. [original product: format 450 gr]]"
+   },
+   "reason": "Fiche 24123 read 2026-11-20: Product was the model field ('format 450 gr'), Reason French.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne",
+     "quote": "Reblochon de Savoie",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne",
+     "quote": "3389190100835",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne",
+     "quote": "47201026",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne",
+     "quote": "Suspicion de contamination Salmonelle",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24123/interne",
+     "quote": "FROMAGERIE EDOUARD CONUS",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne"
+   },
+   "changes": {
+    "Company": "Morvan Charcuteries Salaisons",
+    "Brand": "Morvan Charcuteries Salaison",
+    "Product": "Cooked salted pork in aspic (petit salé cuit en gelée), GTIN 3004106901329, lot 301L, use-by 19/11/2026",
+    "Reason": "Listeria (Listeria monocytogenes)",
+    "Notes": "morvan charcuteries salaisons [promote 2026-11-20: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-20: fiche 24120 (réf. 2026-11-0129, v1, 20/11/2026) read: title 'PETIT SALE CUIT EN GELEE', brand MORVAN CHARCUTERIES SALAISON, GTIN 3004106901329, lot 301L, DLC 19/11/2026, motif 'LISTERIA', risques 'Listeria monocytogenes', distributor MORVAN CHARCUTERIES SALAISONS, Nièvre (58). [original product: petit sale cuit en gelee]]"
+   },
+   "reason": "Fiche 24120 read 2026-11-20: Product French, Company had a doubled space; translated.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne",
+     "quote": "PETIT SALE CUIT EN GELEE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne",
+     "quote": "3004106901329",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne",
+     "quote": "301L",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne",
+     "quote": "Listeria monocytogenes",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24120/interne",
+     "quote": "MORVAN CHARCUTERIES SALAISONS",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24128/interne"
+   },
+   "changes": {
+    "Company": "Cooperative U Enseigne U",
+    "Brand": "U Saveurs",
+    "Product": "Seeded brioche-style loaf (pain surprise brioché graines), 400 g, GTIN 3256228872005, lots 6258 (best before 15/03/2028) and 6280 (best before 07/04/2028)",
+    "Reason": "Physical risk (suspected foreign body)",
+    "Pathogen": "Foreign material",
+    "Notes": "magasins u [offline-enrich 2026-11-20: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [promote 2026-11-20: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-20: fiche 24128 (réf. 2026-11-0137, v1, 20/11/2026) read: title 'PAIN SURPRISE BRIOCHÉ GRAINES U SAVEURS 400 G', GTIN 3256228872005, lots 6258 (DDM 15/03/2028) and 6280 (DDM 07/04/2028), motif 'Risque physique (suspicion de corps étranger)', risques 'Inertes (verre, métal, plastique, papier, textile…)', origine COOPERATIVE U ENSEIGNE U ENSEIGNE. [original product: pain surprise brioché graines u saveurs 400 g]]"
+   },
+   "reason": "Fiche 24128 read 2026-11-20: Product and Reason French; Company was the brand.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24128/interne",
+     "quote": "PAIN SURPRISE BRIOCHÉ GRAINES U SAVEURS 400 G",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24128/interne",
+     "quote": "3256228872005",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24128/interne",
+     "quote": "Risque physique (suspicion de corps étranger)",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24128/interne",
+     "quote": "COOPERATIVE U ENSEIGNE U ENSEIGNE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne"
+   },
+   "changes": {
+    "Company": "Cooperative U Enseigne U",
+    "Brand": "Unbranded",
+    "Product": "Brioche bread x32, 400 g (pain brioché x32), GTIN 3251517091006, lot 6260, sold 09/10/2026 to 19/11/2026",
+    "Reason": "Physical risk (suspected foreign body)",
+    "Notes": "magasins u [offline-enrich 2026-11-20: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [nightly operator 2026-11-20: fiche 24127 (réf. 2026-11-0136, v1, 20/11/2026) read: title 'Pain brioché x32 400g', brand 'Sans marque', GTIN 3251517091006, lot 6260, sold 09/10/2026-19/11/2026 at Magasins U, motif 'Risque physique (suspicion de corps étranger)', risques 'Inertes', origine COOPERATIVE U ENSEIGNE U ENSEIGNE. [original product: pain brioché x32 400g]]"
+   },
+   "reason": "Fiche 24127 read 2026-11-20: Company empty, Product and Reason French.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+     "quote": "Pain brioché x32 400g",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+     "quote": "3251517091006",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+     "quote": "6260",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+     "quote": "Risque physique (suspicion de corps étranger)",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    },
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+     "quote": "COOPERATIVE U ENSEIGNE U ENSEIGNE",
+     "retrieved_utc": "2026-11-20T20:15:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  }
+ ]
+}
