@@ -1,16 +1,30 @@
 {
   "entries": [
     {
+      "date": "2026-11-19",
+      "url": "daily/2026-11-19.html",
+      "total": 8,
+      "tier1": 6,
+      "outbreak": 0,
+      "by_region": {
+        "Asia": 2,
+        "Oceania": 1,
+        "Europe": 4,
+        "North America": 1
+      },
+      "generated": "2026-11-20T08:12:45Z"
+    },
+    {
       "date": "2026-11-18",
       "url": "daily/2026-11-18.html",
-      "total": 7,
-      "tier1": 1,
+      "total": 12,
+      "tier1": 6,
       "outbreak": 0,
       "by_region": {
         "Asia": 4,
-        "Europe": 3
+        "Europe": 8
       },
-      "generated": "2026-11-19T10:22:45Z"
+      "generated": "2026-11-20T08:12:47Z"
     },
     {
       "date": "2026-11-17",
@@ -24,7 +38,7 @@
         "Asia": 9,
         "Latin America": 1
       },
-      "generated": "2026-11-19T08:12:44Z"
+      "generated": "2026-11-20T08:12:49Z"
     },
     {
       "date": "2026-11-16",
@@ -36,7 +50,7 @@
         "Europe": 13,
         "Latin America": 1
       },
-      "generated": "2026-11-19T10:22:43Z"
+      "generated": "2026-11-20T08:12:50Z"
     },
     {
       "date": "2026-11-15",
@@ -47,7 +61,7 @@
       "by_region": {
         "Europe": 1
       },
-      "generated": "2026-11-19T08:12:47Z"
+      "generated": "2026-11-20T08:12:52Z"
     },
     {
       "date": "2026-11-14",
@@ -58,7 +72,7 @@
       "by_region": {
         "North America": 1
       },
-      "generated": "2026-11-19T08:12:48Z"
+      "generated": "2026-11-20T08:12:54Z"
     },
     {
       "date": "2026-11-13",
@@ -71,21 +85,7 @@
         "Asia": 1,
         "North America": 3
       },
-      "generated": "2026-11-19T08:12:49Z"
-    },
-    {
-      "date": "2026-11-12",
-      "url": "daily/2026-11-12.html",
-      "total": 17,
-      "tier1": 7,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 11,
-        "Asia": 3,
-        "North America": 2,
-        "Africa": 1
-      },
-      "generated": "2026-11-19T08:12:50Z"
+      "generated": "2026-11-20T08:12:55Z"
     }
   ]
 }
