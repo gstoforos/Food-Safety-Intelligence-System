@@ -7824,6 +7824,22 @@
   "Notes": "PRIN-48-2026 [operator pass 2026-10-10] Re-queued for re-validation. Archived twice by the confirm agent (2026-10-08/09): Reason was empty (the FSA API record had no description) and the 5-product list was judged a 'headline' by length alone — both fixed in code in the same upload. Reason is the FSA's own alert title (alerts.food.gov.uk/article/6920, as listed in search results 2026-10-10; the page refuses automated reads). Company, Product, Pathogen and Date are as the FSA scraper read them from the FSA API. [promote 2026-10-10: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'unknown: Confirmer: row was at pending (not reviewed by reviewer 2) and Product looks like a headline, not a product name | REJECTED: Confirmer: row was at pend'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
+  "Date": "2026-10-08",
+  "Source": "FSA (UK)",
+  "Company": "Greencore",
+  "Brand": "Greencore",
+  "Product": "several products",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/article/6920/Greencore-recalls-several-products-due-to-the-presence-of-Salmonella",
+  "Notes": "## About product recalls and withdrawals\n\nIf there is a problem with a food product that means it should not be sold, then it might be 'withdrawn' (taken off the shelves) or 'recalled' (when customers are asked to return the product). The FSA issues Product Recall Information Notices to let consumer  [via Tavily gap-finder, deterministic extract] [promote 2026-11-20: status 'pending_gap'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying 'unknown: [SUPERSEDED 2026-11-04 by the morning fix pass 2026-11-04: DUPLICATE — the published copy wins. Recalls carries FSA alert 6920 as 2026-10-08, Greencore' is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-10-07",
   "Source": "RappelConso (FR)",
   "Company": "Le Marsigny",
