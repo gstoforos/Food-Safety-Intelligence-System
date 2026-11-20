@@ -1,5 +1,37 @@
 [
  {
+  "Date": "2026-11-20",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Salumificio Sant’Orso",
+  "Brand": "Salumificio Sant’Orso",
+  "Product": "Venetian sausage",
+  "Pathogen": "Salmonella",
+  "Reason": "Possible presence of Salmonella spp",
+  "Class": "Alert",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Cartello%20richiamo%20_2__1795102441.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Vicenza, Italy] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
+  "Date": "2026-11-20",
+  "Source": "NCC (ZA)",
+  "Company": "BM Foods (a member of Sea Harvest Group)",
+  "Brand": "Shoprite Checkers",
+  "Product": "Deli Hummus range",
+  "Pathogen": "Listeria Monocytogenes",
+  "Reason": "Detected Listeria Monocytogenes",
+  "Class": "Recall",
+  "Country": "South Africa",
+  "Region": "Africa",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://thencc.org.za/media-statement-deli-hummus-range-product-safety-recall/",
+  "Notes": "Discovered via news: iol.co.za [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [re-promotion allowed 2026-09-27: was archived as 'unknown:  | REJECTED: Arrived already marked rejected; confirmer did not re-review | Discovered via news: iol.co.za [safety-hold: reviewed but not approved this'; that defect is repaired and the row now passes every publish-gate rule]"
+ },
+ {
   "Date": "2026-11-19",
   "Source": "CAA (JP)",
   "Company": "Nozomikai",
