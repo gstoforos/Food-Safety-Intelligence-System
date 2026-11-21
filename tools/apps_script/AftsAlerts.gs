@@ -787,14 +787,15 @@ var COUNTRY_LIST = [
   "Ethiopia", "Finland", "France", "Georgia", "Germany", "Greece",
   "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran",
   "Ireland", "Italy", "Japan", "Kenya", "Korea, South", "Kosovo", "Latvia",
-  "Lebanon", "Lithuania", "Madagascar", "Malawi", "Mexico", "Morocco",
-  "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Nigeria", "Norway",
-  "Pakistan", "Panama", "Peru", "Philippines", "Poland", "Portugal",
-  "Romania", "Russia", "Rwanda", "Saudi Arabia", "Serbia", "Singapore",
-  "Slovakia", "Slovenia", "South Africa", "Spain", "Sri Lanka", "Sweden",
-  "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey", "Uganda",
-  "Ukraine", "United Arab Emirates", "United Kingdom", "United States",
-  "Uruguay", "Uzbekistan", "Vietnam", "EU-wide / multi-country"
+  "Lebanon", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Mexico",
+  "Moldova", "Morocco", "Nepal", "Netherlands", "New Zealand", "Nicaragua",
+  "Nigeria", "Norway", "Pakistan", "Panama", "Peru", "Philippines",
+  "Poland", "Portugal", "Romania", "Russia", "Rwanda", "Saudi Arabia",
+  "Serbia", "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain",
+  "Sri Lanka", "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand",
+  "Togo", "Turkey", "Uganda", "Ukraine", "United Arab Emirates",
+  "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vietnam",
+  "EU-wide / multi-country"
 ];
 
 var COUNTRY_ALIASES = {

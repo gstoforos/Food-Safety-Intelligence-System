@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261121T203000Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/859749"
+      },
+      "changes": {
+        "Product": "Exceedance of the maximum residue limit (MRL) for ochratoxin A in raisins from Uzbekistan"
+      },
+      "reason": "Product carried the Polish half of the bilingual RASFF subject; English half kept (English-only rule).",
+      "evidence": [
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/859749/",
+          "quote": "Przekroczenie NDP ochratoksyny A w rodzynkach z Uzbekistanu/// Exceedance of the maximum residue limit (MRL) for ochratoxin A in raisins from Uzbekistan",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/859749/",
+          "quote": "20-11-2026 15:05:56",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888277"
+      },
+      "changes": {
+        "Product": "Exceedance of the maximum permitted level (MPL) for ochratoxin A in dried raisins from Uzbekistan"
+      },
+      "reason": "Product carried the Polish half of the bilingual RASFF subject; English half kept.",
+      "evidence": [
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/888277/",
+          "quote": "exceedance of the maximum permitted level (MPL) for ochratoxin A in dried raisins; country of origin: Uzbekistan",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/888277/",
+          "quote": "Rodzynki suszone//Dried raisins",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888228"
+      },
+      "changes": {
+        "Product": "Salmonella in Peking duck breast and legs from Poland"
+      },
+      "reason": "Product was the RASFF subject with a Danish 'i' for 'in'; product named from the notification.",
+      "evidence": [
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/888228/",
+          "quote": "Salmonella i duck breast and legs",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_api",
+          "url": "https://webgate.ec.europa.eu/rasff-window/backend/public/notification/view/id/888228/",
+          "quote": "Peking duck breast and legs",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://www.aesan.gob.es/alertas/2026_87"
+      },
+      "changes": {
+        "Company": "(not specified in AESAN alert 2026_87)",
+        "Brand": "Eroski",
+        "Product": "Free-range fresh eggs (huevos frescos de gallinas sueltas en el gallinero), sizes M, L and XL, packs of 6, 12 and 18, lot 0222F XXXX, best before 22/11/2026 to 01/12/2026",
+        "Pathogen": "Salmonella Enteritidis",
+        "Reason": "Possible presence of Salmonella Enteritidis (AESAN ref. ES2026/711)",
+        "Date": "2026-11-20",
+        "Region": "Andalusia, Castilla-La Mancha, Castilla y Leon, La Rioja, Navarre, Madrid, Murcia, Basque Country"
+      },
+      "reason": "AESAN alert 2026_87 read tonight at aesan.gob.es/alertas/2026_87: Eroski free-range eggs, possible Salmonella Enteritidis, 20/11/2026. Row held a 'calendar_today' scraper string as Product.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://aesan.gob.es/alertas/2026_87",
+          "quote": "Alerta por posible presencia de Salmonella Enteritidis en huevos procedentes de España. (Ref. ES2026/711)",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://aesan.gob.es/alertas/2026_87",
+          "quote": "Nombre de marca: Eroski",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://aesan.gob.es/alertas/2026_87",
+          "quote": "Huevos frescos de gallinas sueltas en el gallinero",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://aesan.gob.es/alertas/2026_87",
+          "quote": "0222F XXXX",
+          "retrieved_utc": "2026-11-21T20:30:00Z"
+        }
+      ],
+      "confidence": 0.9,
+      "agent": "nightly-operator"
+    }
+  ],
+  "curator_refusals": {
+    "RASFF 859749/888277/888228 Product wording": "page does not mention any of [...] — the curator fetches the RASFF Window screen URL, a JS shell; the public API record quoted in evidence cannot be matched by the curator's fetch. Not applied.",
+    "AESAN 2026_87": "Region not a continent; URL unreachable (ProxyError) for www.aesan.gob.es. Not applied; left in Pending."
+  }
+}
