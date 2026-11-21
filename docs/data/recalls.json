@@ -1,5 +1,21 @@
 [
  {
+  "Date": "2026-11-21",
+  "Source": "HAH (HR)",
+  "Company": "Mijukić-Prom",
+  "Brand": "Mijukić-Prom",
+  "Product": "Sausage cubes VP, 0.55kg",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "The product is not in compliance with Commission Regulation (EC) No 2073/2005 on microbiological criteria for foodstuffs due to possible presence of Listeria monocytogenes in the raw materials used for production.",
+  "Class": "Recall",
+  "Country": "Croatia",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.hapih.hr/opoziv-proizvoda-mijukic-prom-panceta-kockice-vp-055kg/",
+  "Notes": "Discovered via news: index.hr [locality: Croatia] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
   "Date": "2026-11-20",
   "Source": "Ministero della Salute (IT)",
   "Company": "Salumificio Sant’Orso",
@@ -222,6 +238,38 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/887828",
   "Notes": "[RASFF #2026.10290; classification: information notification for follow-up; category: fish and fish products; notifId=887828] [promote 2026-11-20: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-19",
+  "Source": "Ministero della Salute (IT)",
+  "Company": "Salumi Tre Torri",
+  "Brand": "Revusco",
+  "Product": "Salami",
+  "Pathogen": "Listeria monocytogenes",
+  "Reason": "Presence of Listeria monocytogenes",
+  "Class": "Recall",
+  "Country": "Italy",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/CartellodiRICHIAMO_1794998349.pdf",
+  "Notes": "Discovered via news: ilfattoalimentare.it [locality: Macerata, Italy] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+ },
+ {
+  "Date": "2026-11-19",
+  "Source": "ANSA (MD)",
+  "Company": "Bălți",
+  "Brand": "",
+  "Product": "Food products",
+  "Pathogen": "Salmonella",
+  "Reason": "Food products contaminated with Salmonella",
+  "Class": "Recall",
+  "Country": "Moldova",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.ansa.gov.md/media/rechemare-retragere/atentie-rechemare-de-produs-alimentar.html-4",
+  "Notes": "Discovered via news: realitatea.md [locality: Bălți] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [re-promotion allowed 2026-09-27: was archived as 'gap_finder/md/rules.py:  | Discovered via news: ansa.gov.md | No matching hazard category — defer to manual review.'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-18",
@@ -1426,7 +1474,7 @@
  {
   "Date": "2026-11-12",
   "Source": "HAH (HR)",
-  "Company": "MIJUKIĆ-PROM",
+  "Company": "Mijukić-Prom",
   "Brand": "Okusi zavičaja",
   "Product": "Dalmatian bacon (Dalmatinska panceta), sliced, 100 g, LOT 918N2Z, use by 15.01.2027",
   "Pathogen": "Listeria monocytogenes",
@@ -7299,7 +7347,7 @@
   "Date": "2026-10-11",
   "Source": "HAH (HR)",
   "Company": "STUDENAC d.o.o. Hrvatska",
-  "Brand": "MIJUKIĆ-PROM",
+  "Brand": "Mijukić-Prom",
   "Product": "Dalmatian bacon, 100g slice",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "The product does not comply with Commission Regulation (EC) No 2073/2005 of 15 November 2005 on microbiological criteria for foodstuffs due to the presence of Listeria monocytogenes.",
