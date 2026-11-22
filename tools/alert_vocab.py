@@ -178,6 +178,9 @@ PATHOGEN: dict[str, list[str]] = {
     "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol",
                                 "muscaria", "hydrocyanic", "cyanogenic",
                                 "solanine", "tropane",
+                                # 2026-11-22: RappelConso 24142 potatoes.
+                                "glycoalkaloid", "glycoalcalo",
+                                "glykoalkaloid", "chaconine",
                                 # 2026-09-30: FDA Niwali tejocote, yellow
                                 # oleander — published, and reachable by no
                                 # alert term until now.
@@ -526,8 +529,21 @@ COUNTRY: list[str] = [
     "Iceland",
     "India", "Indonesia", "Iran", "Ireland", "Italy", "Japan",
     "Kenya", "Korea, South", "Kosovo", "Latvia", "Lebanon", "Lithuania",
+    # Luxembourg entered the register on 2026-11-19 — RASFF notification
+    # 887650, Salmonella in cordon rouge of Luxembourg origin, notified by
+    # Luxembourg, published to Recalls that day. No offered word reached
+    # it. Found by
+    # test_alert_vocab.py::test_every_register_country_is_offered — the
+    # same gap this test caught for Russia on 2026-10-02, Iceland on
+    # 2026-10-14, Albania on 2026-10-26 and Saudi Arabia on 2026-10-29.
+    "Luxembourg",
     "Madagascar",
-    "Malawi", "Mexico", "Morocco", "Nepal", "Netherlands", "New Zealand",
+    "Malawi", "Mexico",
+    # Moldova entered the register on 2026-11-21 — ANSA (MD) product-recall
+    # notice, Salmonella in food products, dated 2026-11-19. Moldova's
+    # collector is new enough that no offered word had caught up.
+    "Moldova",
+    "Morocco", "Nepal", "Netherlands", "New Zealand",
     "Nicaragua", "Nigeria", "Norway", "Pakistan", "Panama", "Peru",
     "Philippines", "Poland", "Portugal", "Romania",
     # Russia entered the register on 2026-10-02 (RASFF 876273, Salmonella
@@ -548,6 +564,10 @@ COUNTRY: list[str] = [
     "Serbia",
     "Singapore", "Slovakia", "Slovenia", "South Africa", "Spain", "Sri Lanka",
     "Sweden", "Switzerland", "Syria", "Taiwan", "Thailand", "Turkey",
+    # Togo entered the register on 2026-11-20 — RASFF notification 881688,
+    # aflatoxins in groundnut flour of Togolese origin, notified by
+    # Belgium. No offered word reached it.
+    "Togo",
     "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
     "United States", "Uruguay", "Uzbekistan", "Vietnam",
     "EU-wide / multi-country",

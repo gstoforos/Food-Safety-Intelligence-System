@@ -1,0 +1,58 @@
+[
+  {
+    "Date": "2026-11-21",
+    "Source": "RappelConso (FR)",
+    "Company": "Lidl",
+    "Brand": "Côté marché",
+    "Product": "Red potatoes, variety Chérie, 2.5 kg bag, GTIN 20253400, lot 26128774, sold 22/10/2026 to 09/11/2026",
+    "Pathogen": "Glycoalkaloids",
+    "Reason": "Excessive glycoalkaloids (natural substances of the potato)",
+    "Class": "Recall",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24142/Interne",
+    "Notes": "Added by the daily-global review 2026-11-22 (MISSING: absent from all five sheets). Read on RappelConso fiche 24142, réf. 2026-11-0149, dated 21/11/2026: \"Volontaire (sans arrêté préfectoral)\"; marque \"Côté marché\"; \"Pomme de terre rouge 2.5 kg Variété : Chérie\"; GTIN \"20253400\"; lot \"26128774\"; commercialisation \"Du 22/10/2026 au 09/11/2026\"; \"France entière\"; motif \"Présence excessive de glycoalcaloïdes (substances naturelles de la pomme de terre).\" The same lot 26128774 (producer Parmentine, Fère-Champenoise) was recalled in Germany via Kaufland on 21 Nov; those two news-only rows stay in Weekly_Rejected (no German authority URL read). [original product: Pomme de terre rouge 2.5 kg] [original reason: Présence excessive de glycoalcaloïdes (substances naturelles de la pomme de terre).]"
+  },
+  {
+    "Date": "2026-11-20",
+    "Source": "CAA (JP)",
+    "Company": "Murata Engei",
+    "Brand": "",
+    "Product": "Bancha tea and bancha tea bags",
+    "Pathogen": "Foreign material (rubber)",
+    "Reason": "Foreign matter (pieces of conveyor-belt rubber) mixed into the product",
+    "Class": "Recall",
+    "Country": "Japan",
+    "Outbreak": 0,
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036166&screenkbn=01",
+    "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"村田園芸\", 商品名 \"番茶、番茶ティーバッグ\", 回収理由 \"異物（ベルトコンベアのゴム片）混入\", 対応開始日 2026年11月17日. No volume, lot or date on the page, none claimed. [original product: 番茶、番茶ティーバッグ]"
+  },
+  {
+    "Date": "2026-11-20",
+    "Source": "CAA (JP)",
+    "Company": "Chiba Prefectural Mobara Shoyo High School",
+    "Brand": "",
+    "Product": "Strawberry jam and blueberry jam (sold at Aeon Mall Makuhari Shintoshin and at the school)",
+    "Pathogen": "Mold",
+    "Reason": "Something that appears to be mould was found",
+    "Class": "Recall",
+    "Country": "Japan",
+    "Outbreak": 0,
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036167&screenkbn=01",
+    "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"千葉県立茂原樟陽高等学校\", 商品名 \"イチゴジャム、ブルーベリージャム\", sold at \"イオンモール幕張新都心1階グランコート、同校\", 回収理由 \"カビとみられるものを確認\", 対応開始日 2026年11月17日. No volume, lot or date on the page, none claimed. [original product: イチゴジャム、ブルーベリージャム]"
+  },
+  {
+    "Date": "2026-11-20",
+    "Source": "CAA (JP)",
+    "Company": "Moriki Suikoen",
+    "Brand": "",
+    "Product": "Tosa-cha genmaicha (roasted-rice green tea) Super, 180 g, sold in Kochi Prefecture",
+    "Pathogen": "Foreign material (rubber)",
+    "Reason": "Foreign matter (rubber part of a conveyor belt) mixed into the product; exchange/recall",
+    "Class": "Recall",
+    "Country": "Japan",
+    "Outbreak": 0,
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036168&screenkbn=01",
+    "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"森木翠香園\", 商品名 \"土佐茶玄米茶スーパー180g\", 回収理由 \"異物（ベルトコンベアのゴム部分）混入\", 対応開始日 2026年11月16日. Same hazard as the Kochi sencha row of 2026-11-18 (rcl 36145, JA Kochi) — possibly one upstream incident; separate firm and product, so a separate row. [original product: 土佐茶玄米茶スーパー180g]"
+  }
+]

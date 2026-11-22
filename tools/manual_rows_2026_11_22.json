@@ -1,0 +1,28 @@
+[
+  {
+    "Date": "2026-11-19",
+    "Source": "RappelConso (FR)",
+    "Company": "Metro France",
+    "Brand": "Metro Chef",
+    "Product": "Linseed (graine de lin), 650 g, Metro Chef — GTIN 4337182082293, lot P227085, best before 01/09/2028",
+    "Pathogen": "Hydrocyanic acid (acide cyanhydrique) — chemical hazard",
+    "Reason": "Hydrocyanic acid content above the maximum permitted level",
+    "Class": "Voluntary",
+    "Country": "France",
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne",
+    "Notes": "[morning fix 2026-11-22: missed-recall sweep. Found on the RappelConso food listing (categorie/0/3) and read on fiche 24119 itself today: Fiche réf. 2026-11-0128 • Version 1, date 19/11/2026, Catégorie \"Alimentation\", Sous-catégorie \"Noix et graines\", H1 \"GRAINE DE LIN 650G METRO CHEF\", \"Nom de la marque du produit: Metro chef\", \"Origine de la fiche: METRO FRANCE\", \"Distributeurs: METRO France\", \"Risques encourus par le consommateur: Autres contaminants chimiques\", \"Motif du rappel: Acide cyanhydrique supérieur à la teneur maximale\", identification GTIN 4337182082293 / lot P227085 / DDM 01/09/2028, \"Zone géographique de vente: France entière\", \"Nature juridique du rappel: Volontaire (sans arrêté préfectoral)\". Present in none of the five sheets. Same hazard and the same wording as Recalls rows 126 and 127 (fiches 24053 and 24054, 10/11/2026), whose Pathogen value is copied here. [original product: \"GRAINE DE LIN 650G METRO CHEF\"] [original Reason (fr): \"Acide cyanhydrique supérieur à la teneur maximale\"]]"
+  },
+  {
+    "Date": "2026-11-19",
+    "Source": "RappelConso (FR)",
+    "Company": "GAEC La Louisa",
+    "Brand": "Unbranded",
+    "Product": "Reblochon de Savoie made with raw milk, lots 1409, 1509, 1609, 1709, 1809, 2109, 2209, 2309 and 2809 (recommended consumption dates 14/11/2026 to 28/11/2026)",
+    "Pathogen": "Salmonella",
+    "Reason": "Withdrawal as a precaution in a context of suspected Salmonella",
+    "Class": "Voluntary",
+    "Country": "France",
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+    "Notes": "[morning fix 2026-11-22: re-queued. The confirm agent moved this row to Weekly_Rejected this morning (Week_Added 2026-11-22) with RejectionReason \"NO_REASON_RECORDED — rejected by confirm-agent from RappelConso (FR), status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.\" Its Company and Brand both read \"/\", which is RappelConso's own no-brand marker and what the fiche prints in \"Nom de la marque du produit\". Read on fiche 24111 today: Fiche réf. 2026-11-0120 • Version 1, date 19/11/2026, H1 \"REBLOCHON DE SAVOIE au lait cru\", \"Origine de la fiche: GAEC LA LOUISA\", \"Risques encourus par le consommateur: Salmonella spp (agent responsable de la salmonellose)\", \"Motif du rappel: retrait par mesure de précaution dans un contexte suspicion salmonelle\", \"Zone géographique de vente: Départements : HAUTE-SAVOIE (74)\", nine lots with recommended consumption dates 14/11/2026 to 28/11/2026, \"Nature juridique du rappel: Volontaire (sans arrêté préfectoral)\". Company is now the firm the fiche names; Brand is Unbranded because the fiche prints \"/\". [original product: \"reblochon de savoie au lait cru\"] [original Reason (fr): \"Retrait par mesure de précaution dans un contexte suspicion Salmonella\"]]"
+  }
+]
