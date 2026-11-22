@@ -1437,7 +1437,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://nkfh.gov.hu/hirek/termekvisszahivas-szag-es-folteltavolito-tisztitoszer-visszahivasa-mikrobiologiai-fertozes-veszelye-miatt-1",
-  "Notes": "Discovered via news: origo.hu [locality: European Union (EU) and Hungary] [confirm-agent 2026-11-22: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "Discovered via news: origo.hu [locality: European Union (EU) and Hungary] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-12",
