@@ -178,7 +178,15 @@ def supersede_archived_copies(xlsx_path, promoted_urls) -> int:
                     # one of [...]") — CFIA 2026-11-12 Archibald Inc. beer,
                     # pieces of metal. Moved together, per the 2026-09-30
                     # rule above.
-                    "is not one of")
+                    "is not one of",
+                    # 2026-11-22: merge_master.REPAIRABLE_DEFECTS gained
+                    # the gate's publisher-in-the-name-field verdict
+                    # ("Company 'lebensmittelwarnung.de' is the website
+                    # that published this notice, not the recalling
+                    # firm"), which two BVL rows in that morning's
+                    # workbook carried. Moved together, per the
+                    # 2026-09-30 rule above.
+                    "is the website that published this notice")
     wb = openpyxl.load_workbook(xlsx_path)
     want = {str(u).strip().lower() for u in promoted_urls if str(u).strip()}
     stamped = 0

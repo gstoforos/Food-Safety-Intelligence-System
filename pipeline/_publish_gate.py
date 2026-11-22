@@ -725,6 +725,18 @@ HAZARD_CLASS_KEYWORDS = {
         # Plant cardiac glycosides (2026-09-30: FDA Niwali tejocote, "products
         # contain yellow oleander (Thevetia peruviana)", classified as nothing).
         "oleander", "thevetia", "cardiac glycoside",
+        # 2026-11-22: RappelConso fiche 24142, Côté marché red potatoes
+        # (lot 26128774, Lidl), "Présence excessive de glycoalcaloïdes
+        # (substances naturelles de la pomme de terre)" — the same lot was
+        # recalled in Germany via Kaufland the same day. Refused at the
+        # Pending gate as pathogen_out_of_scope: the fourth plant toxin in
+        # a row (after pyrrolizidine, tropane, opium alkaloids) that this
+        # class could not see. tools/alert_vocab.py has carried "solanine"
+        # under "Mushroom / plant toxins" since it was written.
+        "glycoalkaloid", "glycoalcaloïde", "glycoalcaloide",   # EN / FR
+        "glykoalkaloid",                                         # DE
+        "glicoalcaloid", "glicoalcaloidi",                       # ES-PT / IT
+        "solanine", "solanin", "chaconine",
     ),
     # DELIBERATELY FRAMING-TOKEN ONLY. Bare food names ("milk", "nut",
     # "fish") must NOT appear here: RASFF Reason text routinely carries
@@ -1494,6 +1506,140 @@ _ENVIRONMENTAL_ONLY_HAZARD_MARKERS = (
     "groundwater", "ground water", "soil and groundwater",
     "umweltgefahr", "umweltrisiko", "pollute the soil", "damage the soil",
 )
+
+
+#: A HOUSEHOLD CHEMICAL IS NOT A FOOD EITHER (morning fix 2026-11-22).
+#:
+#: THE ROW THAT FOUND IT. On the morning of 2026-11-22 the register carried,
+#: PUBLISHED in Recalls and promoted the same night:
+#:
+#:     Date      2026-11-13
+#:     Source    NKFH (HU)
+#:     Company   Ardap Care GmbH (Németország)
+#:     Brand     Bactador
+#:     Product   Enzym cleaner
+#:     Pathogen  Pseudomonas aeruginosa
+#:     Reason    Pseudomonas aeruginosa contamination
+#:     URL       https://nkfh.gov.hu/hirek/termekvisszahivas-szag-es-
+#:               folteltavolito-tisztitoszer-visszahivasa-mikrobiologiai-
+#:               fertozes-veszelye-miatt-1
+#:
+#: The NKFH notice, read on 2026-11-22, calls it "Geruchs- und
+#: Fleckenentferner Enzymreiniger 750 ml" — a 750 ml spray bottle of enzyme
+#: cleaner for cleaning up after pets, reported to Hungary through the EU
+#: Safety Gate. A cleaning product, in a food recall register.
+#:
+#: SECOND INSTANCE FROM THE SAME COLLECTOR. The 2026-11-06 pass wrote
+#: _NON_FOOD_APPLIANCE_MARKERS for the NKFH electric shaver; that list is
+#: DURABLE GOODS and _NON_FOOD_PRODUCT_MARKERS beside it is COSMETICS.
+#: A detergent is neither, so every non-food rule in this file was vacuous
+#: on this row — exactly as they were on the shaver two weeks earlier.
+#: Pathogen was filled and filled correctly (Pseudomonas aeruginosa is a
+#: real contaminant and reaches an alert word), so rule 1 could not help.
+#:
+#: READ FROM Product AND THE URL SLUG ONLY — never from Reason. A food
+#: recall may legitimately say "cleaning agent residue in milk" in its
+#: Reason: there the detergent is the CONTAMINANT and the row is in scope.
+#: Product names what was recalled, so it is the field that decides.
+#:
+#: MEASURED over the whole 2026-11-22 workbook before wiring it in
+#: (Recalls 2481, Pending 17, Weekly_Review 63): the markers match the one
+#: row above and nothing else — 0 other published rows, 0 Pending rows, and
+#: 0 rows where only Reason matched. So it costs no publishable row.
+_NON_FOOD_HOUSEHOLD_PRODUCT_MARKERS = (
+    # English
+    "cleaner", "cleaning product", "cleaning agent", "detergent",
+    "laundry detergent", "dishwashing liquid", "stain remover",
+    "air freshener", "fabric softener", "disinfectant", "descaler",
+    "floor cleaner", "oven cleaner", "hand sanitiser", "hand sanitizer",
+    "nail polish", "lamp oil",
+    # the words the collectors' own URL slugs carry
+    "tisztitoszer", "tisztítószer", "mososzer", "mosószer",       # hu
+    "reiniger", "waschmittel", "fleckenentferner",                # de
+    "nettoyant", "lessive",                                       # fr
+    "detergente", "limpiador",                                    # it / es
+)
+
+
+def _non_food_household_product_blockers(row: Dict[str, Any]) -> List[str]:
+    """The thing recalled is a cleaning or household chemical product.
+
+    Reads Product and the URL slug. No network, no model, no vocabulary
+    that has to be kept in step with a regulator. Reason is deliberately
+    NOT read — see the note above the marker list.
+    """
+    blob = str(row.get("Product") or "").lower() + " " \
+        + str(row.get("URL") or "").lower().replace("-", " ")
+    for t in _NON_FOOD_HOUSEHOLD_PRODUCT_MARKERS:
+        if _word_in(blob, t):
+            return [
+                f"the row's own Product or URL names a cleaning or household "
+                f"chemical product ({t!r}) — a detergent is not a food, "
+                f"however the regulator files it, and this is a food recall "
+                f"register. If the row is really about a cleaning agent "
+                f"found IN a food, that belongs in Reason, not in Product"]
+    return []
+
+
+#: A FIRM NAME THAT CARRIES A CALENDAR DATE IS A NOTICE SENTENCE
+#: (morning fix 2026-11-22).
+#:
+#: THE ROW THAT FOUND IT. Published in Recalls on 2026-11-19:
+#:
+#:     Source   RappelConso (FR)
+#:     Company  "En Attente des Résultats D'Analyses,  Blocage des
+#:               Coquillages Récoltés Dans L'Étang de Thau à Partir du
+#:               16 Novembre 2026"
+#:     Brand    (the same 119-character sentence)
+#:     URL      https://rappel.conso.gouv.fr/fiche-rappel/24121/interne
+#:
+#: Read on the fiche on 2026-11-22: RappelConso's own "Nom de la marque du
+#: produit" field holds that sentence, because the prefectoral blocking
+#: order has no brand. The scraper copied it faithfully into Company AND
+#: Brand, and every firm-shape rule in this file passed it:
+#: _SECTION_HEADING_FIRMS knows website section headings, _AGENCY_ACRONYMS
+#: knows acronyms, the headline rule knows page titles. None knows a
+#: sentence that is simply not a name.
+#:
+#: The shape with no false positives is the DATE. A company or a brand
+#: never carries a calendar date; a notice sentence routinely does.
+#: MEASURED across the whole 2026-11-22 workbook — Recalls 2481, Pending
+#: 17, Weekly_Review 63, Rejected 4162, Weekly_Rejected 737, 7,460 rows in
+#: all — the pattern matches exactly ONE row, the one above, and its copy
+#: in Weekly_Review. Nothing else, in any sheet, in either field.
+_FIRM_NAME_MONTHS = (
+    r"(?:janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|"
+    r"octobre|novembre|d[ée]cembre|january|february|march|april|may|june|"
+    r"july|august|september|october|november|december|januar|februar|"
+    r"m[aä]rz|dezember|gennaio|febbraio|maggio|giugno|luglio|agosto|"
+    r"settembre|ottobre|dicembre|enero|febrero|marzo|abril|mayo|junio|"
+    r"julio|septiembre|octubre|noviembre|diciembre)"
+)
+_DATE_IN_A_NAME = re.compile(
+    r"\b\d{1,2}\s*(?:er\s+)?" + _FIRM_NAME_MONTHS + r"\s+\d{4}\b"
+    r"|\b\d{1,2}[./]\d{1,2}[./]\d{2,4}\b"
+    r"|\b" + _FIRM_NAME_MONTHS + r"\s+\d{1,2},?\s+\d{4}\b",
+    re.I,
+)
+
+
+def _dated_sentence_firm_blockers(row: Dict[str, Any]) -> List[str]:
+    """Company or Brand carries a calendar date, so it is not a name."""
+    out: List[str] = []
+    for field in ("Company", "Brand"):
+        val = str(row.get(field) or "").strip()
+        if not val:
+            continue
+        m = _DATE_IN_A_NAME.search(val)
+        if m:
+            out.append(
+                f"{field} {val[:60]!r} carries a calendar date "
+                f"({m.group(0)!r}) — a firm name never does, so this field "
+                f"holds a sentence from the notice rather than a name. The "
+                f"recalling party is on the notice (for a RappelConso fiche "
+                f"with no brand, 'Origine de la fiche')")
+            break
+    return out
 
 
 def _non_food_appliance_blockers(row: Dict[str, Any]) -> List[str]:
@@ -2432,6 +2578,17 @@ def publish_blockers(row: Dict[str, Any]) -> List[str]:
     #      2026-08-01 passenger car and bath toy, was vacuous here. See the
     #      measurement note above _NON_FOOD_APPLIANCE_MARKERS.
     problems.extend(_non_food_appliance_blockers(row))
+
+    # 10b-ii. A CLEANING PRODUCT IS NOT A FOOD EITHER (2026-11-22).
+    #      The durable-goods list above and the cosmetics list beside it
+    #      were both vacuous on the NKFH Bactador enzyme cleaner published
+    #      on 2026-11-22. See _NON_FOOD_HOUSEHOLD_PRODUCT_MARKERS.
+    problems.extend(_non_food_household_product_blockers(row))
+
+    # 10b-iii. A FIRM NAME NEVER CARRIES A CALENDAR DATE (2026-11-22).
+    #      See _DATE_IN_A_NAME for the Étang de Thau row and the
+    #      measurement over all 7,460 rows of that morning's workbook.
+    problems.extend(_dated_sentence_firm_blockers(row))
 
     # 10c. THE HAZARD MUST BE REACHABLE BY AN ALERT (2026-11-07).
     problems.extend(_unreachable_hazard_blockers(row))

@@ -1207,6 +1207,30 @@ def validate_pending_row(
         if _nf:
             return False, f"non_food_appliance: {_nf[0]}"
 
+    # ── A CLEANING PRODUCT, AND A FIRM NAME THAT IS A DATED SENTENCE
+    #    (2026-11-22) ─────────────────────────────────────────────────
+    # Same doorway argument as the appliance rule above, and the same two
+    # rows that forced it: the NKFH Bactador enzyme cleaner published on
+    # 2026-11-22, and the RappelConso Étang de Thau fiche whose Company
+    # and Brand both held the blocking notice's own sentence. Imported,
+    # never copied, so the publish gate and this gate cannot drift.
+    try:
+        from pipeline._publish_gate import (
+            _non_food_household_product_blockers,
+            _dated_sentence_firm_blockers,
+        )
+    except ImportError:                                 # pragma: no cover
+        _non_food_household_product_blockers = None
+        _dated_sentence_firm_blockers = None
+    if _non_food_household_product_blockers is not None:
+        _hh = _non_food_household_product_blockers(row)
+        if _hh:
+            return False, f"non_food_household_product: {_hh[0]}"
+    if _dated_sentence_firm_blockers is not None:
+        _ds = _dated_sentence_firm_blockers(row)
+        if _ds:
+            return False, f"firm_name_is_a_dated_sentence: {_ds[0]}"
+
     # Extraction garbage
     company_lc = company.lower()
     brand_lc = str(row.get("Brand", "") or "").strip().lower()
@@ -1917,6 +1941,9 @@ def append_to_pending(
     # Decide which existing-pending rows to drop (rejected rows being re-scraped).
     indices_to_drop: set = set()
     fresh_rows: List[Dict[str, Any]] = []
+    #: Keys queued by THIS call. See the 2026-11-22 note at the bottom of
+    #: the loop: without it, one batch can queue the same recall twice.
+    queued_keys_this_batch: set = set()
     retried = 0
     appended = 0
     appended_enrichment = 0
@@ -2028,6 +2055,10 @@ def append_to_pending(
                 d["ScrapedAt"] = scraped_at
                 d["Status"] = new_status
                 fresh_rows.append(d)
+                queued_keys_this_batch.add(k)
+                _u_rq = _normalize_url_for_dedup(str(d.get("URL", "") or ""))
+                if _u_rq:
+                    existing_urls.add(_u_rq)
                 retried += 1
                 _record(d, "requeued",
                         "replaced the rejected Pending row with this key")
@@ -2039,10 +2070,41 @@ def append_to_pending(
                         % (existing_status or "pending"))
             continue
 
+        # ── ONE ROW PER URL, WITHIN ONE BATCH TOO (2026-11-22) ─────────
+        # `existing_urls` and `pending_by_key` are both built ONCE, before
+        # this loop, from the workbook. Nothing in the loop updated them,
+        # so two rows in the SAME batch that name the same recall both
+        # passed every check above and both landed.
+        #
+        # THE ROWS THAT FOUND IT. On the morning of 2026-11-22 Pending
+        # held AESAN alert 2026_86 twice — www.aesan.gob.es/alertas/2026_86
+        # and aesan.gob.es/alertas/2026_86, one "www." apart, both with
+        # ScrapedAt 2026-11-21T08:41:32Z, i.e. the same append call.
+        # _normalize_url_for_dedup collapses that pair correctly; it was
+        # simply never asked about a row queued a moment earlier.
+        # Reproduced directly against this function: two rows with the
+        # BYTE-IDENTICAL URL also both land.
+        #
+        # The cost is the one tests/test_pending_holds_one_row_per_url
+        # names: reviewer 2 indexes Pending as url_to_idx[url] = i, one
+        # slot per URL, last write wins — so every copy but the last is
+        # invisible to it and can never be corrected, promoted or refused,
+        # while reviewer 3 holds it and the offline promoter reports it
+        # every morning.
+        if k in queued_keys_this_batch:
+            already_pending += 1
+            _record(d, "already-pending",
+                    "an earlier row in this same batch has this key")
+            continue
+
         # Brand new key
         d["ScrapedAt"] = scraped_at
         d["Status"] = new_status
         fresh_rows.append(d)
+        queued_keys_this_batch.add(k)
+        _u_fresh = _normalize_url_for_dedup(str(d.get("URL", "") or ""))
+        if _u_fresh:
+            existing_urls.add(_u_fresh)
         if needs_enrichment:
             appended_enrichment += 1
             _record(d, "queued-enrichment",
@@ -2951,6 +3013,23 @@ def promote_approved(
                 # swallow a scope verdict. Condition 2 — the full publish
                 # gate must pass on the repaired row — is unchanged.
                 "is not one of",
+                # ── 2026-11-22. THE PUBLISHER IN THE NAME FIELD. ────────
+                # Fifth instance of the 2026-10-05 Mattilsynet shape. The
+                # gate's verdict "Company 'lebensmittelwarnung.de' is the
+                # website that published this notice, not the recalling
+                # firm" is a judgement on a FIELD's shape in the same
+                # sense as "holds the notice headline" directly above: the
+                # scraper put the publisher's host where the firm belongs,
+                # and the firm is on the notice. Two BVL rows carry it in
+                # this workbook and neither could be re-promoted after
+                # repair; tests/test_every_field_defect_is_repairable
+                # went red on exactly those two.
+                #
+                # The phrase is the gate's own wording and the gate emits
+                # it only for Company and Brand, so it cannot swallow a
+                # scope verdict. Condition 2 — the full publish gate must
+                # pass on the repaired row — is unchanged.
+                "is the website that published this notice",
             )
             _low = _prior_reason.lower()
             if any(d in _low for d in REPAIRABLE_DEFECTS):

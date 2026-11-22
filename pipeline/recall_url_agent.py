@@ -804,8 +804,47 @@ def main() -> int:
         rejected_flags=rejected_flags,
         archive_immediately=False,   # first reviewer: stamp, don't hard-evict
     )
-    final_approved = sort_rows(approved_existing + new_approved)
-    final_pending = sort_rows(remaining)
+
+    # ── REVIEWER 1 NEVER PUBLISHES (morning fix 2026-11-22) ─────────────
+    # The verify-and-tag-only rule has been locked since 2026-04-30 and is
+    # written down twice: in merge_master.promote_approved's own docstring
+    # ("Reviewer 1 = URL gate … NEVER promotes to Recalls") and in
+    # url_gate_gemini.py, the agent this file replaced, which ends its run
+    # with `new_approved = []  # nothing promoted from this gate` and
+    # `final_approved = sort_rows(approved)  # Recalls untouched`.
+    #
+    # THOSE TWO LINES WERE LOST IN THE REWRITE. `archive_immediately=False`
+    # only softens the ARCHIVING half; promote_approved still returns rows
+    # to publish, and this agent was saving them straight into Recalls.
+    #
+    # MEASURED over this agent's last 14 runs (2026-11-17 → 2026-11-22):
+    # it published 14 rows into Recalls on 5 of those runs, every one of
+    # them before reviewer 2 or reviewer 3 had seen the row.
+    #
+    # THE ROW THAT FOUND IT. On 2026-11-20 at 13:48 UTC this agent
+    # published the NCC (ZA) "Deli Hummus range" media statement — dated
+    # 3 October 2024 on the NCC's own page, carried into Recalls with
+    # Date 2026-11-20, Tier 1, inside the open week W47 — over an operator
+    # verdict of 2026-11-06 that archived the same URL as "TERMINAL,
+    # UPHELD … roughly 22 months stale". The operator's note predicted it
+    # in as many words: "every morning the only thing between it and
+    # publication is merge_master's re-promotion guard."
+    #
+    # Rows that would have been promoted go BACK INTO PENDING at the
+    # status reviewer 1 gave them, which is what the architecture says
+    # happens: reviewer 3 (pipeline/recall_confirm_agent.py) publishes,
+    # three times a day. Nothing is dropped and nothing is archived here.
+    if new_approved:
+        for _r in new_approved:
+            _n = str(_r.get("Notes") or "").strip()
+            _mark = "[reviewer-1 holds: verify-and-tag-only"
+            if _mark not in _n:
+                _r["Notes"] = (
+                    _n + f" {_mark}; reviewer 3 publishes]").strip()[:1000]
+        print(f"  reviewer 1 held {len(new_approved)} row(s) in Pending "
+              f"rather than publishing them (verify-and-tag-only rule)")
+    final_approved = sort_rows(approved_existing)   # Recalls untouched
+    final_pending = sort_rows(remaining + new_approved)
     save_xlsx_with_pending(final_approved, final_pending, Path(args.xlsx),
                            newly_rejected_rows=archived)
 
