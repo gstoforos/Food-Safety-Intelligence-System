@@ -1780,6 +1780,19 @@ def _is_terminal_rejection(desc: str) -> bool:
     #
     # UNRESOLVED is deliberately NOT listed. It marks a contradiction nobody
     # has decided yet; only SUPERSEDED is a decision.
+    # ── EXCEPT A DUPLICATE VERDICT (outbreak check 2026-11-22) ──────────
+    # The duplicate-verdict veto in promote_approved only fires when the
+    # verdict the guard QUOTES carries "duplicate_of_published_recall". The
+    # SUPERSEDED test just above made every such verdict non-terminal, and
+    # load_rejected_urls keeps the first verdict unless a later one is
+    # terminal — so an older "[SUPERSEDED … DUPLICATE — the published copy
+    # wins …]" row (FSA article/6920, Greencore, morning fix 2026-11-04) was
+    # quoted instead, the veto never saw its token, and the URL was
+    # re-published on 2026-11-20. The token is now terminal even beside a
+    # SUPERSEDED marker or a copied Notes stamp that says "superseded": a
+    # duplicate verdict is about the register, not about a repairable defect.
+    if "duplicate_of_published_recall" in d.lower():
+        return True
     if "superseded" in d.lower():
         return False
     # A "not a microbial pathogen" refusal of a hazard that IS in scope is a

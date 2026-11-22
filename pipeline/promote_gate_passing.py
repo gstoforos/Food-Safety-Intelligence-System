@@ -395,6 +395,32 @@ def main() -> int:
     # now satisfy every gate rule are moved to 'pending' here, with the reason
     # stamped, so the promotion is auditable from the sheet.
     ready = [r for r in pend if not publish_blockers(r)]
+
+    # ── ONE ALERT, TWO ADDRESSES: THE CONFIRM AGENT'S RULE, HERE TOO ──────
+    # (outbreak check 2026-11-22). recall_confirm_agent.duplicate_problems
+    # already refuses a second copy of an alert that a host serves at two
+    # URL forms (FSA: news-alerts/alert/fsa-prin-NN-YYYY and article/<n>/…).
+    # This path never asked it, so on 2026-11-20 and 2026-11-22 it
+    # published alerts.food.gov.uk/article/6920 (Greencore, = FSA-PRIN-48-
+    # 2026, published since 2026-10-10) and article/7000 (Hotel Chocolat,
+    # = FSA-PRIN-54-2026, published 2026-11-21) as second rows — the same
+    # shape as October's false SuperValu outbreak row. A row the rule
+    # refuses is LEFT in Pending (this script never archives); the morning
+    # fix decides it.
+    try:
+        from pipeline.recall_confirm_agent import duplicate_problems
+        _dups = [(r, duplicate_problems(r, rec)) for r in ready]
+        _dups = [(r, p) for r, p in _dups if p]
+        if _dups:
+            _held = {id(r) for r, _ in _dups}
+            ready = [r for r in ready if id(r) not in _held]
+            for r, p in _dups:
+                print(f"   HELD (duplicate of a published alert): "
+                      f"{str(r.get('URL'))[:80]} | {p[0][:120]}")
+    except Exception as _de:                                 # noqa: BLE001
+        print(f"duplicate check unavailable — promoting nothing "
+              f"({type(_de).__name__}: {str(_de)[:80]})")
+        ready = []                                           # fail closed
     print(f"Pending {len(pend)} rows — pass the full publish gate: {len(ready)}")
     for r in ready:
         print(f"   {str(r.get('Date'))[:10]} {str(r.get('Source'))[:14]:15} "
