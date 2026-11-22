@@ -3,13 +3,13 @@
     {
       "date": "2026-11-21",
       "url": "daily/2026-11-21.html",
-      "total": 3,
-      "tier1": 2,
+      "total": 2,
+      "tier1": 1,
       "outbreak": 0,
       "by_region": {
-        "Europe": 3
+        "Europe": 2
       },
-      "generated": "2026-11-22T08:24:08Z"
+      "generated": "2026-11-22T11:14:07Z"
     },
     {
       "date": "2026-11-20",
