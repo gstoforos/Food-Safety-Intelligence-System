@@ -498,6 +498,10 @@ NATURAL_TOXINS = {
     "alcaloïdes tropaniques",                             # French
     "τροπανικ",                          # Greek stem
     "tropán alkaloidok",                 # Hungarian
+    # 2026-11-22: potato glycoalkaloids (solanine, chaconine) — RappelConso
+    # fiche 24142 and the Kaufland recall of the same Parmentine lot.
+    "glycoalkaloid", "glycoalcaloïde", "glycoalcaloide", "glykoalkaloid",
+    "solanine", "solanin", "chaconine",
     "tropaanialkaloidit",                # Finnish
     "atropine", "ατροπίνη", "ατροπινη", "atropina", "atropin",
     "scopolamine", "σκοπολαμίνη", "σκοπολαμινη",

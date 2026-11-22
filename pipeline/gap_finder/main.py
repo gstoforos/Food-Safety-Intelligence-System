@@ -442,6 +442,68 @@ def refuse_non_food_appliances(
     return keep, refused
 
 
+def refuse_terminally_rejected(
+        rows: list[dict], xlsx_path: str) -> tuple[list[dict], list[dict]]:
+    """(keep, refused) — a row whose URL already carries a TERMINAL verdict.
+
+    THE SIDE DOOR INTO PENDING (morning fix 2026-11-22)
+    ---------------------------------------------------
+    ``merge_master.append_to_pending`` has held a terminal-rejection guard
+    since 2026-08-31: a URL whose archived verdict ``_is_terminal_rejection``
+    recognises — an operator review, an upheld scope decision — is never
+    re-ingested. Every scraper and every manual inject passes through it.
+
+    ``write_pending_rows`` below does not. It writes the Pending sheet
+    directly with ``_append_rows`` and its only test is "is this exact URL
+    string already in Pending or Recalls". So the whole gap-finder fleet
+    has been a doorway into Pending with no terminal guard, no
+    ``validate_pending_row``, and no near-duplicate check. This is the same
+    shape as the 2026-11-06 finding one function above: a rule put in one
+    doorway while the fleet walks through another.
+
+    THE ROW THAT FOUND IT. On 2026-11-20 at 11:53 UTC the fleet
+    ("Gap finder fleet: 2026-11-20 shard of 8 countries") wrote the NCC (ZA)
+    "Deli Hummus range" media statement into Pending at Status "pending".
+    An operator had archived that exact URL on 2026-11-06 as "TERMINAL,
+    UPHELD … roughly 22 months stale" — the NCC's own page is dated
+    3 October 2024 — after it had already been rejected eight times.
+    Reviewer 1 published it just under two hours later, so a 2024 recall
+    reached the register dated 2026-11-20, Tier 1, inside the open week.
+
+    MEASURED on the 2026-11-22 workbook: ``load_rejected_urls`` returns a
+    terminal verdict for that URL, so this guard would have refused the row
+    at the doorway it actually came through.
+
+    Imported, never copied, so the fleet's guard and merge_master's cannot
+    drift.
+    """
+    try:
+        from pipeline.merge_master import (
+            load_rejected_urls, _is_terminal_rejection,
+            _normalize_url_for_dedup,
+        )
+    except Exception:                                   # pragma: no cover
+        return list(rows), []
+    try:
+        terminal = {u: d for u, d in load_rejected_urls(Path(xlsx_path)).items()
+                    if _is_terminal_rejection(d)}
+    except Exception:                                   # pragma: no cover
+        return list(rows), []
+    keep: list[dict] = []
+    refused: list[dict] = []
+    for r in rows:
+        u = _normalize_url_for_dedup(str(r.get("URL") or ""))
+        verdict = terminal.get(u) if u else None
+        if verdict:
+            refused.append(_stamp_refusal(
+                r, "terminal_rejection",
+                "this URL already carries a terminal verdict: "
+                + str(verdict)[:220]))
+        else:
+            keep.append(r)
+    return keep, refused
+
+
 def _stamp_refusal(row: dict, rule: str, why: str) -> dict:
     """A refused row carries its verdict in every column the sheet names.
 
@@ -526,11 +588,46 @@ def write_pending_rows(rows: list[dict], xlsx_path: str) -> tuple[int, int, int]
         except Exception as exc:                        # pragma: no cover
             print(f"    WARNING: could not archive them: {exc}",
                   file=sys.stderr)
+    # A URL an operator has already settled never comes back through this
+    # door either. See refuse_terminally_rejected above for the NCC Deli
+    # Hummus row of 2026-11-20.
+    rows, terminal = refuse_terminally_rejected(rows, xlsx_path)
+    if terminal:
+        print(f"  [terminal] refused {len(terminal)} row(s) whose URL "
+              f"already carries a terminal verdict; archived to "
+              f"{REJECTED_SHEET}", file=sys.stderr)
+        for r in terminal:
+            print(f"    {str(r.get('Date'))[:10]} {str(r.get('URL'))[:90]}",
+                  file=sys.stderr)
+        try:
+            write_rejected_rows(terminal, xlsx_path)
+        except Exception as exc:                        # pragma: no cover
+            print(f"    WARNING: could not archive them: {exc}",
+                  file=sys.stderr)
+
     pending_urls = _load_existing_urls(xlsx_path, PENDING_SHEET)
     recalls_urls = _load_existing_urls(xlsx_path, RECALLS_SHEET)
 
-    pre_recalls_skip = sum(1 for r in rows if (r.get("URL") or "").strip() in recalls_urls)
-    rows_not_in_recalls = [r for r in rows if (r.get("URL") or "").strip() not in recalls_urls]
+    # ── DEDUP ON THE NORMALISED URL (2026-11-22) ────────────────────────
+    # The raw-string comparison this used to make saw
+    # "https://www.aesan.gob.es/alertas/2026_86" and
+    # "https://aesan.gob.es/alertas/2026_86" as two different recalls.
+    # merge_master._normalize_url_for_dedup is the function the rest of the
+    # register keys on — protocol, "www.", trailing slash, tracking params
+    # and the per-host identity rules (admin.ch, AESAN, FSA) — so the
+    # fleet's door now asks the same question every other door asks.
+    try:
+        from pipeline.merge_master import _normalize_url_for_dedup as _nrm
+    except Exception:                                   # pragma: no cover
+        def _nrm(u: str) -> str:                        # type: ignore[misc]
+            return str(u or "").strip()
+    pending_urls = {_nrm(u) for u in pending_urls} | pending_urls
+    recalls_norm = {_nrm(u) for u in recalls_urls}
+
+    pre_recalls_skip = sum(1 for r in rows
+                           if _nrm(r.get("URL") or "") in recalls_norm)
+    rows_not_in_recalls = [r for r in rows
+                           if _nrm(r.get("URL") or "") not in recalls_norm]
 
     appended, pending_skipped = _append_rows(
         xlsx_path, PENDING_SHEET, rows_not_in_recalls, pending_urls
