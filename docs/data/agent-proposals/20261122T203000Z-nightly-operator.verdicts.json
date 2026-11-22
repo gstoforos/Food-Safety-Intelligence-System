@@ -1,0 +1,37 @@
+[
+  {
+    "proposal_id": "49468f7aa51aad88",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 6"
+  },
+  {
+    "proposal_id": "1206e9771732debe",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 13"
+  },
+  {
+    "proposal_id": "6b621767810df828",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 11"
+  },
+  {
+    "proposal_id": "6a9b5b263aa004f7",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 14"
+  },
+  {
+    "proposal_id": "1348960c0257cdad",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 29"
+  }
+]
