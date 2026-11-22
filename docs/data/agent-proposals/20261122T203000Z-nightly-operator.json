@@ -1,0 +1,227 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261122T203000Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne"
+      },
+      "changes": {
+        "Company": "Cooperative U Enseigne U",
+        "Brand": "Unbranded",
+        "Product": "Brioche bread x32, 400 g, GTIN 3251517091006, lot 6260",
+        "Pathogen": "Foreign material",
+        "Reason": "Physical risk (suspected foreign body)",
+        "Date": "2026-11-20",
+        "Notes": "magasins u [offline-enrich 2026-11-22: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [nightly operator 2026-11-22: fiche 24127 re-read tonight; fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired]"
+      },
+      "reason": "nightly operator 2026-11-22: fiche 24127 (20/11/2026): Company empty, Product and Reason French. Same decision as unmerged PRs #50/#51.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+          "quote": "Pain brioché x32 400g",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+          "quote": "3251517091006",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+          "quote": "6260",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+          "quote": "Risque physique (suspicion de corps étranger)",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
+          "quote": "COOPERATIVE U ENSEIGNE U ENSEIGNE",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne"
+      },
+      "changes": {
+        "Company": "Cooperative U Enseigne U",
+        "Brand": "Unbranded",
+        "Product": "Vanilla praline rolled Yule log cake (GTIN 2000000324418, lots 1/288/26 - 1/289/26); chocolate praline Rocher log cake (GTIN 2000000278902, lot 1/286/26)",
+        "Pathogen": "Foreign material (stones)",
+        "Reason": "Physical risk: possible presence of small stone-type foreign bodies in 2/4 mm hazelnut pieces",
+        "Date": "2026-11-16",
+        "Notes": "magasins u [offline-enrich 2026-11-16: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [nightly operator 2026-11-22: fiche 24089 re-read tonight; fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired]"
+      },
+      "reason": "nightly operator 2026-11-22: fiche 24089 (16/11/2026): Company empty (confirm-agent hold), Product and Reason French. Same decision as unmerged PR #51.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Bûchette Rocher chocolat praliné",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "2000000324418",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "2000000278902",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "cailloux dans des éclats de noisette 2/4mm",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "COOPERATIVE U ENSEIGNE U ENSEIGNE",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne"
+      },
+      "changes": {
+        "Company": "Even Lait Industrie",
+        "Brand": "Paysan Breton",
+        "Product": "Paysan Breton fromage blanc (fresh white cheese) 0%, 5 kg pail, GTIN 3412290026917, use-by 01/12/2026",
+        "Pathogen": "Chemical contaminant (cleaning product residue)",
+        "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: other chemical contaminants)",
+        "Date": "2026-11-18",
+        "Notes": "lcm 62 billy, lcm 33 cestas [nightly operator 2026-11-22: fiche 24109 re-read tonight; fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired]"
+      },
+      "reason": "nightly operator 2026-11-22: fiche 24109 (18/11/2026): firm EVEN LAIT INDUSTRIE; chemical contaminant in scope; Product and Reason French.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "EVEN LAIT INDUSTRIE",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "3412290026917",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "Autres contaminants chimiques",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24109/interne",
+          "quote": "Fromage blanc Paysan Breton 0% Seau 5kg",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne"
+      },
+      "changes": {
+        "Company": "Even Lait Industrie",
+        "Brand": "Belle France",
+        "Product": "Belle France fromage blanc (fresh white cheese) 0% and 3%, 500 g and 1 kg (GTIN 3258561419695, 3258561419701, 3258561419718, 3258561419725), use-by 01/12/2026",
+        "Pathogen": "Chemical contaminant (cleaning product residue)",
+        "Reason": "Possible contamination by cleaning products at doses presenting no risk to consumer health (RappelConso: other chemical contaminants)",
+        "Date": "2026-11-16",
+        "Notes": "diapar, codifrance, segurel&fils [nightly operator 2026-11-22: fiche 24097 re-read tonight; fields read on the fiche, French translated, needs-cleanup stamps removed because the defects are repaired]"
+      },
+      "reason": "nightly operator 2026-11-22: fiche 24097 (16/11/2026): firm EVEN LAIT INDUSTRIE; chemical contaminant in scope; Product and Reason French.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "EVEN LAIT INDUSTRIE",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "3258561419695",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Autres contaminants chimiques",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24097/interne",
+          "quote": "Fromage blanc Belle France 0% 500g",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne"
+      },
+      "changes": {
+        "Pathogen": "Hydrocyanic acid"
+      },
+      "reason": "nightly operator 2026-11-22: published row 24119: Pathogen carried the French term '(acide cyanhydrique)' and a '— chemical hazard' suffix in an English field.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne",
+          "quote": "Acide cyanhydrique supérieur à la teneur maximale",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne",
+          "quote": "Autres contaminants chimiques",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne",
+          "quote": "GRAINE DE LIN 650G METRO CHEF",
+          "retrieved_utc": "2026-11-22T20:15:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}
