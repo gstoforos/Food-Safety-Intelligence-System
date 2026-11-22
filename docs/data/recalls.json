@@ -1,10 +1,10 @@
 [
  {
-  "Date": "2026-11-21",
+  "Date": "2026-11-20",
   "Source": "HAH (HR)",
   "Company": "Mijukić-Prom",
   "Brand": "Mijukić-Prom",
-  "Product": "Sausage cubes VP, 0.55kg",
+  "Product": "Pancetta cubes VP, 0.55 kg, LOT 918N33, best before 20.03.2027",
   "Pathogen": "Listeria monocytogenes",
   "Reason": "The product is not in compliance with Commission Regulation (EC) No 2073/2005 on microbiological criteria for foodstuffs due to possible presence of Listeria monocytogenes in the raw materials used for production.",
   "Class": "Recall",
@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.hapih.hr/opoziv-proizvoda-mijukic-prom-panceta-kockice-vp-055kg/",
-  "Notes": "Discovered via news: index.hr [locality: Croatia] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
+  "Notes": "Discovered via news: index.hr [locality: Croatia] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [daily-global review 2026-11-22c: Date 2026-11-21 -> 2026-11-20 (HAPIH notice dated '20. studenoga 2026.'; 11-21 was the index.hr discovery day) and Product 'Sausage cubes' -> pancetta cubes with the lot and best-before read on the page] [original product: Panceta kockice VP, 0,55kg]"
  },
  {
   "Date": "2026-11-21",
@@ -46,22 +46,6 @@
   "Outbreak": 0,
   "URL": "https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Cartello%20richiamo%20_2__1795102441.pdf",
   "Notes": "Discovered via news: ilfattoalimentare.it [locality: Vicenza, Italy] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2]"
- },
- {
-  "Date": "2026-11-20",
-  "Source": "NCC (ZA)",
-  "Company": "BM Foods (a member of Sea Harvest Group)",
-  "Brand": "Shoprite Checkers",
-  "Product": "Deli Hummus range",
-  "Pathogen": "Listeria Monocytogenes",
-  "Reason": "Detected Listeria Monocytogenes",
-  "Class": "Recall",
-  "Country": "South Africa",
-  "Region": "Africa",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://thencc.org.za/media-statement-deli-hummus-range-product-safety-recall/",
-  "Notes": "Discovered via news: iol.co.za [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [re-promotion allowed 2026-09-27: was archived as 'unknown:  | REJECTED: Arrived already marked rejected; confirmer did not re-review | Discovered via news: iol.co.za [safety-hold: reviewed but not approved this'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-20",
@@ -242,34 +226,34 @@
  {
   "Date": "2026-11-19",
   "Source": "RappelConso (FR)",
-  "Company": "En Attente des Résultats D'Analyses,  Blocage des Coquillages Récoltés Dans L'Étang de Thau à Partir du 16 Novembre 2026",
-  "Brand": "En Attente des Résultats D'Analyses,  Blocage des Coquillages Récoltés Dans L'Étang de Thau à Partir du 16 Novembre 2026",
-  "Product": "en attente des résultats d'analyses,  blocage des coquillages récoltés dans l'étang de thau à partir du 16 novembre 2026",
+  "Company": "Comité Régional de la Conchyliculture de Méditerranée",
+  "Brand": "Unbranded",
+  "Product": "Shellfish harvested in the Étang de Thau from 16 November 2026 (all pack formats: wooden baskets, loose, trays); health marks beginning FR 34.",
   "Pathogen": "Marine biotoxin",
-  "Reason": "Biotoxines psp par mesure de précaution",
+  "Reason": "PSP marine biotoxins (paralytic shellfish poisoning toxins) — harvesting blocked as a precaution pending analysis results",
   "Class": "Mandatory",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24121/interne",
-  "Notes": "producteurs en vente directe, marchés locaux ou régionaux, produits revendus par détaillants, grandes et moyennes surfac [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "producteurs en vente directe, marchés locaux ou régionaux, produits revendus par détaillants, grandes et moyennes surfac   [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-11-22: read on fiche 24121 today (Fiche réf. 2026-11-0130 • Version 1, 19/11/2026, Catégorie \"Alimentation\", Sous-catégorie \"Produits de la pêche et d'aquaculture\"). Company and Brand both held the fiche's own subtitle sentence, which is what its \"Nom de la marque du produit\" field contains: this is a prefectoral blocking order (\"Nature juridique du rappel: Imposé par arrêté préfectoral\") with no brand. Company is now \"Origine de la fiche\" as printed (COMITE REGIONAL DE LA CONCHYLICULTURE DE LA MEDITERRANEE) and Brand is Unbranded. Product translated from the H1; Reason translated from \"Motif du rappel: Biotoxines PSP par mesure de précaution\" and \"Risques: Biotoxines marines PSP (toxines paralysantes)\". [original company/brand: \"En attente des résultats d'analyses, blocage des coquillages récoltés dans l'étang de Thau à partir du 16 novembre 2026\"] [original product: \"par mesure de précaution, blocage des coquillages récoltés dans l'étang de Thau à partir du 16 novembre 2026\"] [original Reason (fr): \"Biotoxines PSP par mesure de précaution\"]]"
  },
  {
   "Date": "2026-11-19",
   "Source": "RappelConso (FR)",
   "Company": "Le Cabrichou",
   "Brand": "Le Cabrichou",
-  "Product": "crottin frais nature sans sel x 6; référence crss6ca",
+  "Product": "Fresh plain salt-free crottin cheese, x 6, reference CRSS6CA, lot 24432, best before 17/11/2026",
   "Pathogen": "Salmonella",
-  "Reason": "Suspicion de présence de Salmonella",
+  "Reason": "Suspected presence of Salmonella",
   "Class": "Voluntary",
   "Country": "France",
   "Region": "Europe",
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24108/interne",
-  "Notes": "biocoop bas canal à pantin; le retour a la terre rive gauche à paris 5ème; naturalia plateforme garonor plateforme [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule]"
+  "Notes": "biocoop bas canal à pantin; le retour a la terre rive gauche à paris 5ème; naturalia plateforme garonor plateforme   [promote 2026-11-19: status 'pending'->'pending' — passes every publish-gate rule] [morning fix 2026-11-22: read on fiche 24108 today (Fiche réf. 2026-11-0118 • Version 1, 19/11/2026, Sous-catégorie \"Lait et produits laitiers\", \"Noms des modèles ou références: Crottin frais nature sans sel x 6 référence CRSS6CA\", lot 24432, DDM 17/11/2026). [original product: \"crottin frais nature sans sel x 6; référence crss6ca\"] [original Reason (fr): \"Suspicion de présence de Salmonelles\"]]"
  },
  {
   "Date": "2026-11-19",
@@ -461,7 +445,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24099/interne",
-  "Notes": "magasins carnivor et alphaprim [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule] [repair 2026-11-19: Product was published as the French \"saucisse italienne\" and carried reviewer 3's \"[needs cleanup: Product not in English]\" stamp, which has no model and could not translate it. Read today on https://rappel.conso.gouv.fr/fiche-rappel/24099/interne (Fiche rereferences 2026-11-0109, Version 1, published 18/11/2026): title and \"Noms des modeles ou references\" both \"SAUCISSE ITALIENNE\", brand \"GRILLO PARTY\", \"Motif du rappel\" \"detection salmonelle spp\", GTIN 3700502708950, lot 26313-4569, DLC 17/11/2026. Translated faithfully and nothing added; the stamp is removed because the defect it named is repaired. [original product: saucisse italienne]"
+  "Notes": "magasins carnivor et alphaprim [promote 2026-11-18: status 'pending'->'pending' — passes every publish-gate rule] [repair 2026-11-19: Product was published as the French \"saucisse italienne\" and carried reviewer 3's \"\" stamp, which has no model and could not translate it. Read today on https://rappel.conso.gouv.fr/fiche-rappel/24099/interne (Fiche rereferences 2026-11-0109, Version 1, published 18/11/2026): title and \"Noms des modeles ou references\" both \"SAUCISSE ITALIENNE\", brand \"GRILLO PARTY\", \"Motif du rappel\" \"detection salmonelle spp\", GTIN 3700502708950, lot 26313-4569, DLC 17/11/2026. Translated faithfully and nothing added; the stamp is removed because the defect it named is repaired. [original product: saucisse italienne] [morning fix 2026-11-22: the Product on this row was already translated on an earlier pass; the stale needs-cleanup stamp is removed so later passes do not re-open a finished row.]"
  },
  {
   "Date": "2026-11-18",
@@ -1389,7 +1373,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://www.blv.admin.ch/de/newnsb/BRX4VP3-xxIP",
-  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG\" [review-agent 2026-11-14: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [morning fix pass 2026-11-15: Product was published in German and carried no '[needs cleanup: Product not in English]' stamp — the detector needs two non-English word hits and this is one hyphenated compound plus a weight, which is the short-name blind spot the standing instruction to read every Product published in the last 26 h exists for. Translated from this row's own captured FSVO title, 'Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG'. The weight is the notice's own; no lot, species or pack detail is added. [original product: Mini-Hähnchenbrust-Filetstücke 150g]]"
+  "Notes": "listing (deterministic parse); FSVO title: \"Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG\" [review-agent 2026-11-14: reviewed and approved at status 'pending'; fields verified against the source, status left unchanged] [morning fix pass 2026-11-15: Product was published in German and carried no '' stamp — the detector needs two non-English word hits and this is one hyphenated compound plus a weight, which is the short-name blind spot the standing instruction to read every Product published in the last 26 h exists for. Translated from this row's own captured FSVO title, 'Öffentliche Warnung: Listerien in Mini-Hähnchenbrust-Filetstücken 150g, verkauft bei ALDI SUISSE AG'. The weight is the notice's own; no lot, species or pack detail is added. [original product: Mini-Hähnchenbrust-Filetstücke 150g]] [morning fix 2026-11-22: the Product on this row was already translated on an earlier pass; the stale needs-cleanup stamp is removed so later passes do not re-open a finished row.]"
  },
  {
   "Date": "2026-11-13",
@@ -1422,22 +1406,6 @@
   "Outbreak": 0,
   "URL": "https://www.foedevarestyrelsen.dk/nyheder/tilbagekaldte-produkter/2026/nov/tilbagekald-salmonella-i-chicken-gyros",
   "Notes": "Tilbagekald: Salmonella i Chicken gyros - Fødevarestyrelsen # Tilbagekald: Salmonella i Chicken gyros 13-11-2026 The Lidl Danmark tilbagekalder Chicken gyros af mærket Eridanous, da der er fundet Salmonella i produktet. Har du produktet, bør du enten levere det tilbage til butikken, hvor det er k [via Exa gap-finder, deterministic extract] [url-agent 2026-11-16: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-11-17: pending_gap_v1→pending_gap_v2 URL confirmed] [morning fix 2026-11-18: three fields were scrambled and the publish gate held the row on the one it checks. Product was \"Fødevarestyrelsen\" — the authority's own name — and Company and Brand both held the Danish headline \"Tilbagekald: Salmonella i Chicken gyros\". THE ANSWER WAS ALREADY IN THIS ROW'S OWN NOTES, in the captured lead sentence: \"The Lidl Danmark tilbagekalder Chicken gyros af mærket Eridanous, da der er fundet Salmonella i produktet.\" Confirmed on the Fødevarestyrelsen page today: heading \"Tilbagekald: Salmonella i Chicken gyros\", dated 13-11-2026; \"Hvem tilbagekalder produktet\" gives \"Lidl Danmark K/S, Carl Blochs Gade 89, 8000 Aarhus C\"; \"af mærket Eridanous\"; \"Nettovægt: 330 g\"; \"Bedst før: 22.05.2027\"; NO lot or batch code is listed, so none is recorded; \"Ved rutinekontrol hos den danske virksomhed er der påvist Salmonella i produktet\" with NO serotype named, so none is added; \"Produktet er solgt i: Lidl forretninger i hele landet\". Source is normalised to the register's own \"Fødevarestyrelsen (DK)\" so this row groups with the three already published under it. A Tier 1 Salmonella recall had been stuck in Pending since 2026-11-13 on this scramble.] [original company: Tilbagekald: Salmonella i Chicken gyros] [original product: Fødevarestyrelsen] [promote 2026-11-18: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'confirm-agent:  | Tilbagekald: Salmonella i Chicken gyros - Fødevarestyrelsen\\n\\n# Tilbagekald: Salmonella i Chicken gyros\\n\\n13-11-2026\\n\\nThe Lidl Danmark tilbageka'; that defect is repaired and the row now passes every publish-gate rule]"
- },
- {
-  "Date": "2026-11-13",
-  "Source": "NKFH (HU)",
-  "Company": "Ardap Care GmbH (Németország)",
-  "Brand": "Bactador",
-  "Product": "Enzym cleaner",
-  "Pathogen": "Pseudomonas aeruginosa",
-  "Reason": "Pseudomonas aeruginosa contamination",
-  "Class": "Recall",
-  "Country": "Hungary",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://nkfh.gov.hu/hirek/termekvisszahivas-szag-es-folteltavolito-tisztitoszer-visszahivasa-mikrobiologiai-fertozes-veszelye-miatt-1",
-  "Notes": "Discovered via news: origo.hu [locality: European Union (EU) and Hungary] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-12",
@@ -39694,5 +39662,117 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-11-21",
+  "Source": "FSA (UK)",
+  "Company": "Hotel Chocolat",
+  "Brand": "Hotel Chocolat",
+  "Product": "several chocolate products",
+  "Pathogen": "Salmonella",
+  "Reason": "Salmonella",
+  "Class": "Recall",
+  "Country": "United Kingdom",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://alerts.food.gov.uk/article/7000/Hotel-Chocolat-recalls-several-chocolate-products-because-of-the-possible-presence-of-Salmonella",
+  "Notes": "Hotel Chocolat recalls several chocolate products because of the possible presence of Salmonella - Alerts\n\n# Hotel Chocolat recalls several chocolate products because of the possible presence of Salmonella\n\n Food Alert , 21 November 2026 00:00 \n\n Hotel Chocolat recalls select pistachio-containing ch  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [promote 2026-11-22: status 'pending_gap'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-19",
+  "Source": "RappelConso (FR)",
+  "Company": "Metro France",
+  "Brand": "Metro Chef",
+  "Product": "Linseed (graine de lin), 650 g, Metro Chef — GTIN 4337182082293, lot P227085, best before 01/09/2028",
+  "Pathogen": "Hydrocyanic acid (acide cyanhydrique) — chemical hazard",
+  "Reason": "Hydrocyanic acid content above the maximum permitted level",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24119/interne",
+  "Notes": "[morning fix 2026-11-22: missed-recall sweep. Found on the RappelConso food listing (categorie/0/3) and read on fiche 24119 itself today: Fiche réf. 2026-11-0128 • Version 1, date 19/11/2026, Catégorie \"Alimentation\", Sous-catégorie \"Noix et graines\", H1 \"GRAINE DE LIN 650G METRO CHEF\", \"Nom de la marque du produit: Metro chef\", \"Origine de la fiche: METRO FRANCE\", \"Distributeurs: METRO France\", \"Risques encourus par le consommateur: Autres contaminants chimiques\", \"Motif du rappel: Acide cyanhydrique supérieur à la teneur maximale\", identification GTIN 4337182082293 / lot P227085 / DDM 01/09/2028, \"Zone géographique de vente: France entière\", \"Nature juridique du rappel: Volontaire (sans arrêté préfectoral)\". Present in none of the five sheets. Same hazard and the same wording as Recalls rows 126 and 127 (fiches 24053 and 24054, 10/11/2026), whose Pathogen value is copied here. [original product: \"GRAINE DE LIN 650G METRO CHEF\"] [original Reason (fr): \"Acide cyanhydrique supérieur à la teneur maximale\"]] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-19",
+  "Source": "RappelConso (FR)",
+  "Company": "GAEC La Louisa",
+  "Brand": "Unbranded",
+  "Product": "Reblochon de Savoie made with raw milk, lots 1409, 1509, 1609, 1709, 1809, 2109, 2209, 2309 and 2809 (recommended consumption dates 14/11/2026 to 28/11/2026)",
+  "Pathogen": "Salmonella",
+  "Reason": "Withdrawal as a precaution in a context of suspected Salmonella",
+  "Class": "Voluntary",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24111/interne",
+  "Notes": "[morning fix 2026-11-22: re-queued. The confirm agent moved this row to Weekly_Rejected this morning (Week_Added 2026-11-22) with RejectionReason \"NO_REASON_RECORDED — rejected by confirm-agent from RappelConso (FR), status pending. The writer supplied no verdict and none could be parsed from Notes; treat as UNAUDITED, not as a confirmed rejection.\" Its Company and Brand both read \"/\", which is RappelConso's own no-brand marker and what the fiche prints in \"Nom de la marque du produit\". Read on fiche 24111 today: Fiche réf. 2026-11-0120 • Version 1, date 19/11/2026, H1 \"REBLOCHON DE SAVOIE au lait cru\", \"Origine de la fiche: GAEC LA LOUISA\", \"Risques encourus par le consommateur: Salmonella spp (agent responsable de la salmonellose)\", \"Motif du rappel: retrait par mesure de précaution dans un contexte suspicion salmonelle\", \"Zone géographique de vente: Départements : HAUTE-SAVOIE (74)\", nine lots with recommended consumption dates 14/11/2026 to 28/11/2026, \"Nature juridique du rappel: Volontaire (sans arrêté préfectoral)\". Company is now the firm the fiche names; Brand is Unbranded because the fiche prints \"/\". [original product: \"reblochon de savoie au lait cru\"] [original Reason (fr): \"Retrait par mesure de précaution dans un contexte suspicion Salmonella\"]] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'confirm-agent: NO_REASON_RECORDED — rejected by confirm-agent from RappelConso (FR), status pending. The writer supplied no verdict and none could be parsed fro'; that defect is repaired and the row now passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-21",
+  "Source": "RappelConso (FR)",
+  "Company": "Lidl",
+  "Brand": "Côté marché",
+  "Product": "Red potatoes, variety Chérie, 2.5 kg bag, GTIN 20253400, lot 26128774, sold 22/10/2026 to 09/11/2026",
+  "Pathogen": "Glycoalkaloids",
+  "Reason": "Excessive glycoalkaloids (natural substances of the potato)",
+  "Class": "Recall",
+  "Country": "France",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24142/Interne",
+  "Notes": "Added by the daily-global review 2026-11-22 (MISSING: absent from all five sheets). Read on RappelConso fiche 24142, réf. 2026-11-0149, dated 21/11/2026: \"Volontaire (sans arrêté préfectoral)\"; marque \"Côté marché\"; \"Pomme de terre rouge 2.5 kg Variété : Chérie\"; GTIN \"20253400\"; lot \"26128774\"; commercialisation \"Du 22/10/2026 au 09/11/2026\"; \"France entière\"; motif \"Présence excessive de glycoalcaloïdes (substances naturelles de la pomme de terre).\" The same lot 26128774 (producer Parmentine, Fère-Champenoise) was recalled in Germany via Kaufland on 21 Nov; those two news-only rows stay in Weekly_Rejected (no German authority URL read). [original product: Pomme de terre rouge 2.5 kg] [original reason: Présence excessive de glycoalcaloïdes (substances naturelles de la pomme de terre).] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-20",
+  "Source": "CAA (JP)",
+  "Company": "Murata Engei",
+  "Brand": "—",
+  "Product": "Bancha tea and bancha tea bags",
+  "Pathogen": "Foreign material (rubber)",
+  "Reason": "Foreign matter (pieces of conveyor-belt rubber) mixed into the product",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036166&screenkbn=01",
+  "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"村田園芸\", 商品名 \"番茶、番茶ティーバッグ\", 回収理由 \"異物（ベルトコンベアのゴム片）混入\", 対応開始日 2026年11月17日. No volume, lot or date on the page, none claimed. [original product: 番茶、番茶ティーバッグ] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-20",
+  "Source": "CAA (JP)",
+  "Company": "Chiba Prefectural Mobara Shoyo High School",
+  "Brand": "—",
+  "Product": "Strawberry jam and blueberry jam (sold at Aeon Mall Makuhari Shintoshin and at the school)",
+  "Pathogen": "Mold",
+  "Reason": "Something that appears to be mold was found",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036167&screenkbn=01",
+  "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"千葉県立茂原樟陽高等学校\", 商品名 \"イチゴジャム、ブルーベリージャム\", sold at \"イオンモール幕張新都心1階グランコート、同校\", 回収理由 \"カビとみられるものを確認\", 対応開始日 2026年11月17日. No volume, lot or date on the page, none claimed. [original product: イチゴジャム、ブルーベリージャム] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-20",
+  "Source": "CAA (JP)",
+  "Company": "Moriki Suikoen",
+  "Brand": "—",
+  "Product": "Tosa-cha genmaicha (roasted-rice green tea) Super, 180 g, sold in Kochi Prefecture",
+  "Pathogen": "Foreign material (rubber)",
+  "Reason": "Foreign matter (rubber part of a conveyor belt) mixed into the product; exchange/recall",
+  "Class": "Recall",
+  "Country": "Japan",
+  "Region": "Asia",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036168&screenkbn=01",
+  "Notes": "Added by the daily-global review 2026-11-22 (CAA notice posted 2026/11/20 per the daily brief; absent from all five sheets). Read on the CAA detail page: 事業者 \"森木翠香園\", 商品名 \"土佐茶玄米茶スーパー180g\", 回収理由 \"異物（ベルトコンベアのゴム部分）混入\", 対応開始日 2026年11月16日. Same hazard as the Kochi sencha row of 2026-11-18 (rcl 36145, JA Kochi) — possibly one upstream incident; separate firm and product, so a separate row. [original product: 土佐茶玄米茶スーパー180g] [promote 2026-11-22: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]

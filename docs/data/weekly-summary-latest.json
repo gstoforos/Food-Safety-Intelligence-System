@@ -10,20 +10,20 @@
   "week_end_display": "22 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-22T04:27:10.951513+00:00",
-  "prev_total": 80,
+  "generated_utc": "2026-11-22T08:24:12.843664+00:00",
+  "prev_total": 79,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 69,
-    "tier1": 37,
+    "total": 75,
+    "tier1": 38,
     "outbreaks": 0,
-    "delta": -11,
-    "delta_pct": -14
+    "delta": -4,
+    "delta_pct": -5
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
-    "cases": 17,
+    "cases": 19,
     "pct": 25
   },
   "ai_lead_paragraph": "",
@@ -44,14 +44,14 @@
     },
     {
       "rank": 2,
-      "date": "2026-11-21",
+      "date": "2026-11-20",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
       "company": "Mijukić-Prom",
       "brand": "Mijukić-Prom",
-      "product": "Sausage cubes VP, 0.55kg",
+      "product": "Pancetta cubes VP, 0.55 kg, LOT 918N33, best before 20.03.2027",
       "country": "Croatia",
       "source": "HAH (HR)",
       "url": "https://www.hapih.hr/opoziv-proizvoda-mijukic-prom-panceta-kockice-vp-055kg/"
@@ -72,20 +72,6 @@
     },
     {
       "rank": 4,
-      "date": "2026-11-20",
-      "pathogen": "Listeria Monocytogenes",
-      "pathogen_raw": "Listeria Monocytogenes",
-      "tier": 1,
-      "outbreak": false,
-      "company": "BM Foods (a member of Sea Harvest Group)",
-      "brand": "Shoprite Checkers",
-      "product": "Deli Hummus range",
-      "country": "South Africa",
-      "source": "NCC (ZA)",
-      "url": "https://thencc.org.za/media-statement-deli-hummus-range-product-safety-recall/"
-    },
-    {
-      "rank": 5,
       "date": "2026-11-19",
       "pathogen": "Listeria monocytogenes",
       "pathogen_raw": "Listeria monocytogenes",
@@ -97,7 +83,21 @@
       "country": "Australia",
       "source": "FSANZ (AU)",
       "url": "https://www.foodstandards.gov.au/food-recalls/recall-alert/woodbridge-smokehouse-smoked-salmon-spread-150g"
+    },
+    {
+      "rank": 5,
+      "date": "2026-11-19",
+      "pathogen": "Listeria monocytogenes",
+      "pathogen_raw": "Listeria monocytogenes",
+      "tier": 1,
+      "outbreak": false,
+      "company": "Paysan Ardechois",
+      "brand": "Paysan Ardechois",
+      "product": "tete persillee paysan ardechois",
+      "country": "France",
+      "source": "RappelConso (FR)",
+      "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne"
     }
   ],
-  "country_count": 26
+  "country_count": 25
 }
