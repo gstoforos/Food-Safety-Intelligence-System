@@ -103,6 +103,19 @@ KNOWN_REGULATOR_LANDINGS = frozenset({
     "https://www.ages.at/konsument/lebensmittelwarnungen",
     "https://www.afsca.be/professionnels/publications/communications/rappels",
     "https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen",
+    # Ministero della Salute (IT) — the food "avvisi e richiami" LISTING
+    # index. Added 2026-11-23 after the Italian gap finder put it into
+    # Weekly_Rejected again at 06:45 UTC (Product "Avvisi e richiami di
+    # prodotti alimentari", discovered via ilmessaggero.it), where it
+    # collided on the dedup key with the PUBLISHED row of 2026-04-14 (La
+    # Vacje Salumerie Snc, Salame Nostrano, Listeria) and held
+    # tests/test_a_recall_is_not_both_published_and_rejected red. The
+    # morning fix of 2026-11-18 annotated the Rejected copy; the shape came
+    # straight back because the URL itself was never refused. The published
+    # row cites this index because a URL FIX on 2026-05-01 swapped a
+    # news-mirror URL for it — see KNOWN_UNFIXED in
+    # tests/test_section_index_url_is_not_a_recall.py.
+    "https://www.salute.gov.it/new/it/avvisi/avvisi-e-richiami-di-prodotti-alimentari",
     # MPI New Zealand
     "https://www.mpi.govt.nz/food-safety-home/food-recalls",
     # CFS Hong Kong — multiple listing variants (Tavily/Exa Row 4 leak, audit 2026-05-08)
@@ -139,6 +152,45 @@ GENERIC_URL_PATTERNS = (
     r"food-safety-investigations/$",         # CFIA investigation index
     r"/categorie/[\d/]+/?$",                 # RappelConso category index
     r"/rubrik/[^/]+/?$",                     # produktwarnung.eu rubrik
+    # ── A REGULATOR'S OWN SECTION INDEX (morning fix 2026-11-23) ──────────
+    # On 2026-11-23 at 00:14 UTC the DDGS gap finder queued, and the offline
+    # promoter published into Recalls at 04:27 UTC:
+    #
+    #     Date      2026-11-13
+    #     Source    Ministero della Salute (IT)
+    #     Company   'Ministero della Salute'
+    #     Brand     'Ministero della Salute'
+    #     Product   'Norme e atti'
+    #     Pathogen  'Listeria monocytogenes'
+    #     Tier      1
+    #     URL       https://www.salute.gov.it/new/it/sezione/norme-e-atti/
+    #     Notes     "Regolamento (UE) 2024/2895 ... per quanto riguarda
+    #                Listeria monocytogenes negli alimenti pronti al consumo
+    #                - Indicazioni per l'applicazione nell'ambito dei
+    #                controlli ufficiali (0.4 Mb)"
+    #
+    # "Norme e atti" is Italian for "Rules and acts". The page is the
+    # ministry's LEGISLATION section index, and the document the Notes
+    # quote is guidance on applying Reg. (EC) 2073/2005 — a law, not a
+    # recall. R2 (a real regulatory action) and R3 (the regulator's own
+    # per-recall URL) both fail, and the row reached Tier 1 of the public
+    # register and week 46's report.
+    #
+    # The list already knew the Spanish (/subseccion/<x>.htm, in
+    # _gap_finder_guards) and the produktwarnung.eu (/rubrik/<x>/) forms of
+    # exactly this shape. The Italian, Portuguese, German, Polish, Croatian
+    # and English ones were missing — nafdac.gov.ng/category/recalls-and-
+    # alerts/ is the same page in English and sits in Rejected four times
+    # over, caught further downstream each time.
+    #
+    # MEASURED against the whole 2026-11-23 workbook — Recalls 2486,
+    # Pending 16, Weekly_Review 2, Weekly_Rejected 165, Rejected 4651 — this
+    # pattern matches the row above, its Weekly_Review copy, and the four
+    # archived NAFDAC copies. Nothing else, in any sheet. It does not touch
+    # /fiche-rappel/<id>/, /produkt/<slug>, /alertas/<id>, /alert/<id> or
+    # /alert-recall/<slug>.
+    r"/(?:sezione|sezioni|secci[oó]n|seccion|se[cç][aã]o|rubrique|"
+    r"kategorie|kategoria|kategorija|categoria|category)/[^/?#]+/?$",
     r"/news-and-alerts/food-alerts/?$",      # FSAI alerts root
     r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
     r"/animal-veterinary/news-events/outbreaks-and-advisories/?$",  # FDA pet root

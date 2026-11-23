@@ -642,6 +642,31 @@ HAZARD_CLASS_KEYWORDS = {
         "nicht zugelassener zusatzstoff",
         "additivo non autorizzato", "colorante no autorizado",
         "食品添加物使用基準",
+        # ── THE ACTIVE SUBSTANCE ON ITS OWN (morning fix 2026-11-23) ──
+        #
+        # The note above already spotted half of this: "Chlorpyrifos
+        # (pesticide residue) and unauthorized dye E 122" classifies as
+        # chemical ONLY through its pesticide half. The other half is that
+        # the parenthetical is the whole thread — "pesticide" and "chemical
+        # residue" are the only pesticide keywords this class has, and both
+        # are words the enrichment adds, not words a regulator writes.
+        #
+        # MEASURED 2026-11-23. Mattilsynet's own wording for the Hewad
+        # Mohmand raisin recall of 18.11.2026 is "Chlorpyrifos exceeding
+        # limit". classify_hazard() returned the EMPTY SET for it, so
+        # pipeline.agents.curator.check_scope refused a hazard R6 names
+        # explicitly, and merge_master.validate_pending_row would have
+        # refused the same row at the Pending gate as
+        # "pathogen_out_of_scope" — the exact asymmetry the additive note
+        # above describes, one hazard class over.
+        #
+        # Only actives the register ALREADY holds are named, so each one
+        # is grounded in a notice rather than guessed: chlorpyrifos x4
+        # (incl. the Norwegian "klorpirifos"), acetamiprid x2, procymidone,
+        # tolfenpyrad. Held by
+        # tests/test_a_named_pesticide_is_reachable.py.
+        "chlorpyrifos", "chlorpyriphos", "klorpirifos",
+        "acetamiprid", "procymidone", "tolfenpyrad",
     ),
     "mycotoxin": (
         "aflatoxin", "ochratoxin", "patulin", "fumonisin",

@@ -806,6 +806,12 @@ _GENERIC_URL_PATTERNS = (
     # shape; this is the first time two copies of one live notice did.
     r"rappel\.conso\.gouv\.fr/static/fiches/",
     r"/rubrik/[^/]+/?$",                      # produktwarnung.eu rubrik
+    # A regulator's own SECTION INDEX. Mirror of the entry in
+    # pipeline/_url_filters.py, which carries the full write-up:
+    # salute.gov.it/new/it/sezione/norme-e-atti/ ("Rules and acts") was
+    # published into Recalls as a Tier-1 Listeria recall on 2026-11-23.
+    r"/(?:sezione|sezioni|secci[oó]n|seccion|se[cç][aã]o|rubrique|"
+    r"kategorie|kategoria|kategorija|categoria|category)/[^/?#]+/?$",
     r"/news-and-alerts/food-alerts/?$",       # FSAI alerts root
     r"/safety/recalls-market-withdrawals-safety-alerts/?$",  # FDA root
     r"/animal-veterinary/news-events/outbreaks-and-advisories/?$",  # FDA pet root

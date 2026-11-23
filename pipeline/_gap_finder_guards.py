@@ -164,6 +164,12 @@ _GENERIC_URL_RES = (
     re.compile(r"/web/home/?$", re.I),
     re.compile(r"/sciri\.htm/?$", re.I),
     re.compile(r"/subseccion/[^/]*\.htm/?$", re.I),   # AESAN section index
+    # The same shape in the other languages a regulator uses for a
+    # section index. See pipeline/_url_filters.py for the 2026-11-23
+    # row that reached Recalls through the Italian form.
+    re.compile(r"/(?:sezione|sezioni|secci[oó]n|seccion|se[cç][aã]o|"
+               r"rubrique|kategorie|kategoria|kategorija|categoria|category)"
+               r"/[^/?#]+/?$", re.I),
     re.compile(r"/recalls/?$", re.I),
     re.compile(r"/food-alerts/?$", re.I),
     re.compile(r"/news-and-alerts/?$", re.I),
