@@ -51,15 +51,15 @@
     {
       "date": "2026-11-18",
       "url": "daily/2026-11-18.html",
-      "total": 13,
+      "total": 14,
       "tier1": 7,
       "outbreak": 0,
       "by_region": {
         "Asia": 4,
-        "Europe": 8,
+        "Europe": 9,
         "North America": 1
       },
-      "generated": "2026-11-23T08:13:05Z"
+      "generated": "2026-11-23T10:51:37Z"
     },
     {
       "date": "2026-11-17",
