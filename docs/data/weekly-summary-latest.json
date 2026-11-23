@@ -10,16 +10,16 @@
   "week_end_display": "22 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-23T04:27:19.385952+00:00",
-  "prev_total": 80,
+  "generated_utc": "2026-11-23T10:51:41.720014+00:00",
+  "prev_total": 79,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 75,
+    "total": 76,
     "tier1": 38,
     "outbreaks": 0,
-    "delta": -5,
-    "delta_pct": -6
+    "delta": -3,
+    "delta_pct": -4
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
@@ -99,5 +99,5 @@
       "url": "https://rappel.conso.gouv.fr/fiche-rappel/23916/interne"
     }
   ],
-  "country_count": 26
+  "country_count": 27
 }

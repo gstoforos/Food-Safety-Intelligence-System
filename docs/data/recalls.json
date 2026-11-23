@@ -1520,22 +1520,6 @@
   "Notes": "Tilbagekald: Salmonella i Chicken gyros - Fødevarestyrelsen # Tilbagekald: Salmonella i Chicken gyros 13-11-2026 The Lidl Danmark tilbagekalder Chicken gyros af mærket Eridanous, da der er fundet Salmonella i produktet. Har du produktet, bør du enten levere det tilbage til butikken, hvor det er k [via Exa gap-finder, deterministic extract] [url-agent 2026-11-16: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-11-17: pending_gap_v1→pending_gap_v2 URL confirmed] [morning fix 2026-11-18: three fields were scrambled and the publish gate held the row on the one it checks. Product was \"Fødevarestyrelsen\" — the authority's own name — and Company and Brand both held the Danish headline \"Tilbagekald: Salmonella i Chicken gyros\". THE ANSWER WAS ALREADY IN THIS ROW'S OWN NOTES, in the captured lead sentence: \"The Lidl Danmark tilbagekalder Chicken gyros af mærket Eridanous, da der er fundet Salmonella i produktet.\" Confirmed on the Fødevarestyrelsen page today: heading \"Tilbagekald: Salmonella i Chicken gyros\", dated 13-11-2026; \"Hvem tilbagekalder produktet\" gives \"Lidl Danmark K/S, Carl Blochs Gade 89, 8000 Aarhus C\"; \"af mærket Eridanous\"; \"Nettovægt: 330 g\"; \"Bedst før: 22.05.2027\"; NO lot or batch code is listed, so none is recorded; \"Ved rutinekontrol hos den danske virksomhed er der påvist Salmonella i produktet\" with NO serotype named, so none is added; \"Produktet er solgt i: Lidl forretninger i hele landet\". Source is normalised to the register's own \"Fødevarestyrelsen (DK)\" so this row groups with the three already published under it. A Tier 1 Salmonella recall had been stuck in Pending since 2026-11-13 on this scramble.] [original company: Tilbagekald: Salmonella i Chicken gyros] [original product: Fødevarestyrelsen] [promote 2026-11-18: status 'pending_gap_v2'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-09-27: was archived as 'confirm-agent:  | Tilbagekald: Salmonella i Chicken gyros - Fødevarestyrelsen\\n\\n# Tilbagekald: Salmonella i Chicken gyros\\n\\n13-11-2026\\n\\nThe Lidl Danmark tilbageka'; that defect is repaired and the row now passes every publish-gate rule]"
  },
  {
-  "Date": "2026-11-13",
-  "Source": "Ministero della Salute (IT)",
-  "Company": "Ministero della Salute",
-  "Brand": "Ministero della Salute",
-  "Product": "Norme e atti",
-  "Pathogen": "Listeria monocytogenes",
-  "Reason": "Listeria monocytogenes",
-  "Class": "Recall",
-  "Country": "Italy",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://www.salute.gov.it/new/it/sezione/norme-e-atti/",
-  "Notes": "Nov 13, 2026 · Regolamento (UE) 2024/2895, recante modifica del regolamento (CE) n. 2073/2005 per quanto riguarda Listeria monocytogenes negli alimenti pronti al consumo – Indicazioni per l'applicazione nell'ambito dei controlli ufficiali (0.4 Mb)  [via DDGS gap-finder, deterministic extract] [promote 2026-11-23: status 'pending_gap'->'pending' — passes every publish-gate rule]"
- },
- {
   "Date": "2026-11-12",
   "Source": "RappelConso (FR)",
   "Company": "Allonnedis",
@@ -39774,5 +39758,21 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
+ },
+ {
+  "Date": "2026-11-18",
+  "Source": "Mattilsynet",
+  "Company": "Hewad Mohmand",
+  "Brand": "Hewad",
+  "Product": "Red raisins",
+  "Pathogen": "Chlorpyrifos exceeding limit",
+  "Reason": "Chlorpyrifos exceeding limit in product (Recall ID 03.2026)",
+  "Class": "Recall",
+  "Country": "Norway",
+  "Region": "Europe",
+  "Tier": 3,
+  "Outbreak": 0,
+  "URL": "https://www.mattilsynet.no/tilbakekallinger/hewad-mohmand-kaller-tilbake-rosiner-etter-funn-av-plantevernmidler-i-produktet",
+  "Notes": "Discovered via news: mattilsynet.no [locality: East Norway] [morning fix 2026-11-23: this row is now publishable because tools/alert_vocab.py gained the named pesticide actives already present in the register (chlorpyrifos/klorpirifos, acetamiprid, procymidone, tolfenpyrad). Until today every published pesticide hazard reached a subscriber alert only through the words \"pesticide residue\", a parenthetical the enrichment adds and which Mattilsynet's own wording (\"Chlorpyrifos exceeding limit\") has no reason to carry — so the publish gate's unreachable-hazard rule held an in-scope hazard (R6 names pesticide residues) that was never wrong. PROVENANCE: this pass did NOT read the Mattilsynet notice — mattilsynet.no refuses this sandbox (client_error, nothing retrieved) while the pipeline's own scraper reaches it from GitHub Actions. Every field on this row is the collector's; nothing here was added, corrected or inferred by the morning pass. Corroborated only by Norwegian national press of 2026-11-18, \"Afghanske rosiner trekkes: Inneholder plantevernmiddel\" — discovery, never the authority.] [promote 2026-11-23: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
