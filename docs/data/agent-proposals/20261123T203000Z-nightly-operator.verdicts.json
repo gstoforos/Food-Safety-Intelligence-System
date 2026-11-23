@@ -1,0 +1,65 @@
+[
+  {
+    "proposal_id": "b823bb4fb9270cd2",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 2"
+  },
+  {
+    "proposal_id": "ae9dc8f362f5a32e",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 9"
+  },
+  {
+    "proposal_id": "27b67ccea6894b06",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 17"
+  },
+  {
+    "proposal_id": "1123e4f9621028c7",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 16"
+  },
+  {
+    "proposal_id": "c30fbe797cb46156",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Pending row 18"
+  },
+  {
+    "proposal_id": "2bae0a7197eb4eec",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2"
+  },
+  {
+    "proposal_id": "4cf552c37ca8614b",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 3"
+  },
+  {
+    "proposal_id": "22a49357806a7990",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 4"
+  },
+  {
+    "proposal_id": "1348960c0257cdad",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 34"
+  }
+]
