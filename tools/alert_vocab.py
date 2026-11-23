@@ -215,12 +215,38 @@ PATHOGEN: dict[str, list[str]] = {
     # uses in its headline — was not. "residue" would have caught the
     # hazard only as long as the Pathogen keeps that word, which is a
     # thinner thread than it looks.
+    # THE ACTIVE SUBSTANCE ON ITS OWN (morning fix 2026-11-23).
+    #
+    # Every pesticide hazard this register has ever published carries the
+    # words "pesticide residue" as a parenthetical the enrichment adds —
+    # "Procymidone (pesticide residue)", "Acetamiprid (pesticide residue)",
+    # "Chlorpyrifos (pesticide residue) and unauthorized dye E 122",
+    # "Pesticide residue exceeding limit (klorpirifos)". So "pesticide" and
+    # "residue" have always been the thread the whole class hangs on, and
+    # the note above already said that is thinner than it looks.
+    #
+    # It broke on 2026-11-23. Mattilsynet's own wording for the Hewad
+    # Mohmand raisin recall of 18.11.2026 is "Chlorpyrifos exceeding limit",
+    # with no parenthetical, and the collector wrote it through verbatim —
+    # correctly. The row sat in Pending blocked by the publish gate's
+    # unreachable-hazard rule, which is the gate doing its job; the defect
+    # is that an in-scope hazard (R6 names pesticide residues explicitly)
+    # had no word to reach it. Naming the actives removes the dependence on
+    # a parenthetical that a faithful scrape has no reason to add.
+    #
+    # Only actives the corpus ALREADY contains are added, so every one is
+    # producible (tests/test_alert_vocab::test_every_pathogen_term_is_
+    # producible): chlorpyrifos ×4 incl. the Norwegian "klorpirifos",
+    # acetamiprid ×2, procymidone, tolfenpyrad.
     "Pesticide / veterinary residues": ["pesticide", "veterinary medicine",
                                         "veterinary chemical",
                                         "veterinary drug", "doxycycline",
                                         "penicillin",
                                         "nitrofurazone", "chloramphenicol",
-                                        "rodenticide", "residue"],  # 6
+                                        "rodenticide", "residue",
+                                        "chlorpyrifos", "klorpirifos",
+                                        "acetamiprid", "procymidone",
+                                        "tolfenpyrad"],  # 6
     "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin",
                                         "ethylene oxide", "mineral oil",
                                         "moah", "mosh", "acrylamide",
