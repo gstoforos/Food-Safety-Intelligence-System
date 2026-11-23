@@ -78,6 +78,10 @@ GENERIC_URL_PATTERNS = [
     r"/alertas_alimentarias/?$",                   # AESAN landing
     r"/liste/lebensmittel/bundesweit/?$",          # BVL landing
     r"/rubrik/lebensmittel/?$",                    # produktwarnung.eu category listing
+    # A regulator's own section index in any of the languages they use.
+    # Mirror of pipeline/_url_filters.py (morning fix 2026-11-23).
+    r"/(?:sezione|sezioni|secci[oó]n|seccion|se[cç][aã]o|rubrique|"
+    r"kategorie|kategoria|kategorija|categoria|category)/[^/?#]+/?$",
     r"/portal/news/p3_2_1_3\.jsp",                 # Salute IT generic notizie
     r"/food-recalls/?$",                           # FSANZ landing
     r"/recalls?/?$",                               # generic /recalls
