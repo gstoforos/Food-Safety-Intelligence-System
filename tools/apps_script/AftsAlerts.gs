@@ -735,7 +735,7 @@ var PATHOGEN_VOCAB = {
   "Marine / shellfish biotoxins": ["marine biotoxin", "biotoxin", "shellfish toxin", "paralytic shellfish", "lipophilic", "okadaic", "domoic", "saxitoxin", "tetrodotoxin", "ciguatoxin", "ciguatera", "phytoplankton"],
   "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane", "glycoalkaloid", "glycoalcalo", "glykoalkaloid", "chaconine", "oleander", "cardiac glycoside"],
   "Heavy metals": ["heavy metal", "cadmium", "kadmium", "lead (", "mercury", "arsenic", "molybdenum", "thallium"],
-  "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "veterinary drug", "doxycycline", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue"],
+  "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "veterinary drug", "doxycycline", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue", "chlorpyrifos", "klorpirifos", "acetamiprid", "procymidone", "tolfenpyrad"],
   "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol", "glycidyl", "glycidyle", "glycidylique"],
   "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine", "sildenafil", "tadalafil", "dimethylamylamine", "dmaa"],
   "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (", "tetrahydrocannabinol"],
