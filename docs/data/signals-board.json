@@ -20,7 +20,7 @@
   "min_absolute_count": 4,
   "advisory_only": true,
   "coverage_enforced": false,
-  "generated_utc": "2026-11-23T02:26:53+00:00",
+  "generated_utc": "2026-11-23T04:27:23+00:00",
   "coverage_register": "present",
   "coverage_window_start": "2026-06-08/2026-06-14",
   "within_coverage_window": true,
@@ -643,7 +643,7 @@
     24,
     24
    ],
-   "c1": -0.39,
+   "c1": -0.42,
    "c2": -0.39,
    "c3": 0.0,
    "share_observed": 0.2133,
@@ -662,7 +662,7 @@
     24,
     24,
     14,
-    17,
+    18,
     16
    ],
    "status": "normal",
@@ -799,7 +799,7 @@
     23,
     23
    ],
-   "c1": -0.71,
+   "c1": -0.75,
    "c2": -0.73,
    "c3": 0.0,
    "share_observed": 0.1733,
@@ -818,7 +818,7 @@
     23,
     23,
     12,
-    15,
+    16,
     13
    ],
    "status": "normal",
@@ -955,7 +955,7 @@
     57,
     45
    ],
-   "c1": -1.38,
+   "c1": -1.42,
    "c2": -1.81,
    "c3": 0.0,
    "share_observed": 0.4267,
@@ -974,7 +974,7 @@
     57,
     45,
     33,
-    37,
+    38,
     32
    ],
    "status": "normal",
@@ -4672,15 +4672,15 @@
    "week": "2026-11-09/2026-11-15",
    "week_start": "2026-11-09",
    "week_end": "2026-11-15",
-   "corpus_total": 79,
+   "corpus_total": 80,
    "alarms": [
     {
      "label": "Mold · Japan",
      "channel": "proportion",
      "observed": 6,
      "baseline_mean": 1.0,
-     "effect": 5.83,
-     "p_value": 0.000605,
+     "effect": 5.75,
+     "p_value": 0.000647,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "CAA (JP)"
@@ -4690,8 +4690,8 @@
      "channel": "proportion",
      "observed": 7,
      "baseline_mean": 2.14,
-     "effect": 3.17,
-     "p_value": 0.006661,
+     "effect": 3.13,
+     "p_value": 0.007127,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "CAA (JP)"
@@ -4701,8 +4701,8 @@
      "channel": "proportion",
      "observed": 8,
      "baseline_mean": 2.86,
-     "effect": 2.72,
-     "p_value": 0.009221,
+     "effect": 2.69,
+     "p_value": 0.009919,
      "fdr_pass": true,
      "fdr_status": "pass",
      "dominant_source": "CAA (JP)"
@@ -4713,7 +4713,7 @@
      "observed": 5,
      "baseline_mean": 1.29,
      "effect": 3.89,
-     "p_value": 0.010701,
+     "p_value": 0.01126,
      "fdr_pass": false,
      "fdr_status": "not-applicable",
      "dominant_source": "CAA (JP)"
@@ -4957,7 +4957,7 @@
    },
    {
     "week": "2026-11-09/2026-11-15",
-    "total": 79
+    "total": 80
    },
    {
     "week": "2026-11-16/2026-11-22",
