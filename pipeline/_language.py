@@ -254,10 +254,33 @@ _ENGLISH_PRODUCT_WORDS = frozenset("""
     mussels squid cheese cheeses milk butter cream yogurt eggs egg bread
     cake cakes pastry salad sauce soup juice juices tea coffee chocolate
     spread rice pasta noodles flour seeds nuts figs fruit fruits vegetables
-    lettuce sprouts spices pepper oil honey jelly meal meals sandwich
-    sandwiches pie tray jar pack packs bag bags bottle bottles box
+    lettuce sprouts spices pepper oil honey jelly meal meals
+    pie tray jar pack packs bag bags bottle bottles box
     sold counter approx lot lots batch best before use by all
 """.split())
+#
+# "sandwich" AND "sandwiches" WERE HERE AND ARE FRENCH WORDS TOO
+# (morning fix pass 2026-11-24). Exactly the "pâté" defect below, one list
+# entry along: "sandwich" is the ordinary French word for a sandwich, so a
+# wholly French RappelConso product list that happens to contain one scored
+# as already-English and no gate stamped it. Published 2026-11-23, fiche
+# 24150, E.Leclerc Atout Sud, Listeria monocytogenes, Tier 1:
+#
+#     'jambon cuit supérieur découenné dégraissé au torchon; cornet jambon
+#      blanc, bruschetta jambon champignons, pizza reine, pizza fermière,
+#      complet jambon, sandwich jambon beurre, sandwich jambon fromage,
+#      croque monsieur, croissant au jambon;'
+#
+# TWO words in it are in _FRENCH_FOOD_WORDS ("jambon", "fromage", plus
+# "fermière") and the detector still returned False, because every clause of
+# product_needs_english() treats one English word as a veto on the whole
+# detector and "sandwich" was that word. The row carried no cleanup stamp and
+# the four language tests stayed green on main with it published.
+#
+# MEASURED before removing them, on all 2,491 published rows: dropping
+# "sandwich"/"sandwiches" plus adding the "râpé" family below flags exactly
+# the two defective rows of 2026-11-23 and NOTHING else. Zero false
+# positives. Held by tests/test_morning_fix_2026_11_24_detector_gaps.py.
 #
 # "pâté" WAS HERE AND IS A FRENCH WORD (audit 2026-10-27).
 #
@@ -305,7 +328,25 @@ _FRENCH_FOOD_WORDS = frozenset("""
     farine chèvre brebis tarte gâteau beurre huile concombre moules
     huîtres crustacés volaille volailles cervelas caissette tranché
     tranchée persillé persillée
+    râpé râpée râpés râpées rapé rapée
 """.split())
+#
+# THE "râpé" FAMILY WAS MISSING (morning fix pass 2026-11-24). Published
+# 2026-11-23, fiche 24152, Top Budget, foreign material (glass):
+#
+#     Product 'emmental râpé 200g'
+#
+# Three words, one of them a weight and one ("emmental") shared with
+# English, so there is no French FUNCTION word to find and the two-hit
+# detector cannot fire — the same shape as "steaks hachés" in the note
+# above. "râpé" is the second commonest preparation adjective RappelConso
+# prints after "haché", and like "haché" it has no English homograph, so it
+# is safe where "fromage râpé"'s noun already is. The unaccented spellings
+# are included because RappelConso prints both.
+#
+# MEASURED on all 2,491 published rows together with the "sandwich" removal
+# above: the pair flags the two defective rows of 2026-11-23 and nothing
+# else.
 
 
 # French STRUCTURE words that never appear inside a French food name
@@ -1192,3 +1233,97 @@ def americanize(text) -> str:
     for pat, repl in _US_SPELLINGS:
         s = pat.sub(lambda m, _r=repl: _match_case(m.group(0), _r), s)
     return s
+
+
+# ── A Reason is not in English either (morning fix pass 2026-11-24) ────────
+#
+# WHAT WAS WRONG
+# --------------
+# tests/test_reason_is_not_wholly_foreign.py has carried its own detector
+# since 2026-10-03, deliberately, because detect_language() needs two
+# function-word hits and a short regulator motif rarely has two. That test's
+# rule is "two or more letters English does not use, AND fewer than two
+# English words". The FIRST half is what fails: one accent is enough to be
+# French.
+#
+# MEASURED on main at 8c964246, all 2,491 published rows, the test's own
+# rule unchanged otherwise: it flags ONE row. The rule below flags 25 — the
+# same row and twenty-four more that have been published in French and never
+# stamped, the oldest since 2026-04-21:
+#
+#     17x 'Suspicion de contamination bactériologique (Listeria)'  2026-07-17
+#      2x 'Eschérichia coli stec'                                  2026-06-05
+#      1x 'Risque physique (suspicion de corps étranger)'          2026-11-20
+#      1x 'Risque de corps étranger de type verre'                 2026-11-23
+#      1x 'Suspicion de contamination bactériologique'             2026-09-21
+#      1x 'Suspicion de contamination bactériologique;'            2026-06-09
+#      1x 'Risques microbiologiques — Escherichia coli shiga ...'  2026-04-21
+#
+# Every one of the twenty-four is a true positive. There is not a single
+# false positive in the 2,491.
+#
+# WHY THE FOUR-WORD FLOOR, AND WHY IT IS NOT A LOOSENING
+# ------------------------------------------------------
+# Dropping the accent floor to one WITHOUT a word floor would flag correct
+# English Reasons that carry no word from the English list: 'Metal
+# fragments' is two words, zero accents, zero list hits. So the accent floor
+# falls to one only once the string is long enough for "fewer than two
+# English words out of four or more" to be real evidence — an English
+# sentence of four or more words essentially always contains two of
+# "of / in / the / and / due / possible / presence / detected / risk / ...".
+# Strings under four words keep the old two-accent floor exactly.
+#
+# This does NOT touch detect_language(). Its two-hit threshold is what
+# protects an English sentence quoting a foreign name and is left alone;
+# this is an additional, narrower signal for ONE field.
+#
+# Held by tests/test_reason_is_not_wholly_foreign.py (which now calls this
+# function, so the test and the gates can no longer disagree) and by
+# tests/test_morning_fix_2026_11_24_detector_gaps.py.
+
+#: Letters English essentially does not use. Polish / Hungarian / Czech /
+#: Romanian diacritics plus the French, Iberian, German and Nordic vowels.
+REASON_FOREIGN_LETTER = re.compile(
+    r"[ąćęłńśźżĄĆĘŁŃŚŹŻ"
+    r"őűŐŰ"
+    r"ěřůžščťďňĚŘŮŽŠČ"
+    r"șțȘȚăĂ"
+    r"àâçèéêëîïôöùûüÀÂÇÈÉÊËÎÏÔÖÙÛÜ"
+    r"ñÑåäöøæÅÄÖØÆ]"
+)
+
+#: Function and hazard words that appear in essentially every English Reason
+#: this register writes. Two of them is enough to call a string English even
+#: when it quotes an accented name.
+REASON_ENGLISH_WORDS = frozenset("""
+a an the of in on for at to and or with without from by as is are was were be
+been has have had not no due possible presence detected found above below
+after before during product products batch batches lot lots recall recalled
+recalling because risk level limit sold may contain contains contamination
+exceeding this that its all other than over under per into out off own check
+testing analyses laboratory suspected potential exceeds maximum permitted
+""".split())
+
+_REASON_WORD = re.compile(r"[a-z']+")
+
+#: Sources whose Reason is a Commission notification subject, kept verbatim.
+REASON_VERBATIM_SOURCES = ("RASFF (EU)",)
+
+
+def reason_needs_english(text) -> bool:
+    """Is this Reason value still wholly in a foreign language?
+
+    True on the two-function-word detector, and — for a string of four or
+    more words — on a single letter English does not use together with
+    fewer than two English words. See the note above for the measurement.
+    """
+    s = str(text or "")
+    if looks_non_english(s):
+        return True
+    w = frozenset(_REASON_WORD.findall(s.lower()))
+    if len(w & REASON_ENGLISH_WORDS) >= 2:
+        return False
+    accents = len(REASON_FOREIGN_LETTER.findall(s))
+    if len(w) >= 4:
+        return accents >= 1
+    return accents >= 2

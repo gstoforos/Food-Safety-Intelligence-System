@@ -353,6 +353,7 @@ def stamp_language_cleanup(row: dict) -> dict:
     """
     from pipeline._language import (has_non_latin_script,
                                     looks_non_english,
+                                    reason_needs_english,
                                     product_needs_english)
 
     def _stamp_once(stamp: str) -> None:
@@ -371,7 +372,13 @@ def stamp_language_cleanup(row: dict) -> dict:
     # never sees, stamped only Product and the firm fields. Three of the four
     # French rows published on 2026-10-20/21 were promoted here — fiches
     # 23874, 23873, 23872 — and held tests/test_language_policy.py RED.
-    if looks_non_english(str(row.get("Reason") or "")):
+    # 2026-11-24: reason_needs_english() rather than looks_non_english().
+    # The two-function-word detector cannot see a short motif that carries a
+    # single accent — "Risque de corps étranger de type verre" (fiche 24152,
+    # published 2026-11-23) has one French function word and one accent — so
+    # this gate stamped nothing and the row went out in French. The new
+    # predicate is a superset: it still calls looks_non_english() first.
+    if reason_needs_english(str(row.get("Reason") or "")):
         _stamp_once("[needs cleanup: Reason not in English]")
     return row
 

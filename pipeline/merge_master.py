@@ -4285,6 +4285,7 @@ def _write_sheet(wb: Workbook,
         from pipeline._language import (  # noqa: WPS433
             split_bilingual as _split_bilingual,
             looks_non_english as _looks_non_english,
+            reason_needs_english as _reason_needs_english,
         )
         _still_foreign = 0
         for _col in ("Reason", "Product"):
@@ -4325,7 +4326,10 @@ def _write_sheet(wb: Workbook,
                     log.info("Bilingual %s split at writer [%s]: kept the "
                              "English half (%r)", _col, sheet_name, _en[:70])
                     _row[_col] = _en
-                elif _col == "Reason" and _looks_non_english(_v):
+                # 2026-11-24: _reason_needs_english(), a superset of
+                # _looks_non_english(), so a one-accent French motif is
+                # stamped here too. See pipeline/_language.py.
+                elif _col == "Reason" and _reason_needs_english(_v):
                     _still_foreign += 1
                     # ── A LOG LINE IS NOT A HAND-OFF (2026-10-21) ────────
                     #
