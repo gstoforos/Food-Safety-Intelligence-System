@@ -53,6 +53,10 @@ from pathlib import Path
 
 import pytest
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from pipeline._language import reason_needs_english  # noqa: E402
+
 try:
     import openpyxl
 except ImportError:                                         # pragma: no cover
@@ -109,10 +113,27 @@ testing analyses laboratory suspected potential exceeds maximum permitted
 _WORD = re.compile(r"[a-z']+")
 
 
+# ── ONE DEFINITION, NOT TWO (morning fix pass 2026-11-24) ────────────────
+#
+# This test kept its own copy of the rule so that it could be stricter than
+# detect_language() without loosening it. The cost was that the GATES could
+# not use it: pipeline/promote_gate_passing.py and the writer in
+# pipeline/merge_master.py both stamped on looks_non_english(), so a motif
+# this test would have caught went out unstamped and CI found it after
+# publication — the wrong end of the pipeline.
+#
+# The rule now lives in pipeline/_language.reason_needs_english(), both
+# gates call it, and this test calls the same function. The two can no
+# longer disagree.
+#
+# It is also STRICTER than the copy it replaces: the two-accent floor falls
+# to one accent once a string has four or more words, which is where
+# "fewer than two English words" is real evidence. Measured on main at
+# 8c964246: the old rule flagged 1 published row, the new one flags 25, and
+# all 25 are French. No false positive in 2,491 rows. The twenty-four older
+# ones are translated by tools/repair_2026_11_24.py.
 def _is_wholly_foreign(value: str) -> bool:
-    if len(_FOREIGN_LETTER.findall(value)) < 2:
-        return False
-    return len(set(_WORD.findall(value.lower())) & _ENGLISH) < 2
+    return reason_needs_english(value)
 
 
 def _rows(sheet: str):
