@@ -1,0 +1,58 @@
+[
+  {
+    "Date": "2026-11-24",
+    "Source": "MPI (NZ)",
+    "Company": "Pak'nSave Highland Park",
+    "Brand": "",
+    "Product": "NZ Beef Mince and NZ Beef Prime Mince, various weights, clear plastic trays, packed on 23.11.26, best before 26.11.26",
+    "Pathogen": "Foreign material (metal)",
+    "Reason": "May contain foreign matter (metal pieces)",
+    "Class": "Recall",
+    "Country": "New Zealand",
+    "Outbreak": 0,
+    "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/paknsave-highland-park-nz-beef-mince-and-nz-beef-prime-mince-recalled-as-the-products-may-contain-foreign-matter-metal-pieces",
+    "Notes": "Added by the daily-global review 2026-11-24 (MISSING: absent from all five sheets). Read on the MPI page: \"Recalled on 24 November 2026 by Pak'nSave Highland Park\"; \"NZ Beef Mince (various weights)\" and \"NZ Beef Prime Mince (various weights)\"; \"clear plastic trays sealed with plastic film\"; \"'PACKED ON' date of 23.11.26 and a 'BEST BEFORE' date of 26.11.26\"; sold at Pak'nSave Highland Park, 503-505 Pakuranga Road, Auckland; \"may contain foreign matter (metal pieces)\". Made in store; no brand or supplier named."
+  },
+  {
+    "Date": "2026-11-24",
+    "Source": "MPI (NZ)",
+    "Company": "New World Kaiapoi",
+    "Brand": "",
+    "Product": "Pork Mince, Beef Premium Mince and Prime Beef Mince, various weights, clear plastic trays, packed on 22.11.26, best before 25.11.26",
+    "Pathogen": "Foreign material (plastic)",
+    "Reason": "May contain foreign matter (clear plastic pieces)",
+    "Class": "Recall",
+    "Country": "New Zealand",
+    "Outbreak": 0,
+    "URL": "https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/new-world-kaiapoi-beef-mince-and-pork-mince-recalled-as-the-products-may-contain-foreign-matter-clear-plastic-pieces",
+    "Notes": "Added by the daily-global review 2026-11-24 (MISSING: absent from all five sheets). Read on the MPI page: \"Recalled on 24 November 2026 by New World Kaiapoi\"; \"Pork Mince (various weights)\", \"Beef Premium Mince (various weights)\", \"Prime Beef Mince (various weights)\"; \"'PACKED ON' date of 22.11.26 and a 'BEST BEFORE date of 25.11.26\"; sold at New World Kaiapoi, 52 Charles Street, Kaiapoi, Christchurch; \"may contain foreign matter (clear plastic pieces)\". Made in store; no brand or supplier named."
+  },
+  {
+    "Date": "2026-11-23",
+    "Source": "Ruokavirasto (FI)",
+    "Company": "Hero Finland Oy",
+    "Brand": "Corny",
+    "Product": "Corny 0% added sugar Chocolate snack bar multipack, 120 g (6 x 20 g), EAN 4011800429218, best before 10.09.2027",
+    "Pathogen": "Foreign material (metal)",
+    "Reason": "Metal foreign objects found in a small number of bars from this batch",
+    "Class": "Recall",
+    "Country": "Finland",
+    "Outbreak": 0,
+    "URL": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/valipalapatukoissa-metalliriski/",
+    "Notes": "Added by the daily-global review 2026-11-24 (MISSING: absent from all five sheets). Read on the Ruokavirasto page dated \"23. marraskuuta 2026\": Hero Finland Oy; \"Corny 0% added sugar Chocolate välipalapatukka monipakkaus, 120 g, (6 x 20 g)\"; EAN \"4011800429218\"; best before \"10.09.2027\"; \"Yrityksen mukaan pienestä määrästä tämän erän patukoita on löytynyt metallisia vierasesineitä.\" [original product: Corny 0% added sugar Chocolate välipalapatukka monipakkaus, 120 g (6 x 20 g)]"
+  },
+  {
+    "Date": "2026-11-23",
+    "Source": "RappelConso (FR)",
+    "Company": "SCAMARK E.LECLERC",
+    "Brand": "Panier du Primeur",
+    "Product": "Red potatoes for steaming and sautéing, 2 kg bag, GTIN 3564706639195, lot 26128774 (packer codes EMB 47285, EMB 51248, EMB 84035), sold 16/10/2026 to 23/11/2026",
+    "Pathogen": "Glycoalkaloids",
+    "Reason": "Presence of glycoalkaloids",
+    "Class": "Recall",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24144/Interne",
+    "Notes": "Added by the daily-global review 2026-11-24 (MISSING: absent from all five sheets). Read on RappelConso fiche 24144, réf. 2026-11-0151, dated 23/11/2026: marque \"PANIER DU PRIMEUR\"; \"POMMES DE TERRE VAPEUR SAUTÉES ROUGE 2KG\"; \"SACHET 2 kg\"; GTIN \"3564706639195\"; \"Lot : 26128774\" with packer codes EMB 47285, EMB 51248 and EMB 84035; sold \"Du 16/10/2026 au 23/11/2026\" at E. LECLERC, France entière; motif \"Présence de glycoalcaloïdes\"; origine de la fiche \"SCAMARK E.LECLERC\". Same lot 26128774 as fiche 24142 (Côté marché/Lidl, 21/11) — the same Parmentine potato lot sold under a second brand; separate fiche, separate row. [original product: POMMES DE TERRE VAPEUR SAUTÉES ROUGE 2KG - PANIER DU PRIMEUR] [original reason: Présence de glycoalcaloïdes]"
+  }
+]

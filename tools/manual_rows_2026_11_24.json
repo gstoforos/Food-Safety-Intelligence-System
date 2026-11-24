@@ -1,0 +1,41 @@
+[
+  {
+    "Date": "2026-11-24",
+    "Source": "CAA (JP)",
+    "Company": "Koyo",
+    "Brand": "Koyo",
+    "Product": "Sliced squid trimmings (ika kiriotoshi)",
+    "Pathogen": "Foreign material (plastic)",
+    "Reason": "Risk of foreign matter (fragments of a resin container) mixed into the product",
+    "Class": "Recall",
+    "Country": "Japan",
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036174&screenkbn=01",
+    "Notes": "[morning fix pass 2026-11-24 missed-recall sweep. Found on the CAA food listing https://www.recall.caa.go.jp/result/index.php?screenkbn=01&category=1, which this morning carried FIFTEEN notices with keisaibi (publication date) 2026/11/24 — rcl 36173 to 36187 — while the newest CAA (JP) row in the register was rcl 36168 of 2026-11-20. Absent from all five sheets, searched by URL, by rcl number, by company and by product. Read on the CAA detail page at the URL on this row: title bar 交洋「イカ切り落とし」 - 返金/回収, reason line 「異物（樹脂容器の破片）混入のおそれ」, 対応開始日 2026年11月19日, reference RCL202603015. The page publishes no lot, volume or best-before date and none is claimed here. Date is the listing's keisaibi, which is the convention every CAA row in this register follows; the detail page gives only the response-start date. CAA publishes no English name for 交洋, so the Company is the standard romanization. Resin is rendered as plastic, which is what the register's existing Foreign material (plastic) value covers. [original company: 交洋] [original product: イカ切り落とし] [original Reason (ja): \"異物（樹脂容器の破片）混入のおそれ\"]]"
+  },
+  {
+    "Date": "2026-11-24",
+    "Source": "CAA (JP)",
+    "Company": "Beniya Shoji",
+    "Brand": "Beniya Shoji",
+    "Product": "Dried shirasu whitebait (shirasu-boshi)",
+    "Pathogen": "Foreign material (suspected juvenile pufferfish)",
+    "Reason": "A fish species suspected to be juvenile pufferfish may have been mixed into the product",
+    "Class": "Recall",
+    "Country": "Japan",
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036176&screenkbn=01",
+    "Notes": "[morning fix pass 2026-11-24 missed-recall sweep. Read on the CAA detail page at the URL on this row: title bar 紅屋商事（カブセンター大野店）「しらす干し」 - 返金/回収, reason line 「ふぐの稚魚と疑われる魚種の混入のおそれ」, 対応開始日 2026年11月18日, reference RCL202603013. Absent from all five sheets. Date is the listing's keisaibi 2026/11/24. CAA publishes no English name for 紅屋商事; the Company is the standard romanization. Pathogen and Reason follow the register's existing row for the same hazard, rcl 36142 / Ichii of 2026-11-17 (\"Dried shirasu whitebait\", \"Foreign material (suspected juvenile pufferfish)\"). ONE ROW FOR TEN NOTICES, and the reason is on the record: CAA filed this single recall once per retail outlet, so the listing carries ten notices for 紅屋商事 with the same product, the same remedy and the same 対応開始日 2026/11/18 — rcl 36176 (カブセンター大野店), 36177 (カブセンター五所川原店), 36178 (カブセンター柏店), 36179 (ベニーマート黒石店), 36180 (カブセンター西青森店), 36181 (ベニーマート松原店), 36182 (カブセンター神田店), 36184 (ベニーマ―ト観光通店), 36186 (カブセンター弘前店), each at /result/detail.php?rcl=000000<n>&screenkbn=01. Only 36176 was opened and read; the other nine store names, product and start date were read on the listing page and nothing on this row comes from them. Ten identical published rows for one recall would misstate the register's own counts, so one row carries the event and this note carries the other nine URLs. [original company: 紅屋商事] [original product: しらす干し] [original Reason (ja): \"ふぐの稚魚と疑われる魚種の混入のおそれ\"]]"
+  },
+  {
+    "Date": "2026-11-24",
+    "Source": "CAA (JP)",
+    "Company": "Royal Choco",
+    "Brand": "Royal Choco",
+    "Product": "\"100 Years\" Russian cake, potato variety",
+    "Pathogen": "Mold",
+    "Reason": "Contamination by mold",
+    "Class": "Recall",
+    "Country": "Japan",
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036187&screenkbn=01",
+    "Notes": "[morning fix pass 2026-11-24 missed-recall sweep. Read on the CAA detail page at the URL on this row: title bar ローヤルチョコ「100年ロシアケーキポテト」 - 交換/返金, reason line 「カビによる汚染」, 対応開始日 2026年11月21日, reference RCL202603034. Absent from all five sheets. Date is the listing's keisaibi 2026/11/24. ロシアケーキ is a Japanese confectionery category (Russian cake); ポテト is the variety name as the notice prints it and is rendered, not expanded. CAA publishes no English name for ローヤルチョコ; the Company is the katakana read back as the English it transliterates. Pathogen and Reason follow the register's existing Mold rows from this source. The remedy on this notice is exchange or refund, where the others today are refund or recall. [original company: ローヤルチョコ] [original product: 100年ロシアケーキポテト] [original Reason (ja): \"カビによる汚染\"]]"
+  }
+]
