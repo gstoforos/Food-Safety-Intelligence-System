@@ -502,12 +502,12 @@
  "RASFF (EU)": {
   "consecutive_zero_runs": 0,
   "last_error": "",
-  "last_nonzero_utc": "2026-11-22T14:46:08+00:00",
-  "last_run_utc": "2026-11-22T14:46:08+00:00",
-  "last_yield": 11,
+  "last_nonzero_utc": "2026-11-24T14:54:58+00:00",
+  "last_run_utc": "2026-11-24T14:54:58+00:00",
+  "last_yield": 3,
   "region": "eu_wide",
   "seeded_from": "register DateAdded, 2026-09-23",
-  "total_runs": 25
+  "total_runs": 26
  },
  "RappelConso (FR)": {
   "consecutive_zero_runs": 0,
