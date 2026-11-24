@@ -48,6 +48,22 @@
   "Notes": "e.leclerc ibos le méridien [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [promote 2026-11-23: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-23",
+  "Source": "BVL (DE)",
+  "Company": "Parmentine",
+  "Brand": "",
+  "Product": "Potatoes, cooking, red, 1.5 kg",
+  "Pathogen": "Glycoalkaloids exceeding limit",
+  "Reason": "Detected elevated levels of glycoalkaloids which can cause symptoms such as nausea, stomach pain, vomiting, and diarrhea when consumed",
+  "Class": "Alert",
+  "Country": "Germany",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261121_22_BW_Kartoffeln/261121_22_BW_Kartoffeln.html",
+  "Notes": "Discovered via news: news.de [locality: Bundesweite (Federal level)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [confirm-agent 2026-11-24: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+ },
+ {
   "Date": "2026-11-21",
   "Source": "FSA (UK)",
   "Company": "Hotel Chocolat",
@@ -39838,21 +39854,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
- },
- {
-  "Date": "2026-11-23",
-  "Source": "BVL (DE)",
-  "Company": "Parmentine",
-  "Brand": "",
-  "Product": "Potatoes, cooking, red, 1.5 kg",
-  "Pathogen": "Glycoalkaloids exceeding limit",
-  "Reason": "Detected elevated levels of glycoalkaloids which can cause symptoms such as nausea, stomach pain, vomiting, and diarrhea when consumed",
-  "Class": "Alert",
-  "Country": "Germany",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": "",
-  "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261121_22_BW_Kartoffeln/261121_22_BW_Kartoffeln.html",
-  "Notes": "Discovered via news: news.de [locality: Bundesweite (Federal level)] [reason-cleanup: the extractor's own empty-identifier template text was stripped from Reason — it names no identifier and would have been published verbatim. Same class of defect as the 'Recall ID 842632' prompt example named in publish-gate rule 2] [promote 2026-11-24: status 'pending'->'pending' — passes every publish-gate rule]"
  }
 ]
