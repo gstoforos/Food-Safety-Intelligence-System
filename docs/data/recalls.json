@@ -368,6 +368,22 @@
   "Notes": "[RASFF #2026.10387; classification: border rejection notification; category: fruits and vegetables; notifId=888605] [promote 2026-11-24: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-23",
+  "Source": "USDA FSIS",
+  "Company": "Wolverine Packing Co.",
+  "Brand": "",
+  "Product": "Ground Beef Products",
+  "Pathogen": "E. coli O157:H7",
+  "Reason": "Possible contamination with E. coli O157:H7 (Recall ID 031-2024)",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 1,
+  "URL": "https://www.fsis.usda.gov/recalls-alerts/wolverine-packing-co--recalls-ground-beef-products-due-possible-e--coli-o157h7?ref=foodsafetynews.com",
+  "Notes": "Discovered via news: foodsafetynews.com [locality: Nationwide (restaurant locations in the United States)] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+ },
+ {
   "Date": "2026-11-21",
   "Source": "FSA (UK)",
   "Company": "Hotel Chocolat",
@@ -670,6 +686,22 @@
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24127/interne",
   "Notes": "magasins u [url-guard 2026-11-24: reviewer 1 tried to reject this row as 'No official regulator URL found, URL is missing or a news mirror'; refused — the official URL is on the row. Left in Pending for a later run.] [offline-enrich 2026-11-24: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [morning fix pass 2026-11-24: Company was empty and the publish gate held the row on it. Read on fiche 24127 today (Fiche réf. 2026-11-0136 • Version 1, date 20/11/2026): H1 \"Pain brioché x32 400g\", \"Origine de la fiche: COOPERATIVE U ENSEIGNE U ENSEIGNE\", \"Nom de la marque du produit: Sans marque\", \"Noms des modèles ou références: Pain brioché x32 400g\", Motif \"Risque physique (suspicion de corps étranger)\", Risques \"Inertes (verre, métal, plastique, papier, textile…)\", Distributeurs \"Magasins U\", GTIN 3251517091006, lot 6260, Marque de salubrité \"EMB47.091A\", eight départements from CHARENTE-MARITIME (17) to VENDEE (85), sold 09/10 to 19/11/2026, Nature juridique \"Volontaire (sans arrêté préfectoral)\". Company is the distributor because the product has no brand, which is this register's own convention for a RappelConso \"sans marque\" row and the same value as fiches 24005 and 24019.] [original product: pain brioché x32 400g] [morning fix pass 2026-11-24: Reason translated; the regulator's own wording is kept here. [original Reason (fr): \"Risque physique (suspicion de corps étranger)\"]] [morning fix pass 2026-11-24: dropped 1 stale cleanup stamp(s) — the field(s) they name read in English under the same predicate the publish gates and the language tests use. A stamp over an English field is a standing excuse in tests/test_product_and_firm_names_are_english.py, which excuses a stamped row for one day.] [promote 2026-11-24: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [re-promotion allowed 2026-10-11: the archive row carrying \"unknown:  | REJECTED: URL agent: provenance: page does not mention any of ['brioche'] — the cited URL describes something other than this row | magasins u [offl\" is explicitly marked SUPERSEDED, and the row passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-20",
+  "Source": "USDA FSIS",
+  "Company": "Olympia Food Industries, Inc. dba Olympia Foods (Est. 18743)",
+  "Brand": "",
+  "Product": "Beef Kofta",
+  "Pathogen": "Shiga toxin-producing E. coli O157:H7",
+  "Reason": "Possible contamination with Shiga toxin-producing E. coli O157:H7 (Recall ID PHA-05242026-01)",
+  "Class": "Recall",
+  "Country": "United States",
+  "Region": "North America",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant?ref=foodsafetynews.com",
+  "Notes": "Discovered via news: foodsafetynews.com [locality: California, Texas, Florida] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
  },
  {
   "Date": "2026-11-19",
