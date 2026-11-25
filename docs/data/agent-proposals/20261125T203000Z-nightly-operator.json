@@ -1,0 +1,430 @@
+{
+  "schema": 1,
+  "agent": "nightly-operator",
+  "generated_utc": "20261125T203000Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24157/interne"
+      },
+      "changes": {
+        "Company": "Auchan Retail Services",
+        "Brand": "Auchan",
+        "Product": "Cream puffs with whipped cream x2 (choux chantilly, in-store local recipe), GTIN 2030000020942, all lots sold at the self-service pastry counter 13/11/2026 to 15/11/2026, Auchan hypermarket Gap only",
+        "Reason": "Presence of Listeria monocytogenes",
+        "Notes": "uniquement l'hypermarché auchan gap [offline-enrich 2026-11-24: Pathogen '' -> 'Listeria monocytogenes', read from this row's own hazard text; no fetch, no model] [promote 2026-11-24: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [tier-guard: Listeria monocytogenes is always Tier 1; forced from Tier 3] [nightly operator 2026-11-25: fiche 24157 re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: published row 24157: Product and Reason French.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24157/interne",
+          "quote": "CHOUX CHANTILLY X2 (recette locale) FABRICATION",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24157/interne",
+          "quote": "2030000020942",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24157/interne",
+          "quote": "Suite à la présence de Listeria monocytogenes (agent responsable de la listériose)",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24157/interne",
+          "quote": "AUCHAN RETAIL SERVICES AUCHAN",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24158/interne"
+      },
+      "changes": {
+        "Company": "Auchan Retail Services",
+        "Brand": "Auchan",
+        "Product": "Beef paupiettes (stuffed rolled beef), butcher counter, all lots sold 17/11/2026 to 19/11/2026, Auchan supermarket Saint-Amarin only",
+        "Reason": "Presence of Salmonella spp.",
+        "Notes": "uniquement le supermarché st amarin [promote 2026-11-24: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-25: fiche 24158 re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: published row 24158: Product French; Reason carried French parenthetical.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24158/interne",
+          "quote": "PAUPIETTE DE BOEUF (STAND BOUCHERIE)",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24158/interne",
+          "quote": "Présence de Salmonella spp (agent responsable de la salmonellose)",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24158/interne",
+          "quote": "AUCHAN RETAIL SERVICES AUCHAN",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24153/interne"
+      },
+      "changes": {
+        "Company": "Kerhadis E. Leclerc",
+        "Brand": "Unbranded",
+        "Product": "Sheep's milk cheese with Espelette chilli pepper, GTIN 0207204000000, sold 23/10/2026 to 19/11/2026, best before 16/07/2027, Halles de Kerharo (Leclerc)",
+        "Reason": "Presence of Listeria monocytogenes",
+        "Notes": "halles de kerharo (leclerc) [promote 2026-11-24: status 'pending'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-25: fiche 24153 re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: published row 24153: Product French; Company was the store, the fiche origin is KERHADIS E. LECLERC.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24153/interne",
+          "quote": "FROMAGE DE BREBIS AU PIMENT D'ESPELETTE",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24153/interne",
+          "quote": "0207204000000",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24153/interne",
+          "quote": "Présence de Listeria monocytogenes",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24153/interne",
+          "quote": "KERHADIS E. LECLERC",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24159/interne"
+      },
+      "changes": {
+        "Company": "Fromageries Terres d'Or",
+        "Brand": "Top Budget",
+        "Product": "Top Budget grated Emmental cheese 200 g, GTIN 3410280141671, lot codes beginning 11 323, best before 29/01/2027, sold 21/11/2026 to 23/11/2026 at Intermarché",
+        "Reason": "Risk of glass-type foreign body",
+        "Notes": "intermarche [offline-enrich 2026-11-24: Pathogen '' -> 'Foreign material (glass)', read from this row's own hazard text; no fetch, no model] [promote 2026-11-24: status 'pending_enrichment'->'pending' — passes every publish-gate rule] [nightly operator 2026-11-25: fiche 24159 re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: published row 24159: Product and Reason French; Company was the brand, the fiche names Fromageries Terres d'Or.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24159/interne",
+          "quote": "Emmental Râpé 200g",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24159/interne",
+          "quote": "3410280141671",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24159/interne",
+          "quote": "Risque de corps étranger de type verre",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24159/interne",
+          "quote": "FROMAGERIES TERRES D'OR",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0"
+      },
+      "changes": {
+        "Company": "Prime Food Processing LLC",
+        "Brand": "No Brand",
+        "Product": "Uneviscerated Dried Herring Fish, Item #AF4110, lot code 25180, expiration 12.28.27",
+        "Pathogen": "Clostridium botulinum",
+        "Reason": "Potential contamination with Clostridium botulinum (uneviscerated dried fish)",
+        "Date": "2026-11-23",
+        "Notes": "Prime Food Processing LLC Issues Safety Warning Regarding Uneviscerated “Dried Herring Fish” | FDA\n\n# Prime Food Processing LLC Issues Safety Warning Regarding Uneviscerated “Dried Herring Fish”\n\nWhen a company announces a recall, market withdrawal, or safety alert, the FDA posts the company's annou  [via Exa daily search, deterministic extract]  [via Exa daily search, deterministic extract] [url-agent 2026-11-24: pending_gap→pending_gap_v1 URL confirmed] [url-agent 2026-11-24: pending_gap_v1→pending_gap_v2 URL confirmed] [confirm-agent hold: 2026-11-25: no recalling firm on the row (Brand '—'); not published and not rejected — reviewer 2 to read the firm from the notice] [nightly operator 2026-11-25: FDA notice re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: Pending FDA row: Product was the FDA boilerplate, Company empty, Reason claimed an outbreak the notice does not report. Distinct from the published 2026-06-04 herring notice (lot 26020, URL without '-0').",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0",
+          "quote": "Prime Food Processing LLC Issues Safety Warning Regarding Uneviscerated “Dried Herring Fish”",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0",
+          "quote": "Item #AF4110",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0",
+          "quote": "25180",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0",
+          "quote": "Potential contamination with Clostridium Botulinum",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne"
+      },
+      "changes": {
+        "Company": "SA Hendis Centre E. Leclerc Hennebont",
+        "Brand": "E. Leclerc Hennebont",
+        "Product": "Andouille de Guémené (smoked chitterling sausage), sliced or in pieces, self-service and traditional delicatessen counters, GTIN 0200964000000, use-by 07/11/2026 to 24/11/2026, sold 07/11/2026 to 23/11/2026, E. Leclerc Hennebont",
+        "Reason": "Suspected presence of Listeria monocytogenes",
+        "Date": "2026-11-25",
+        "Notes": "e. leclerc hennebont [nightly operator 2026-11-25: fiche 24176 (réf. 2026-11-0182) re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: fiche 24176: Product and Reason French; Company was the store brand, the fiche names SA HENDIS CENTRE E. LECLERC HENNEBONT.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne",
+          "quote": "Andouille de Guémené",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne",
+          "quote": "0200964000000",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne",
+          "quote": "Suspicion de présence de Listéria",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne",
+          "quote": "SA HENDIS CENTRE E. LECLERC HENNEBONT",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne"
+      },
+      "changes": {
+        "Company": "SA Hendis Centre E. Leclerc Hennebont",
+        "Brand": "E. Leclerc Hennebont",
+        "Product": "Prepared dishes made with andouille de Guémené: La Léontine pizza, Raymond bruschetta, Breton bowl, andouille-camembert crisp, caramelised onion tarte tatin, charcuterie platter, rustic salad (GTIN 2000001133163, 2000001134641, 2000001132333, 2000001141731, 2000001131916, 0208958000000, 2000001140338), use-by 07/11/2026 to 24/11/2026, E. Leclerc Hennebont",
+        "Reason": "Suspected presence of Listeria monocytogenes",
+        "Date": "2026-11-25",
+        "Notes": "e. leclerc hennebont [nightly operator 2026-11-25: fiche 24175 (réf. 2026-11-0181) re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: fiche 24175: Product and Reason French; Company was the store brand.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne",
+          "quote": "Produits élaborés à base d'andouille de Guémené",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne",
+          "quote": "2000001133163",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne",
+          "quote": "Suspicion de présence de Listéria",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne",
+          "quote": "SA HENDIS CENTRE E. LECLERC HENNEBONT",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24177/interne"
+      },
+      "changes": {
+        "Company": "SA Hendis Centre E. Leclerc Hennebont",
+        "Brand": "E. Leclerc Hennebont",
+        "Product": "Prepared dishes made with andouille de Guémené: beef and andouille parmentier, La Rustique salad, Guémené pizza, Raymond bruschetta, Breton bowl, sold 07/11/2026 to 23/11/2026, E. Leclerc Hennebont",
+        "Reason": "Suspected Listeria monocytogenes",
+        "Date": "2026-11-25",
+        "Notes": "e. leclerc hennebont [nightly operator 2026-11-25: fiche 24177 (réf. 2026-11-0183) re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: fiche 24177: Product and Reason French; Company was the store brand. Separate fiche from 24175 (different reference and model list).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24177/interne",
+          "quote": "Parmentier de bœuf et andouille de Guémené",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24177/interne",
+          "quote": "Suspicion de Listéria",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24177/interne",
+          "quote": "SA HENDIS CENTRE E. LECLERC HENNEBONT",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass"
+      },
+      "changes": {
+        "Company": "Apex Foodsource Ltd.",
+        "Brand": "Yeshi",
+        "Product": "Yeshi Sesame Ginger Nutritional Yeast Dressing & Dip, 350 ml, UPC 6 27843 80892 3, lot 260615 402016, 2028 JN 14",
+        "Reason": "Pieces of glass (extraneous material)",
+        "Pathogen": "Foreign material (glass)",
+        "Date": "2026-11-20",
+        "Notes": "source_id=https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass [via official-feed collector] [url-guard 2026-11-25: reviewer 1 tried to reject this row as 'No official regulator page found for the recall'; refused — the official URL is on the row. Left in Pending for a later run.] [offline-enrich 2026-11-25: Pathogen 'Glass' -> 'Foreign material (glass)', the register's own label for this hazard; no fetch, no model] [nightly operator 2026-11-25: CFIA notice re-read tonight; distribution British Columbia, possibly other provinces]"
+      },
+      "reason": "nightly operator 2026-11-25: CFIA row: Company empty, Product and Reason were the headline; Date was the scrape day (CFIA recall date 2026-11-20).",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass",
+          "quote": "Sesame Ginger Nutritional Yeast Dressing & Dip",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass",
+          "quote": "6 27843 80892 3",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass",
+          "quote": "Apex Foodsource Ltd.",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass",
+          "quote": "pieces of glass",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne"
+      },
+      "changes": {
+        "Company": "Cooperative U Enseigne U",
+        "Brand": "Unbranded",
+        "Product": "Vanilla praline rolled Yule log cake (GTIN 2000000324418, lots 1/288/26 - 1/289/26); chocolate praline Rocher log cake (GTIN 2000000278902, lot 1/286/26), sold 21/10/2026 to 09/11/2026 at Magasins U",
+        "Pathogen": "Foreign material (stones)",
+        "Reason": "Physical risk: possible presence of small stone-type foreign bodies in 2/4 mm hazelnut pieces",
+        "Date": "2026-11-16",
+        "Notes": "magasins u [offline-enrich 2026-11-16: Pathogen '' -> 'Foreign material', read from this row's own hazard text; no fetch, no model] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found'; refused — the official URL is on the row. Left in Pending for a later run.] [url-guard 2026-11-17: reviewer 1 tried to reject this row as 'No official regulator URL found' for the 2nd time; refused AND escalated — the URL is on the authority's own domain and is a specific page, not a listing. URL confirmed deterministically; Pathogen left empty because this path did not enrich.] [confirm-agent hold: 2026-11-19: no recalling firm on the row (Brand 'Unbranded'); not published and not rejected — reviewer 2 to read the firm from the notice] [nightly operator 2026-11-25: fiche 24089 re-read tonight; fields read on the page, French translated]"
+      },
+      "reason": "nightly operator 2026-11-25: fiche 24089: Company empty (confirm-agent hold), Product and Reason French. Same decision as unmerged PRs #51-#54.",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "Bûchette Rocher chocolat praliné",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "2000000324418",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "2000000278902",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "cailloux dans des éclats de noisette 2/4mm",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        },
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24089/interne",
+          "quote": "COOPERATIVE U ENSEIGNE U ENSEIGNE",
+          "retrieved_utc": "2026-11-25T20:00:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "nightly-operator"
+    }
+  ]
+}
