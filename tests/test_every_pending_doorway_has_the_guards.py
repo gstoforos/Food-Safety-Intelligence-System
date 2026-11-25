@@ -81,23 +81,26 @@ def _queue(*urls, **over):
 
 
 class TestOneBatchQueuesOneRowPerRecall(unittest.TestCase):
+    # Fixture URLs are deliberately NOT real alerts (year 2099): append_to_pending reads
+    # the live workbook's rejection registry, and the real 2026_86 was
+    # rejected as a duplicate of 2026_87 by the nightly operator 2026-11-22.
     def test_a_www_variant_in_the_same_batch_does_not_queue_twice(self):
-        out = _queue("https://www.aesan.gob.es/alertas/2026_86",
-                     "https://aesan.gob.es/alertas/2026_86")
+        out = _queue("https://www.aesan.gob.es/alertas/2099_96",
+                     "https://aesan.gob.es/alertas/2099_96")
         self.assertEqual(
             1, len(out),
             "one recall queued twice in one batch, one 'www.' apart — the "
             "exact pair found in Pending on 2026-11-22")
 
     def test_the_identical_url_twice_does_not_queue_twice(self):
-        out = _queue("https://www.aesan.gob.es/alertas/2026_86",
-                     "https://www.aesan.gob.es/alertas/2026_86")
+        out = _queue("https://www.aesan.gob.es/alertas/2099_96",
+                     "https://www.aesan.gob.es/alertas/2099_96")
         self.assertEqual(1, len(out),
                          "a byte-identical URL queued twice in one batch")
 
     def test_two_different_recalls_both_still_queue(self):
-        out = _queue("https://www.aesan.gob.es/alertas/2026_86",
-                     "https://www.aesan.gob.es/alertas/2026_87")
+        out = _queue("https://www.aesan.gob.es/alertas/2099_96",
+                     "https://www.aesan.gob.es/alertas/2099_97")
         self.assertEqual(2, len(out),
                          "the fix must not collapse two distinct alerts")
 
