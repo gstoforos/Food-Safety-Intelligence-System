@@ -288,6 +288,42 @@ _PLACEHOLDER_VALUES = frozenset({
     # page's section label, folded in by the daily search's deterministic
     # extract — and this gate passed it. A document type names no firm.
     "press release", "news release", "media release",
+    #
+    # THE NOTIFIER'S OWN WORD FOR "VARIOUS" (morning fix 2026-11-26).
+    #
+    # Published 2026-11-25, Tier 1, Marine biotoxin, RappelConso fiche
+    # 24179 (the Étang de Thau shellfish harvesting ban):
+    #
+    #     Company  'Diverses'
+    #     Brand    'Diverses'
+    #     Product  'diverses'
+    #
+    # and that is what the dashboard showed. The fiche is a blanket ban on
+    # a harvesting area, so DGCCRF's "Nom de la marque du produit" and
+    # "Noms des modèles ou références" fields both read "Diverses" —
+    # various. The pipeline captured it faithfully, exactly as it captured
+    # "idem" from fiche 23108. It is the same defect in the same place: a
+    # notifier placeholder meaning "no single value here", standing where
+    # the register needs a firm and a food.
+    #
+    # It cost more than a bad-looking row. The same recall is ALREADY
+    # published for fiche 24121 (2026-11-19, 'Comité Régional de la
+    # Conchyliculture de Méditerranée' / 'Shellfish harvested in the Étang
+    # de Thau from 16 November 2026'), and merge_master's near-duplicate
+    # rule did not see the second one — because a dedup key built on
+    # Company and Product cannot match 'Diverses'/'diverses' to the real
+    # names. A placeholder in a name field defeats deduplication, which is
+    # why holding it at the gate matters twice over.
+    #
+    # MEASURED BEFORE IT WAS WRITTEN, over every Company, Brand, Product,
+    # Pathogen and Reason in the 2,522-row register: this set matches the
+    # three fields of that one row, plus Brand 'Various' on the CFIA row of
+    # 2026-03-02. Brand is not a _blank()-guarded field and that value is a
+    # legitimate "no single brand", so it is added to _NAME_SENTINELS below
+    # and stays legal. Nothing else in the register is touched.
+    "diverses", "diverse", "divers", "various", "varios", "varias",
+    "varie", "varié", "variés", "varia", "vari", "variée", "variées",
+    "verschiedene", "diversi", "diversos", "olika", "forskellige", "flere",
 })
 
 # Regulator page-status banners that some scrapers fold into Company because
@@ -1921,8 +1957,17 @@ def _is_own_url_host(value: str, url: str) -> bool:
     return bool(candidate) and candidate == _bare(host)
 
 #: Values that mean "no value" in this register and are never a defect.
+#: 2026-11-26: the "various" placeholders are sentinels HERE as well as
+#: _PLACEHOLDER_VALUES above. A Brand of "Various" is a real answer — the
+#: CFIA row of 2026-03-02 carries one — so it must not be read as page
+#: debris by the name checks. Company and Product are still held, by
+#: _blank() in the required-identity-fields loop.
 _NAME_SENTINELS = frozenset({"", "—", "-", "–", "n/a", "na", "none",
-                             "unbranded", "not specified", "unknown"})
+                             "unbranded", "not specified", "unknown",
+                             "diverses", "diverse", "divers", "various",
+                             "varios", "varias", "varie", "varié", "variés",
+                             "verschiedene", "diversi", "diversos", "olika",
+                             "forskellige", "flere"})
 
 #: Food-authority proper names. The reviewer's own list
 #: (recall_review_agent._AGENCY_NAMES), widened with every authority name

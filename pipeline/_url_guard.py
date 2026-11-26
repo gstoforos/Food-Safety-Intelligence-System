@@ -325,24 +325,91 @@ def host_is_authority(url: str) -> bool:
     return any(host == a or host.endswith("." + a) for a in _AUTHORITY_HOSTS)
 
 
+#: HAZARD CLASSES THAT ARE IN SCOPE, STATED AS A REASON TO REJECT
+#: (morning fix 2026-11-26).
+#:
+#: This guard's docstring used to list "foreign body" among the content
+#: verdicts reviewer 1 is entitled to make. It is not one. Foreign
+#: material is squarely in scope for this register — glass, metal,
+#: plastic, stones — and the register publishes it constantly: 'Foreign
+#: material (glass)' on fiche 24087 and fiche 24159, 'Pieces Of Metal' on
+#: the Card Factory candy canes, 'Glass fragments' on the Arla pudding,
+#: 'Foreign material (plastic)' on the Koyo squid. Mould, pest, heavy
+#: metals and chemical contaminants are in scope on exactly the same
+#: footing.
+#:
+#: MEASURED ON THE 2026-11-26 WORKBOOK. Reviewer 1 has rejected five
+#: distinct rows with the reason "Hazard is a foreign body (…)":
+#:
+#:   Rejected[4096]        fiche 24087, 'Foreign material (glass)'
+#:   Recalls[123]          fiche 24087 — THE SAME FICHE, PUBLISHED
+#:   Rejected[3429]        CFIA, 'BSA Wiberg brand dry mixes … pieces of
+#:                         metal' (2026-11-04) — never published
+#:   Weekly_Rejected[610]  CFIA, 'Yeshi brand … Dressing & Dip … pieces
+#:   Pending[2]            of glass' (2026-11-24) — never published
+#:   Rejected[2211]        FAVV, Listeria pudding
+#:
+#: Recalls[123] is the proof, standing on its own: the register publishes
+#: the very fiche this reason was used to discard. Two real CFIA
+#: foreign-material recalls were suppressed outright and reached no
+#: subscriber. Both are queued back in by
+#: tools/repair_2026_11_26.py.
+#:
+#: What this does NOT touch: allergen-only, labelling, packaging,
+#: quality/spoilage, non-food, pet food, pre-2026 and "not a recall" are
+#: all still reviewer 1's to decide, and every one of them passes through
+#: untouched. The rule fires only on a reason that names an IN-SCOPE
+#: hazard as the ground for rejecting — and, like the reachability rule
+#: below it, only when the row already carries a URL on the authority's
+#: own domain, so a row with nothing to contradict the model is left
+#: alone.
+_IN_SCOPE_HAZARD_REASON = re.compile(
+    r"hazard\s+is\s+(?:a\s+|an\s+|the\s+)?"
+    r"(?:foreign\s+(?:body|bodies|material|matter|object)"
+    r"|physical\s+(?:hazard|contaminant)"
+    r"|glass|metal|plastic|wood|stone|rubber"
+    r"|mould|mold|fungal\s+growth"
+    r"|pest|insect|rodent"
+    r"|heavy\s+metal|lead|cadmium|mercury|arsenic"
+    r"|chemical\s+contaminant|pesticide\s+residue"
+    r"|biotoxin|marine\s+biotoxin|mycotoxin|aflatoxin|histamine"
+    r"|glycoalkaloid|bisphenol|moah|undeclared\s+drug)",
+    re.I)
+
+
 def reject_refusal(row: Dict[str, Any], reason: str) -> str:
     """"" if reviewer 1 may reject on this reason, else why it may not.
 
-    ONLY blocks the "I could not find the page" class. A reject on
-    content — out of scope, allergen, foreign body, pre-2026, not a
-    recall, non-food — is reviewer 1 doing its job and passes straight
-    through, even on an authority URL.
+    Blocks TWO classes of rejection, and only these two:
+
+    * "I could not find the page" — a statement about reachability, not
+      about whether the notice exists;
+    * "the hazard is a foreign body / mould / a heavy metal / …" — a
+      statement that an IN-SCOPE hazard is a ground for rejection, which
+      it is not (2026-11-26; see _IN_SCOPE_HAZARD_REASON).
+
+    Every other reject on content — allergen-only, labelling, packaging,
+    quality, pre-2026, not a recall, non-food, pet food — is reviewer 1
+    doing its job and passes straight through, even on an authority URL.
     """
     why = str(reason or "").strip()
     if not why:
         return ""
-    if not _NOT_FOUND_REASON.search(why):
+    in_scope_hazard = bool(_IN_SCOPE_HAZARD_REASON.search(why))
+    if not in_scope_hazard and not _NOT_FOUND_REASON.search(why):
         return ""          # a content verdict; not this guard's business
     url = str(row.get("URL") or "").strip()
     if not url:
         return ""          # nothing on the row to contradict the model
     if not host_is_authority(url):
         return ""          # a news or unknown host proves nothing
+    if in_scope_hazard:
+        return (f"'{why[:90]}' names a hazard class this register PUBLISHES "
+                f"— foreign material, mould, pest, heavy metals and chemical "
+                f"contaminants are all in scope — so it is not a ground for "
+                f"rejection. The notice is on the authority's own domain "
+                f"({url}). Allergen-only, labelling, packaging, quality and "
+                f"non-food remain yours to reject.")
     return (f"the row already carries an official regulator URL ({url}); "
             f"'{why[:90]}' is a statement about reachability, not about "
             f"whether the notice exists. Several regulator hosts return "

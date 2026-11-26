@@ -429,6 +429,39 @@ kaas vlees melk gesneden gerookte stukjes
 kött kylt fryst ost skivad grønnkål økologisk
 """.split())
 
+#: "choux" and "recette" (morning fix 2026-11-26).
+#:
+#: Published 2026-11-24, Tier 1, Listeria, RappelConso fiche 24157:
+#:
+#:     Product 'choux chantilly x2 (recette locale) fabrication'
+#:
+#: product_needs_english() returned False and the row carried NO cleanup
+#: stamp. Every word in it defeated a different rule: "chantilly" and
+#: "fabrication" are English too, "locale" is an English word in its own
+#: right, and "choux" and "recette" were in no list at all — so there was
+#: no French food word, no French structure word, and nothing for the
+#: two-hit function-word detector to count. The row sat on the 24 November
+#: daily brief for two days, and tests/test_language_policy.py saw nothing.
+#:
+#: Only these two words are added, and only these two. MEASURED BEFORE IT
+#: WAS WRITTEN, over all 2,522 published Products plus Pending and
+#: Weekly_Review: {"choux", "recette"} fires on exactly the row above (and
+#: its Weekly_Review copy) and on nothing else. The five English rows that
+#: keep "choux" as the culinary term it also is in English —
+#:   'Milk-and-egg custard & whipped-cream choux buns; …'
+#:   'Piémontaise salad with ham; choux trio'
+#:   'Paris-Brest (choux pastry ring)'            (and its two variants)
+#: are all held by the rule's existing "and NO English word anywhere"
+#: guard, which is why they must keep passing: see the test.
+#:
+#: "chantilly", "fabrication", "locale", "andouille", "paupiette" and
+#: "bûche" were each measured and DELIBERATELY LEFT OUT. The first three
+#: are English words; the last three are kept verbatim inside already
+#: translated English Products in this register ('… (paupiettes, roasting
+#: joints, etc.)', 'Picodons, apérichèvre, cœur, brique, bûche, pyramide
+#: …'), so adding them would fire on correct rows.
+_FRENCH_FOOD_WORDS = frozenset(_FRENCH_FOOD_WORDS | {"choux", "recette"})
+
 _NAME_SAFE_FRENCH = frozenset("à a l au d de du des la le les un une".split())
 _ENGLISH_HOMOGRAPHS = frozenset("est lot lots detection presence analyse".split())
 _FRENCH_STRUCTURE_WORDS = frozenset(
@@ -1306,6 +1339,31 @@ testing analyses laboratory suspected potential exceeds maximum permitted
 
 _REASON_WORD = re.compile(r"[a-z']+")
 
+#: FRENCH HAZARD WORDS THAT CARRY NO ACCENT (morning fix 2026-11-26).
+#:
+#: Published 2026-11-25, Tier 1, RappelConso fiche 24179 (the Étang de Thau
+#: shellfish harvesting ban):
+#:
+#:     Reason 'Biotoxines psp'
+#:
+#: reason_needs_english() returned False. The string is two words, so the
+#: two-function-word detector has nothing to count; it carries no accent,
+#: so the one-accent rule for four-or-more-word strings never applies and
+#: the two-accent floor for short strings is not met either. A French
+#: Reason reached the register and the daily brief with every language
+#: rule agreeing it was English.
+#:
+#: Matched as a WHOLE WORD, on the French spelling only. That distinction
+#: is the whole rule: the English plural "biotoxins" must keep passing,
+#: and on this register it has to —
+#:   'Fishing-zone closure — DSP (diarrhetic shellfish poisoning) marine
+#:    biotoxins'                                   (0 English words counted)
+#:   'Phytoplankton + biotoxins exceeding regulatory threshold'      (1)
+#: would both be flagged by any stem or substring match. MEASURED over
+#: every published Reason: this set fires on the one row above and on
+#: nothing else.
+_FRENCH_HAZARD_WORDS = frozenset({"biotoxines", "biotoxine"})
+
 #: Sources whose Reason is a Commission notification subject, kept verbatim.
 REASON_VERBATIM_SOURCES = ("RASFF (EU)",)
 
@@ -1323,6 +1381,12 @@ def reason_needs_english(text) -> bool:
     w = frozenset(_REASON_WORD.findall(s.lower()))
     if len(w & REASON_ENGLISH_WORDS) >= 2:
         return False
+    # An accent-free French hazard word, with fewer than two English words
+    # beside it (2026-11-26). Checked AFTER the two-English-word escape
+    # above, so a house-style English Reason that quotes the French term
+    # keeps passing. See the note on _FRENCH_HAZARD_WORDS.
+    if w & _FRENCH_HAZARD_WORDS:
+        return True
     accents = len(REASON_FOREIGN_LETTER.findall(s))
     if len(w) >= 4:
         return accents >= 1
