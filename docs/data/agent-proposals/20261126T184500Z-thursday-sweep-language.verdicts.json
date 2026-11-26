@@ -1,0 +1,30 @@
+[
+  {
+    "proposal_id": "7158d3d8ca314547",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2532"
+  },
+  {
+    "proposal_id": "7ac3ea4dae0d5436",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2533"
+  },
+  {
+    "proposal_id": "61609111eda7a1bb",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2534"
+  },
+  {
+    "proposal_id": "f029052b05544f70",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2535"
+  }
+]

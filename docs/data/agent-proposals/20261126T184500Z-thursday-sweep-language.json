@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "agent": "thursday-sweep",
+  "generated_utc": "20261126T184500Z",
+  "proposals": [
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24190/interne"
+      },
+      "changes": {
+        "Product": "Meat black pudding (boudin à la viande), lot 630915",
+        "Reason": "Listeria monocytogenes detected following a product analysis."
+      },
+      "reason": "English-output rule: translated from the fiche read 2026-11-26. [original Product (fr): \"boudin a la viande\"] [original Reason (fr): \"Détection de la listéria monocytogène suite a une analyse produit\"]",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24190/interne",
+          "quote": "Détection de la listéria monocytogène suite a une analyse produit",
+          "retrieved_utc": "2026-11-26T18:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24191/interne"
+      },
+      "changes": {
+        "Product": "Farmhouse raw-milk cheese with wild garlic (pavé fermière ail des ours au lait cru), lot 217, best before 08/12/2026",
+        "Reason": "Presence of Listeria monocytogenes."
+      },
+      "reason": "English-output rule: translated from the fiche read 2026-11-26. [original Product (fr): \"pavé fermière ail des ours au lait cru\"] [original Reason (fr): \"Présence de listeria monocytogène\"]",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24191/interne",
+          "quote": "Présence de listeria monocytogène",
+          "retrieved_utc": "2026-11-26T18:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24182/interne"
+      },
+      "changes": {
+        "Product": "Dry-cured rolled pork belly (ventrèche roulée séchée), whole and sliced vacuum-packed, lot 130726, best before 18/12/2026",
+        "Reason": "Presence of Listeria."
+      },
+      "reason": "English-output rule: translated from the fiche read 2026-11-26. [original Product (fr): \"ventrèche roulée séchée entière, ventrèche roulée séchée tranchée sous vide\"] [original Reason (fr): \"Présence de Listéria\"]",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24182/interne",
+          "quote": "Présence de Listéria",
+          "retrieved_utc": "2026-11-26T18:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "enrich",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24181/interne"
+      },
+      "changes": {
+        "Product": "Dry-cured flat pork belly (ventrèche plate séchée), whole, half vacuum-packed and sliced vacuum-packed, lots 240726A and 240726B",
+        "Reason": "Presence of Listeria."
+      },
+      "reason": "English-output rule: translated from the fiche read 2026-11-26. [original Product (fr): \"ventrèche plate séchée entière, ventrèche plate séchée 1/2 sous vide, ventrèche plate séchée tranchée sous vide\"] [original Reason (fr): \"Présence de Listéria\"]",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24181/interne",
+          "quote": "Présence de Listéria",
+          "retrieved_utc": "2026-11-26T18:45:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    }
+  ]
+}
