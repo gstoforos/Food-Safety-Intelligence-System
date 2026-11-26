@@ -3,27 +3,29 @@
     {
       "date": "2026-11-24",
       "url": "daily/2026-11-24.html",
-      "total": 9,
-      "tier1": 3,
-      "outbreak": 0,
-      "by_region": {
-        "Asia": 3,
-        "Oceania": 2,
-        "Europe": 4
-      },
-      "generated": "2026-11-25T08:11:45Z"
-    },
-    {
-      "date": "2026-11-23",
-      "url": "daily/2026-11-23.html",
       "total": 14,
       "tier1": 5,
       "outbreak": 0,
       "by_region": {
-        "Europe": 12,
+        "Asia": 3,
+        "Oceania": 2,
+        "Europe": 6,
+        "Unknown": 1,
         "North America": 2
       },
-      "generated": "2026-11-25T08:11:48Z"
+      "generated": "2026-11-26T08:02:26Z"
+    },
+    {
+      "date": "2026-11-23",
+      "url": "daily/2026-11-23.html",
+      "total": 16,
+      "tier1": 6,
+      "outbreak": 1,
+      "by_region": {
+        "Europe": 13,
+        "North America": 3
+      },
+      "generated": "2026-11-26T08:02:24Z"
     },
     {
       "date": "2026-11-22",
@@ -61,17 +63,17 @@
     {
       "date": "2026-11-19",
       "url": "daily/2026-11-19.html",
-      "total": 15,
+      "total": 16,
       "tier1": 11,
       "outbreak": 0,
       "by_region": {
         "Asia": 2,
         "Oceania": 1,
         "Europe": 10,
-        "North America": 1,
+        "North America": 2,
         "Unknown": 1
       },
-      "generated": "2026-11-25T08:11:56Z"
+      "generated": "2026-11-26T08:02:22Z"
     },
     {
       "date": "2026-11-18",
