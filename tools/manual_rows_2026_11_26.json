@@ -1,0 +1,41 @@
+[
+  {
+    "Date": "2026-11-24",
+    "Source": "RappelConso (FR)",
+    "Company": "Auchan",
+    "Brand": "Auchan",
+    "Product": "Red firm-fleshed eating potatoes — Auchan 2.5 kg (GTIN 3254560395084) and Auchan 2 kg (GTIN 3505625084703), sold in nets, lot N°26128774",
+    "Pathogen": "Glycoalkaloids",
+    "Reason": "Detection of an elevated glycoalkaloid content",
+    "Class": "Recall",
+    "Country": "France",
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24146/interne",
+    "Notes": "[morning fix pass 2026-11-26: added by the operator pass after the by-hand RappelConso sweep found this fiche on https://rappel.conso.gouv.fr/categorie/0/3 and no sheet of the workbook carried it — searched by fiche number, by company, by product and by lot across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected. Read on fiche 24146 today (Fiche réf. 2026-11-0153 • Version 1, date 24/11/2026): H1 \"POMME DE TERRE ROUGE SALADE VAPEUR SAUTE 2KG et 2.5KG\", brand line \"AUCHAN\", \"Origine de la fiche: AUCHAN RETAIL SERVICES AUCHAN\", Catégorie Alimentation / Fruits et légumes, \"Noms des modèles ou références: POMME DE TERRE DE CONSOMMATION A CHAIR FERME ROUGE AUCHAN 2,5KG POMME DE TERRE 2KG SVS ROUGE AUCHAN 2 KG\", GTIN 3254560395084 lot \"N°26128774 Vendus en rayon fruit et légumes entre le 19/10/2026 et le 21/11/2026 inclus\" and GTIN 3505625084703 lot \"N°26128774 Vendus en rayon fruit et légumes entre le 04/11/2026 et le 21/11/2026 inclus\", Conditionnements \"en filet\", France entière, \"Date début/Fin de commercialisation: Du 19/10/2026 au 21/11/2026\", Distributeurs \"Toute enseigne distribuant la marque Auchan\", Motif \"Suite à la détection de teneur élevé en Glycoalconoide\", Risques \"Autres contaminants chimiques\", Nature juridique \"Volontaire (sans arrêté préfectoral)\", \"Produit à conserver à température ambiante\". Company is \"Auchan\" to match the two Auchan rows already published for fiches 24157 and 24158, which carry the same \"Origine de la fiche: AUCHAN RETAIL SERVICES AUCHAN\". Pathogen is \"Glycoalkaloids\" to match the two RappelConso rows already published for THE SAME POTATO LOT 26128774 (fiche 24142/Panier du Primeur and the Lidl Côté marché fiche of 2026-11-21); the notice's own spelling is \"Glycoalconoide\". No GTIN, lot, weight or date beyond the fiche's own is added. [original product: POMME DE TERRE DE CONSOMMATION A CHAIR FERME ROUGE AUCHAN 2,5KG POMME DE TERRE 2KG SVS ROUGE AUCHAN 2 KG] [original Reason (fr): \"Suite à la détection de teneur élevé en Glycoalconoide\"]]"
+  },
+  {
+    "Date": "2026-11-23",
+    "Source": "RappelConso (FR)",
+    "Company": "Maison Ginisty",
+    "Brand": "Maison Ginisty",
+    "Product": "Venison terrine (terrine de biche), 190 g verrine, lot 245, best before 31/12/2027",
+    "Pathogen": "Unspecified microbiological contamination (stability-test failure: pH variation > 0.5)",
+    "Reason": "Non-compliant results on stability analyses by method NF V08-401 at 32 °C and 55 °C: pH variation greater than 0.5",
+    "Class": "Recall",
+    "Country": "France",
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24147/interne",
+    "Notes": "[morning fix pass 2026-11-26: added by the operator pass after the by-hand RappelConso sweep found this fiche on https://rappel.conso.gouv.fr/categorie/0/3 and no sheet of the workbook carried it — searched by fiche number, by company and by product across all five sheets. Read on fiche 24147 today (Fiche réf. 2026-11-0154 • Version 1, date 23/11/2026): H1 \"TERRINE DE BICHE\" with \"MAISON GINISTY\" printed beneath it, \"Origine de la fiche: MAISON GINISTY MAISON GINISTY\", \"Nom de la marque du produit: MAISON GINISTY\", Catégorie Alimentation / Viandes, \"Noms des modèles ou références: Verrine 190g\", Lot 245, \"Date de durabilité minimale 31/12/2027\", Conditionnements \"Verrine\", Marque de salubrité \"FR 12.264.004 UE\", France entière, \"Date début/Fin de commercialisation: Du 08/12/2023 au 06/10/2026\", Distributeurs \"Vendu en remise directe à la boutique et sur le site Bienmanger.com\", Motif \"Résultats non conformes sur les analyses de stabilité selon la méthode NF V08-401 à 32°C et 55°C: variation de pH > 0,5\", Risques \"Autres contaminants biologiques\", Nature juridique \"Volontaire (sans arrêté préfectoral)\", \"Produit à conserver à température ambiante\". THE NOTICE NAMES NO ORGANISM and none is invented: a failed NF V08-401 stability test on an ambient-stable preserve means the sterilisation cannot be relied on, and the Pathogen uses the register's existing \"Unspecified microbiological contamination (…)\" form with the fiche's own measurement in the bracket — the same shape as the Lait Prairies du Boulonnais row of 2026-11-20 (fiche 24125) and the row of 2026-11-18, both of which also carry Risques \"Autres contaminants biologiques\" with no organism named. No GTIN is on the page and none is added. [original product: Verrine 190g / TERRINE DE BICHE] [original Reason (fr): \"Résultats non conformes sur les analyses de stabilité selon la méthode NF V08-401 à 32°C et 55°C: variation de pH > 0,5\"]]"
+  },
+  {
+    "Date": "2026-11-04",
+    "Source": "CFIA",
+    "Company": "BSA Wiberg Inc.",
+    "Brand": "BSA Wiberg",
+    "Product": "USCL Maple Sugar Seasoning, 20 kg (lots 103414810 and 103402393); Caramelized Onion, Balsamic Vinegar and Mustard Sausage, 0.57 kg (lot 103409217); Oyster Sauce, 20 kg (lot 103418111); Hoisin Sauce, 20 kg (lot 103418113); Whisky BBQ Flavoured Dry Rub, 20 kg (lot 103424444)",
+    "Pathogen": "Foreign material (metal)",
+    "Reason": "Pieces of metal (CFIA issue category: Food — Extraneous Material)",
+    "Class": "Class 3",
+    "Country": "Canada",
+    "URL": "https://recalls-rappels.canada.ca/en/alert-recall/bsa-wiberg-brand-dry-mixes-recalled-due-pieces-metal",
+    "Notes": "[morning fix pass 2026-11-26: RECOVERED FROM A WRONG REVIEWER REJECTION, not newly found. The row sat in Rejected (row 3429, dated 2026-11-04) with the reason \"URL agent: Hazard is a foreign body (metal)\" and was never published. Foreign material is IN SCOPE for this register and the register publishes it constantly — 17 rows carry Pathogen 'Foreign material (metal)' alone. The guard that is meant to catch a wrong reviewer-1 rejection had \"foreign body\" written into its own docstring as a content verdict reviewer 1 is entitled to make; that is fixed in pipeline/_url_guard.py today and pinned by tests/test_morning_fix_2026_11_26.py. Read on the CFIA notice today: headline \"BSA Wiberg brand dry mixes recalled due to pieces of metal\", \"Recall date 2026-10-30\", \"Original published date: 2026-11-04\", \"Last updated 2026-11-04\", \"Recalling firm: BSA Wiberg Inc.\", brand \"BSA Wiberg\", recall class \"Class 3\", Issue \"Food - Extraneous Material\", identification number RA-82904 (CFIA ID 17622), product type \"Dry mixes\", category \"Food - Herbs and spices\", audience \"Hotels, restaurants and institutions\" and \"Manufacturers\", distribution \"Nova Scotia\" and \"Quebec\", \"What to do: Do not use, sell, serve or distribute the affected products.\" The five products, their sizes and their lot codes are transcribed from the notice's own table. The notice reports no illnesses and none is claimed. Date is the original published date, which is the register's convention for a CFIA row and matches the date the rejected copy already carried.]"
+  }
+]

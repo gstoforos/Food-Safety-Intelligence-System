@@ -1,0 +1,58 @@
+[
+  {
+    "Date": "2026-11-19",
+    "Source": "CFIA",
+    "Company": "CTS Foods",
+    "Brand": "Casearia il Ghiottone",
+    "Product": "Burattina fresh stretched curd cheese with cream, 200 g (2 x 100 g), UPC 8 050616 058881, code 60823635",
+    "Pathogen": "Escherichia coli (generic)",
+    "Reason": "Generic E. coli contamination (Food - Microbial contamination - E. coli - non-pathogenic); distributed in Alberta, Ontario and Quebec",
+    "Class": "Class 2",
+    "Country": "Canada",
+    "Outbreak": 0,
+    "URL": "https://recalls-rappels.canada.ca/en/alert-recall/casearia-il-ghiottone-brand-burattina-fresh-stretched-curd-cheese-cream-recalled-due",
+    "Notes": "Added by the daily-global review 2026-11-26 (MISSING: absent from all five sheets; CFIA collector's newest row was 2026-11-13). Read on the Government of Canada recall page: recall date \"2026-11-19\", \"Class 2\", recalling firm \"CTS Foods\", brand \"Casearia il Ghiottone\", \"Burattina Fresh Stretched Curd Cheese with Cream\", \"200 g (2 x 100 g)\", UPC \"8 050616 058881\", code \"60823635\", Alberta, Ontario and Quebec; issue \"Food - Microbial contamination - E. Coli - non-pathogenic\". No illnesses mentioned."
+  },
+  {
+    "Date": "2026-11-24",
+    "Source": "MAPAQ QC",
+    "Company": "Ferme des Provins SENC",
+    "Brand": "Les Jardins de Louise",
+    "Product": "All products packaged in glass jars, sold at room temperature at the farm and at several public markets until 24 November 2026",
+    "Pathogen": "Clostridium botulinum",
+    "Reason": "Safety not assured: the products could allow the growth of Clostridium botulinum; no illness reported to MAPAQ",
+    "Class": "Public health warning",
+    "Country": "Canada",
+    "Outbreak": 0,
+    "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-de-tous-les-produits-conditionnes-dans-un-pot-en-verre-prepares-et-vendus-par-lentreprise-ferme-des-provins-senc-les-jardins-de-louise-73172",
+    "Notes": "Added by the daily-global review 2026-11-26 (MISSING: absent from all five sheets; MAPAQ QC newest row was 2026-11-03). Read on the Québec government notice \"QUÉBEC, le 24 nov. 2026\": MAPAQ warns against \"tous les produits conditionnés dans un pot en verre\" prepared and sold by \"Ferme des Provins SENC, située au 275, 2e Rang Est, à Saint-Paul-de-la-Croix\" (Les Jardins de Louise); \"ces produits pourraient favoriser la prolifération de la bactérie Clostridium botulinum\"; sold at the farm and \"dans plusieurs marchés publics\" until 24 November 2026; \"aucun cas de maladie ... n'a été signalé au MAPAQ\". No lots named. [original product: tous les produits conditionnés dans un pot en verre]"
+  },
+  {
+    "Date": "2026-11-25",
+    "Source": "Ruokavirasto (FI)",
+    "Company": "K-Supermarket Tapiola",
+    "Brand": "",
+    "Product": "Fish patties made in the store's own kitchen, sold at the service counter in Espoo on 24.11.2026",
+    "Pathogen": "Food additive above legal limit (nitrite)",
+    "Reason": "Nitrite salt was used by mistake instead of ordinary salt; one patty significantly exceeds the acceptable daily nitrite intake and may cause methaemoglobinaemia",
+    "Class": "Recall",
+    "Country": "Finland",
+    "Outbreak": 0,
+    "URL": "https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/k-supermarket-tapiolan-kalapihveissa-nitriittisuolaa/",
+    "Notes": "Added by the daily-global review 2026-11-26 (MISSING; a news-only copy sits in Weekly_Rejected as 'no official Ruokavirasto press-release URL'). Read on the Ruokavirasto notice dated \"25. marraskuuta 2026\": \"K-Supermarket Tapiolan myymälä Espoossa\", \"kaupan oman keittiön valmistamia kalapihvejä\" sold \"tiistaina 24.11.2026\"; ordinary salt replaced \"vahingossa nitriittisuolaa\"; \"Nitriitin liiallinen saanti voi johtaa methemoglobinemiaan\"; one patty significantly exceeds the acceptable daily intake. Size not stated. [original product: kalapihvit]"
+  },
+  {
+    "Date": "2026-11-26",
+    "Source": "CAA (JP)",
+    "Company": "Piago Daiji store",
+    "Brand": "Kane-ue",
+    "Product": "Kamaage chirimen (boiled whitebait), sold at Piago Daiji",
+    "Pathogen": "Foreign material (suspected juvenile pufferfish)",
+    "Reason": "Juvenile pufferfish found mixed into the product",
+    "Class": "Recall",
+    "Country": "Japan",
+    "Outbreak": 0,
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036197&screenkbn=01",
+    "Notes": "Added by the daily-global review 2026-11-26 (MISSING: absent from all five sheets; CAA notice posted 2026/11/26 per the daily brief). Read on the CAA detail page: 商品名 \"カネ上 釜あげちりめん\", 回収理由 \"フグの稚魚が混入\", sold \"ピアゴ大治店で販売\", 対応開始日 2026年11月19日. The page names no business, size or date; the brand mark カネ上 and the selling store are what it gives. Same hazard class as the Beniya Shoji shirasu row of 2026-11-24. [original product: カネ上 釜あげちりめん]"
+  }
+]
