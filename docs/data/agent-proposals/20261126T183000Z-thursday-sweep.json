@@ -1,0 +1,259 @@
+{
+  "schema": 1,
+  "agent": "thursday-sweep",
+  "generated_utc": "20261126T183000Z",
+  "proposals": [
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24174/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24174/Interne",
+          "quote": "risque de morceaux de plastiques dans les produits",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24164/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24164/Interne",
+          "quote": "Teneur élevée en glycoalcaloïdes",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24134/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24134/Interne",
+          "quote": "Dépassement de la limite autorisée en pesticide (prochloraz)",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24129/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24129/Interne",
+          "quote": "analyse non conforme (e coli )",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24151/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24151/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24165/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24165/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24166/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24166/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24167/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24167/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24168/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24168/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24169/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24169/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24170/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24170/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24171/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24171/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24172/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24172/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    },
+    {
+      "action": "promote",
+      "target": {
+        "url": "https://rappel.conso.gouv.fr/fiche-rappel/24173/Interne"
+      },
+      "changes": {},
+      "reason": "Thursday sweep gap: in-scope RappelConso fiche absent from every sheet; fiche page read 2026-11-26",
+      "evidence": [
+        {
+          "kind": "regulator_page",
+          "url": "https://rappel.conso.gouv.fr/fiche-rappel/24173/Interne",
+          "quote": "Teneur en Delta-9-THC conduisant à un dépassement de la dose de référence aiguë en delta 9 thc définie par l'EFSA",
+          "retrieved_utc": "2026-11-26T18:30:00Z"
+        }
+      ],
+      "confidence": 0.95,
+      "agent": "thursday-sweep"
+    }
+  ]
+}
