@@ -13,7 +13,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24177/interne",
-  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-26: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-25",
@@ -29,7 +29,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24176/interne",
-  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-26: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-25",
@@ -45,7 +45,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24175/interne",
-  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "e. leclerc hennebont [needs cleanup: Reason not in English] [needs cleanup: Product not in English] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-26: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-25",
@@ -61,7 +61,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24179/interne",
-  "Notes": "producteurs en vente directe, marchés locaux ou régionaux, produits revendus par détaillants, grandes et moyennes surfac [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "producteurs en vente directe, marchés locaux ou régionaux, produits revendus par détaillants, grandes et moyennes surfac [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-26: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-24",
@@ -237,7 +237,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/889111",
-  "Notes": "[RASFF #2026.10457; classification: alert notification; category: poultry meat and poultry meat products; notifId=889111] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "[RASFF #2026.10457; classification: alert notification; category: poultry meat and poultry meat products; notifId=889111] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-26: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-23",
