@@ -267,7 +267,45 @@ PATHOGEN: dict[str, list[str]] = {
                                         # here reached it, so the hazard
                                         # would have published unalertable.
                                         "glycidyl", "glycidyle",
-                                        "glycidylique"],  # 5
+                                        "glycidylique",
+                                        # 2026-11-27: Mattilsynet, Sunkost AS
+                                        # "Sunkost Superfood kakaopulver"
+                                        # (2026-11-26), "Polysykliske
+                                        # aromatiske hydrokarboner (PAH) and
+                                        # benzo(a)pyrene above the limit for
+                                        # cocoa products". PAH and
+                                        # benzo(a)pyrene have their own limits
+                                        # in Reg. (EU) 2023/915 and are a
+                                        # chemical contaminant, squarely in
+                                        # AFTS scope — and no token here
+                                        # reached them, so the publish gate
+                                        # held the row rather than publish a
+                                        # hazard no subscriber alert could
+                                        # match. Same class as the glycidyl
+                                        # esters gap above, found on a held
+                                        # row rather than a published one.
+                                        # "benzo" is the token, not
+                                        # "benzo(a)pyrene": the matching rule
+                                        # is \b<token>s?\b, so "benzo" reaches
+                                        # "benzo(a)pyrene", "benzoapyrene" and
+                                        # "benzopyrene" (a non-word character
+                                        # follows in each), while the trailing
+                                        # \b keeps it off "benzoate" — sodium
+                                        # benzoate is a permitted preservative
+                                        # and must not fire a contaminant
+                                        # alert. pipeline/gap_finder/rules.py
+                                        # has carried "pah" and "polycyclic
+                                        # aromatic" since before this, so the
+                                        # finder saw the hazard and only the
+                                        # alert vocabulary did not.
+                                        # "benzopyrene" written solid is its
+                                        # own token for the same reason: no
+                                        # non-word character follows "benzo"
+                                        # there, so the boundary rule that
+                                        # protects benzoate also hides it.
+                                        "pah", "polycyclic aromatic",
+                                        "polysykliske aromatiske",
+                                        "benzo", "benzopyrene"],  # 5
     "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine",
                                               "sildenafil", "tadalafil",
                                               # 2026-10-10: FDA Leader Formulas

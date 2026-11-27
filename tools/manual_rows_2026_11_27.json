@@ -1,0 +1,54 @@
+[
+  {
+    "Date": "2026-11-26",
+    "Source": "NVWA (NL)",
+    "Company": "Udea",
+    "Brand": "Marqt Keuken",
+    "Product": "Marqt Keuken salads: Buddha bowl (article 6001335, EAN 8711521160525, best-before 28-11-2026 and 29-11-2026); Powerful pumpkin salad (6001337, 8711521160501, best-before 27-11 to 29-11-2026); Turmeric tango salad (6001338, 8711521160518, best-before 27-11 to 29-11-2026)",
+    "Pathogen": "Foreign material (hard white plastic)",
+    "Reason": "The products may contain hard white plastic pieces; consumers are told not to eat the salads",
+    "Class": "Recall",
+    "Country": "Netherlands",
+    "URL": "https://www.nvwa.nl/actueel/nieuws/2026/11/26/veiligheidswaarschuwing-diverse-salades-van-marqt-keuken",
+    "Notes": "[morning fix pass 2026-11-27: added by the operator pass. Found on the NVWA veiligheidswaarschuwingen listing (https://www.nvwa.nl/onderwerpen/voedselveiligheid/veiligheidswaarschuwingen, which serves https://www.nvwa.nl/actueel/veiligheidswaarschuwingen) and absent from every sheet — searched by 'Marqt', by 'Udea', by the article numbers and by the EANs across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected. Udea does appear in the register for an unrelated 2026-10-13 coriander recall. Read on the NVWA page today: title \"Veiligheidswaarschuwing diverse salades van Marqt Keuken\", printed \"26-11-2026 | 15:36\", warning issued by Udea for Marqt Keuken salads, hazard verbatim \"Er bestaat een kans dat deze producten witte harde plastic stukjes bevatten. Eet de salades niet.\" The three products with their artikelnummers, EANs and THT dates are as listed in Product above, read from that page. The Dutch text names no pathogen and none is invented: the hazard is foreign material, in AFTS scope. [original Reason (nl): \"Er bestaat een kans dat deze producten witte harde plastic stukjes bevatten. Eet de salades niet.\"] [original product: diverse salades van Marqt Keuken — Buddha bowl, Powerful pumpkin salade, Turmeric tango salade]]"
+  },
+  {
+    "Date": "2026-11-26",
+    "Source": "BVL (DE)",
+    "Company": "Berschneider GmbH",
+    "Brand": "Deluxe",
+    "Product": "Goose breast, raw-cured and mildly beech-smoked (Deluxe Gänsebrust roh gepökelt und mild über Buchenholz geräuchert), 80 g, batch 40897, best-before 10.12.26, identification mark DE EV 1279 EU",
+    "Pathogen": "Listeria monocytogenes, Salmonella",
+    "Reason": "Salmonella and Listeria were detected in the affected product",
+    "Class": "Recall",
+    "Country": "Germany",
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_27_BW_Gaensebrust/261126_27_BW_Gaensebrust.html",
+    "Notes": "[morning fix pass 2026-11-27: added by the operator pass. THE PIPELINE SAW THIS AND WAS RIGHT TO REFUSE IT: gap_finder/de/rules.py, be/rules.py and nl/rules.py each archived a copy to Weekly_Rejected on 2026-11-26 (rows 713, 728, 732) with 'no-authority-url: no official BVL press-release URL in the source article (news-only discovery)' — the discovery was produktwarnung.eu, which does not link back to the regulator. The official notice does exist and this row carries its own URL, read today from the lebensmittelwarnung.de register listing (page 1 of 272 Meldungen, entry 'Deluxe Gaensebrust', 'Hersteller: Berschneider GmbH', 26.11.2026). Read on that notice page today: H1 \"Deluxe Gaensebrust\", \"Produktbezeichnung/ -beschreibung: Deluxe Gänsebrust roh gepökelt und mild über Buchenholz geräuchert, 80 Gramm\", \"Hersteller / Inverkehrbringer: Hersteller: Berschneider GmbH\", \"Vertrieb über: Lidl\", \"Grund der Meldung: Krankheitserreger\" with the text \"In dem betroffenen Produkt wurden Salmonellen und Listerien nachgewiesen.\", \"Chargennummer / Los-Kennzeichnung: Charge 40897\", \"Mindesthaltbarkeitsdatum 10.12.26\", \"Verpackungseinheit: 80 Gramm\", \"Weitere Kennzeichnung: Identitätskennzeichen DE EV 1279 EU\", \"Datum der Erstveröffentlichung: 26.11.2026\", Meldungserstellung Baden-Württemberg, Betroffene Bundesländer Baden-Württemberg, Berlin, Brandenburg, Hamburg, Hessen, Mecklenburg-Vorpommern, Niedersachsen, Nordrhein-Westfalen, Rheinland-Pfalz, Sachsen, Sachsen-Anhalt, Schleswig-Holstein, Thüringen. The notice says \"Salmonellen und Listerien\" and names no species, so Pathogen uses the register's existing two-hazard form; 'Listeria monocytogenes' is the normaliser's canonical label for Listerien and no serovar is invented for the Salmonella half. Searched 'Berschneider', 'Gänsebrust' and 'Deluxe' across all five sheets before adding. [original product: Deluxe Gänsebrust roh gepökelt und mild über Buchenholz geräuchert, 80 Gramm] [original Reason (de): \"In dem betroffenen Produkt wurden Salmonellen und Listerien nachgewiesen.\"] [original company: Berschneider GmbH]]"
+  },
+  {
+    "Date": "2026-11-26",
+    "Source": "BVL (DE)",
+    "Company": "Afroshop Afrikanischer Supermarkt, Hofstraße 9, 82362 Weilheim in Oberbayern",
+    "Brand": "Bigi-mama",
+    "Product": "Cassava flour (Maniokmehl) \"Kokonte-Cassave-Flour\", 900 g, lot 020726, best-before 02.07.2028",
+    "Pathogen": "Hydrocyanic acid exceeding limit",
+    "Reason": "An elevated hydrocyanic acid content was found in a sample taken during an official market control in the Netherlands",
+    "Class": "Recall",
+    "Country": "Germany",
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_28_BY_Maniokmehl/261126_28_BY_Maniokmehl.html",
+    "Notes": "[morning fix pass 2026-11-27: added by the operator pass. Same story as the Berschneider row: gap_finder/de/rules.py and nl/rules.py archived copies to Weekly_Rejected on 2026-11-26 (rows 711, 730) with 'no-authority-url: no official BVL press-release URL in the source article (news-only discovery)' from produktwarnung.eu, and the official notice does exist. URL read today from the lebensmittelwarnung.de register listing (26.11.2026, 'Maniokmehl „Kokonte-Cassave-Flour“', 'Afroshop Afrikanischer Supermarkt, Hofstraße 9', categories 'Rückstände und Kontaminanten Gesundheitsschädliche Substanz'). Read on that notice page today: H1 \"Maniokmehl „Kokonte-Cassave-Flour“, 900 Gramm\", product \"Maniokmehl „Kokonte-Cassave-Flour“ der Marke „Bigi-mama“, 900 Gramm\", company \"Afroshop Afrikanischer Supermarkt, Hofstraße 9, 82362 Weilheim in Oberbayern\", \"Grund der Meldung: Rückstände und Kontaminanten Gesundheitsschädliche Substanz\" with the text that \"ein überhöhter Gehalt an Blausäure festgestellt\" was found in a sample from \"einer amtlichen Marktkontrolle in den Niederlanden\", \"Losnummer 020726\", \"Mindesthaltbarkeitsdatum 02.07.2028\", \"Datum der Erstveröffentlichung: 26.11.2026\", Meldungserstellung Bayern, Betroffene Bundesländer Bayern, sold only in that one shop. NO NUMERIC BLAUSÄURE VALUE IS PRINTED on the notice and none is invented — the Reason says what the notice says, that the content was elevated. The Swiss BLV public-warnings page was also read today and does NOT carry this item (its newest public warning is 13.11.2026, its newest recall 23.11.2026), so Source is BVL (DE) on the strength of the lebensmittelwarnung.de notice, whose host the register already accepts for this Source. Pathogen follows the register's existing hydrocyanic-acid hazard (Ministero della Salute, 2026-06-12 flax seeds). [original product: Maniokmehl „Kokonte-Cassave-Flour“ der Marke „Bigi-mama“, 900 Gramm] [original Reason (de): \"ein überhöhter Gehalt an Blausäure festgestellt\" (Probe aus einer amtlichen Marktkontrolle in den Niederlanden)] [original company: Afroshop Afrikanischer Supermarkt, Hofstraße 9, 82362 Weilheim in Oberbayern]]"
+  },
+  {
+    "Date": "2026-11-26",
+    "Source": "CAA (JP)",
+    "Company": "Akehama Seaside Sun Park",
+    "Brand": "Akehama Seaside Sun Park",
+    "Product": "\"Ehime Akehama sunshine citrus\" deco-tangerine juice, sold at all 171 Kuzefuku Shoten stores",
+    "Pathogen": "Mold",
+    "Reason": "Mould had developed on the inside of the cap",
+    "Class": "Recall",
+    "Country": "Japan",
+    "URL": "https://www.recall.caa.go.jp/result/detail.php?rcl=00000036201&screenkbn=01",
+    "Notes": "[morning fix pass 2026-11-27: added by the operator pass. Found on the Japan Consumer Affairs Agency food recall database (https://www.recall.caa.go.jp/result/index.php?screenkbn=01&category=1, page 1, sorted by 掲載日 descending) and absent from every sheet — searched by the recall number 36201, by デコ柑 and by the romanised company across Recalls, Pending, Weekly_Review, Weekly_Rejected and Rejected. Read on the CAA detail page today: 件名 \"あけはまシーサイドサンパーク「愛媛・明浜のお陽さま柑橘 デコ柑ジュース」（久世福商店全店171店舗で販売） - 返金/回収\", 事業者名 \"あけはまシーサイドサンパーク\", 商品名 \"愛媛・明浜のお陽さま柑橘 デコ柑ジュース\", 掲載日 2026/11/26, 対応開始日 2026/11/24, reason line verbatim \"キャップ内側にカビが発生\". Mould is explicitly in AFTS scope. Company and Brand are the standard romanisation of あけはまシーサイドサンパーク, which publishes no English name (operator 2026-10-01); the product description is translated and the store count 171 is the page's own 171店舗. [original company: あけはまシーサイドサンパーク] [original product: 愛媛・明浜のお陽さま柑橘 デコ柑ジュース] [original Reason (ja): \"キャップ内側にカビが発生\"]]"
+  }
+]

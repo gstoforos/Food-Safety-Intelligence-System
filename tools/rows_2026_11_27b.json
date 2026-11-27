@@ -1,0 +1,44 @@
+[
+  {
+    "Date": "2026-11-26",
+    "Source": "BVL (DE)",
+    "Company": "Parmentine",
+    "Brand": "EDEKA Herzstücke Ackergold",
+    "Product": "Red-skinned potatoes (Ackergold Rotschalige, variety Chérie), 1 kg, lot 26128774, barcode 4311527574933, sold from 12.10.2026",
+    "Pathogen": "Glycoalkaloids",
+    "Reason": "Elevated glycoalkaloid levels found in the potatoes; sold nationwide through EDEKA and Marktkauf stores in 15 federal states",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_26_HH_Kartoffeln/261126_26_HH_Kartoffeln.html",
+    "Notes": "Added by the daily-global review 2026-11-27 (found but rejected: four news-only copies in Weekly_Rejected as 'no official BVL press-release URL'). Read on the lebensmittelwarnung.de Meldung, Datum der Erstveröffentlichung \"26.11.2026\": \"Ackergold Rotschalige, Kartoffelspezialität, Sorte: Cherie\"; Hersteller \"Parmentine, Z.I. du Voy 51230, Fere-Champenoise, Frankreich\"; title \"EDEKA Herzstücke Ackergold Rotschalige, Kartoffeln\"; \"1 Kilogramm\"; \"Losnummer: 26128774\"; \"Barcode: 4311527574933\"; \"Verkaufszeitraum ab: 12.10.2026\"; Grund \"Gesundheitsschädliche Substanz\"; 15 Länder. Same Parmentine lot 26128774 as the published RappelConso 24142/24144/24146 and BVL 21.11 rows — the EDEKA/Marktkauf leg of one event. [original product: Ackergold Rotschalige, Kartoffelspezialität, Sorte: Cherie]"
+  },
+  {
+    "Date": "2026-11-25",
+    "Source": "RappelConso (FR)",
+    "Company": "SILVE INTERMARCHE",
+    "Brand": "Terroirs",
+    "Product": "Raclette potatoes for steaming and sautéing, 2.5 kg net bag, GTIN 3250399883488, lot 26128774, sold 16/10/2026 to 19/11/2026",
+    "Pathogen": "Glycoalkaloids",
+    "Reason": "High glycoalkaloid content",
+    "Class": "Recall",
+    "Country": "France",
+    "Outbreak": 0,
+    "URL": "https://rappel.conso.gouv.fr/fiche-rappel/24164/Interne",
+    "Notes": "Added by the daily-global review 2026-11-27 (absent from all five sheets). Read on RappelConso fiche 24164, réf. 2026-11-0170, dated 25/11/2026: marque \"TERROIRS\"; \"POMMES DE TERRE Raclette Rissolées vapeur 2,5 kg\"; \"Filet 2,5 kg\"; GTIN \"3250399883488\"; lot \"26128774\"; \"Du 16/10/2026 au 19/11/2026\"; distributeur \"INTERMARCHE\", France entière; motif \"Teneur élevée en glycoalcaloïdes\"; risques \"Autres contaminants chimiques\"; origine \"SILVE INTERMARCHE\". Same Parmentine lot 26128774 as fiches 24142/24144/24146. [original product: POMMES DE TERRE Raclette Rissolées vapeur 2,5 kg] [original reason: Teneur élevée en glycoalcaloïdes]"
+  },
+  {
+    "Date": "2026-11-25",
+    "Source": "AESAN (ES)",
+    "Company": "(not specified in AESAN alert 2026_88)",
+    "Brand": "Auchan, El Corte Inglés, Lidl, Borges, Alipende, Carrefour, Medina",
+    "Product": "Nut and seed products, 15 lines (e.g. Auchan Mix Sprint & Go 40 g; El Corte Inglés shelled fried sunflower seeds 125 g; Lidl fried sunflower seeds 200 g; Borges Natura Mix Antiox 35 g and Select salad mix 1 kg; Alipende Cóctel Bolero 225 g; Carrefour shelled natural sunflower seeds 200 g; Medina Mixtus Party 200 g), lots and best-before dates listed in the alert",
+    "Pathogen": "Foreign material (glass)",
+    "Reason": "Possible presence of glass fragments in several nut-based products of several brands, reported by the company's own checks; initial distribution across most of Spain",
+    "Class": "Recall",
+    "Country": "Spain",
+    "Outbreak": 0,
+    "URL": "https://www.aesan.gob.es/alertas/2026_88",
+    "Notes": "Added by the daily-global review 2026-11-27. Read on AESAN alert Ref. ES2026/712 dated \"25/11/2026\": \"Alerta por posible presencia de fragmentos de vidrio en frutos secos procedentes de España\"; motivo \"la posible presencia de fragmentos de vidrio en varios productos elaborados con frutos secos y de varias marcas\"; from \"el autocontrol de la propia empresa\"; \"la distribución inicial se ha producido en la mayor parte del territorio nacional\". The alert table lists 15 products under AUCHAN, EL CORTE INGLÉS, LIDL, BORGES, alipende, CARREFOUR and Medina with lots and best-before dates; the firm is not named. The Weekly_Rejected copy holding this same URL was refused as 'no official AESAN press-release URL' — marked SUPERSEDED. [original product: frutos secos]"
+  }
+]
