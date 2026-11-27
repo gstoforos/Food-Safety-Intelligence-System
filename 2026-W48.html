@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/fsis-gate.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AFTS Food Safety Hazard &amp; Pathogen Intelligence Briefing &middot; Week 48, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --black:#0a0e1a; --orange:#E8601A;
+  --ink:#111827; --body:#1f2937; --muted:#6b7280; --dim:#9ca3af;
+  --bg:#ffffff; --s1:#f9fafb; --s2:#f3f4f6; --brd:#e5e7eb;
+  --red:#dc2626; --amber:#f59e0b; --violet:#9333ea; --green:#059669;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; background:var(--bg); }
+body {
+  font-family:'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color:var(--body); font-size:14px; line-height:1.65;
+  max-width:1180px; margin:0 auto; padding:0 40px 60px;
+}
+a { color:var(--orange); text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+.masthead {
+  border-top:6px solid var(--black);
+  padding:28px 0 22px;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  border-bottom:1px solid var(--brd);
+  margin-bottom:32px;
+}
+.brand-block .brand {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:24px;
+  color:var(--black); letter-spacing:-0.01em; text-transform:uppercase;
+  line-height:1.1;
+}
+.brand-block .brand em { color:var(--orange); font-style:normal; font-weight:800; }
+.brand-block .tagline {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:600;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.14em;
+  margin-top:8px;
+}
+.mast-right { text-align:right; }
+.report-label {
+  display:inline-block; background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  padding:5px 11px; letter-spacing:0.12em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+.report-meta {
+  font-family:'DM Mono', monospace; font-size:11px;
+  color:var(--muted); line-height:1.8;
+}
+.report-meta strong { color:var(--ink); font-weight:700; }
+
+.r-title {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:38px;
+  color:var(--black); letter-spacing:-0.02em; line-height:1.15;
+  margin:2px 0 10px;
+}
+.r-title .accent { color:var(--orange); }
+.r-kicker {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:13px;
+  color:var(--black); letter-spacing:0.08em; text-transform:uppercase;
+  margin:8px 0 6px;
+}
+.r-kicker-dot { color:var(--orange); font-style:normal; margin:0 2px; }
+.r-sub {
+  color:var(--muted); font-size:14px; margin-bottom:16px;
+}
+.r-sub strong { color:var(--ink); font-weight:600; }
+.r-authority {
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; background:var(--s1); border-left:3px solid var(--orange);
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--ink);
+  margin-bottom:30px;
+}
+.auth-label {
+  font-size:9px; font-weight:700; color:var(--orange);
+  text-transform:uppercase; letter-spacing:0.14em;
+  border-right:1px solid var(--brd); padding-right:10px;
+}
+
+.kpi-strip {
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:1px; background:var(--brd); border:1px solid var(--brd);
+  margin-bottom:32px;
+}
+.kpi { background:#fff; padding:22px 20px; }
+.kpi-label {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:0.1em;
+  margin-bottom:8px;
+}
+.kpi-value {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:42px;
+  color:var(--black); line-height:1; letter-spacing:-0.02em;
+}
+.kpi-value.red { color:var(--red); }
+.kpi-value.violet { color:var(--violet); }
+.kpi-value.orange { color:var(--orange); font-size:20px; line-height:1.2; font-style:italic; }
+.kpi-value a { color:inherit; text-decoration:none; border-bottom:2px solid var(--orange); padding-bottom:1px; }
+.kpi-value a:hover { opacity:0.8; text-decoration:none; }
+.kpi-delta {
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  margin-top:10px; letter-spacing:0.04em;
+}
+.kpi-top { font-size:11px; color:var(--muted); margin-top:10px; font-style:italic; }
+
+.sec-head {
+  display:flex; align-items:baseline; gap:14px;
+  margin:40px 0 16px;
+}
+.sec-num {
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.12em;
+}
+.sec-title {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--black); letter-spacing:-0.01em;
+}
+.sec-rule { flex:1; height:1px; background:var(--brd); }
+.sec-caption { color:var(--muted); font-size:13px; margin:-4px 0 14px; }
+.sec-caption em { color:var(--ink); font-style:italic; }
+
+.analysis {
+  background:var(--s1); border-left:4px solid var(--orange);
+  padding:26px 30px; margin-bottom:10px;
+}
+.analysis p { margin:0 0 14px; font-size:14.5px; line-height:1.75; }
+.analysis p:last-child { margin-bottom:0; }
+.analysis p.pa-note {
+  margin:18px -30px 0 -30px; padding:18px 30px 2px 30px;
+  background:#fff; border-top:1px solid var(--brd);
+  font-size:13.5px; line-height:1.7;
+}
+.analysis p.pa-note .pa-label {
+  display:inline; font-family:'DM Mono', monospace; font-weight:700;
+  letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--red); font-size:10px; margin-right:8px;
+}
+
+table.data {
+  width:100%; border-collapse:collapse; margin:0 0 10px;
+  background:#fff; border:1px solid var(--brd);
+  font-size:13px;
+}
+table.data th {
+  background:var(--black); color:#fff;
+  font-family:'DM Mono', monospace; font-size:10px; font-weight:700;
+  text-transform:uppercase; letter-spacing:0.1em;
+  padding:12px 12px; text-align:left; border-bottom:2px solid var(--orange);
+}
+table.data td {
+  padding:14px 12px; border-bottom:1px solid var(--brd);
+  vertical-align:top;
+}
+table.data tr:last-child td { border-bottom:none; }
+table.data tr:nth-child(even) td { background:#fafbfc; }
+table.data td.num {
+  font-family:'DM Mono', monospace; font-weight:600; text-align:right;
+  white-space:nowrap;
+}
+table.data td.empty {
+  text-align:center; color:var(--muted); padding:28px; font-style:italic;
+}
+
+/* Top 5 column sizing - keeps table within A4 and desktop viewport */
+table.top5 { table-layout:fixed; width:100%; }
+table.top5 th:nth-child(1), table.top5 td:nth-child(1) { width:5%;  }  /* # */
+table.top5 th:nth-child(2), table.top5 td:nth-child(2) { width:9%;  }  /* Date */
+table.top5 th:nth-child(3), table.top5 td:nth-child(3) { width:19%; }  /* Pathogen */
+table.top5 th:nth-child(4), table.top5 td:nth-child(4) { width:18%; }  /* Company */
+table.top5 th:nth-child(5), table.top5 td:nth-child(5) { width:30%; }  /* Product */
+table.top5 th:nth-child(6), table.top5 td:nth-child(6) { width:19%; }  /* Jurisdiction+Source */
+table.top5 td { word-wrap:break-word; overflow-wrap:break-word; }
+
+.rank-num {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:22px;
+  color:var(--orange); text-align:center;
+  white-space:nowrap; font-variant-numeric:tabular-nums;
+  letter-spacing:-0.02em;
+}
+.rank-num.rank-num--multi { font-size:18px; }
+.date-cell {
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  white-space:nowrap;
+}
+.path-dot {
+  display:inline-block; width:9px; height:9px; border-radius:50%;
+  margin-right:7px; vertical-align:middle;
+}
+.path-name { font-weight:600; color:var(--ink); font-style:italic; }
+.co-cell strong { color:var(--black); font-weight:700; display:block; }
+.brand-sub { font-size:11px; color:var(--muted); margin-top:2px; font-style:italic; }
+.prod-cell { color:var(--body); }
+.juris-country { font-weight:600; color:var(--ink); }
+.src-sub {
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); margin-top:3px;
+}
+.juris-link { margin-top:6px; }
+.chip-tier1 {
+  display:inline-block; background:var(--red); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-tier2 {
+  display:inline-block; background:var(--amber); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-tier3 {
+  display:inline-block; background:var(--dim); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:6px; letter-spacing:0.06em;
+}
+.chip-outbreak {
+  display:inline-block; background:var(--violet); color:#fff;
+  font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+  padding:2px 6px; border-radius:2px; margin-left:4px; letter-spacing:0.06em;
+}
+.src-link {
+  font-family:'DM Mono', monospace; font-size:11px; font-weight:700;
+  color:var(--orange); letter-spacing:0.02em;
+}
+.src-na { color:var(--dim); font-family:'DM Mono', monospace; font-size:10px; font-style:italic; }
+
+.dist-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:10px;
+}
+.dist-grid h3 {
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.1em; margin:0 0 10px;
+}
+.bar-track {
+  width:100%; height:8px; background:var(--s2);
+  border-radius:1px; overflow:hidden;
+}
+.bar-fill { height:100%; }
+
+.cta-box {
+  margin:40px 0 30px;
+  padding:26px 30px;
+  background:var(--black); color:#fff;
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:18px;
+}
+.cta-text { flex:1; min-width:280px; }
+.cta-text h3 {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:20px;
+  margin:0 0 6px; color:#fff; letter-spacing:-0.01em;
+}
+.cta-text p { margin:0; color:#d1d5db; font-size:13px; }
+.cta-btn {
+  background:var(--orange); color:#fff; font-family:'DM Mono', monospace;
+  font-size:11px; font-weight:700; padding:14px 22px;
+  text-transform:uppercase; letter-spacing:0.1em;
+  border:none; cursor:pointer; white-space:nowrap;
+}
+.cta-btn:hover { background:#d35416; text-decoration:none; color:#fff; }
+
+.meth {
+  background:var(--s1); border:1px solid var(--brd);
+  padding:22px 26px; margin-bottom:24px; font-size:13px;
+  color:var(--body);
+}
+.meth strong { color:var(--black); }
+.meth p { margin:0 0 10px; }
+.meth p:last-child { margin-bottom:0; }
+
+.footer {
+  margin-top:50px; padding-top:26px; border-top:2px solid var(--black);
+  display:flex; justify-content:space-between; align-items:flex-start;
+  flex-wrap:wrap; gap:20px; font-size:12px;
+}
+.foot-brand {
+  font-family:'Syne', sans-serif; font-weight:800; font-size:15px;
+  color:var(--black); text-transform:uppercase; letter-spacing:0.02em;
+}
+.foot-brand em { color:var(--orange); font-style:normal; }
+.foot-meta {
+  font-family:'DM Mono', monospace; font-size:10px;
+  color:var(--muted); line-height:1.8; margin-top:6px;
+}
+.foot-legal {
+  font-size:11px; color:var(--muted); max-width:440px;
+  text-align:right; line-height:1.6;
+}
+
+@media print {
+  /* Running footer on every printed page: process-authority attribution
+     anchors the AFTS differentiator visually throughout the document. */
+  @page {
+    size: A4;
+    margin: 14mm 14mm 18mm 14mm;
+    @bottom-left {
+      content: "AFTS · Food Safety Validation Intelligence";
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " / " counter(pages);
+      font-family: 'DM Mono', monospace; font-size: 8pt; color: #6b7280;
+      letter-spacing: 0.04em;
+    }
+  }
+  body { max-width:none; padding:0; margin:0; font-family:'Times New Roman', Times, serif; font-size:12pt; }
+  .cta-box { display:none; }
+
+  /* Lock print-mode layout: even if the browser's print page is narrow,
+     these must not collapse into mobile responsive layouts. */
+  .masthead { flex-direction:row !important; }
+  .mast-right { text-align:right !important; }
+  .kpi-strip { grid-template-columns:repeat(4, 1fr) !important; }
+  .dist-grid { display:block !important; grid-template-columns:1fr !important; gap:0 !important; }
+  .dist-grid > div { width:100% !important; display:block !important; }
+  .dist-grid > div:nth-child(2) { margin-top:18px !important; }
+  .dist-grid > div { page-break-inside:avoid; break-inside:avoid; }
+
+  /* Page 1 compression: tighten the above-the-fold so the first Intelligence
+     Analysis paragraph opens on page 1 rather than orphaning the heading. */
+  .masthead { border-top-width:4px; padding:18px 0 12px; margin-bottom:22px; }
+  .brand-block .brand { font-size:18px; }
+  .brand-block .tagline { font-size:10px; margin-top:5px; letter-spacing:0.12em; }
+  .report-label { font-size:9px; padding:4px 10px; margin-bottom:8px; }
+  .report-meta { font-size:10px; line-height:1.7; }
+  .r-kicker { font-size:12px; margin:6px 0 5px; letter-spacing:0.07em; }
+  .r-title { font-size:26px; margin:2px 0 8px; }
+  .r-sub { font-size:13px; margin-bottom:12px; line-height:1.55; }
+  .r-authority { padding:9px 12px; font-size:11px; margin-bottom:22px; }
+  .auth-label { font-size:8px; padding-right:9px; }
+  .kpi-strip { margin-bottom:24px; }
+  .kpi { padding:16px 14px; }
+  .kpi-label { font-size:9px; margin-bottom:6px; }
+  .kpi-value { font-size:28px; }
+  .kpi-value.orange { font-size:18px; }
+  .kpi-delta { font-size:9px; margin-top:7px; }
+  .kpi-top { font-size:10px; margin-top:7px; }
+  .sec-head { margin:28px 0 12px; page-break-after:avoid; break-after:avoid; }
+  .sec-num { font-size:10px; }
+  .sec-title { font-size:20px; white-space:nowrap; }
+  .analysis { padding:22px 26px; }
+  .analysis p { font-size:13px; margin:0 0 12px; line-height:1.7; }
+  .analysis p.pa-note { margin:14px -26px 0 -26px; padding:14px 26px 2px 26px; font-size:12px; line-height:1.65; }
+  .analysis p.pa-note .pa-label { font-size:9px; }
+
+  table.data th { background:var(--black) !important; color:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  /* Prevent any table row from splitting across a page break */
+  table.data tr { page-break-inside:avoid; break-inside:avoid; }
+  .analysis { border-left-width:3px; }
+  /* Top-5 print tightening - fit all 6 columns on A4 */
+  table.top5 { font-size:9px; page-break-inside:avoid; }
+  table.top5 th { padding:6px 5px; font-size:8px; }
+  table.top5 td { padding:6px 5px; line-height:1.35; }
+  table.top5 tr { page-break-inside:avoid; }
+  table.top5 .rank-num { font-size:14px; }
+  table.top5 .path-name { font-size:9px; }
+  table.top5 .date-cell { font-size:8px; }
+  table.top5 .prod-cell { font-size:9px; line-height:1.35; }
+  table.top5 .co-cell strong { font-size:9px; }
+  table.top5 .juris-country { font-size:9px; }
+  table.top5 .brand-sub, table.top5 .src-sub { font-size:8px; margin-top:1px; }
+  table.top5 .chip-tier1, table.top5 .chip-tier2, table.top5 .chip-outbreak { font-size:7px; padding:1px 3px; margin-left:3px; }
+  table.top5 .src-link { font-size:8px; }
+  table.top5 .juris-link { margin-top:3px; }
+  /* Tighten the caption above the Top 5 so more room for rows */
+  .sec-caption { font-size:10px; margin:-2px 0 8px; }
+  /* Force section boundaries on page breaks for clean 4-page distribution:
+     P1 = masthead + KPI + § 01 Analysis
+     P2 = § 02 Top 5
+     P3 = § 03 Distribution
+     P4 = § 04 Methodology + Footer */
+  section.page-break, div.page-break { page-break-before:always; }
+  .sec-head.break-before { page-break-before:always; break-before:page; }
+
+  /* Footer: switch from flex to a clean vertical stack for print.
+     WeasyPrint and some browser print engines overlap the two halves
+     when flex wraps at narrow widths - block layout avoids it entirely.
+     page-break-inside: avoid keeps brand block + disclaimer together on one page. */
+  .footer {
+    display:block !important;
+    margin-top:26px;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .footer > div { display:block !important; width:auto !important; }
+  .footer > div:first-child { margin-bottom:12px; }
+  .foot-legal {
+    text-align:left !important;
+    max-width:none !important;
+    padding-top:10px;
+    border-top:1px solid var(--brd);
+  }
+  /* Keep the methodology section with its adjacent section intact */
+  .meth { page-break-inside:avoid; break-inside:avoid; }
+}
+
+@media screen and (max-width:900px) {
+  body { padding:0 20px 40px; }
+  .kpi-strip { grid-template-columns:repeat(2,1fr); }
+  .dist-grid { grid-template-columns:1fr; }
+  .masthead { flex-direction:column; gap:16px; }
+  .mast-right { text-align:left; }
+  .r-title { font-size:28px; }
+}
+
+/* Mobile Top-5: switch from a 6-column table to stacked cards.
+   On phones, a horizontal table would either scroll sideways (bad UX) or
+   compress columns into unreadable widths. Instead, each row becomes a
+   card with labeled fields - all data visible, no horizontal scroll. */
+@media screen and (max-width:700px) {
+  table.top5, table.top5 thead, table.top5 tbody, table.top5 tr, table.top5 td {
+    display:block; width:auto !important;
+  }
+  /* Kill all fixed column widths - they would make card-mode cells unreadably narrow */
+  table.top5 th:nth-child(1), table.top5 td:nth-child(1),
+  table.top5 th:nth-child(2), table.top5 td:nth-child(2),
+  table.top5 th:nth-child(3), table.top5 td:nth-child(3),
+  table.top5 th:nth-child(4), table.top5 td:nth-child(4),
+  table.top5 th:nth-child(5), table.top5 td:nth-child(5),
+  table.top5 th:nth-child(6), table.top5 td:nth-child(6) {
+    width:auto !important;
+  }
+  table.top5 { border:none; table-layout:auto !important; }
+  table.top5 thead { display:none; }
+  table.top5 tr {
+    border:1px solid var(--brd); border-left:4px solid var(--orange);
+    background:#fff; margin-bottom:12px; padding:8px 4px;
+    position:relative;
+  }
+  table.top5 tr:nth-child(even) td { background:transparent; }
+  table.top5 td {
+    border:none !important; padding:7px 14px 7px 108px !important;
+    position:relative; min-height:28px;
+    word-wrap:normal; overflow-wrap:normal;
+  }
+  table.top5 td::before {
+    content:attr(data-label);
+    position:absolute; left:14px; top:7px; width:88px;
+    font-family:'DM Mono', monospace; font-size:9px; font-weight:700;
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;
+  }
+  /* Rank number sits in top-right corner as an orange badge */
+  table.top5 .rank-num {
+    position:absolute; top:8px; right:14px; padding:0 !important;
+    font-size:28px; min-height:0; text-align:right;
+  }
+  table.top5 .rank-num::before { display:none; }
+  table.top5 .date-cell { font-size:11px; }
+  table.top5 .path-name { font-size:13px; }
+  table.top5 .co-cell strong { font-size:13px; }
+  table.top5 .prod-cell { line-height:1.45; font-size:13px; }
+  table.top5 .juris-country { font-size:13px; }
+  table.top5 .juris-link { margin-top:6px; }
+}
+
+@media screen and (max-width:480px) {
+  body { padding:0 14px 30px; }
+  .kpi-strip { grid-template-columns:1fr 1fr; }
+  .kpi { padding:16px 14px; }
+  .kpi-value { font-size:28px; }
+  .r-title { font-size:24px; }
+  .analysis { padding:18px 20px; }
+  .analysis p { font-size:13px; }
+  .analysis p.pa-note { margin:14px -20px 0 -20px; padding:14px 20px 2px 20px; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="brand-block">
+    <div class="brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="tagline">Food Safety Intelligence System &middot; Weekly Briefing</div>
+  </div>
+  <div class="mast-right">
+    <div class="report-label">Subscribers Edition</div>
+    <div class="report-meta">
+      <strong>ISSUE</strong> &middot; Week 48, 2026<br>
+      <strong>PERIOD</strong> &middot; 23 Nov &ndash; 29 Nov 2026<br>
+      <strong>UPDATED</strong> &middot; 27 Nov 2026
+    </div>
+  </div>
+</header>
+
+<div class="r-kicker">AFTS <span class="r-kicker-dot">&middot;</span> Food Safety Validation Intelligence</div>
+<h1 class="r-title">Food Safety Hazard &amp; Pathogen Surveillance <span class="accent">&middot;</span> Week 48</h1>
+<p class="r-sub">
+  AI-powered analysis of <strong>54</strong> regulatory food-safety incidents across
+  <strong>16</strong> countries of product origin, aggregated from 66 primary sources
+  monitored continuously by the AFTS intelligence platform.
+</p>
+<p class="r-sub" style="margin-top:6px">
+  <!-- Scope statement added 2026-08-14. An external review of W33 asked
+       whether the register covers human food only or the wider food and
+       feed chain, having found a canine-food recall and a live-poultry
+       notification in the week. It is human food only; those two rows
+       were archived and the pet-food filter that should have caught the
+       first was repaired. Stating the boundary here means the question
+       is answered in the deliverable rather than in a mailbox. -->
+  <strong>Scope.</strong> Human food only. Pet food, animal feed and live
+  animals are outside this register, as are allergen-only, labelling and
+  quality or spoilage recalls; monitored hazards are pathogens, biotoxins,
+  mycotoxins, visible mould, foreign material, pest and chemical
+  contamination.
+  Outbreak figures count <strong>distinct events</strong>, not rows &mdash;
+  several recalls arising from one investigation are counted once.
+</p>
+
+<div class="kpi-strip">
+  <div class="kpi">
+    <div class="kpi-label">Total Incidents</div>
+    <div class="kpi-value"><a href="#all-recalls">54</a></div>
+    <div class="kpi-delta" style="color:#059669">&#9660; -29 (-35%) vs prior week</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Tier-1 Critical</div>
+    <div class="kpi-value red">25</div>
+    <div class="kpi-delta" style="color:var(--muted)">Immediate public-health risk</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Outbreak-linked Events</div>
+    <div class="kpi-value violet">1</div>
+    <div class="kpi-delta" style="color:var(--muted)">Distinct investigations: 1 new</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Leading Pathogen</div>
+    <div class="kpi-value orange">Listeria monocytogenes</div>
+    <div class="kpi-top">13 recall incidents &middot; 24% of total</div>
+  </div>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 01</span>
+  <h2 class="sec-title">Intelligence Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="analysis">
+  <p>This week produced 54 food-safety hazard recall incidents across the AFTS monitoring network, with 25 classified as Tier-1 and 1 new outbreak event. Listeria monocytogenes dominated the surveillance window, accounting for 13 of 54 incidents (24%). Although total activity may vary week to week, the high Tier-1 share indicates that serious microbiological and chemical hazards continue to drive regulatory action.</p>
+  <p>Outbreak watch: 1 new outbreak event recorded this week — E. coli O157:H7 linked to Ground Beef Products. Although Listeria monocytogenes remained the leading incident driver, this investigation should remain under active monitoring. Distribution scope is as stated by the notifying authority; case geography is not distribution geography.</p>
+  <p>Listeria monocytogenes at this prevalence sits mainly in ready-to-eat categories (deli, dairy and cooked-meat lines). The notices themselves do not establish the contamination route: post-process recontamination from environmental harbourage, sanitation drift, raw-material entry and inadequate lethality are all hypotheses that only product and facility evidence can separate. The controls an operator should re-verify against a signal like this are the environmental monitoring programme and corrective-action triggers (21 CFR 117 in the United States; Reg. (EC) 2073/2005 as amended by Reg. (EU) 2024/2895 in the EU) together with the validated lethality step for the product class — both, not one or the other. The frameworks cited above are United States instruments, given here as the most fully specified statement of the control. The majority of this week&#x27;s incidents fall outside that jurisdiction, where the equivalent duties sit in Regulation (EC) No 852/2004 (hygiene and HACCP) and Regulation (EC) No 2073/2005 (microbiological criteria), with national competent-authority oversight.</p>
+  <p>Notices this week were published by RappelConso, Ruokavirasto, RASFF, CFIA, MAPAQ and other national authorities. A recall count records published notices, not inspection effort: they arise from official controls, company own-checks, supplier information and precautionary withdrawals alike. AFTS recommends that food manufacturers use this briefing as a prompt to re-verify the single highest-leverage control for their commodity this week and to confirm documentation packages are ready for rapid regulatory response.</p>
+<p class="pa-note"><span class="pa-label">Process Authority Note:</span> This window contains 3 incidents implicating Clostridium or botulinum toxin, with Ferme des Provins SENC (Canada), Prime Food Processing LLC (United States) cited for Clostridium botulinum. Any shelf-stable low-acid, acidified, aseptic/UHT, hot-filled, or reduced-oxygen-packaged product in the affected category should be reviewed to confirm that the scheduled thermal process has been established and validated by a qualified process authority and filed with the competent authority, and that critical factors are controlled and documented as specified in that process — FDA 21 CFR 113 (LACF) / 21 CFR 114 (acidified foods) with scheduled-process filing under 21 CFR 108 (Form 2541 / 2541e). Parallel frameworks apply under CFIA Safe Food for Canadians Regulations (SFCR) with Preventive Control Plan (PCP) requirements for low-acid foods. The most common compliance gaps behind recalls of this profile are an unfiled or outdated scheduled process, a process deviation resolved without qualified process authority review, a container or seal-integrity lapse, or a formulation change (pH, a_w, salt, preservative) introduced without re-evaluation. Tier-1 / Class-I classification on a product of this class may trigger targeted regulatory follow-up by FDA and USDA FSIS and CFIA, including review of scheduled-process filings, deviation handling, container integrity, and process-authority records on the subsequent inspection.</p>
+</div>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 02</span>
+  <h2 class="sec-title">Top 5 Critical Threats</h2>
+  <span class="sec-rule"></span>
+</div>
+<p class="sec-caption">
+  Ranked by outbreak status first &mdash; confirmed human-illness clusters are escalated above every
+  non-outbreak recall &mdash; then by pathogen severity (<em>C. botulinum</em> &rarr; <em>Listeria</em> &rarr; STEC &rarr; <em>Salmonella</em>) and tier classification.
+  Each row links to the originating regulatory notice.
+</p>
+<table class="data top5">
+  <thead><tr><th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th></tr></thead>
+  <tbody>
+        <tr>
+      <td class="rank-num" data-label="#">1</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">E. coli O157:H7</span>
+        <span class="chip-tier1">T1</span> <span class="chip-outbreak">OUTBREAK</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Wolverine Packing Co.</strong></td>
+      <td class="prod-cell" data-label="Product">Ground Beef Products</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">USDA FSIS</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fsis.usda.gov/recalls-alerts/wolverine-packing-co--recalls-ground-beef-products-due-possible-e--coli-o157h7?ref=foodsafetynews.com" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Ferme des Provins SENC</strong><div class="brand-sub">Les Jardins de Louise</div></td>
+      <td class="prod-cell" data-label="Product">All products packaged in glass jars, sold at room temperature at the farm and at several public markets until 24 November 2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">MAPAQ QC</div>
+        <div class="juris-link"><a class="src-link" href="https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-de-tous-les-produits-conditionnes-dans-un-pot-en-verre-prepares-et-vendus-par-lentreprise-ferme-des-provins-senc-les-jardins-de-louise-73172" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">3</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Prime Food Processing LLC</strong></td>
+      <td class="prod-cell" data-label="Product">Dried Croaker Fish</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">FDA</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-two-uneviscerated-dried-fish-products" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">4</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E.Leclerc Arès</strong></td>
+      <td class="prod-cell" data-label="Product">Meat black pudding (boudin à la viande), sold at the delicatessen counter, GTIN 3505870000343, lot 630915, use-by 27/11/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24190/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">5</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Distralis - Bergers du Haut Béarn</strong></td>
+      <td class="prod-cell" data-label="Product">Farmhouse raw-milk wild-garlic pavé cheese (pavé fermière ail des ours au lait cru), sold loose cut from the piece, GTIN 2609898025201, lot 217, best-before 08/12/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24191/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 03</span>
+  <h2 class="sec-title">Distribution Analysis</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="dist-grid">
+  <div>
+    <h3>Hazard Profile</h3>
+    <table class="data">
+      <thead><tr><th>Hazard</th><th class="num">Incidents</th><th class="num">%</th><th>Share</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes</em></td>
+          <td class="num">13</td>
+          <td class="num">24%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:24%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Foreign material</em></td>
+          <td class="num">11</td>
+          <td class="num">20%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:20%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Salmonella spp.</em></td>
+          <td class="num">5</td>
+          <td class="num">9%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:9%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Glycoalkaloids</em></td>
+          <td class="num">4</td>
+          <td class="num">7%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:7%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Aflatoxin</em></td>
+          <td class="num">3</td>
+          <td class="num">6%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:6%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#9333ea"></span><em class="path-name">Clostridium botulinum</em></td>
+          <td class="num">3</td>
+          <td class="num">6%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:6%;background:#9333ea"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">E. coli STEC</em></td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:4%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Mold</em></td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:4%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Ochratoxin / Ochratoxin A</em></td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:4%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Marine biotoxin</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Food additive above legal limit</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Glycoalkaloids exceeding limit</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Metal fragments</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Pesticide residue</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Unspecified microbiological contamination</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">PAH and Benzo</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Listeria monocytogenes, Salmonella</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+        <tr>
+          <td><span class="path-dot" style="background:#dc2626"></span><em class="path-name">Hydrocyanic acid exceeding limit</em></td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:2%;background:#dc2626"></div></div></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3>Geographic &middot; Regulatory</h3>
+    <table class="data">
+      <thead><tr><th>Origin country</th><th>Notifying authority</th><th class="num">Incidents</th><th class="num">%</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>France</td>
+          <td>RappelConso (FR)</td>
+          <td class="num">22</td>
+          <td class="num">41%</td>
+        </tr>
+        <tr>
+          <td>Japan</td>
+          <td>CAA (JP)</td>
+          <td class="num">5</td>
+          <td class="num">9%</td>
+        </tr>
+        <tr>
+          <td>Germany</td>
+          <td>BVL (DE) (4) &middot; RASFF (EU), notified by Germany (1)</td>
+          <td class="num">5</td>
+          <td class="num">9%</td>
+        </tr>
+        <tr>
+          <td>United States</td>
+          <td>FDA (2) &middot; RASFF (EU), notified by Germany (1) &middot; USDA FSIS (1)</td>
+          <td class="num">4</td>
+          <td class="num">7%</td>
+        </tr>
+        <tr>
+          <td>Finland</td>
+          <td>Ruokavirasto (FI)</td>
+          <td class="num">3</td>
+          <td class="num">6%</td>
+        </tr>
+        <tr>
+          <td>Spain</td>
+          <td>RASFF (EU), notified by France (1) &middot; AESAN (ES) (1)</td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+        </tr>
+        <tr>
+          <td>New Zealand</td>
+          <td>MPI (NZ)</td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+        </tr>
+        <tr>
+          <td>Canada</td>
+          <td>CFIA (1) &middot; MAPAQ QC (1)</td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+        </tr>
+        <tr>
+          <td>Turkey</td>
+          <td>RASFF (EU), notified by Bulgaria, Sweden</td>
+          <td class="num">2</td>
+          <td class="num">4%</td>
+        </tr>
+        <tr>
+          <td>Georgia</td>
+          <td>RASFF (EU), notified by Bulgaria</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Romania</td>
+          <td>RASFF (EU), notified by Netherlands</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Denmark</td>
+          <td>Fødevarestyrelsen (DK)</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Italy</td>
+          <td>Ministero della Salute (IT)</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Ireland</td>
+          <td>FSAI (IE)</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Norway</td>
+          <td>Mattilsynet</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+        <tr>
+          <td>Netherlands</td>
+          <td>NVWA (NL)</td>
+          <td class="num">1</td>
+          <td class="num">2%</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="cta-box">
+  <div class="cta-text">
+    <h3>Live Dashboard &middot; Full Dataset Access</h3>
+    <p>Filter by pathogen, country, tier, and source. Access the cumulative XLSX dataset. Set custom alerts.</p>
+  </div>
+  <a class="cta-btn" href="https://www.advfood.tech/fsis-recalls" target="_blank" rel="noopener">Access Portal &rarr;</a>
+</div>
+
+<div id="all-recalls" class="sec-head">
+  <span class="sec-num">&sect; 04</span>
+  <h2 class="sec-title">54 Regulatory Notices &middot; 54 Distinct Incidents &middot; 23 Nov &ndash; 29 Nov 2026</h2>
+  <span class="sec-rule"></span>
+</div>
+<p class="sec-caption">
+  <strong>This table is the regulatory-notice register: every notice is listed individually.</strong>
+  The KPIs and the distributions in &sect; 03 count DISTINCT INCIDENTS, which is why
+  54 rows appear below against a headline figure of 54. Where one event produced
+  several notices &mdash; a single cold-chain failure recalling many suppliers&rsquo; products from one
+  store, for example &mdash; each notice stays individually searchable here and is counted once there.
+  
+  Sorted by pathogen severity, outbreak status, and tier classification. Each row links to the
+  originating regulatory notice. A RASFF notification is a border or market-control notification
+  between competent authorities and does not necessarily correspond to a consumer recall.
+</p>
+<table class="data top5">
+  <thead><tr><th>#</th><th>Date</th><th>Pathogen</th><th>Company / Brand</th><th>Product</th><th>Jurisdiction &amp; Source</th></tr></thead>
+  <tbody>
+        <tr>
+      <td class="rank-num" data-label="#">1</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Ferme des Provins SENC</strong><div class="brand-sub">Les Jardins de Louise</div></td>
+      <td class="prod-cell" data-label="Product">All products packaged in glass jars, sold at room temperature at the farm and at several public markets until 24 November 2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">MAPAQ QC</div>
+        <div class="juris-link"><a class="src-link" href="https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-de-tous-les-produits-conditionnes-dans-un-pot-en-verre-prepares-et-vendus-par-lentreprise-ferme-des-provins-senc-les-jardins-de-louise-73172" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">2</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Prime Food Processing LLC</strong></td>
+      <td class="prod-cell" data-label="Product">Dried Croaker Fish</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">FDA</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-two-uneviscerated-dried-fish-products" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">3</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#9333ea"></span>
+        <span class="path-name">Clostridium botulinum</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Prime Food Processing LLC</strong><div class="brand-sub">Brand Name(s) No Brand</div></td>
+      <td class="prod-cell" data-label="Product">Dried Herring Fish</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">FDA</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">4</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E.Leclerc Arès</strong></td>
+      <td class="prod-cell" data-label="Product">Meat black pudding (boudin à la viande), sold at the delicatessen counter, GTIN 3505870000343, lot 630915, use-by 27/11/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24190/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num" data-label="#">5</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Distralis - Bergers du Haut Béarn</strong></td>
+      <td class="prod-cell" data-label="Product">Farmhouse raw-milk wild-garlic pavé cheese (pavé fermière ail des ours au lait cru), sold loose cut from the piece, GTIN 2609898025201, lot 217, best-before 08/12/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24191/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">6</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Montauzer</strong></td>
+      <td class="prod-cell" data-label="Product">Dry-cured rolled pork belly (ventrèche roulée séchée), whole and vacuum-packed sliced, lot 130726, best-before 18/12/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24182/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">7</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Montauzer</strong></td>
+      <td class="prod-cell" data-label="Product">Dry-cured flat pork belly (ventrèche plate séchée), whole, vacuum-packed half and vacuum-packed sliced, lots 240726A (best-before 17/12/2026) and 240726B (best-before 18/12/2026)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24181/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">8</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Spécialités Antillaises Saveurs Créoles</strong></td>
+      <td class="prod-cell" data-label="Product">Three-cheese tart (tarte 3 fromages), plastic tray, health mark FR 80.561.009 CE, lots 26317 (use-by 22/11/2026), 26315 (use-by 20/11/2026) and 26327 (use-by 02/12/2026)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24195/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">9</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes, Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Berschneider GmbH</strong><div class="brand-sub">Deluxe</div></td>
+      <td class="prod-cell" data-label="Product">Goose breast, raw-cured and mildly beech-smoked (Deluxe Gänsebrust roh gepökelt und mild über Buchenholz geräuchert), 80 g, batch 40897, best-before 10.12.26, identification mark DE EV 1279 EU</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_27_BW_Gaensebrust/261126_27_BW_Gaensebrust.html" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">10</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E. Leclerc Hennebont</strong></td>
+      <td class="prod-cell" data-label="Product">Beef and andouille de Guémené parmentier; La Rustique salad; Pizza Guémené; Bruschetta Raymond; Bol Breton</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24177/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">11</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E. Leclerc Hennebont</strong></td>
+      <td class="prod-cell" data-label="Product">Andouille de Guémené, sliced or in pieces, sold at the traditional delicatessen counter and in self-service</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24176/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">12</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E. Leclerc Hennebont</strong></td>
+      <td class="prod-cell" data-label="Product">Pizza La Léontine; Bruschetta Raymond; Bol Breton; andouille and Camembert croustillant x2; confit onion tarte Tatin x2; Eventail Gourmand (charcuterie platter); Salade Rustique</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24175/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">13</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Germany | Notifying: Germany</strong></td>
+      <td class="prod-cell" data-label="Product">Listeria monocytogenes in beef from Germany</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/888588" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">14</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Auchan</strong></td>
+      <td class="prod-cell" data-label="Product">Chantilly cream puffs x2 (local recipe, made in store)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24157/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">15</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Halles de Kerharo (Leclerc)</strong></td>
+      <td class="prod-cell" data-label="Product">Sheep&#x27;s-milk cheese with Espelette pepper</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24153/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">16</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E.Leclerc Atout Sud</strong></td>
+      <td class="prod-cell" data-label="Product">Superior cooked ham, rindless and trimmed, torchon-style; ham cornet; ham and mushroom bruschetta; Pizza Reine; Pizza Fermière; ham &quot;complet&quot;; ham and butter sandwich; ham and cheese sandwich; croque-monsieur; ham croissant</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24150/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">17</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Listeria monocytogenes</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Marevivo Srl</strong><div class="brand-sub">Marevivo</div></td>
+      <td class="prod-cell" data-label="Product">Sea salad</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Italy</div>
+        <div class="src-sub">Ministero della Salute (IT)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.salute.gov.it/new/sites/default/files/external_data/avvisi_sicurezza_alimentare/Comunicazione%20Ministeriale_%20ritiro%20insalata%20di%20mare_1795242795.pdf" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">18</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">E. coli O157:H7</span>
+        <span class="chip-tier1">T1</span> <span class="chip-outbreak">OUTBREAK</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Wolverine Packing Co.</strong></td>
+      <td class="prod-cell" data-label="Product">Ground Beef Products</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">USDA FSIS</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fsis.usda.gov/recalls-alerts/wolverine-packing-co--recalls-ground-beef-products-due-possible-e--coli-o157h7?ref=foodsafetynews.com" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">19</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Shiga toxin-producing E. coli</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Spain | Notifying: France</strong></td>
+      <td class="prod-cell" data-label="Product">Detection of E. coli STEC in minced beef burger from Spain</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Spain</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/889485" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">20</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Vanni Franck Charcuterie Tavagna</strong></td>
+      <td class="prod-cell" data-label="Product">Figatellu, lot S45021126</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24183/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">21</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Auchan</strong></td>
+      <td class="prod-cell" data-label="Product">Beef paupiette (sold at the butcher&#x27;s counter)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24158/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">22</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Romania | Notifying: Netherlands</strong></td>
+      <td class="prod-cell" data-label="Product">Salmonella in chicken from Romania, via The Netherlands</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Romania</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/889111" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">23</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>E.Leclerc Ibos</strong></td>
+      <td class="prod-cell" data-label="Product">Basque-style tuna with rice (Thon Basquaise/Riz), packed under protective atmosphere or sold from the service display counter</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24140/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">24</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Salmonella</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Etablissements Massonnière</strong></td>
+      <td class="prod-cell" data-label="Product">Roasting joint, 2 kg (fiche title &quot;ROTI BF TT ROND TG 2KG&quot;)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24149/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">25</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Marine biotoxin</span>
+        <span class="chip-tier1">T1</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Comité Régional de la Conchyliculture de Méditerranée</strong></td>
+      <td class="prod-cell" data-label="Product">Shellfish harvested in the Étang de Thau on or after 16 November 2026 (all pack formats: wooden baskets, loose, trays)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24179/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">26</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Mold</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Akehama Seaside Sun Park</strong></td>
+      <td class="prod-cell" data-label="Product">&quot;Ehime Akehama sunshine citrus&quot; deco-tangerine juice, sold at all 171 Kuzefuku Shoten stores</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Japan</div>
+        <div class="src-sub">CAA (JP)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.recall.caa.go.jp/result/detail.php?rcl=00000036201&amp;screenkbn=01" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">27</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Mold</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Royal Choco</strong></td>
+      <td class="prod-cell" data-label="Product">&quot;100 Years&quot; Russian cake, potato variety</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Japan</div>
+        <div class="src-sub">CAA (JP)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.recall.caa.go.jp/result/detail.php?rcl=00000036187&amp;screenkbn=01" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">28</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Aflatoxin</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Georgia | Notifying: Bulgaria</strong></td>
+      <td class="prod-cell" data-label="Product">aflatoxins in hazelnut kernels  from Georgia</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Georgia</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/888355" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">29</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Aflatoxin</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Türkiye | Notifying: Bulgaria</strong></td>
+      <td class="prod-cell" data-label="Product">Aflatoxins and Ochratoxin A in dried figs from Türkiye</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Turkey</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/888979" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">30</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Glycoalkaloids exceeding limit</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Parmentine</strong></td>
+      <td class="prod-cell" data-label="Product">Potatoes, cooking, red, 1.5 kg</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261121_22_BW_Kartoffeln/261121_22_BW_Kartoffeln.html" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">31</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Ochratoxin</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Bialetti</strong><div class="brand-sub">Perfetto Moka</div></td>
+      <td class="prod-cell" data-label="Product">Moka coffee</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Ireland</div>
+        <div class="src-sub">FSAI (IE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.fsai.ie/news-and-alerts/food-alerts/update-to-recall-of-a-batch-of-bialetti-perfetto-m" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">32</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Aflatoxin</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: United States | Notifying: Germany</strong></td>
+      <td class="prod-cell" data-label="Product">Aflatoxins in Pistachios (Raw Material) from the United States</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">United States</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/888296" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">33</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Ochratoxin</span>
+        <span class="chip-tier2">T2</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Origin: Türkiye | Notifying: Sweden</strong></td>
+      <td class="prod-cell" data-label="Product">ochratoxin A in dried figs from Turkey</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Turkey</div>
+        <div class="src-sub">RASFF (EU)</div>
+        <div class="juris-link"><a class="src-link" href="https://webgate.ec.europa.eu/rasff-window/screen/notification/888605" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">34</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Piago Daiji store</strong><div class="brand-sub">Kane-ue</div></td>
+      <td class="prod-cell" data-label="Product">Kamaage chirimen (boiled whitebait), sold at Piago Daiji</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Japan</div>
+        <div class="src-sub">CAA (JP)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.recall.caa.go.jp/result/detail.php?rcl=00000036197&amp;screenkbn=01" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">35</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">PAH and Benzo</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Sunkost AS</strong><div class="brand-sub">Sunkost</div></td>
+      <td class="prod-cell" data-label="Product">Cocoa powder</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Norway</div>
+        <div class="src-sub">Mattilsynet</div>
+        <div class="juris-link"><a class="src-link" href="https://www.mattilsynet.no/tilbakekallinger/sunkost-superfood-kakaopulver-tilbakekalles" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">36</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Udea</strong><div class="brand-sub">Marqt Keuken</div></td>
+      <td class="prod-cell" data-label="Product">Marqt Keuken salads: Buddha bowl (article 6001335, EAN 8711521160525, best-before 28-11-2026 and 29-11-2026); Powerful pumpkin salad (6001337, 8711521160501, best-before 27-11 to 29-11-2026); Turmeric tango salad (6001338, 8711521160518, best-before 27-11 to 29-11-2026)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Netherlands</div>
+        <div class="src-sub">NVWA (NL)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.nvwa.nl/actueel/nieuws/2026/11/26/veiligheidswaarschuwing-diverse-salades-van-marqt-keuken" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">37</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Hydrocyanic acid exceeding limit</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Afroshop Afrikanischer Supermarkt, Hofstraße 9, 82362 Weilheim in Oberbayern</strong><div class="brand-sub">Bigi-mama</div></td>
+      <td class="prod-cell" data-label="Product">Cassava flour (Maniokmehl) &quot;Kokonte-Cassave-Flour&quot;, 900 g, lot 020726, best-before 02.07.2028</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_28_BY_Maniokmehl/261126_28_BY_Maniokmehl.html" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">38</td>
+      <td class="date-cell" data-label="Date">26 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Glycoalkaloids</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Parmentine</strong><div class="brand-sub">EDEKA Herzstücke Ackergold</div></td>
+      <td class="prod-cell" data-label="Product">Red-skinned potatoes (Ackergold Rotschalige, variety Chérie), 1 kg, lot 26128774, barcode 4311527574933, sold from 12.10.2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Germany</div>
+        <div class="src-sub">BVL (DE)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261126_26_HH_Kartoffeln/261126_26_HH_Kartoffeln.html" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">39</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Food additive above legal limit</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>K-Supermarket Tapiola</strong></td>
+      <td class="prod-cell" data-label="Product">Fish patties made in the store&#x27;s own kitchen, sold at the service counter in Espoo on 24.11.2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Finland</div>
+        <div class="src-sub">Ruokavirasto (FI)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/k-supermarket-tapiolan-kalapihveissa-nitriittisuolaa/" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">40</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Glycoalkaloids</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>SILVE INTERMARCHE</strong><div class="brand-sub">Terroirs</div></td>
+      <td class="prod-cell" data-label="Product">Raclette potatoes for steaming and sautéing, 2.5 kg net bag, GTIN 3250399883488, lot 26128774, sold 16/10/2026 to 19/11/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24164/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">41</td>
+      <td class="date-cell" data-label="Date">25 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>(not specified in AESAN alert 2026_88)</strong><div class="brand-sub">Auchan, El Corte Inglés, Lidl, Borges, Alipende, Carrefour, Medina</div></td>
+      <td class="prod-cell" data-label="Product">Nut and seed products, 15 lines (e.g. Auchan Mix Sprint &amp; Go 40 g; El Corte Inglés shelled fried sunflower seeds 125 g; Lidl fried sunflower seeds 200 g; Borges Natura Mix Antiox 35 g and Select salad mix 1 kg; Alipende Cóctel Bolero 225 g; Carrefour shelled natural sunflower seeds 200 g; Medina Mixtus Party 200 g), lots and best-before dates listed in the alert</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Spain</div>
+        <div class="src-sub">AESAN (ES)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.aesan.gob.es/alertas/2026_88" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">42</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Koyo</strong></td>
+      <td class="prod-cell" data-label="Product">Sliced squid trimmings (ika kiriotoshi)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Japan</div>
+        <div class="src-sub">CAA (JP)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.recall.caa.go.jp/result/detail.php?rcl=00000036174&amp;screenkbn=01" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">43</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Beniya Shoji</strong></td>
+      <td class="prod-cell" data-label="Product">Dried shirasu whitebait (shirasu-boshi)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Japan</div>
+        <div class="src-sub">CAA (JP)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.recall.caa.go.jp/result/detail.php?rcl=00000036176&amp;screenkbn=01" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">44</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Pak&#x27;nSave Highland Park</strong></td>
+      <td class="prod-cell" data-label="Product">NZ Beef Mince and NZ Beef Prime Mince, various weights, clear plastic trays, packed on 23.11.26, best before 26.11.26</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">New Zealand</div>
+        <div class="src-sub">MPI NZ</div>
+        <div class="juris-link"><a class="src-link" href="https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/paknsave-highland-park-nz-beef-mince-and-nz-beef-prime-mince-recalled-as-the-products-may-contain-foreign-matter-metal-pieces" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">45</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>New World Kaiapoi</strong></td>
+      <td class="prod-cell" data-label="Product">Pork Mince, Beef Premium Mince and Prime Beef Mince, various weights, clear plastic trays, packed on 22.11.26, best before 25.11.26</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">New Zealand</div>
+        <div class="src-sub">MPI NZ</div>
+        <div class="juris-link"><a class="src-link" href="https://www.mpi.govt.nz/food-safety-home/food-recalls-and-complaints/recalled-food-products/new-world-kaiapoi-beef-mince-and-pork-mince-recalled-as-the-products-may-contain-foreign-matter-clear-plastic-pieces" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">46</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Fromageries Terres d&#x27;Or</strong><div class="brand-sub">Top Budget</div></td>
+      <td class="prod-cell" data-label="Product">Grated Emmental cheese, 200 g</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24159/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">47</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Apex Foodsource Ltd.</strong><div class="brand-sub">Yeshi</div></td>
+      <td class="prod-cell" data-label="Product">Sesame Ginger Nutritional Yeast Dressing &amp; Dip, 350 ml (UPC 6 27843 80892 3, lot 260615 402016, best before 2028 JN 14)</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Canada</div>
+        <div class="src-sub">CFIA</div>
+        <div class="juris-link"><a class="src-link" href="https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">48</td>
+      <td class="date-cell" data-label="Date">24 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Glycoalkaloids</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Auchan</strong></td>
+      <td class="prod-cell" data-label="Product">Red firm-fleshed eating potatoes — Auchan 2.5 kg (GTIN 3254560395084) and Auchan 2 kg (GTIN 3505625084703), sold in nets, lot N°26128774</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24146/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">49</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Fromageries Terres d&#x27;Or</strong><div class="brand-sub">Top Budget</div></td>
+      <td class="prod-cell" data-label="Product">Grated Emmental cheese, 200 g</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24152/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">50</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Metal fragments</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Hero Denmark ApS</strong></td>
+      <td class="prod-cell" data-label="Product">Muesli bars</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Denmark</div>
+        <div class="src-sub">Fødevarestyrelsen (DK)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.foedevarestyrelsen.dk/nyheder/tilbagekaldte-produkter/2026/nov/tilbagekald-risiko-for-metal-i-mueslibarer" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">51</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Pesticide residue</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Midsona Finland Oy</strong><div class="brand-sub">Urtekram</div></td>
+      <td class="prod-cell" data-label="Product">Peanut Butter Crunchy, 230 g</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Finland</div>
+        <div class="src-sub">Ruokavirasto (FI)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/kahden-maapahkinavoituotteen-takaisinveto/" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">52</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Foreign material</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Hero Finland Oy</strong><div class="brand-sub">Corny</div></td>
+      <td class="prod-cell" data-label="Product">Corny 0% added sugar Chocolate snack bar multipack, 120 g (6 x 20 g), EAN 4011800429218, best before 10.09.2027</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">Finland</div>
+        <div class="src-sub">Ruokavirasto (FI)</div>
+        <div class="juris-link"><a class="src-link" href="https://www.ruokavirasto.fi/elintarvikkeet/ohjeita-kuluttajille/takaisinvedot-2023-/valipalapatukoissa-metalliriski/" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">53</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Glycoalkaloids</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>SCAMARK E.LECLERC</strong><div class="brand-sub">Panier du Primeur</div></td>
+      <td class="prod-cell" data-label="Product">Red potatoes for steaming and sautéing, 2 kg bag, GTIN 3564706639195, lot 26128774 (packer codes EMB 47285, EMB 51248, EMB 84035), sold 16/10/2026 to 23/11/2026</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24144/Interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="rank-num rank-num--multi" data-label="#">54</td>
+      <td class="date-cell" data-label="Date">23 Nov 2026</td>
+      <td data-label="Pathogen">
+        <span class="path-dot" style="background:#dc2626"></span>
+        <span class="path-name">Unspecified microbiological contamination</span>
+        <span class="chip-tier3">T3</span>
+      </td>
+      <td class="co-cell" data-label="Company"><strong>Maison Ginisty</strong></td>
+      <td class="prod-cell" data-label="Product">Venison terrine (terrine de biche), 190 g verrine, lot 245, best before 31/12/2027</td>
+      <td class="juris-cell" data-label="Jurisdiction">
+        <div class="juris-country">France</div>
+        <div class="src-sub">RappelConso (FR)</div>
+        <div class="juris-link"><a class="src-link" href="https://rappel.conso.gouv.fr/fiche-rappel/24147/interne" target="_blank" rel="noopener">View source &rarr;</a></div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="sec-head">
+  <span class="sec-num">&sect; 05</span>
+  <h2 class="sec-title">Methodology &amp; Sources</h2>
+  <span class="sec-rule"></span>
+</div>
+<div class="meth">
+  <p><strong>Process authority.</strong> Analytical frameworks, severity rubrics, pathogen classification, and the engineering interpretation of each recall are developed by the AFTS process-authority practice, drawing on in-house expertise in food process engineering, thermal processing, and regulatory compliance. Every view is grounded in validated process engineering: thermal processing (21 CFR 113/114), pasteurisation (PMO), aseptic and UHT, hold-tube and F-value lethality, and HACCP. This is what the AFTS platform brings that pure data feeds do not &mdash; interpretation under engineering authority.</p>
+  <p><strong>Severity tiers.</strong> Tier 1 &mdash; pathogens and toxins that cause severe or life-threatening illness at the doses found in food (Listeria monocytogenes, Salmonella, STEC, Clostridium botulinum, cereulide, Cronobacter, hepatitis A, Vibrio vulnificus), always, whatever the regulator's own class. Tier 2 &mdash; hazards that cause acute but usually self-limiting illness or chronic-exposure harm (Campylobacter, Bacillus cereus, generic Vibrio, mycotoxins, visible mould, heavy metals, pesticide residues, undeclared pharmacological ingredients). Tier 3 &mdash; hazards whose harm is injury or contamination rather than infection or toxicity (foreign bodies in food for the general population, pests), raised to Tier 1 only in products for infants and other vulnerable groups. A foreign body of unspecified material is Tier 3 even when the notice cites an injury risk; that risk is why the recall exists, not a reason to rank it beside a pathogen. Where a notice names two hazards the row carries both and the incident is counted once.</p>
+  <p><strong>Data &amp; AI pipeline.</strong> The system aggregates regulatory recall notices from 66 primary sources across 60+ countries (FDA, USDA FSIS, RASFF, FSA, FSANZ, CFIA, RappelConso, BVL, AESAN, EFET, and national authorities) and processes each record through Gemini (extraction), OpenAI GPT (normalisation), and Claude (Tier-1 validation). Records are de-duplicated and harmonised into the cumulative dataset.</p>
+  <p><strong>This briefing.</strong> Statistical analysis filters the cumulative dataset to the reporting week (23 Nov &ndash; 29 Nov 2026). AI-generated narrative is produced against AFTS process-authority prompts and edited for publication. Figures and pathogen names are preserved verbatim from source data.</p>
+</div>
+
+<footer class="footer">
+  <div>
+    <div class="foot-brand">Advanced Food-Tech Solutions <em>&middot;</em> AFTS</div>
+    <div class="foot-meta">Food Safety Validation Intelligence<br>advfood.tech &middot; info@advfood.tech &middot; Athens, Greece<br>&copy; 2026 Advanced Food-Tech Solutions</div>
+  </div>
+  <div class="foot-legal">This briefing is provided for informational purposes only and does not constitute regulatory, legal, or medical advice. Subscribers should verify recall status with the originating regulatory authority before taking action. Next issue: Monday, 7 Dec 2026.</div>
+</footer>
+
+</body>
+</html>
