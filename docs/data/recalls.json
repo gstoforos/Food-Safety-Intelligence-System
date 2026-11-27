@@ -176,6 +176,22 @@
   "Notes": "[RASFF #2026.10495; classification: information notification for follow-up; category: meat and meat products (other than poultry); notifId=888588] [promote 2026-11-26: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
+  "Date": "2026-11-25",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Spain | Notifying: France",
+  "Brand": "—",
+  "Product": "Detection of E. coli STEC in minced beef burger from Spain",
+  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
+  "Reason": "Detection of E. coli STEC in minced beef burger from Spain; risk: potentially serious; category: meat and meat products (other than poultry)",
+  "Class": "Alert",
+  "Country": "Spain",
+  "Region": "Europe",
+  "Tier": 1,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/889485",
+  "Notes": "[RASFF #2026.10500; classification: alert notification; category: meat and meat products (other than poultry); notifId=889485] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+ },
+ {
   "Date": "2026-11-24",
   "Source": "CAA (JP)",
   "Company": "Koyo",
@@ -398,6 +414,22 @@
   "Outbreak": 0,
   "URL": "https://www.quebec.ca/nouvelles/actualites/details/mise-en-garde-a-la-population-innocuite-non-assuree-de-tous-les-produits-conditionnes-dans-un-pot-en-verre-prepares-et-vendus-par-lentreprise-ferme-des-provins-senc-les-jardins-de-louise-73172",
   "Notes": "Added by the daily-global review 2026-11-26 (MISSING: absent from all five sheets; MAPAQ QC newest row was 2026-11-03). Read on the Québec government notice \"QUÉBEC, le 24 nov. 2026\": MAPAQ warns against \"tous les produits conditionnés dans un pot en verre\" prepared and sold by \"Ferme des Provins SENC, située au 275, 2e Rang Est, à Saint-Paul-de-la-Croix\" (Les Jardins de Louise); \"ces produits pourraient favoriser la prolifération de la bactérie Clostridium botulinum\"; sold at the farm and \"dans plusieurs marchés publics\" until 24 November 2026; \"aucun cas de maladie ... n'a été signalé au MAPAQ\". No lots named. [original product: tous les produits conditionnés dans un pot en verre] [promote 2026-11-26: status 'pending'->'pending' — passes every publish-gate rule]"
+ },
+ {
+  "Date": "2026-11-24",
+  "Source": "RASFF (EU)",
+  "Company": "Origin: Türkiye | Notifying: Bulgaria",
+  "Brand": "—",
+  "Product": "Aflatoxins and Ochratoxin A in dried figs from Türkiye",
+  "Pathogen": "Aflatoxin",
+  "Reason": "Aflatoxins and Ochratoxin A in dried figs from Türkiye; risk: serious; category: fruits and vegetables",
+  "Class": "Border Rejection",
+  "Country": "Turkey",
+  "Region": "Europe",
+  "Tier": 2,
+  "Outbreak": 0,
+  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888979",
+  "Notes": "[RASFF #2026.10501; classification: border rejection notification; category: fruits and vegetables; notifId=888979] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
  },
  {
   "Date": "2026-11-23",
@@ -40590,37 +40622,5 @@
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/814459",
   "Notes": "[RASFF #2026.0012 verified from screenshot 2026-05-01: notified 2 JAN 2026 by France, last update 22 JAN 2026; France (n), Spain (d)(op)(ffup)(ffa), United Kingdom (o)(op)(ffa), INFOSAN (ffa); product type Food, product category Bivalve molluscs and products thereof; notification basis Border control - consignment released; CORRECTED date 2026-01-05 → 2026-01-02; CORRECTED origin Unknown → UK; SCOPE FLAG: biotoxins typically excluded by locked _pathogen_scope.py — kept matching prior precedent] [week-fix 2026-07-25: report_week W01->W02; Thursday-to-Thursday rule — week runs 2026-01-02 Fri -> 2026-01-08 Thu, labelled by ISO week of the closing Thursday]"
- },
- {
-  "Date": "2026-11-25",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Spain | Notifying: France",
-  "Brand": "—",
-  "Product": "Detection of E. coli STEC in minced beef burger from Spain",
-  "Pathogen": "Shiga toxin-producing E. coli (STEC)",
-  "Reason": "Detection of E. coli STEC in minced beef burger from Spain; risk: potentially serious; category: meat and meat products (other than poultry)",
-  "Class": "Alert",
-  "Country": "Spain",
-  "Region": "Europe",
-  "Tier": 1,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/889485",
-  "Notes": "[RASFF #2026.10500; classification: alert notification; category: meat and meat products (other than poultry); notifId=889485] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-27: status 'nan'->'pending' — passes every publish-gate rule]"
- },
- {
-  "Date": "2026-11-24",
-  "Source": "RASFF (EU)",
-  "Company": "Origin: Türkiye | Notifying: Bulgaria",
-  "Brand": "—",
-  "Product": "Aflatoxins and Ochratoxin A in dried figs from Türkiye",
-  "Pathogen": "Aflatoxin",
-  "Reason": "Aflatoxins and Ochratoxin A in dried figs from Türkiye; risk: serious; category: fruits and vegetables",
-  "Class": "Border Rejection",
-  "Country": "Turkey",
-  "Region": "Europe",
-  "Tier": 2,
-  "Outbreak": 0,
-  "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888979",
-  "Notes": "[RASFF #2026.10501; classification: border rejection notification; category: fruits and vegetables; notifId=888979] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-27: status 'nan'->'pending' — passes every publish-gate rule]"
  }
 ]
