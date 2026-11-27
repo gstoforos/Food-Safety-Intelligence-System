@@ -1,0 +1,51 @@
+[
+  {
+    "proposal_id": "fef8c302fe61b27d",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2553"
+  },
+  {
+    "proposal_id": "46cf91fb2d72c2a8",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2554"
+  },
+  {
+    "proposal_id": "48a2613c2d2ba0b5",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2555"
+  },
+  {
+    "proposal_id": "c6cbe6f6d3bcbd19",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 2556"
+  },
+  {
+    "proposal_id": "0283b2ea78bfedbf",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 4"
+  },
+  {
+    "proposal_id": "1bffb054e190f5e2",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 35"
+  },
+  {
+    "proposal_id": "cb63fa7ffd0ab969",
+    "action": "enrich",
+    "applied": true,
+    "refusals": [],
+    "detail": "Recalls row 55"
+  }
+]
