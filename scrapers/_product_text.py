@@ -73,6 +73,29 @@ _A_REAL_WORD: Final = re.compile(r"[^\W\d_]{2,}", re.UNICODE)
 #: those languages beyond the ones the phrase needs. The other direction is
 #: measured in tests/test_product_is_not_only_identifiers.A_REAL_NAME,
 #: which carries real German, Italian, Spanish and Dutch product names.
+#:
+#: THE REGULATOR'S OWN "NOT APPLICABLE" (2026-11-27). The fourth instance of
+#: the class the `_first_named_product` docstring in
+#: scrapers/europe_eu/rappelconso.py calls out: a field that holds a
+#: placeholder phrase plus codes, with enough letters to defeat this sweep.
+#: Measured on the 2026-11-27 register, RappelConso fiche 24183 of
+#: 26/11/2026 (Salmonella spp., Tier 1) sat in Pending as
+#:   Product  '$lot s45021126$non concerné$$'
+#: while the fiche heading says "figatellu". The value is the
+#: `identification_produits` lot table, `$`-joined cell by cell: "lot" is
+#: listed here, "s45021126" is a code, and the empty cells are nothing — but
+#: "non" survived, because the list carried "no num nr" and not the French
+#: word, so the whole value read as a name and the walk never reached
+#: `libelle`. The row's own Notes even claim "Product taken from the fiche
+#: title", which it was not. Added: "non" and the inflections of "concerné",
+#: the phrase RappelConso prints for a column that does not apply — the same
+#: words `_NO_BRAND_TOKENS` already carries for Brand, where they are matched
+#: whole and so never reach a `$`-joined block. Measured over all 8,007
+#: non-empty Product values in every sheet of the workbook: the verdict
+#: changes on exactly two, both copies of this one defect (the Pending row
+#: and its Weekly_Rejected twin at row 753), and on nothing else. No food is
+#: named "non" or "concerné". Pinned by
+#: tests/test_morning_fix_2026_11_27.py.
 #: NOTE: this block is a frozenset built from
 #: .split(), so a '#' comment INSIDE the string would be split into tokens
 #: and silently add "the", "label", "only"… — keep the prose up here.
@@ -100,6 +123,7 @@ houdbaar houdbaarheid gebruiken minste thm tgt te tot
 consumarsi scadenza preferibilmente entro da
 caducidad consumir consumo preferente validade antes
 no num nr no. num. nro
+non concerne concerné concernee concernée concernes concernés concernees concernées
 kg kgs g gr gram grams grammes gramm ml cl l lt litre litres liter liters
 oz lb lbs pcs pce stk st szt
 x de du des la le les et ou and or of the a an to
