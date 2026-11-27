@@ -10,21 +10,21 @@
   "week_end_display": "22 Nov 2026",
   "span_days": 7,
   "bridge_edition": false,
-  "generated_utc": "2026-11-27T04:27:09.890475+00:00",
+  "generated_utc": "2026-11-27T10:44:07.690591+00:00",
   "prev_total": 80,
   "prev_span_days": 7,
   "delta_per_day_pct": null,
   "stats": {
-    "total": 82,
+    "total": 83,
     "tier1": 41,
     "outbreaks": 0,
-    "delta": 2,
-    "delta_pct": 2
+    "delta": 3,
+    "delta_pct": 4
   },
   "leading_pathogen": {
     "name": "Salmonella spp.",
     "cases": 21,
-    "pct": 26
+    "pct": 25
   },
   "ai_lead_paragraph": "",
   "top_threats": [
@@ -63,8 +63,8 @@
       "pathogen_raw": "Listeria monocytogenes",
       "tier": 1,
       "outbreak": false,
-      "company": "Morvan Charcuteries  Salaison",
-      "brand": "Morvan Charcuteries  Salaison",
+      "company": "Morvan Charcuteries Salaison",
+      "brand": "Morvan Charcuteries Salaison",
       "product": "petit sale cuit en gelee",
       "country": "France",
       "source": "RappelConso (FR)",
