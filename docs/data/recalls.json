@@ -189,7 +189,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/889485",
-  "Notes": "[RASFF #2026.10500; classification: alert notification; category: meat and meat products (other than poultry); notifId=889485] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "[RASFF #2026.10500; classification: alert notification; category: meat and meat products (other than poultry); notifId=889485] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-27: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-24",
@@ -429,7 +429,7 @@
   "Tier": 2,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888979",
-  "Notes": "[RASFF #2026.10501; classification: border rejection notification; category: fruits and vegetables; notifId=888979] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes]"
+  "Notes": "[RASFF #2026.10501; classification: border rejection notification; category: fruits and vegetables; notifId=888979] [reviewer-1 holds: verify-and-tag-only; reviewer 3 publishes] [promote 2026-11-27: status 'nan'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-23",
