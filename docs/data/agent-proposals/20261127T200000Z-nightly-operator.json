@@ -1,0 +1,155 @@
+{
+ "schema": 1,
+ "agent": "nightly-operator",
+ "generated_utc": "20261127T200000Z",
+ "proposals": [
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24209/interne"
+   },
+   "changes": {
+    "Company": "Intermarché Pierre de Bresse",
+    "Product": "Merguez sausage (merguez véritable), GTIN 45482056, traceability no. S63130078, use-by 28/11/2026, sold 16/11/2026 to 21/11/2026 in self-service and at the traditional counter",
+    "Reason": "Presence of Salmonella spp."
+   },
+   "reason": "RappelConso 24209 read tonight: Product was the fiche's traceability line in French; replaced with the fiche's product, lot and dates in English.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24209/interne",
+     "quote": "merguez véritable ... S63130078 ... Date limite de consommation 28/11/2026 ... salmonella",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24205/interne"
+   },
+   "changes": {
+    "Company": "Lidl",
+    "Product": "Vanilla coffee pods and double chocolate coffee pods (dosettes de café vanille / double chocolat), lot C28921, GTIN 4056489736738 and 4056489736745, best-before 31/03/2027, sold 13/03/2026 to 05/05/2026",
+    "Reason": "An analysis found ochratoxin A above the regulatory limit"
+   },
+   "reason": "RappelConso 24205 read tonight: Product and Reason were French; Company was the brand. Fiche origin is LIDL.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24205/interne",
+     "quote": "Origine de la fiche : LIDL ... Une analyse a mis en évidence la présence d'Ochratoxine A supérieure au seuil règlementaire.",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24203/interne"
+   },
+   "changes": {
+    "Company": "Montardis (U Express Montargis)",
+    "Product": "Coffee moka cake, thawed (moka café x2 and moka café x1), GTIN 2000000286631, all lots, use-by 04/12/2026, sold from 19/11/2026",
+    "Reason": "Microbiological non-compliance: presence of Listeria monocytogenes"
+   },
+   "reason": "RappelConso 24203 read tonight: Product and Reason were French; Company was the brand 'Marque U'. Fiche origin is MONTARDIS U EXPRESS MONTARGIS.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24203/interne",
+     "quote": "MOKA CAFE x2 et MOKA CAFE x1 ... Origine de la fiche : MONTARDIS U EXPRESS MONTARGIS ... Non conformité microbiologique, présence de listeria monocytogenes",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24197/interne"
+   },
+   "changes": {
+    "Company": "E. Leclerc Les Portes d'Albi",
+    "Product": "Vacuum-packed herring fillet (filet de hareng), GTIN 0204644000000, all lots, use-by between 06/11/2026 and 15/11/2026, sold 06/11/2026 to 14/11/2026",
+    "Reason": "Histamine level above the target value found during an own-check"
+   },
+   "reason": "RappelConso 24197 read tonight: Product and Reason were French/mixed ('Mise en évidence ... during an own-check').",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24197/interne",
+     "quote": "Filet de hareng (conditionné sous-vide) ... E. Leclerc Les Portes d'Albi ... Mise en évidence d'un taux d'histamine supérieur à la valeur cible lors d'un autocontrôle.",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://rappel.conso.gouv.fr/fiche-rappel/24191/interne"
+   },
+   "changes": {
+    "Company": "Société Castelorienne de Distribution E.Leclerc"
+   },
+   "reason": "RappelConso 24191 read tonight: Company repeated the brand; the fiche's origin is the Leclerc store company.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://rappel.conso.gouv.fr/fiche-rappel/24191/interne",
+     "quote": "SOCIETE CASTELORIENNE DE DISTRIBUTION E.LECLERC",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.9,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass"
+   },
+   "changes": {
+    "Date": "2026-11-20"
+   },
+   "reason": "CFIA page read tonight gives Recall date 2026-11-20; the row carried the scrape day 2026-11-24.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://recalls-rappels.canada.ca/en/alert-recall/yeshi-brand-sesame-ginger-nutritional-yeast-dressing-dip-recalled-due-pieces-glass",
+     "quote": "Recall date: 2026-11-20",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  },
+  {
+   "action": "enrich",
+   "target": {
+    "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0"
+   },
+   "changes": {
+    "Brand": "No Brand"
+   },
+   "reason": "Brand held the scraper label 'Brand Name(s) No Brand'; FDA page's Brand Name field reads 'No Brand'.",
+   "evidence": [
+    {
+     "kind": "regulator_page",
+     "url": "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/prime-food-processing-llc-issues-safety-warning-regarding-uneviscerated-dried-herring-fish-0",
+     "quote": "Brand Name: No Brand ... no illnesses or adverse reactions associated with the affected product have been reported",
+     "retrieved_utc": "2026-11-27T20:00:00Z"
+    }
+   ],
+   "confidence": 0.95,
+   "agent": "nightly-operator"
+  }
+ ]
+}

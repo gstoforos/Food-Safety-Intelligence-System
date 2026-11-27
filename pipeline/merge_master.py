@@ -502,7 +502,14 @@ def _normalize_url_for_dedup(url: str) -> str:
                     k in ("reportid", "eventid") and "beaconbio.org" in path) or (
                     k == "rcl" and "caa.go.jp" in path) or (
                     k == "seq" and "mfds.go.kr" in path) or (
-                    k == "name" and "fda.moph.go.th" in path):
+                    k == "name" and "fda.moph.go.th" in path) or (
+                    # 2026-11-27 (nightly operator): Brazil's Diário
+                    # Oficial viewer serves every page off one path; the
+                    # edition, page and date ARE the identity. Two distinct
+                    # Anvisa DOU pages (17/11 p.106, 25/11 p.197) collapsed
+                    # to the bare viewer key.
+                    k in ("jornal", "pagina", "data")
+                    and "pesquisa.in.gov.br" in path):
                 keepers.append(kv)
         s = path + (("?" + "&".join(keepers)) if keepers else "")
     if s.endswith("/"):

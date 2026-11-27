@@ -1,0 +1,5 @@
+{"schema":1,"agent":"nightly-operator","generated_utc":"20261127T203000Z","proposals":[
+{"action":"enrich","target":{"url":"https://rappel.conso.gouv.fr/fiche-rappel/24197/interne"},
+ "changes":{"Brand":"E.Leclerc","Company":"E.Leclerc Les Portes d'Albi"},
+ "reason":"One spelling per firm (tests/test_firm_names_are_uniform.py): the register writes E.Leclerc; this row's 'E. Leclerc' was the only variant and turned main's suite red.",
+ "evidence":[{"kind":"regulator_page","url":"https://rappel.conso.gouv.fr/fiche-rappel/24197/interne","quote":"Marque : « E. Leclerc » ... « E. Leclerc Les Portes d'Albi »","retrieved_utc":"2026-11-27T20:30:00Z"}],"confidence":0.95,"agent":"nightly-operator"}]}
