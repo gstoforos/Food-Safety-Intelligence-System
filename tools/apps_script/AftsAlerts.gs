@@ -736,7 +736,7 @@ var PATHOGEN_VOCAB = {
   "Mushroom / plant toxins": ["mushroom toxin", "amanita", "muscimol", "muscaria", "hydrocyanic", "cyanogenic", "solanine", "tropane", "glycoalkaloid", "glycoalcalo", "glykoalkaloid", "chaconine", "oleander", "cardiac glycoside"],
   "Heavy metals": ["heavy metal", "cadmium", "kadmium", "lead (", "mercury", "arsenic", "molybdenum", "thallium"],
   "Pesticide / veterinary residues": ["pesticide", "veterinary medicine", "veterinary chemical", "veterinary drug", "doxycycline", "penicillin", "nitrofurazone", "chloramphenicol", "rodenticide", "residue", "chlorpyrifos", "klorpirifos", "acetamiprid", "procymidone", "tolfenpyrad"],
-  "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol", "glycidyl", "glycidyle", "glycidylique"],
+  "Industrial chemical contaminant": ["pfoa", "pfas", "dioxin", "ethylene oxide", "mineral oil", "moah", "mosh", "acrylamide", "melamine", "chemical hazard", "bisphenol", "glycidyl", "glycidyle", "glycidylique", "pah", "polycyclic aromatic", "polysykliske aromatiske", "benzo", "benzopyrene"],
   "Undeclared pharmacological ingredient": ["pharmacological", "yohimbine", "sildenafil", "tadalafil", "dimethylamylamine", "dmaa"],
   "Cannabinoids above limit (THC)": ["delta-9-thc", "thc (", "tetrahydrocannabinol"],
   "Unauthorised food additive": ["food additive", "additive usage standard", "unauthorised additive", "unauthorized additive", "unauthorised dye", "unauthorized dye", "unauthorised colour", "unauthorized color", "additive above"],
