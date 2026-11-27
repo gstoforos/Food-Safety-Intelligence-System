@@ -4079,6 +4079,50 @@ def _write_sheet(wb: Workbook,
     except Exception as exc:
         log.warning("List-to-text skipped at writer [%s]: %s", sheet_name, exc)
 
+    # ── ONE SPACE BETWEEN WORDS IN A FIRM NAME (audit 2026-11-27) ─────────
+    # A firm name is matched, grouped and SEARCHED as a string. A stray run
+    # of whitespace inside one makes it a different string from the name the
+    # regulator prints, and from every other spelling of itself.
+    #
+    # THE ROW THAT FOUND IT. RappelConso fiche 24191, published 2026-11-26,
+    # Tier 1 Listeria:
+    #
+    #     Company / Brand  'Distralis - Bergers du Haut  Béarn'
+    #     the fiche prints 'Distralis - Bergers du Haut Béarn'
+    #
+    # The dashboard searches Brand and Company, so a subscriber searching
+    # "Haut Béarn" did not find the row, and unify_firm_names above — whose
+    # whole job is one spelling per firm — folds case, accents and
+    # punctuation but not whitespace, so it could not converge the two.
+    # Measured on main at 1f2e319d: 24 Company/Brand cells carry an internal
+    # run of whitespace — 10 in Recalls, 3 in Weekly_Review, 11 in Rejected.
+    # The published ones are RappelConso fiches 24191 and 24175, "Aoste
+    # Professionnel", "Huîtres de la Zone  Pointe de Saire  50-07", and one
+    # Brand holding a leaked CDC page title (an older, separate defect).
+    #
+    # DELIBERATELY ONLY Company AND Brand, and deliberately only INTERNAL
+    # runs collapsed, leading and trailing stripped. Product, Reason and
+    # Notes are prose that can legitimately carry a run of spaces (an
+    # aligned lot block, a quoted regulator table), and no firm name can.
+    # This cannot change which characters a name is made of, only how many
+    # spaces sit between them, so it cannot lose a fact. It runs BEFORE
+    # unify_firm_names would be useful next time, and at the writer rather
+    # than at any one scraper, because a row is updated in place after
+    # promotion by routes that never re-enter the scraper.
+    _space_hits = 0
+    for _row in rows:
+        for _col in ("Company", "Brand"):
+            _v = _row.get(_col)
+            if not isinstance(_v, str) or not _v:
+                continue
+            _n = " ".join(_v.split())
+            if _n != _v:
+                _row[_col] = _n
+                _space_hits += 1
+    if _space_hits:
+        log.info("Collapsed internal whitespace in %d firm-name cell(s) [%s]",
+                 _space_hits, sheet_name)
+
     # Transcription artifacts — every sheet, every text column.
     _artifact_hits = 0
     for _row in rows:

@@ -616,6 +616,36 @@ HAZARD_CLASS_KEYWORDS = {
         # 2. Natural chemical toxicants of the food itself, as distinct from
         #    a biotoxin produced by an organism.
         "hydrocyanic", "cyanide", "cyanogenic",
+        # ── PAH AND BENZO(a)PYRENE (audit 2026-11-27) ────────────────────
+        # The same pattern as mineral oil above, and the second gate to miss
+        # the SAME hazard on the SAME morning: tools/alert_vocab.py had no
+        # term for it either, so the publish gate held the row and this
+        # class would have refused it the moment it published.
+        #
+        # THE ROW THAT FOUND IT. Mattilsynet, 2026-11-26, Sunkost AS
+        # "Sunkost Superfood kakaopulver", Pathogen "PAH and Benzo(a)pyrene
+        # exceeding limit", Reason "Product contains Polysykliske aromatiske
+        # hydrokarboner (PAH) and benzo(a)pyrene above the limit for cocoa
+        # products". Polycyclic aromatic hydrocarbons and benzo(a)pyrene
+        # have their own maximum levels in Reg. (EU) 2023/915 and are
+        # chemical contaminants in the printed AFTS scope.
+        # pipeline/gap_finder/rules.py has carried "pah" and "polycyclic
+        # aromatic" since 2026-11-11, so the FINDER saw the hazard and the
+        # two publishing gates did not — the gap was between them.
+        #
+        # " pah " IS SPACE- AND BRACKET-BOUNDED, DELIBERATELY. This class is
+        # matched against Reason as well as Pathogen, as a substring, after
+        # lower-casing; a bare "pah" would hit any word containing those
+        # three letters. The bounded forms are what the regulators actually
+        # print: "(PAH)", "PAH and …", "PAH,". The benzo needles are whole
+        # compound forms for the same reason — "benzo" alone would hit
+        # benzoate and benzoic acid, which are permitted preservatives.
+        " pah ", "(pah)", " pah,", " pah/", " pah)", "pah-", "pahs",
+        "polycyclic aromatic", "polyzyklische aromatische",
+        "polysykliske aromatiske", "hydrocarbures aromatiques polycycliques",
+        "idrocarburi policiclici aromatici",
+        "benzo(a)pyren", "benzo[a]pyren", "benzoapyren", "benzopyren",
+        "benzo(a)pireno", "benzo(a)pyrène",
         # 3. Undeclared pharmaceutical adulteration — IN SCOPE since
         #    2026-05-12 (see pipeline/_pathogen_scope.py) and notifiable to
         #    INFOSAN, but it had no hazard class, so the SUPPLX yohimbine row
