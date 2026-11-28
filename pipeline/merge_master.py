@@ -495,6 +495,31 @@ def _normalize_url_for_dedup(url: str) -> str:
             #   beaconbio.org  /en/report/?reportid=<uuid>&eventid=<uuid>
             #     — every report is served off one path with the identity
             #       entirely in the query string.
+            # 2026-11-28: the SAME bug, FOURTH recurrence, caught by the
+            # sweep in tests/test_a_query_param_recall_id_is_never_dropped.py
+            # — which was RED on main this morning:
+            #   pesquisa.in.gov.br /imprensa/jsp/visualiza/index.jsp
+            #       ?jornal=515&pagina=106&data=17/11/2026
+            #       ?jornal=515&pagina=197&data=25/11/2026
+            #     — Brazil's Diário Oficial da União serves EVERY page of
+            #       every edition off one index.jsp. ANVISA's resolutions
+            #       (resoluções-RE) are addressed only by the triple
+            #       (jornal, pagina, data), so without those three keepers
+            #       every Brazilian recall notice after the first collapses
+            #       to the bare endpoint. The two URLs above are both in
+            #       Weekly_Rejected today, so nothing PUBLISHED is wrong —
+            #       but the next ANVISA notice arriving on that shape would
+            #       be dropped as a duplicate of one of them, in silence.
+            #       ANVISA is a live source (3 rows, newest 2026-10-28).
+            #   szpi.gov.cz /en/docDetail.aspx?docid
+            #     — the same latent shape, found by the same sweep widened
+            #       to "a query string all of whose params are stripped".
+            #       SZPI addresses a document by `docid` and nothing else;
+            #       the one URL in the workbook (Weekly_Rejected) carries a
+            #       VALUELESS `docid`, so it has no collision partner yet
+            #       and no test fires. SZPI is live (5 rows, newest
+            #       2026-10-20), so the next docDetail URL would collide
+            #       with it. Added now rather than after it costs a row.
             if k in ("permalink", "id", "fiche", "ref", "recall_id",
                      "search_api_fulltext") or (
                     k == "search" and "api.fda.gov" in path) or (
@@ -502,6 +527,9 @@ def _normalize_url_for_dedup(url: str) -> str:
                     k in ("reportid", "eventid") and "beaconbio.org" in path) or (
                     k == "rcl" and "caa.go.jp" in path) or (
                     k == "seq" and "mfds.go.kr" in path) or (
+                    k in ("jornal", "pagina", "data")
+                    and "in.gov.br" in path) or (
+                    k == "docid" and "szpi.gov.cz" in path) or (
                     k == "name" and "fda.moph.go.th" in path):
                 keepers.append(kv)
         s = path + (("?" + "&".join(keepers)) if keepers else "")

@@ -461,6 +461,36 @@ kött kylt fryst ost skivad grønnkål økologisk
 #: joints, etc.)', 'Picodons, apérichèvre, cœur, brique, bûche, pyramide
 #: …'), so adding them would fire on correct rows.
 _FRENCH_FOOD_WORDS = frozenset(_FRENCH_FOOD_WORDS | {"choux", "recette"})
+#
+# THE "hareng"/"conditionné" PAIR WAS MISSING (morning fix pass 2026-11-28).
+# Published 2026-11-27, fiche 24197, E.Leclerc, histamine, Tier 2:
+#
+#     Product 'filet de hareng (conditionné sous-vide)'
+#
+# Wholly French, and the row carried NO "needs cleanup: Product" stamp —
+# only the Reason stamp — so neither the offline promoter nor the morning
+# pass that reads what is stamped would ever have looked at it. This is the
+# fourth time the same hole has been measured (the "pâté" row of 2026-10-27,
+# "sandwich" of 2026-11-24, "chantilly" of 2026-11-26) and the cause is the
+# same each time: every word in the value defeats a different rule.
+#   • "hareng" was in no list at all, so there was no French FOOD word;
+#   • "conditionné" was in no list either, so there was no French STRUCTURE
+#     word for the two-hit detector to count;
+#   • "filet" and "sous vide" are English culinary words in their own right,
+#     and "de" is deliberately name-safe (_NAME_SAFE_FRENCH), so the
+#     function-word detector had nothing to add up;
+#   • looks_non_english() sees one accent, under the two-accent floor.
+# Both words are French-only with no English homograph, which is what makes
+# them safe to add where "râpé" and "haché" already sit. "hareng" is the
+# fish RappelConso recalls most often for histamine, and "conditionné" is
+# its standard packaging participle.
+#
+# MEASURED on all 2,557 published Products: the pair flags this one
+# defective row and NOTHING else. Pinned by tests/test_morning_fix_2026_11_28.py.
+_FRENCH_FOOD_WORDS = frozenset(_FRENCH_FOOD_WORDS | {
+    "hareng", "harengs",
+    "conditionné", "conditionnée", "conditionnés", "conditionnées",
+})
 
 _NAME_SAFE_FRENCH = frozenset("à a l au d de du des la le les un une".split())
 _ENGLISH_HOMOGRAPHS = frozenset("est lot lots detection presence analyse".split())
