@@ -1,0 +1,44 @@
+[
+  {
+    "Date": "2026-11-27",
+    "Source": "BVL (DE)",
+    "Company": "Berschneider GmbH",
+    "Brand": "Finest Gourmet, Berschneider",
+    "Product": "Smoked duck breast and goose breast, pre-sliced, 80 g; duck breast lot 40248 (best before 11.12.26, 12.12.26), goose breast lot 40897 (best before 10.12.26); sold at Norma",
+    "Pathogen": "Listeria monocytogenes, Salmonella",
+    "Reason": "Salmonella and Listeria detected; sold by Norma in 8 federal states",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261127_34_BY_Entenbrust_Gaensebrust/261127_34_BY_Entenbrust_Gaensebrust.html",
+    "Notes": "Added by the daily-global review 2026-11-28 (found but rejected: news-only copies in Weekly_Rejected as 'no official BVL press-release URL'). Read on the lebensmittelwarnung.de Meldung (Bayern), first published \"27.11.2026\": \"Geräucherte Entenbrust und Gänsebrust vorgeschnitten 80 Gramm\"; Hersteller \"Firma Berschneider GmbH\", sold by \"Firma Norma Lebensmittelfilialbetrieb Stiftung & Co. KG\"; duck lot \"40248\" MHD \"11.12.26, 12.12.26\", goose lot \"40897\" MHD \"10.12.26\"; brands \"Finest Gourmet\" (art. 21092) and \"Berschneider\" (art. 84788); Grund \"Krankheitserreger\" — \"Salmonellen und Listerien\"; BW, BY, HE, MV, NW, RP, ST, TH. Separate notice from the 26.11 Lidl Deluxe goose breast row. [original product: Geräucherte Entenbrust und Gänsebrust vorgeschnitten 80 Gramm]"
+  },
+  {
+    "Date": "2026-11-27",
+    "Source": "BVL (DE)",
+    "Company": "Berschneider GmbH",
+    "Brand": "",
+    "Product": "Smoked goose breast, 80 g and 300 g, lots P40946 and P40897, best before 09.12.26 to 17.12.26, identification mark DE EV 1279 EU; sold through Netto, Norma, Metro C&C, Fleischhof, Bauerngut, EDEKA Südwest, Tresch & Sohn and other retailers",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella detected; distributed in all 16 federal states",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261127_31_MV_Gaensebrust/261126_31_MV_Gaensebrust.html",
+    "Notes": "Added by the daily-global review 2026-11-28 (found but rejected as news-only). Read on the lebensmittelwarnung.de Meldung (Mecklenburg-Vorpommern), first published \"27.11.2026\" (URL copied exactly as served: directory 261127_31, filename 261126_31): \"Geräucherte Gänsebrust\"; \"Berschneider GmbH\"; \"80 Gramm, 300 Gramm\"; \"P40946 und P40897\"; MHD \"09.12.26, 10.12.26, 11.12.26, 12.12.26, 17.12.26\"; \"DE EV 1279 EU\"; Grund \"Krankheitserreger\" — \"Salmonellen\"; retailers \"Netto ApS & Co. KG, Norma, Metro C & C, Fleischhof, Bauerngut, EDEKA Südwest, Tresch & Sohn\" and \"weitere Handelsunternehmen\"; all 16 Länder. [original product: Geräucherte Gänsebrust]"
+  },
+  {
+    "Date": "2026-11-27",
+    "Source": "BVL (DE)",
+    "Company": "Berschneider GmbH",
+    "Brand": "Best Moments",
+    "Product": "Smoked duck breast \"Best Moments\", 80 g, lot 119263, best before 11.12.26, identification mark DE EV 1279 EU; sold at Penny",
+    "Pathogen": "Salmonella",
+    "Reason": "Salmonella detected; sold by Penny in all 16 federal states",
+    "Class": "Alert",
+    "Country": "Germany",
+    "Outbreak": 0,
+    "URL": "https://www.lebensmittelwarnung.de/___lebensmittelwarnung.de/Meldungen/2026/11_November/261127_32_MV_Entenbrust/261127_32_MV_Entenbrust.html",
+    "Notes": "Added by the daily-global review 2026-11-28 (found but rejected as news-only). Read on the lebensmittelwarnung.de Meldung (Mecklenburg-Vorpommern), first published \"27.11.2026\": \"Geräucherte Entenbrust \\\"Best Moments\\\"\"; \"Berschneider GmbH\"; \"80 GRAMM\"; \"Charge: 119263\"; \"Mindesthaltbarkeitsdatum: 11.12.26\"; \"DE EV 1279 EU\"; Grund \"Krankheitserreger\" — \"Salmonellen\"; retailer \"Penny\"; all 16 Länder. [original product: Geräucherte Entenbrust Best Moments]"
+  }
+]
