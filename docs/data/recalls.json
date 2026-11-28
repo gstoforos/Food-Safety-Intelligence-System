@@ -301,7 +301,7 @@
   "Tier": 1,
   "Outbreak": 0,
   "URL": "https://webgate.ec.europa.eu/rasff-window/screen/notification/888825",
-  "Notes": "[RASFF #2026.10558; classification: information notification for attention; category: fish and fish products; notifId=888825] [confirm-agent 2026-11-28: pending → pending; deterministic checks passed; reviewer 2 did NOT review this row]"
+  "Notes": "[RASFF #2026.10558; classification: information notification for attention; category: fish and fish products; notifId=888825] [promote 2026-11-28: status 'pending'->'pending' — passes every publish-gate rule]"
  },
  {
   "Date": "2026-11-25",
