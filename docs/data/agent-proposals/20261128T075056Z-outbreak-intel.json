@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "agent": "outbreak-intel",
+  "generated_utc": "20261128T075056Z",
+  "proposals": [
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant?ref=foodsafetynews.com"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/fda-closed-the-trader-joes-chicken-wrap-e-coli-o157h7-file-on-november-25-at-51-sick-nine-weeks-two-agencies-and-the-brand-never-appeared-on-fdas-page/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o157:h7. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/fda-closed-the-trader-joes-chicken-wrap-e-coli-o157h7-file-on-november-25-at-51-sick-nine-weeks-two-agencies-and-the-brand-never-appeared-on-fdas-page/",
+          "quote": "51 cases | Trader Joe’s Tarragon Chicken Salad Wraps | F&amp;S Fresh Foods",
+          "retrieved_utc": "2026-11-28T07:45:52+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/fsis-issues-public-health-alert-beef-kofta-products-served-kebab-shop-restaurant?ref=foodsafetynews.com",
+          "quote": "2026-11-20 USDA FSIS Beef Kofta",
+          "retrieved_utc": "2026-11-28T07:45:52+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "119d1d2a7ff4547e"
+    },
+    {
+      "action": "link_event",
+      "target": {
+        "url": "https://www.fsis.usda.gov/recalls-alerts/wolverine-packing-co--recalls-ground-beef-products-due-possible-e--coli-o157h7?ref=foodsafetynews.com"
+      },
+      "changes": {
+        "candidate_event": "https://www.foodpoisonjournal.com/food-poisoning-information/fda-closed-the-trader-joes-chicken-wrap-e-coli-o157h7-file-on-november-25-at-51-sick-nine-weeks-two-agencies-and-the-brand-never-appeared-on-fdas-page/"
+      },
+      "reason": "Candidate relation to the reported outbreak, on retrieval only: country named in the article; serotype o157:h7. NOT an assertion that this row belongs to that outbreak — the curator requires regulator evidence before any link is written.",
+      "evidence": [
+        {
+          "kind": "news_article",
+          "url": "https://www.foodpoisonjournal.com/food-poisoning-information/fda-closed-the-trader-joes-chicken-wrap-e-coli-o157h7-file-on-november-25-at-51-sick-nine-weeks-two-agencies-and-the-brand-never-appeared-on-fdas-page/",
+          "quote": "51 cases | Trader Joe’s Tarragon Chicken Salad Wraps | F&amp;S Fresh Foods",
+          "retrieved_utc": "2026-11-28T07:45:52+00:00"
+        },
+        {
+          "kind": "corpus_row",
+          "url": "https://www.fsis.usda.gov/recalls-alerts/wolverine-packing-co--recalls-ground-beef-products-due-possible-e--coli-o157h7?ref=foodsafetynews.com",
+          "quote": "2026-11-23 USDA FSIS Ground Beef Products",
+          "retrieved_utc": "2026-11-28T07:45:52+00:00"
+        }
+      ],
+      "confidence": 0.7,
+      "agent": "outbreak-intel",
+      "proposal_id": "26ce70f657b414e2"
+    }
+  ]
+}
