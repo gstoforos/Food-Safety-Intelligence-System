@@ -1,27 +1,39 @@
 {
   "entries": [
     {
-      "date": "2026-11-26",
-      "url": "daily/2026-11-26.html",
-      "total": 5,
-      "tier1": 4,
+      "date": "2026-11-27",
+      "url": "daily/2026-11-27.html",
+      "total": 4,
+      "tier1": 2,
       "outbreak": 0,
       "by_region": {
-        "Asia": 1,
         "Europe": 4
       },
-      "generated": "2026-11-27T08:11:45Z"
+      "generated": "2026-11-28T08:11:40Z"
+    },
+    {
+      "date": "2026-11-26",
+      "url": "daily/2026-11-26.html",
+      "total": 15,
+      "tier1": 9,
+      "outbreak": 0,
+      "by_region": {
+        "Asia": 2,
+        "Europe": 12,
+        "Africa": 1
+      },
+      "generated": "2026-11-28T08:11:42Z"
     },
     {
       "date": "2026-11-25",
       "url": "daily/2026-11-25.html",
-      "total": 7,
+      "total": 9,
       "tier1": 6,
       "outbreak": 0,
       "by_region": {
-        "Europe": 7
+        "Europe": 9
       },
-      "generated": "2026-11-27T08:11:47Z"
+      "generated": "2026-11-28T08:11:44Z"
     },
     {
       "date": "2026-11-24",
@@ -36,7 +48,7 @@
         "Unknown": 1,
         "North America": 2
       },
-      "generated": "2026-11-27T08:11:49Z"
+      "generated": "2026-11-28T08:11:46Z"
     },
     {
       "date": "2026-11-23",
@@ -48,7 +60,7 @@
         "Europe": 13,
         "North America": 4
       },
-      "generated": "2026-11-27T08:11:51Z"
+      "generated": "2026-11-28T08:11:48Z"
     },
     {
       "date": "2026-11-22",
@@ -57,7 +69,7 @@
       "tier1": 0,
       "outbreak": 0,
       "by_region": {},
-      "generated": "2026-11-27T08:11:53Z"
+      "generated": "2026-11-28T08:11:50Z"
     },
     {
       "date": "2026-11-21",
@@ -68,21 +80,7 @@
       "by_region": {
         "Europe": 2
       },
-      "generated": "2026-11-27T08:11:55Z"
-    },
-    {
-      "date": "2026-11-20",
-      "url": "daily/2026-11-20.html",
-      "total": 18,
-      "tier1": 8,
-      "outbreak": 0,
-      "by_region": {
-        "Europe": 11,
-        "Unknown": 2,
-        "Asia": 4,
-        "North America": 1
-      },
-      "generated": "2026-11-27T08:11:57Z"
+      "generated": "2026-11-28T08:11:52Z"
     }
   ]
 }
